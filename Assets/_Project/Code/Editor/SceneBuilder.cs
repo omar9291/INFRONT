@@ -5,7 +5,9 @@ using Unity.Netcode.Components;
 using Unity.Netcode.Transports.UTP;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Infront.EditorTools
 {
@@ -24,6 +26,9 @@ namespace Infront.EditorTools
         const string PlayerPrefabPath = PrefabDir + "/Player.prefab";
         const string DummyPrefabPath = PrefabDir + "/TargetDummy.prefab";
         const string WeaponStatsPath = SettingsDir + "/Sturmgewehr.asset";
+        const string BotWeaponStatsPath = SettingsDir + "/Bot_Sturmgewehr.asset";
+        const string BotStatsPath = SettingsDir + "/Bot_Standard.asset";
+        const string BotPrefabPath = PrefabDir + "/Bot.prefab";
         const string ScenePath = SceneDir + "/Arena.unity";
 
         [MenuItem("Infront/Setup/2 - Arena und Spieler bauen")]
@@ -34,10 +39,13 @@ namespace Infront.EditorTools
             Directory.CreateDirectory(SettingsDir);
             AssetDatabase.Refresh();
 
-            WeaponStats weapon = CreateWeaponStats();
+            WeaponStats weapon = CreateWeaponStats(WeaponStatsPath, "Sturmgewehr", 18);
+            WeaponStats botWeapon = CreateWeaponStats(BotWeaponStatsPath, "Bot-Sturmgewehr", 12);
+            BotStats botStats = CreateBotStats();
             GameObject playerPrefab = BuildPlayerPrefab(weapon);
             GameObject dummyPrefab = BuildDummyPrefab();
-            BuildArenaScene(playerPrefab, dummyPrefab);
+            GameObject botPrefab = BuildBotPrefab(botWeapon, botStats);
+            BuildArenaScene(playerPrefab, dummyPrefab, botPrefab);
 
             Debug.Log("SCENE_BUILD_OK");
         }
@@ -50,19 +58,32 @@ namespace Infront.EditorTools
             Debug.Log("FULL_SETUP_OK");
         }
 
-        static WeaponStats CreateWeaponStats()
+        static WeaponStats CreateWeaponStats(string path, string name, int damage)
         {
-            var stats = AssetDatabase.LoadAssetAtPath<WeaponStats>(WeaponStatsPath);
+            var stats = AssetDatabase.LoadAssetAtPath<WeaponStats>(path);
             if (stats == null)
             {
                 stats = ScriptableObject.CreateInstance<WeaponStats>();
-                stats.DisplayName = "Sturmgewehr";
-                stats.Damage = 18;
                 stats.FireRate = 9f;
                 stats.MagazineSize = 30;
                 stats.ReloadTime = 2f;
                 stats.Range = 200f;
-                AssetDatabase.CreateAsset(stats, WeaponStatsPath);
+                AssetDatabase.CreateAsset(stats, path);
+            }
+            stats.DisplayName = name;
+            stats.Damage = damage;
+            EditorUtility.SetDirty(stats);
+            AssetDatabase.SaveAssets();
+            return stats;
+        }
+
+        static BotStats CreateBotStats()
+        {
+            var stats = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsPath);
+            if (stats == null)
+            {
+                stats = ScriptableObject.CreateInstance<BotStats>();
+                AssetDatabase.CreateAsset(stats, BotStatsPath);
                 AssetDatabase.SaveAssets();
             }
             return stats;
@@ -192,7 +213,82 @@ namespace Infront.EditorTools
             return prefab;
         }
 
-        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab)
+        static GameObject BuildBotPrefab(WeaponStats weapon, BotStats botStats)
+        {
+            var root = new GameObject("Bot");
+            root.AddComponent<NetworkObject>();
+
+            var health = root.AddComponent<Health>();
+
+            var netTransform = root.AddComponent<NetworkTransform>();
+            netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
+            netTransform.SyncScaleX = netTransform.SyncScaleY = netTransform.SyncScaleZ = false;
+            netTransform.Interpolate = true;
+
+            var agent = root.AddComponent<NavMeshAgent>();
+            agent.radius = 0.4f;
+            agent.height = 1.8f;
+            agent.baseOffset = 0f;
+            agent.speed = botStats.MoveSpeed;
+            agent.angularSpeed = 360f;
+            agent.acceleration = 20f;
+            agent.stoppingDistance = 0.2f;
+            agent.autoBraking = true;
+
+            // Sichtbarer Koerper MIT Collider (muss getroffen werden koennen)
+            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            body.name = "Body";
+            body.transform.SetParent(root.transform, false);
+            body.transform.localPosition = new Vector3(0f, 1f, 0f);
+
+            var eyes = new GameObject("Eyes");
+            eyes.transform.SetParent(root.transform, false);
+            eyes.transform.localPosition = new Vector3(0f, 1.6f, 0f);
+
+            var muzzle = new GameObject("Muzzle");
+            muzzle.transform.SetParent(eyes.transform, false);
+            muzzle.transform.localPosition = new Vector3(0.2f, -0.1f, 0.5f);
+
+            var weaponComponent = root.AddComponent<NetworkWeapon>();
+            var brain = root.AddComponent<BotBrain>();
+            var lifecycle = root.AddComponent<BotLifecycle>();
+
+            var soWeapon = new SerializedObject(weaponComponent);
+            soWeapon.FindProperty("_stats").objectReferenceValue = weapon;
+            soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
+            soWeapon.ApplyModifiedPropertiesWithoutUndo();
+
+            var soBrain = new SerializedObject(brain);
+            soBrain.FindProperty("_stats").objectReferenceValue = botStats;
+            soBrain.FindProperty("_eyes").objectReferenceValue = eyes.transform;
+            soBrain.ApplyModifiedPropertiesWithoutUndo();
+
+            var soHealth = new SerializedObject(health);
+            soHealth.FindProperty("_maxHealth").intValue = 100;
+            soHealth.ApplyModifiedPropertiesWithoutUndo();
+
+            var soLife = new SerializedObject(lifecycle);
+            var hide = soLife.FindProperty("_hideOnDeath");
+            hide.arraySize = 1;
+            hide.GetArrayElementAtIndex(0).objectReferenceValue = body;
+            soLife.ApplyModifiedPropertiesWithoutUndo();
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, BotPrefabPath, out bool ok);
+            Object.DestroyImmediate(root);
+
+            if (!ok || prefab == null)
+            {
+                Debug.LogError("[Infront] Bot-Prefab konnte nicht gespeichert werden.");
+                return null;
+            }
+
+            AssetDatabase.ImportAsset(BotPrefabPath, ImportAssetOptions.ForceUpdate);
+            prefab = AssetDatabase.LoadAssetAtPath<GameObject>(BotPrefabPath);
+            Debug.Log("[Infront] Bot-Prefab bereit.");
+            return prefab;
+        }
+
+        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab, GameObject botPrefab)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
@@ -207,6 +303,14 @@ namespace Infront.EditorTools
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground";
             ground.transform.localScale = new Vector3(6f, 1f, 6f);
+
+            // NavMesh-Flaeche: wird zur Laufzeit gebacken (NavMeshBaker)
+            var navGo = new GameObject("Navigation");
+            var surface = navGo.AddComponent<NavMeshSurface>();
+            surface.collectObjects = CollectObjects.All;
+            surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+            surface.layerMask = ~0;
+            navGo.AddComponent<NavMeshBaker>();
 
             var rng = new System.Random(12345);
             var boxParent = new GameObject("Boxes").transform;
@@ -258,6 +362,8 @@ namespace Infront.EditorTools
             nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = playerPrefab });
             if (dummyPrefab != null)
                 nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = dummyPrefab });
+            if (botPrefab != null)
+                nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = botPrefab });
 
             nmGo.AddComponent<MatchBootstrap>();
 
@@ -267,7 +373,21 @@ namespace Infront.EditorTools
             {
                 var soSpawner = new SerializedObject(spawner);
                 soSpawner.FindProperty("_dummyPrefab").objectReferenceValue = dummyPrefab.GetComponent<NetworkObject>();
+                var positions = soSpawner.FindProperty("_positions");
+                positions.arraySize = 1;
+                positions.GetArrayElementAtIndex(0).vector3Value = new Vector3(0f, 1f, 16f);
                 soSpawner.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            // Bots
+            var botSpawnerGo = new GameObject("BotSpawner");
+            var botSpawner = botSpawnerGo.AddComponent<BotSpawner>();
+            if (botPrefab != null)
+            {
+                var soBot = new SerializedObject(botSpawner);
+                soBot.FindProperty("_botPrefab").objectReferenceValue = botPrefab.GetComponent<NetworkObject>();
+                soBot.FindProperty("_count").intValue = 3;
+                soBot.ApplyModifiedPropertiesWithoutUndo();
             }
 
             EditorUtility.SetDirty(nm);

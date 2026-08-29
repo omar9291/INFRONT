@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
+  m_Name: Bot_Sturmgewehr
+  m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
+  DisplayName: Bot-Sturmgewehr
+  Damage: 12
+  FireRate: 9
+  MagazineSize: 30
+  ReloadTime: 2
+  Range: 200
