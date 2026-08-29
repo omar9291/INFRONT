@@ -31,6 +31,13 @@ namespace Infront.EditorTools
             PlayerSettings.runInBackground = true;
             PlayerSettings.productName = "INFRONT";
 
+            // Kein Retina: sonst rendert ein 1280x720-Fenster in 2560x1440+
+            // und die Bildrate bricht auf dem Basis-M1 ein.
+            PlayerSettings.macRetinaSupport = false;
+
+            // VSync fix an (gegen zerrissenes Bild)
+            QualitySettings.vSyncCount = 1;
+
             string[] scenes = EditorBuildSettings.scenes
                 .Where(s => s.enabled)
                 .Select(s => s.path)
