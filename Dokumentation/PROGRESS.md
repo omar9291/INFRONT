@@ -7,90 +7,89 @@ Letzte Aktualisierung: 2026-08-29
 
 ## Aktueller Stand
 
-Phase 3 (Bot-Gegner) ist abgeschlossen und getestet.
-Wartet auf Go fuer Phase 4 (Team-Deathmatch-Regeln).
+Phase 4 (Team-Deathmatch-Regeln) ist abgeschlossen und getestet.
+Damit ist die V1-Kernschleife komplett: bewegen -> zielen -> schiessen ->
+treffen -> sterben -> respawnen, in einem 3-gegen-3 mit Bots, mit
+Punktestand und Rundenende.
+
+Wartet auf Go fuer Phase 5 (Spielbar machen: Menue -> Runde -> Ende ->
+zurueck ins Menue, alles ohne Absturz durchspielbar).
 
 ## Was fertig ist
 
-### Phase 0 - Grundgeruest
-Diagnose, Engine-Wechsel Unreal->Unity, Speicher 5->15 GB, Projekt,
-Ordnerstruktur, Git, Doku.
+### Phase 0-3 (Kurzfassung)
+Grundgeruest, server-autoritative Bewegung, Zielen, Sturmgewehr (Hitscan),
+Schaden/Tod/Respawn, Trainings-Dummy, Bot-Gegner mit Zustandsautomat und
+NavMesh.
 
-### Phase 1 - Bewegung
-Pakete (URP, Netcode 2.13.2, Input System). Server-autoritativer Charakter:
-Laufen/Sprinten/Springen. Schulterkamera. Arena per Code.
+### Phase 4 - Team-Deathmatch
+- Team als einfache Zahl (Team.Alpha/Bravo). TeamMember-Bauteil an Spieler
+  und Bot, Team als server-geschriebene NetworkVariable.
+- Combatants: Verzeichnis aller Kaempfer. Bots holen ihre Gegner hier.
+- Kein Freundschaftsbeschuss: Kugeln fliegen durch Verbuendete hindurch;
+  Bots zielen nur auf das Gegner-Team.
+- MatchManager: Punktestand/Phase/Endzeit als server-geschriebene
+  NetworkVariables. +1 pro Abschuss ans Team des Schuetzen. Rundenende bei
+  25 Punkten oder nach 8 Minuten. Danach Sieger + sauberer Neustart
+  (Punkte zurueck, alle wiederbelebt und an Team-Spawns, Magazine voll).
+- Restzeit wird nicht laufend gesendet - Server nennt die Endzeit einmal.
+- MatchDirector: teilt den Spieler ins kleinere Team, fuellt beide Teams
+  mit Bots auf 3 auf, erzeugt danach den MatchManager. (Loest BotSpawner ab.)
+- MatchHud: PLATZHALTER. Reiner IMGUI-Text (Leben, Munition, Punkte,
+  Restzeit, Sieger-Banner). Kein Grafik-/Schriftart-Asset. Das echte HUD
+  kommt in "Spaeter - Stufe 4" mit der uebrigen Grafik. Siehe SCOPE.md.
+- 4 Team-Spawns (2 pro Team, gegenueberliegende Enden).
+- IDamageable: zweite ApplyDamage-Ueberladung mit Verursacher; die alte
+  bleibt gueltig -> alle Alt-Tests unveraendert.
 
-### Phase 2 - Schiessen & Schaden
-Zielen hoch/runter. Health-Bauteil (server-geschriebene NetworkVariables).
-Sturmgewehr als Hitscan, server-autoritativ, Magazin/Nachladen. Schussspur.
-Tod + Respawn (ausblenden statt loeschen). Trainings-Dummy.
-
-### Phase 3 - Bot-Gegner
-- IAimSource: Spieler und Bot liefern der Waffe Ursprung/Richtung. Die
-  Waffe (NetworkWeapon) hat jetzt einen server-Feuerpfad (ServerTryFire),
-  den der Bot direkt nutzt - kein RPC an sich selbst.
-- NavMeshBaker: baeckt die Arena beim Host-Start zur Laufzeit. Kein
-  Handklick. Funktioniert headless.
-- BotBrain (nur Server): Zustandsautomat Patrol -> Chase -> Combat -> Search.
-  Sichtlinien-Wahrnehmung, auf 10 Pruefungen/Sekunde gedrosselt.
-  Kurzzeitgedaechtnis (laeuft zur letzten bekannten Stelle). Zielt mit
-  Streuung (AimSpread) und Reaktionszeit. Bewegung per NavMeshAgent.
-- BotLifecycle: Tod/Respawn wie beim Spieler.
-- BotStats-Asset: Schwierigkeitsstufen sind spaeter neue Assets, kein Code.
-- Bot-Waffe schwaecher (12 statt 18 Schaden).
-- Altlast aus Phase 1/2 erledigt: CharacterController auf Nicht-Server-
-  Instanzen ist jetzt aus.
-- Arena: 3 Bots, 1 Dummy, 4 SpawnPoints.
-
-## Tests (headless PlayMode) - 13 von 13 gruen (2026-08-29)
+## Tests (headless PlayMode) - 17 von 17 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
-Bewegung (2), Schaden/Waffe (6), Bots (5):
-- NavMesh_wird_zur_Laufzeit_gebacken
-- Bot_spawnt_und_steht_auf_dem_NavMesh
-- Bot_entdeckt_und_verfolgt_den_Spieler
-- Bot_schiesst_auf_den_Spieler
-- Bot_stirbt_und_respawnt
+Bewegung (2), Schaden/Waffe (6), Bots (5), Teams (4):
+- Spieler_und_Bots_haben_Teams
+- Abschuss_gibt_dem_Schuetzen_Team_einen_Punkt
+- Kein_Freundschaftsbeschuss_Kugel_fliegt_durch_Verbuendete
+- Runde_endet_bei_Punktelimit_und_startet_neu
+
+Der Bewegungs- und der Bot-Schiesstest legen jetzt zuerst die anderen Bots
+still, weil sonst das laufende Gefecht den Test stoert.
 
 Nicht automatisiert geprueft (auf diesem Mac nicht moeglich):
-Aussehen, Kamera-/Schiessgefuehl, wie "clever" die Bots wirken, Framerate.
+Aussehen, HUD-Lesbarkeit, Kampf-/Rundengefuehl, Framerate mit 5 Bots.
 
 ## Bekannte offene Probleme / Risiken
 
-- Lag-Kompensation fehlt (bewusst, im Host-Modus irrelevant). Vorbereitet
-  ueber clientRenderTime-Feld. Plan in NETCODE.md. Erst Stufe 3 noetig.
-- Treffer-Kollision ist die Kapsel (CharacterController bzw. Body-Capsule),
-  keine echten Hitboxen (Kopf/Koerper).
-- Bots und Spieler sind noch teamlos - jeder trifft jeden. Teams kommen in
-  Phase 4. Aktuell koennen Bots sich theoretisch gegenseitig treffen
-  (Raycast unterscheidet nur "lebendes IDamageable"). In Phase 4 ueber
-  Team-Pruefung ausschliessen.
-- Bot-Wahrnehmung sucht nur echte Spieler (ConnectedClients), keine anderen
-  Bots. Fuer Phase 4 (Bot-vs-Bot-Teams) erweitern.
-- NavMesh wird bei jedem Host-Start neu gebacken (~0,3 s). Ok fuer die
-  kleine Arena; bei grossen Karten spaeter cachen.
+- HUD ist ein Platzhalter (s.o.). Nicht mit "fertig" verwechseln.
+- Bildrate mit 5 Bots (3v3) auf dem M1 mit 8 GB ist ungemessen. Wenn es
+  ruckelt: Teamgroesse in MatchDirector runter, Wahrnehmung ist schon
+  gedrosselt.
+- Lag-Kompensation fehlt (bewusst, im Host-Modus egal). Plan in NETCODE.md.
+- Rundenneustart per Test (2 Runden am Stueck) gruen - aber nur headless
+  geprueft, nicht optisch.
+- Treffer weiterhin ueber die Kapsel, keine Kopf-/Koerper-Hitboxen.
+- Combatants/SpawnService/MatchManager.Instance sind statisch. In den Tests
+  sauber (TearDown schaltet alles ab), aber bei einem Editor-Domain-Reload-
+  Wechsel im Blick behalten.
 - Speicher: 11 GB frei, Projekt 1,7 GB.
 
 ## Naechster geplanter Schritt
 
-Phase 4: Team-Deathmatch-Regeln.
+Phase 5: Spielbar machen.
 Definition of Done (Vorschlag, vor Start bestaetigen):
-- Zwei Teams. Spieler und Bots gehoeren einem Team an (w's einstellbar).
-- Kein Freundschaftsbeschuss: Raycast und Bot-Wahrnehmung ignorieren das
-  eigene Team.
-- Punktezaehler pro Team als server-geschriebene NetworkVariable, +1 pro
-  Abschuss.
-- Rundenende bei Punktelimit oder Zeitlimit; danach Sieger anzeigen und
-  Runde neu starten.
-- Bots fuellen die Teams auf die gewaehlte Groesse auf.
-- Minimal-HUD: Leben, Munition, Punktestand beider Teams.
-- PlayMode-Tests: Abschuss gibt dem richtigen Team einen Punkt; kein
-  Freundschaftsbeschuss; Runde endet bei Limit.
+- Startmenue (Platzhalter-IMGUI): "Runde starten", "Beenden".
+- Menue -> Arena -> Runde spielen -> Rundenende-Bildschirm -> zurueck ins
+  Menue, ohne Absturz, mehrfach hintereinander.
+- Host wird erst aus dem Menue gestartet, nicht mehr automatisch beim
+  Szenenstart (MatchBootstrap/Auto-Host anpassen).
+- Maus-Sichtbarkeit/-Sperre: im Menue frei, im Spiel gefangen.
+- Ein "Neustart"- und ein "Zurueck zum Menue"-Weg, die alles sauber
+  abbauen (NetworkManager.Shutdown, Szene neu laden).
+- PlayMode-Test: kompletter Durchlauf Menue -> Runde -> Menue -> Runde.
 
 ## Sitzungsprotokoll
 
 ### 2026-08-29 (Sitzung 1)
-Phasen 0-3 komplett. Grundgeruest, server-autoritative Bewegung, Zielen,
-Sturmgewehr mit Hitscan, Schaden/Tod/Respawn, Trainings-Dummy,
-Bot-Gegner mit Zustandsautomat und NavMesh. 13 PlayMode-Tests gruen.
+Phasen 0-4 komplett an einem Tag. Grundgeruest bis Team-Deathmatch mit
+Bots, Punktestand und Rundenende. 17 PlayMode-Tests gruen. V1-Kernschleife
+steht.
