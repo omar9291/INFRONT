@@ -72,20 +72,30 @@ namespace Infront.Tests
             NetworkPlayerController player = null;
             yield return StartHostAndGetPlayer(p => player = p);
 
-            var input = new FakePlayerInput { Move = new Vector2(0f, 1f), LookYaw = 0f };
-            player.SetInputSource(input);
+            // Warten, bis der MatchManager die Startaufstellung erledigt hat,
+            // dann alle Bots stilllegen - dieser Test prueft nur die Bewegung,
+            // kein Gefecht.
+            float w = 0f;
+            while (Infront.MatchManager.Instance == null && w < 5f) { w += Time.deltaTime; yield return null; }
+            for (int i = 0; i < 40; i++) yield return new WaitForFixedUpdate();
+            foreach (var brain in Object.FindObjectsByType<Infront.BotBrain>(FindObjectsSortMode.None))
+                brain.SetActive(false);
+            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
 
-            // Auf echte Physik-Ticks warten, nicht auf Frames: headless rasen die
-            // Frames durch, ohne dass FixedUpdate (die Server-Simulation) tickt.
-            for (int i = 0; i < 25; i++) yield return new WaitForFixedUpdate();
+            // Blickrichtung des Spielers als "vorne" nehmen (nicht die Weltachse).
+            float faceYaw = player.transform.eulerAngles.y;
+            var input = new FakePlayerInput { Move = new Vector2(0f, 1f), LookYaw = faceYaw };
+            player.SetInputSource(input);
+            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
 
             Vector3 start = player.transform.position;
+            Vector3 forwardDir = player.transform.forward;
             for (int i = 0; i < 100; i++) yield return new WaitForFixedUpdate();
             Vector3 end = player.transform.position;
 
-            float forward = end.z - start.z;
-            Assert.Greater(forward, 2f,
-                $"Spieler ist nicht nach vorne gelaufen. start={start} end={end} (dz={forward:F2})");
+            float movedForward = Vector3.Dot(end - start, forwardDir);
+            Assert.Greater(movedForward, 2f,
+                $"Spieler ist nicht in Blickrichtung gelaufen. start={start} end={end} (vor={movedForward:F2})");
         }
     }
 }

@@ -139,8 +139,24 @@ namespace Infront.Tests
 
             NetworkPlayerController player = null;
             yield return WaitFor<NetworkPlayerController>(p => player = p);
+
+            // Warten, bis Teams zugeteilt sind, dann einen GEGNER-Bot nehmen
+            float w0 = 0f;
+            while (Infront.MatchManager.Instance == null && w0 < 6f) { w0 += Time.deltaTime; yield return null; }
+            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
+
+            int myTeam = player.GetComponent<TeamMember>().TeamId;
+
             BotBrain brain = null;
-            yield return WaitFor<BotBrain>(b => brain = b);
+            foreach (var b in Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
+            {
+                int bt = b.GetComponent<TeamMember>().TeamId;
+                if (bt != myTeam && bt != Team.None && brain == null)
+                    brain = b;
+                else
+                    b.SetActive(false); // nur der eine Gegner-Bot bleibt aktiv
+            }
+            Assert.IsNotNull(brain, "Kein Gegner-Bot gefunden.");
             var botWeapon = brain.GetComponent<NetworkWeapon>();
 
             var agent = brain.GetComponent<NavMeshAgent>();
@@ -154,15 +170,14 @@ namespace Infront.Tests
             brain.transform.LookAt(player.transform.position);
 
             int ammoBefore = botWeapon.Ammo;
-            int playerHpBefore = player.GetComponent<Health>().Current;
+            var playerHp = player.GetComponent<Health>();
+            int playerHpBefore = playerHp.Current;
 
             for (int i = 0; i < 6; i++) yield return new WaitForSeconds(0.5f);
 
-            bool botFired = botWeapon.Ammo < ammoBefore;
-            bool playerHurt = player.GetComponent<Health>().Current < playerHpBefore;
-
-            Assert.IsTrue(botFired, "Der Bot hat nicht geschossen.");
-            Assert.IsTrue(playerHurt, "Der Spieler hat keinen Bot-Schaden genommen.");
+            Assert.Less(botWeapon.Ammo, ammoBefore, "Der Bot hat nicht geschossen.");
+            Assert.IsTrue(playerHp.Current < playerHpBefore || !playerHp.IsAlive,
+                "Der Spieler hat keinen Bot-Schaden genommen.");
         }
 
         [UnityTest]
