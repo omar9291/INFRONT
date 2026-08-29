@@ -7,51 +7,49 @@ namespace Infront
     /// <summary>
     /// Server-autoritative Waffe (Hitscan / Soforttreffer).
     ///
-    ///  - Der Client haelt die Feuertaste. Jeder faellige Schuss schickt eine
-    ///    Anfrage (FireRpc) an den Server. Der Client rechnet NICHT selbst,
-    ///    ob getroffen wurde.
-    ///  - Der Server prueft Feuerrate, Munition und Nachlade-Status, macht den
-    ///    Raycast von seinem eigenen Ziel-Drehpunkt aus und zieht Schaden ab.
-    ///  - Munition und Nachlade-Status sind NetworkVariables, die nur der
-    ///    Server schreibt.
-    ///  - Die Schussspur wird per ClientRpc an alle geschickt (nur Optik).
+    ///  - Der Spieler-Client haelt die Feuertaste; jeder faellige Schuss schickt
+    ///    eine Anfrage (FireRpc) an den Server.
+    ///  - Ein Bot laeuft schon auf dem Server und ruft direkt ServerTryFire() auf.
+    ///  - Der Server prueft Feuerrate, Munition und Nachladen, macht den Raycast
+    ///    ueber die IAimSource und zieht Schaden ab.
+    ///  - Munition und Nachlade-Status sind NetworkVariables (nur Server schreibt).
+    ///  - Die Schussspur geht per Rpc an alle (nur Optik).
     ///
-    /// Der Parameter clientRenderTime ist fuer spaetere Lag-Kompensation
-    /// vorgesehen (siehe NETCODE.md) und wird jetzt noch nicht ausgewertet.
+    /// clientRenderTime ist fuer spaetere Lag-Kompensation vorgesehen
+    /// (siehe NETCODE.md) und wird jetzt noch nicht ausgewertet.
     /// </summary>
-    [RequireComponent(typeof(NetworkPlayerController))]
     public sealed class NetworkWeapon : NetworkBehaviour
     {
         [SerializeField] WeaponStats _stats;
         [SerializeField] Transform _muzzle;
         [SerializeField] LayerMask _hitMask = ~0;
 
-        NetworkPlayerController _controller;
+        IAimSource _aim;
+        NetworkPlayerController _playerController;
 
         readonly NetworkVariable<int> _ammo = new(
             0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<bool> _reloading = new(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-        // Nur Server
         double _nextFireTime;
         double _reloadFinishTime;
+        double _clientNextFire;
 
         public int Ammo => _ammo.Value;
         public bool IsReloading => _reloading.Value;
         public int MagazineSize => _stats != null ? _stats.MagazineSize : 0;
         public WeaponStats Stats => _stats;
 
-        /// <summary>Alle Clients: (Ursprung, Endpunkt) einer abgegebenen Schussspur.</summary>
         public event Action<Vector3, Vector3> FireVisual;
-        /// <summary>Server: ein Schuss hat getroffen. (getroffenes Objekt, Schaden).</summary>
         public event Action<GameObject, int> ServerHitConfirmed;
 
         double ServerNow => NetworkManager.ServerTime.Time;
 
         void Awake()
         {
-            _controller = GetComponent<NetworkPlayerController>();
+            _aim = GetComponent<IAimSource>();
+            _playerController = GetComponent<NetworkPlayerController>();
         }
 
         public override void OnNetworkSpawn()
@@ -65,22 +63,25 @@ namespace Infront
 
         void Update()
         {
-            if (!IsOwner || _controller == null || _controller.Input == null)
+            if (_playerController == null || !IsOwner || _playerController.Input == null)
                 return;
 
-            var input = _controller.Input;
+            var input = _playerController.Input;
 
             if (input.ReloadPressed)
                 RequestReloadRpc();
 
-            if (input.FireHeld && CanClientTryFire())
+            if (input.FireHeld && ClientReadyToTry())
                 FireRpc(ServerNow);
         }
 
-        // Der Client drosselt grob mit, damit nicht jeder Frame eine RPC rausgeht.
-        // Die echte Pruefung macht trotzdem der Server.
-        double _clientNextFire;
-        bool CanClientTryFire()
+        void LateUpdate()
+        {
+            if (IsServer)
+                TickReload();
+        }
+
+        bool ClientReadyToTry()
         {
             if (_stats == null) return false;
             double now = Time.timeAsDouble;
@@ -89,7 +90,7 @@ namespace Infront
             return true;
         }
 
-        void Server_TickReload()
+        void TickReload()
         {
             if (_reloading.Value && ServerNow >= _reloadFinishTime)
             {
@@ -98,16 +99,19 @@ namespace Infront
             }
         }
 
-        void LateUpdate()
+        /// <summary>Nur Server (z.B. vom Bot aufgerufen). Gibt zurueck, ob geschossen wurde.</summary>
+        public bool ServerTryFire()
         {
-            if (IsServer)
-                Server_TickReload();
+            return IsServer && DoFire(ServerNow);
         }
 
         [Rpc(SendTo.Server)]
-        void RequestReloadRpc()
+        void RequestReloadRpc() => ServerStartReload();
+
+        /// <summary>Nur Server. Auch vom Bot nutzbar.</summary>
+        public void ServerStartReload()
         {
-            if (_stats == null || _reloading.Value)
+            if (!IsServer || _stats == null || _reloading.Value)
                 return;
             if (_ammo.Value >= _stats.MagazineSize)
                 return;
@@ -119,19 +123,26 @@ namespace Infront
         [Rpc(SendTo.Server)]
         void FireRpc(double clientRenderTime)
         {
-            if (_stats == null || _reloading.Value)
-                return;
+            DoFire(clientRenderTime);
+        }
+
+        bool DoFire(double clientRenderTime)
+        {
+            if (_stats == null || _aim == null || _reloading.Value)
+                return false;
             if (ServerNow < _nextFireTime)
-                return;
+                return false;
             if (_ammo.Value <= 0)
-                return;
+            {
+                ServerStartReload();
+                return false;
+            }
 
             _nextFireTime = ServerNow + _stats.ShotInterval;
             _ammo.Value -= 1;
 
-            Transform aim = _controller.AimPivot != null ? _controller.AimPivot : transform;
-            Vector3 origin = _muzzle != null ? _muzzle.position : aim.position;
-            Vector3 direction = aim.forward;
+            Vector3 origin = _muzzle != null ? _muzzle.position : _aim.AimOrigin;
+            Vector3 direction = _aim.AimDirection;
             Vector3 endPoint = origin + direction * _stats.Range;
 
             var hits = Physics.RaycastAll(origin, direction, _stats.Range, _hitMask, QueryTriggerInteraction.Ignore);
@@ -139,10 +150,9 @@ namespace Infront
 
             foreach (var hit in hits)
             {
-                // Eigene Kollider (CharacterController des Schuetzen) ueberspringen
                 var hitObject = hit.collider.GetComponentInParent<NetworkObject>();
                 if (hitObject != null && hitObject == NetworkObject)
-                    continue;
+                    continue; // eigene Kollider ueberspringen
 
                 endPoint = hit.point;
 
@@ -152,10 +162,11 @@ namespace Infront
                     damageable.ApplyDamage(_stats.Damage, OwnerClientId);
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, _stats.Damage);
                 }
-                break; // erster gueltiger Treffer stoppt die Kugel
+                break;
             }
 
             ShowFireEffectRpc(origin, endPoint);
+            return true;
         }
 
         [Rpc(SendTo.Everyone)]

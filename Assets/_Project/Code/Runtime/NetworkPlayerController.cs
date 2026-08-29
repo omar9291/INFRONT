@@ -16,7 +16,7 @@ namespace Infront
     ///    andere Clients sehen, wohin gezielt wird.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public sealed class NetworkPlayerController : NetworkBehaviour
+    public sealed class NetworkPlayerController : NetworkBehaviour, IAimSource
     {
         [Header("Bewegung")]
         [SerializeField] float _walkSpeed = 6f;
@@ -55,6 +55,10 @@ namespace Infront
         /// <summary>Ursprung und Richtung fuer Schuesse. Vom Server geneigt.</summary>
         public Transform AimPivot => _aimPivot;
 
+        // IAimSource: die Waffe holt sich hier Ursprung und Richtung
+        public Vector3 AimOrigin => _aimPivot != null ? _aimPivot.position : transform.position + Vector3.up * 1.6f;
+        public Vector3 AimDirection => _aimPivot != null ? _aimPivot.forward : transform.forward;
+
         void Awake()
         {
             _controller = GetComponent<CharacterController>();
@@ -73,6 +77,8 @@ namespace Infront
 
             if (IsServer)
                 _verticalVelocity = 0f;
+            else
+                _controller.enabled = false; // nur der Server simuliert Bewegung
         }
 
         /// <summary>Setzt eine andere Eingabequelle. Wird von PlayMode-Tests genutzt.</summary>
