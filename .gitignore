@@ -48,3 +48,4 @@ crashlytics-build.properties
 /.idea/
 Packages/manifest.json.bak
 mono_crash*.json
+/Screenshots/
