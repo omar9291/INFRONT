@@ -3,11 +3,20 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-08-29
+Letzte Aktualisierung: 2026-08-29 (Phase 5)
 
 ## Aktueller Stand
 
-Phase 4 (Team-Deathmatch-Regeln) ist abgeschlossen und getestet.
+Phase 5 (Spielbar machen) ist abgeschlossen. Die V1-Kernschleife ist
+KOMPLETT: Startmenue -> Runde (First Person, 3v3 mit Bots, Punktestand,
+Rundenende) -> zurueck ins Menue, mehrfach ohne Absturz.
+
+Damit sind alle 5 Kern-Phasen aus SCOPE.md fertig. Was noch offen ist,
+steht in SCOPE.md unter "Spaeter".
+
+### Bisheriger Stand (vor Phase 5)
+
+Phase 4 (Team-Deathmatch-Regeln) war abgeschlossen und getestet.
 Damit ist die V1-Kernschleife komplett: bewegen -> zielen -> schiessen ->
 treffen -> sterben -> respawnen, in einem 3-gegen-3 mit Bots, mit
 Punktestand und Rundenende.
@@ -42,7 +51,21 @@ NavMesh.
 - IDamageable: zweite ApplyDamage-Ueberladung mit Verursacher; die alte
   bleibt gueltig -> alle Alt-Tests unveraendert.
 
-## Tests (headless PlayMode) - 17 von 17 gruen (2026-08-29)
+### Phase 5 - Spielbar machen
+- GameFlow: eine Stelle fuer Netzwerk-Abbau + Szenenwechsel. Behebt das
+  "zwei NetworkManager beim zweiten Durchlauf"-Problem.
+- Startmenue (Menu.unity, kein Netzwerk): Runde starten, Beenden,
+  Teamgroesse 2-5, Bot-Schwierigkeit Leicht/Normal/Schwer, Maus-
+  Empfindlichkeit. Einstellungen per PlayerPrefs dauerhaft.
+- Rundenende: "Sofort weiter" / "Zurueck zum Menue". Automatischer
+  Weiterlauf nach 6 s bleibt.
+- CursorController: Maus gefangen nur im laufenden Spiel.
+- First-Person-Umbau (davor): FirstPersonCamera, eigener Koerper
+  unsichtbar, Platzhalter-Waffe, Fadenkreuz, Trefferstrahl aus Augenmitte.
+- Grafik-Fixes (davor): HDR aus, Adaptive Performance aus (war die Ursache
+  der senkrechten Streifen auf dem M1), Aufloesung 1440x900, VSync an.
+
+## Tests (headless PlayMode) - 19 von 19 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
