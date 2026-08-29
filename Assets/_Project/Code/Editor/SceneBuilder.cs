@@ -159,6 +159,7 @@ namespace Infront.EditorTools
 
             var weaponComponent = root.AddComponent<NetworkWeapon>();
             root.AddComponent<TracerEffect>();
+            root.AddComponent<DamageFeedback>();
             var lifecycle = root.AddComponent<PlayerLifecycle>();
 
             // Referenzen per SerializedObject setzen (private [SerializeField])
@@ -281,6 +282,7 @@ namespace Infront.EditorTools
             muzzle.transform.localPosition = new Vector3(0.2f, -0.1f, 0.5f);
 
             var weaponComponent = root.AddComponent<NetworkWeapon>();
+            root.AddComponent<TracerEffect>();
             var brain = root.AddComponent<BotBrain>();
             var lifecycle = root.AddComponent<BotLifecycle>();
 

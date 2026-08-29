@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5510249712897941437}
   - component: {fileID: 7311728777969248716}
   - component: {fileID: 1592720873319782779}
+  - component: {fileID: 1401953706404023270}
   - component: {fileID: 4474647486833197032}
   - component: {fileID: 4489904422936479355}
   m_Layer: 0
@@ -181,6 +182,22 @@ MonoBehaviour:
   _hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1401953706404023270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2336c4f69c56e438a8115956d1c21e63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.TracerEffect
+  _lifetime: 0.06
+  _width: 0.04
+  _color: {r: 1, g: 0.9, b: 0.5, a: 1}
+  _poolSize: 4
 --- !u!114 &4474647486833197032
 MonoBehaviour:
   m_ObjectHideFlags: 0

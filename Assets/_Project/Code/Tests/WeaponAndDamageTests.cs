@@ -110,6 +110,29 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Toter_Spieler_schiesst_nicht()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            var weapon = player.GetComponent<NetworkWeapon>();
+            var health = player.GetComponent<Health>();
+
+            var input = new FakePlayerInput { LookYaw = 0f };
+            player.SetInputSource(input);
+
+            health.ApplyDamage(9999, NetworkManager.ServerClientId);
+            yield return null;
+            Assert.IsFalse(health.IsAlive);
+
+            int ammoBefore = weapon.Ammo;
+            input.FireHeld = true;
+            for (int i = 0; i < 30; i++) yield return new WaitForFixedUpdate();
+            input.FireHeld = false;
+
+            Assert.AreEqual(ammoBefore, weapon.Ammo, "Ein toter Spieler hat geschossen.");
+        }
+
+        [UnityTest]
         public IEnumerator Feuerrate_begrenzt_die_Schussanzahl()
         {
             NetworkPlayerController player = null;
