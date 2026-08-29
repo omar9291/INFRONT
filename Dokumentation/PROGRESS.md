@@ -65,7 +65,19 @@ NavMesh.
 - Grafik-Fixes (davor): HDR aus, Adaptive Performance aus (war die Ursache
   der senkrechten Streifen auf dem M1), Aufloesung 1440x900, VSync an.
 
-## Tests (headless PlayMode) - 19 von 19 gruen (2026-08-29)
+### Nach dem ersten Playtest (2026-08-29)
+- FIX: Bots hatten gar keine Schussspur (in Phase 3 vergessen). Jetzt ja.
+- FIX: Tote konnten noch schiessen - NetworkWeapon prueft jetzt auch, ob
+  der Schuetze lebt.
+- NEU: DamageFeedback (nur Besitzer) - roter Bildrand in Trefferrichtung
+  (Server schickt Angreiferposition gezielt nur an den Getroffenen),
+  Fadenkreuz blitzt beim eigenen Treffer, Todes-Blende (schwarz) mit
+  Respawn-Countdown.
+- NEU: Health-Bar im HUD (gruen/gelb/rot) statt nur Text.
+- Offen fuer den Nutzer: Timing der Blenden und ob die roten Raender
+  sich richtig anfuehlen - kann ich nicht selbst beurteilen.
+
+## Tests (headless PlayMode) - 20 von 20 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
