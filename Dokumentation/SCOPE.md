@@ -28,7 +28,9 @@ Die Kernschleife: bewegen -> Gegner sehen -> schiessen -> treffen -> sterben -> 
 - [ ] Ein Bot-Typ: sucht den Spieler ueber NavMesh, schiesst, ist besiegbar
 - [ ] Eine kleine Testkarte: graues Blockout, keine Kunst
 - [ ] Team Deathmatch: 2 Teams, Punkte bis zum Limit, Rundenende
-- [ ] Minimal-HUD: Leben, Munition, Punktestand beider Teams
+- [x] Minimal-HUD: Leben, Munition, Punktestand, Restzeit
+      ACHTUNG: bewusst ein PLATZHALTER (reiner IMGUI-Text, keine Grafik).
+      Das richtige HUD kommt in "Spaeter - Stufe 4" mit der Grafik.
 - [ ] Einfaches Menue: Start -> Runde -> Endbildschirm -> zurueck ins Menue
 - [ ] Netzwerk-Fundament server-autoritativ (Host-Modus)
 
