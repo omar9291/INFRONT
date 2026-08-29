@@ -94,15 +94,16 @@ namespace Infront.Tests
             var input = new FakeInput { Move = new Vector2(0f, 1f), LookYaw = 0f };
             player.SetInputSource(input);
 
-            // kurz settlen lassen (Schwerkraft auf den Boden)
-            for (int i = 0; i < 15; i++) yield return null;
+            // Auf echte Physik-Ticks warten, nicht auf Frames: headless rasen die
+            // Frames durch, ohne dass FixedUpdate (die Server-Simulation) tickt.
+            for (int i = 0; i < 25; i++) yield return new WaitForFixedUpdate();
 
             Vector3 start = player.transform.position;
-            for (int i = 0; i < 120; i++) yield return null;
+            for (int i = 0; i < 100; i++) yield return new WaitForFixedUpdate();
             Vector3 end = player.transform.position;
 
             float forward = end.z - start.z;
-            Assert.Greater(forward, 0.5f,
+            Assert.Greater(forward, 2f,
                 $"Spieler ist nicht nach vorne gelaufen. start={start} end={end} (dz={forward:F2})");
         }
     }
