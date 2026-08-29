@@ -27,7 +27,10 @@ namespace Infront.EditorTools
         const string DummyPrefabPath = PrefabDir + "/TargetDummy.prefab";
         const string WeaponStatsPath = SettingsDir + "/Sturmgewehr.asset";
         const string BotWeaponStatsPath = SettingsDir + "/Bot_Sturmgewehr.asset";
-        const string BotStatsPath = SettingsDir + "/Bot_Standard.asset";
+        const string BotStatsPath = SettingsDir + "/Bot_Normal.asset";
+        const string BotStatsEasyPath = SettingsDir + "/Bot_Leicht.asset";
+        const string BotStatsHardPath = SettingsDir + "/Bot_Schwer.asset";
+        const string MenuScenePath = SceneDir + "/Menu.unity";
         const string BotPrefabPath = PrefabDir + "/Bot.prefab";
         const string MatchManagerPrefabPath = PrefabDir + "/MatchManager.prefab";
         const string ScenePath = SceneDir + "/Arena.unity";
@@ -48,6 +51,7 @@ namespace Infront.EditorTools
             GameObject botPrefab = BuildBotPrefab(botWeapon, botStats);
             GameObject matchManagerPrefab = BuildMatchManagerPrefab();
             BuildArenaScene(playerPrefab, dummyPrefab, botPrefab, matchManagerPrefab);
+            BuildMenuScene();
 
             Debug.Log("SCENE_BUILD_OK");
         }
@@ -81,13 +85,28 @@ namespace Infront.EditorTools
 
         static BotStats CreateBotStats()
         {
-            var stats = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsPath);
+            // Normal = Standardwerte des Assets
+            var normal = LoadOrCreateBotStats(BotStatsPath, spread: 5f, reaction: 0.35f, view: 28f);
+            // Leicht: zittriger, langsamere Reaktion, sieht schlechter
+            LoadOrCreateBotStats(BotStatsEasyPath, spread: 9f, reaction: 0.7f, view: 20f);
+            // Schwer: praeziser, schnelle Reaktion, sieht weiter
+            LoadOrCreateBotStats(BotStatsHardPath, spread: 2.5f, reaction: 0.18f, view: 34f);
+            return normal;
+        }
+
+        static BotStats LoadOrCreateBotStats(string path, float spread, float reaction, float view)
+        {
+            var stats = AssetDatabase.LoadAssetAtPath<BotStats>(path);
             if (stats == null)
             {
                 stats = ScriptableObject.CreateInstance<BotStats>();
-                AssetDatabase.CreateAsset(stats, BotStatsPath);
-                AssetDatabase.SaveAssets();
+                AssetDatabase.CreateAsset(stats, path);
             }
+            stats.AimSpread = spread;
+            stats.ReactionTime = reaction;
+            stats.ViewDistance = view;
+            EditorUtility.SetDirty(stats);
+            AssetDatabase.SaveAssets();
             return stats;
         }
 
@@ -300,6 +319,24 @@ namespace Infront.EditorTools
             return prefab;
         }
 
+        static void BuildMenuScene()
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            var camGo = new GameObject("Main Camera");
+            camGo.tag = "MainCamera";
+            var cam = camGo.AddComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.06f, 0.07f, 0.09f);
+            camGo.AddComponent<AudioListener>();
+
+            new GameObject("MainMenu").AddComponent<MainMenu>();
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            bool saved = EditorSceneManager.SaveScene(scene, MenuScenePath);
+            Debug.Log($"[Infront] Menue-Szene gespeichert: {saved} -> {MenuScenePath}");
+        }
+
         static GameObject BuildMatchManagerPrefab()
         {
             var root = new GameObject("MatchManager");
@@ -424,19 +461,27 @@ namespace Infront.EditorTools
             if (matchManagerPrefab != null)
                 soDir.FindProperty("_matchManagerPrefab").objectReferenceValue = matchManagerPrefab.GetComponent<NetworkObject>();
             soDir.FindProperty("_teamSize").intValue = 3;
+            soDir.FindProperty("_statsEasy").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsEasyPath);
+            soDir.FindProperty("_statsNormal").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsPath);
+            soDir.FindProperty("_statsHard").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsHardPath);
             soDir.ApplyModifiedPropertiesWithoutUndo();
 
             var hudGo = new GameObject("HUD");
             hudGo.AddComponent<MatchHud>();
             hudGo.AddComponent<PauseMenu>();
             hudGo.AddComponent<ScreenshotKey>();
+            hudGo.AddComponent<CursorController>();
 
             EditorUtility.SetDirty(nm);
             EditorSceneManager.MarkSceneDirty(scene);
             bool saved = EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"[Infront] Arena gespeichert: {saved} -> {ScenePath}");
 
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+            EditorBuildSettings.scenes = new[]
+            {
+                new EditorBuildSettingsScene(MenuScenePath, true),
+                new EditorBuildSettingsScene(ScenePath, true),
+            };
         }
     }
 }

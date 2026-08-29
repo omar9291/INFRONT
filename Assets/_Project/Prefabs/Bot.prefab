@@ -194,7 +194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.BotBrain
   ShowTopMostFoldoutHeaderGroup: 1
-  _stats: {fileID: 11400000, guid: d771ad15f36ef479b8e235f1eff92a47, type: 2}
+  _stats: {fileID: 11400000, guid: 405bbcd02d67742f9840853fd10f5cd1, type: 2}
   _eyes: {fileID: 7087627662296891718}
   _sightBlockers:
     serializedVersion: 2

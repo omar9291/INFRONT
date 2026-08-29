@@ -29,7 +29,10 @@ Die Kernschleife: bewegen -> Gegner sehen -> schiessen -> treffen -> sterben -> 
 - [ ] Ein Bot-Typ: sucht den Spieler ueber NavMesh, schiesst, ist besiegbar
 - [ ] Eine kleine Testkarte: graues Blockout, keine Kunst
 - [ ] Team Deathmatch: 2 Teams, Punkte bis zum Limit, Rundenende
-- [x] Minimal-HUD: Leben, Munition, Punktestand, Restzeit
+- [x] Startmenue: Runde starten, Beenden, Teamgroesse, Bot-Schwierigkeit,
+      Maus-Empfindlichkeit (Einstellungen bleiben gespeichert)
+- [x] Kreislauf Menue -> Runde -> Rundenende -> Menue, mehrfach ohne Absturz
+- [x] Minimal-HUD: Leben, Munition, Punktestand, Restzeit, Fadenkreuz
       ACHTUNG: bewusst ein PLATZHALTER (reiner IMGUI-Text, keine Grafik).
       Das richtige HUD kommt in "Spaeter - Stufe 4" mit der Grafik.
 - [ ] Einfaches Menue: Start -> Runde -> Endbildschirm -> zurueck ins Menue
@@ -46,7 +49,7 @@ geprueft ist.
 - Klettern
 - Granaten und Gadgets (Fortnite-Stil)
 - Mehrere Waffen + Waffenauswahl
-- Mehrere Bot-Schwierigkeitsstufen, vom Spieler waehlbar
+- (Bot-Schwierigkeit ist seit 2026-08-29 in V1)
 
 ### Spaeter — Stufe 2 (Welt & Fahrzeuge)
 - Fahrbare Fahrzeuge (Autos/Buggys)
@@ -57,7 +60,7 @@ geprueft ist.
 ### Spaeter — Stufe 3 (Online & Live-Betrieb)
 - Echtes Online-Multiplayer ueber das Internet
 - Dedizierte Server (siehe NETCODE.md)
-- Variable Teamgroesse bis 10 pro Team
+- (Teamgroesse waehlbar ist seit 2026-08-29 in V1; "bis 10" bleibt spaeter)
 - Matchmaking / Serverliste
 
 ### Spaeter — Stufe 4 (Fortschritt & Politur)
