@@ -46,6 +46,17 @@ namespace Infront
                 }
             }
 
+            // Fadenkreuz (nicht im Pausemenue)
+            if (!PauseMenu.IsPaused)
+            {
+            float cx = Screen.width / 2f, cy = Screen.height / 2f;
+            var cross = new Color(1f, 1f, 1f, 0.75f);
+            GUI.color = cross;
+            GUI.DrawTexture(new Rect(cx - 1f, cy - 8f, 2f, 16f), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(cx - 8f, cy - 1f, 16f, 2f), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            }
+
             var local = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null
                 ? NetworkManager.Singleton.LocalClient.PlayerObject
                 : null;

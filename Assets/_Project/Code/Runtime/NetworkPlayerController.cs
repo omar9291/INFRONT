@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Infront
 {
     /// <summary>
-    /// Server-autoritativer Third-Person-Charakter mit Zielen hoch/runter.
+    /// Server-autoritativer First-Person-Charakter mit Zielen hoch/runter.
     ///
     /// Ablauf:
     ///  - Der besitzende Client liest jeden Frame seine Eingaben und schickt sie
@@ -29,9 +29,12 @@ namespace Infront
         [SerializeField] Transform _aimPivot;
         [SerializeField] float _maxPitch = 80f;
 
+        [Header("First Person")]
+        [SerializeField] GameObject[] _hideForOwner;
+
         CharacterController _controller;
         IPlayerInputSource _input;
-        ShoulderCamera _camera;
+        FirstPersonCamera _camera;
         float _viewYaw;
         float _viewPitch;
 
@@ -74,10 +77,17 @@ namespace Infront
                 _input ??= new KeyboardMouseInputSource(transform.eulerAngles.y);
 
                 _viewYaw = transform.eulerAngles.y;
+                _viewPitch = 0f;
 
                 var cam = Camera.main;
                 if (cam != null && cam.TryGetComponent(out _camera))
-                    _camera.SetTarget(transform);
+                    _camera.SetTarget(_aimPivot != null ? _aimPivot : transform);
+
+                // Eigenen Koerper ausblenden - sonst schaut man in die eigene Kapsel
+                foreach (var part in _hideForOwner)
+                    if (part != null)
+                        foreach (var r in part.GetComponentsInChildren<Renderer>())
+                            r.enabled = false;
 
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;

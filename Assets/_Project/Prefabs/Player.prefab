@@ -160,6 +160,9 @@ MonoBehaviour:
   _turnLerp: 20
   _aimPivot: {fileID: 7107910297437154381}
   _maxPitch: 80
+  _hideForOwner:
+  - {fileID: 8466221736086301456}
+  - {fileID: 5290873439660205113}
 --- !u!114 &7834866920853241012
 MonoBehaviour:
   m_ObjectHideFlags: 0

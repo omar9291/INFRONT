@@ -11,7 +11,8 @@ unten — nicht sofort ins Spiel.
 
 - Engine: Unity 6000.5.8f1 (festgelegt, wird nicht mehr gewechselt)
 - Sprache: C#
-- Genre: Third-Person Team-Deathmatch-Shooter
+- Genre: First-Person Team-Deathmatch-Shooter
+  (Auftrag sagte "Third Person" - am 2026-08-29 auf First Person geaendert)
 - Plattform-Ziel: PC (Windows/Mac/Linux)
 - V1-Modus: Einzelspieler gegen Bots, im Host-Modus (dein Rechner ist
   Server und Spieler zugleich)

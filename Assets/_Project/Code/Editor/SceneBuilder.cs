@@ -159,6 +159,14 @@ namespace Infront.EditorTools
             hideArray.GetArrayElementAtIndex(1).objectReferenceValue = nose;
             soLife.ApplyModifiedPropertiesWithoutUndo();
 
+            // First Person: eigener Koerper fuer den Besitzer unsichtbar
+            var soHide = new SerializedObject(playerController);
+            var hideOwner = soHide.FindProperty("_hideForOwner");
+            hideOwner.arraySize = 2;
+            hideOwner.GetArrayElementAtIndex(0).objectReferenceValue = body;
+            hideOwner.GetArrayElementAtIndex(1).objectReferenceValue = nose;
+            soHide.ApplyModifiedPropertiesWithoutUndo();
+
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, PlayerPrefabPath, out bool ok);
             Object.DestroyImmediate(root);
 
@@ -369,9 +377,9 @@ namespace Infront.EditorTools
             var camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             var cam = camGo.AddComponent<Camera>();
-            cam.fieldOfView = 70f;
+            cam.fieldOfView = 85f;
             camGo.AddComponent<AudioListener>();
-            camGo.AddComponent<ShoulderCamera>();
+            camGo.AddComponent<FirstPersonCamera>();
             camGo.transform.position = new Vector3(0f, 3f, -6f);
             camGo.transform.rotation = Quaternion.Euler(15f, 0f, 0f);
 

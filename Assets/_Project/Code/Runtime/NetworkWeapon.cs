@@ -151,11 +151,13 @@ namespace Infront
             _nextFireTime = ServerNow + _stats.ShotInterval;
             _ammo.Value -= 1;
 
-            Vector3 origin = _muzzle != null ? _muzzle.position : _aim.AimOrigin;
+            // Trefferstrahl aus der Augenmitte (dorthin zeigt das Fadenkreuz).
+            // Die sichtbare Spur startet spaeter am Lauf - das ist Absicht.
+            Vector3 rayOrigin = _aim.AimOrigin;
             Vector3 direction = _aim.AimDirection;
-            Vector3 endPoint = origin + direction * _stats.Range;
+            Vector3 endPoint = rayOrigin + direction * _stats.Range;
 
-            var hits = Physics.RaycastAll(origin, direction, _stats.Range, _hitMask, QueryTriggerInteraction.Ignore);
+            var hits = Physics.RaycastAll(rayOrigin, direction, _stats.Range, _hitMask, QueryTriggerInteraction.Ignore);
             System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
             foreach (var hit in hits)
@@ -184,7 +186,8 @@ namespace Infront
                 break;
             }
 
-            ShowFireEffectRpc(origin, endPoint);
+            Vector3 tracerOrigin = _muzzle != null ? _muzzle.position : rayOrigin;
+            ShowFireEffectRpc(tracerOrigin, endPoint);
             return true;
         }
 

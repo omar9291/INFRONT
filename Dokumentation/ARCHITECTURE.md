@@ -116,6 +116,8 @@ ehrlich als ungeprueft benannt.
 Derzeit keine.
 
 Getroffene Entscheidungen mit Datum:
+- 2026-08-29: Perspektive First Person (Auftrag sagte Third Person; die
+  Schulterkamera erzeugte Ruckeln, First Person ist einfacher und behebt es)
 - 2026-08-29: Engine Unity 6000.5.8f1 (statt Unreal, Hardware-Gruende)
 - 2026-08-29: Sprache C#
 - 2026-08-29: Render-Pipeline URP
