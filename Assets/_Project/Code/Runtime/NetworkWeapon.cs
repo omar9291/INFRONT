@@ -27,6 +27,7 @@ namespace Infront
         IAimSource _aim;
         NetworkPlayerController _playerController;
         TeamMember _team;
+        Health _health;
 
         readonly NetworkVariable<int> _ammo = new(
             0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -44,6 +45,8 @@ namespace Infront
 
         public event Action<Vector3, Vector3> FireVisual;
         public event Action<GameObject, int> ServerHitConfirmed;
+        /// <summary>NUR beim schiessenden Client: ein eigener Schuss hat getroffen.</summary>
+        public event Action LocalHitConfirmed;
 
         double ServerNow => NetworkManager.ServerTime.Time;
 
@@ -52,6 +55,7 @@ namespace Infront
             _aim = GetComponent<IAimSource>();
             _playerController = GetComponent<NetworkPlayerController>();
             _team = GetComponent<TeamMember>();
+            _health = GetComponent<Health>();
         }
 
         public override void OnNetworkSpawn()
@@ -140,6 +144,8 @@ namespace Infront
         {
             if (_stats == null || _aim == null || _reloading.Value)
                 return false;
+            if (_health != null && !_health.IsAlive)
+                return false; // Tote schiessen nicht
             if (ServerNow < _nextFireTime)
                 return false;
             if (_ammo.Value <= 0)
@@ -182,6 +188,7 @@ namespace Infront
                 {
                     damageable.ApplyDamage(_stats.Damage, gameObject);
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, _stats.Damage);
+                    HitConfirmedRpc();
                 }
                 break;
             }
@@ -190,6 +197,9 @@ namespace Infront
             ShowFireEffectRpc(tracerOrigin, endPoint);
             return true;
         }
+
+        [Rpc(SendTo.Owner)]
+        void HitConfirmedRpc() => LocalHitConfirmed?.Invoke();
 
         [Rpc(SendTo.Everyone)]
         void ShowFireEffectRpc(Vector3 origin, Vector3 endPoint)

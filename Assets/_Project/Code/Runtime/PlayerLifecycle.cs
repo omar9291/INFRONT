@@ -21,6 +21,7 @@ namespace Infront
     public sealed class PlayerLifecycle : NetworkBehaviour, IRespawnable
     {
         [SerializeField] float _respawnDelay = 3f;
+        public float RespawnDelay => _respawnDelay;
         [SerializeField] GameObject[] _hideOnDeath;
 
         Health _health;

@@ -32,6 +32,9 @@ namespace Infront
         /// <summary>Server + Clients: Figur wurde wiederbelebt.</summary>
         public event Action Revived;
 
+        /// <summary>NUR beim getroffenen Client: Weltposition des Angreifers.</summary>
+        public event Action<Vector3> LocalDamageFrom;
+
         GameObject _lastInstigator;
 
         public override void OnNetworkSpawn()
@@ -64,6 +67,9 @@ namespace Infront
             int newValue = Mathf.Max(0, _current.Value - amount);
             _current.Value = newValue;
 
+            if (instigator != null)
+                DamageDirectionRpc(instigator.transform.position);
+
             ulong sourceId = NetworkManager != null ? NetworkManager.ServerClientId : 0;
             DamageTaken?.Invoke(amount, sourceId);
 
@@ -80,6 +86,12 @@ namespace Infront
             _lastInstigator = null;
             _current.Value = _maxHealth;
             _alive.Value = true;
+        }
+
+        [Rpc(SendTo.Owner)]
+        void DamageDirectionRpc(Vector3 attackerPosition)
+        {
+            LocalDamageFrom?.Invoke(attackerPosition);
         }
 
         void OnCurrentChanged(int previous, int current) => HealthChanged?.Invoke(previous, current);
