@@ -72,17 +72,29 @@ namespace Infront.Tests
             NetworkPlayerController player = null;
             yield return StartHostAndGetPlayer(p => player = p);
 
-            // Warten, bis der MatchManager die Startaufstellung erledigt hat,
-            // dann alle Bots stilllegen - dieser Test prueft nur die Bewegung,
-            // kein Gefecht.
+            // Dieser Test prueft NUR die Bewegung, kein Gefecht. Sobald die Bots
+            // da sind, sofort stilllegen und wegraeumen - bevor sie den Spieler
+            // erschiessen koennen.
             float w = 0f;
             while (Infront.MatchManager.Instance == null && w < 5f) { w += Time.deltaTime; yield return null; }
-            for (int i = 0; i < 40; i++) yield return new WaitForFixedUpdate();
-            foreach (var brain in Object.FindObjectsByType<Infront.BotBrain>(FindObjectsSortMode.None))
-                brain.SetActive(false);
-            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
+            for (int pass = 0; pass < 3; pass++)
+            {
+                foreach (var brain in Object.FindObjectsByType<Infront.BotBrain>(FindObjectsSortMode.None))
+                {
+                    brain.SetActive(false);
+                    var ag = brain.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                    if (ag != null) ag.enabled = false;
+                    brain.transform.position = new Vector3(0f, 200f, 0f);
+                }
+                yield return null;
+            }
 
-            // Blickrichtung des Spielers als "vorne" nehmen (nicht die Weltachse).
+            // Spieler frisch und beweglich machen (falls das kurze Gefecht ihn traf)
+            var hp = player.GetComponent<Infront.Health>();
+            hp.ResetFull();
+            player.SetMovementEnabled(true);
+            for (int i = 0; i < 10; i++) yield return new WaitForFixedUpdate();
+
             float faceYaw = player.transform.eulerAngles.y;
             var input = new FakePlayerInput { Move = new Vector2(0f, 1f), LookYaw = faceYaw };
             player.SetInputSource(input);

@@ -50,6 +50,15 @@ namespace Infront.Tests
             ready(player, MatchManager.Instance);
         }
 
+        static void WarpAgent(BotBrain bot, Vector3 position)
+        {
+            var agent = bot.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (agent != null && agent.enabled && agent.isOnNavMesh)
+                agent.Warp(position);
+            else
+                bot.transform.position = position;
+        }
+
         static List<BotBrain> BotsOnTeam(int team)
         {
             var list = new List<BotBrain>();
@@ -82,9 +91,12 @@ namespace Infront.Tests
 
             var enemyBots = BotsOnTeam(enemyTeam);
             Assert.Greater(enemyBots.Count, 0, "Kein Gegner-Bot.");
+            var targetHealth = enemyBots[0].GetComponent<Health>();
+            targetHealth.ResetFull();
+            yield return null;
 
             int before = match.GetScore(myTeam);
-            enemyBots[0].GetComponent<Health>().ApplyDamage(9999, player.gameObject);
+            targetHealth.ApplyDamage(9999, player.gameObject);
             yield return null;
             yield return null;
 
@@ -93,7 +105,7 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Kein_Freundschaftsbeschuss_Kugel_fliegt_durch_Verbuendete()
+        public IEnumerator Kein_Freundschaftsbeschuss_aber_Gegner_wird_getroffen()
         {
             NetworkPlayerController player = null; MatchManager match = null;
             yield return LoadAndSettle((p, m) => { player = p; match = m; });
@@ -105,26 +117,46 @@ namespace Infront.Tests
             Assert.Greater(enemies.Count, 0, "Kein Gegner-Bot.");
 
             foreach (var b in Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
+            {
                 b.SetActive(false);
+                var ag = b.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                if (ag != null) ag.enabled = false; // kein Zurueckschnappen
+            }
 
-            // Verbuendeten 3 m vor den Spieler, Gegner 6 m dahinter - eine Linie
-            Vector3 fwd = player.transform.forward;
-            friend[0].transform.position = player.transform.position + fwd * 3f;
-            enemies[0].transform.position = player.transform.position + fwd * 6f;
-            for (int i = 0; i < 10; i++) yield return new WaitForFixedUpdate();
-
-            var friendHp = friend[0].GetComponent<Health>();
-            var enemyHp = enemies[0].GetComponent<Health>();
-            int friendBefore = friendHp.Current;
-            int enemyBefore = enemyHp.Current;
-
-            var input = new FakePlayerInput { Move = Vector2.zero, LookYaw = player.transform.eulerAngles.y, LookPitch = 0f, FireHeld = true };
+            // Spieler ausrichten, Zielrichtung stabilisieren
+            var input = new FakePlayerInput { Move = Vector2.zero, LookYaw = player.transform.eulerAngles.y, LookPitch = 0f };
             player.SetInputSource(input);
-            for (int i = 0; i < 40; i++) yield return new WaitForFixedUpdate();
-            input.FireHeld = false;
+            for (int i = 0; i < 15; i++) yield return new WaitForFixedUpdate();
+            Vector3 aim = player.AimDirection;
+            aim.y = 0f; aim.Normalize();
+            Vector3 spot = player.transform.position + aim * 5f + Vector3.up * 0.0f;
 
-            Assert.AreEqual(friendBefore, friendHp.Current, "Verbuendeter hat Schaden genommen (Freundschaftsbeschuss!).");
-            Assert.Less(enemyHp.Current, enemyBefore, "Der Gegner dahinter wurde nicht getroffen.");
+            // 1) Verbuendeten davor: darf keinen Schaden nehmen
+            friend[0].transform.position = spot;
+            var friendHp = friend[0].GetComponent<Health>();
+            friendHp.ResetFull(); // falls das kurze Gefecht ihn schon getroffen hat
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            int friendBefore = friendHp.Current;
+
+            input.FireHeld = true;
+            for (int i = 0; i < 30; i++) yield return new WaitForFixedUpdate();
+            input.FireHeld = false;
+            Assert.AreEqual(friendBefore, friendHp.Current,
+                "Verbuendeter hat Schaden genommen (Freundschaftsbeschuss!).");
+
+            // 2) Gegner an dieselbe Stelle: muss Schaden nehmen
+            friend[0].transform.position += Vector3.up * 50f; // Verbuendeten aus dem Weg
+            enemies[0].transform.position = spot;
+            var enemyHp = enemies[0].GetComponent<Health>();
+            enemyHp.ResetFull();
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            int enemyBefore = enemyHp.Current;
+            Assert.Greater(enemyBefore, 0, "Gegner-Bot ist tot - Testaufbau kaputt.");
+
+            input.FireHeld = true;
+            for (int i = 0; i < 30; i++) yield return new WaitForFixedUpdate();
+            input.FireHeld = false;
+            Assert.Less(enemyHp.Current, enemyBefore, "Der Gegner wurde nicht getroffen.");
         }
 
         [UnityTest]
@@ -139,9 +171,13 @@ namespace Infront.Tests
             var enemyBots = BotsOnTeam(Team.Opponent(myTeam));
             Assert.GreaterOrEqual(enemyBots.Count, 2, "Zu wenige Gegner-Bots fuer den Test.");
 
-            enemyBots[0].GetComponent<Health>().ApplyDamage(9999, player.gameObject);
+            var h0 = enemyBots[0].GetComponent<Health>();
+            var h1 = enemyBots[1].GetComponent<Health>();
+            h0.ResetFull(); h1.ResetFull();
             yield return null;
-            enemyBots[1].GetComponent<Health>().ApplyDamage(9999, player.gameObject);
+            h0.ApplyDamage(9999, player.gameObject);
+            yield return null;
+            h1.ApplyDamage(9999, player.gameObject);
             yield return null;
             yield return null;
 

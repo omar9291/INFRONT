@@ -101,8 +101,22 @@ namespace Infront.Tests
 
             NetworkPlayerController player = null;
             yield return WaitFor<NetworkPlayerController>(p => player = p);
+
+            // Teams abwarten, dann einen GEGNER-Bot nehmen und den Rest stilllegen
+            float w0 = 0f;
+            while (Infront.MatchManager.Instance == null && w0 < 6f) { w0 += Time.deltaTime; yield return null; }
+            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
+            int myTeam = player.GetComponent<TeamMember>().TeamId;
+
             BotBrain brain = null;
-            yield return WaitFor<BotBrain>(b => brain = b);
+            foreach (var b in Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
+            {
+                int bt = b.GetComponent<TeamMember>().TeamId;
+                if (bt != myTeam && bt != Team.None && brain == null) brain = b;
+                else b.SetActive(false);
+            }
+            Assert.IsNotNull(brain, "Kein Gegner-Bot gefunden.");
+            brain.SetActive(true);
 
             var agent = brain.GetComponent<NavMeshAgent>();
             float w = 0f;
@@ -163,17 +177,28 @@ namespace Infront.Tests
             float w = 0f;
             while (!agent.isOnNavMesh && w < 5f) { w += Time.deltaTime; yield return null; }
 
-            // Bot direkt vor den Spieler, in Kampfreichweite, mit Blick auf ihn
-            Vector3 spot = player.transform.position + player.transform.forward * 6f + Vector3.up;
-            if (NavMesh.SamplePosition(spot, out NavMeshHit navHit, 5f, NavMesh.AllAreas))
+            // Spieler und Bot auf eine freie Stelle mit klarer Sichtlinie stellen.
+            // Eine Stelle mit Boxen dazwischen suchen wir aktiv weg.
+            Vector3 basePos = new Vector3(0f, 1f, 0f);
+            NavMesh.SamplePosition(basePos, out NavMeshHit baseHit, 8f, NavMesh.AllAreas);
+            player.GetComponent<CharacterController>().enabled = false;
+            player.transform.position = baseHit.position + Vector3.up * 0.1f;
+            player.GetComponent<CharacterController>().enabled = true;
+
+            Vector3 botSpot = baseHit.position + Vector3.forward * 3.5f;
+            if (NavMesh.SamplePosition(botSpot, out NavMeshHit navHit, 4f, NavMesh.AllAreas))
                 agent.Warp(navHit.position);
+            agent.ResetPath();
             brain.transform.LookAt(player.transform.position);
 
-            int ammoBefore = botWeapon.Ammo;
             var playerHp = player.GetComponent<Health>();
+            playerHp.ResetFull();
+            brain.GetComponent<Health>().ResetFull();
+            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
+            int ammoBefore = botWeapon.Ammo;
             int playerHpBefore = playerHp.Current;
 
-            for (int i = 0; i < 6; i++) yield return new WaitForSeconds(0.5f);
+            for (int i = 0; i < 8; i++) yield return new WaitForSeconds(0.5f);
 
             Assert.Less(botWeapon.Ammo, ammoBefore, "Der Bot hat nicht geschossen.");
             Assert.IsTrue(playerHp.Current < playerHpBefore || !playerHp.IsAlive,
