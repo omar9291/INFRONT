@@ -10,8 +10,8 @@ using UnityEngine;
 namespace Infront.EditorTools
 {
     /// <summary>
-    /// Erzeugt per Code das Spieler-Prefab und die Test-Arena.
-    /// Nichts davon wird von Hand in der Unity-Oberflaeche gebaut.
+    /// Erzeugt per Code die Prefabs (Spieler, Dummy), die Waffen-Kennwerte und
+    /// die Test-Arena. Nichts davon wird von Hand in der Unity-Oberflaeche gebaut.
     ///
     /// Menue: "Infront/Setup/2 - Arena und Spieler bauen"
     /// Headless: Unity -batchmode -quit -executeMethod Infront.EditorTools.SceneBuilder.Build
@@ -20,7 +20,10 @@ namespace Infront.EditorTools
     {
         const string PrefabDir = "Assets/_Project/Prefabs";
         const string SceneDir = "Assets/_Project/Scenes";
+        const string SettingsDir = "Assets/_Project/Settings";
         const string PlayerPrefabPath = PrefabDir + "/Player.prefab";
+        const string DummyPrefabPath = PrefabDir + "/TargetDummy.prefab";
+        const string WeaponStatsPath = SettingsDir + "/Sturmgewehr.asset";
         const string ScenePath = SceneDir + "/Arena.unity";
 
         [MenuItem("Infront/Setup/2 - Arena und Spieler bauen")]
@@ -28,10 +31,13 @@ namespace Infront.EditorTools
         {
             Directory.CreateDirectory(PrefabDir);
             Directory.CreateDirectory(SceneDir);
+            Directory.CreateDirectory(SettingsDir);
             AssetDatabase.Refresh();
 
-            GameObject playerPrefab = BuildPlayerPrefab();
-            BuildArenaScene(playerPrefab);
+            WeaponStats weapon = CreateWeaponStats();
+            GameObject playerPrefab = BuildPlayerPrefab(weapon);
+            GameObject dummyPrefab = BuildDummyPrefab();
+            BuildArenaScene(playerPrefab, dummyPrefab);
 
             Debug.Log("SCENE_BUILD_OK");
         }
@@ -44,7 +50,25 @@ namespace Infront.EditorTools
             Debug.Log("FULL_SETUP_OK");
         }
 
-        static GameObject BuildPlayerPrefab()
+        static WeaponStats CreateWeaponStats()
+        {
+            var stats = AssetDatabase.LoadAssetAtPath<WeaponStats>(WeaponStatsPath);
+            if (stats == null)
+            {
+                stats = ScriptableObject.CreateInstance<WeaponStats>();
+                stats.DisplayName = "Sturmgewehr";
+                stats.Damage = 18;
+                stats.FireRate = 9f;
+                stats.MagazineSize = 30;
+                stats.ReloadTime = 2f;
+                stats.Range = 200f;
+                AssetDatabase.CreateAsset(stats, WeaponStatsPath);
+                AssetDatabase.SaveAssets();
+            }
+            return stats;
+        }
+
+        static GameObject BuildPlayerPrefab(WeaponStats weapon)
         {
             var root = new GameObject("Player");
 
@@ -58,11 +82,12 @@ namespace Infront.EditorTools
             root.AddComponent<NetworkObject>();
 
             var netTransform = root.AddComponent<NetworkTransform>();
-            netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server; // server-autoritativ
+            netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
             netTransform.SyncScaleX = netTransform.SyncScaleY = netTransform.SyncScaleZ = false;
             netTransform.Interpolate = true;
 
-            root.AddComponent<NetworkPlayerController>();
+            var playerController = root.AddComponent<NetworkPlayerController>();
+            root.AddComponent<Health>();
 
             // Sichtbarer Koerper (nur Optik, keine Collider)
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -71,13 +96,44 @@ namespace Infront.EditorTools
             body.transform.SetParent(root.transform, false);
             body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
 
-            // Nase, damit die Blickrichtung sichtbar ist
+            // Ziel-Drehpunkt auf Augenhoehe: neigt sich beim Zielen hoch/runter
+            var aimPivot = new GameObject("AimPivot");
+            aimPivot.transform.SetParent(root.transform, false);
+            aimPivot.transform.localPosition = new Vector3(0f, 1.6f, 0f);
+
+            // Nase zeigt die Zielrichtung, haengt am Drehpunkt
             var nose = GameObject.CreatePrimitive(PrimitiveType.Cube);
             nose.name = "Nose";
             Object.DestroyImmediate(nose.GetComponent<Collider>());
-            nose.transform.SetParent(root.transform, false);
-            nose.transform.localPosition = new Vector3(0f, 1.4f, 0.45f);
-            nose.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+            nose.transform.SetParent(aimPivot.transform, false);
+            nose.transform.localPosition = new Vector3(0f, 0f, 0.4f);
+            nose.transform.localScale = new Vector3(0.22f, 0.22f, 0.22f);
+
+            // Muendungspunkt: Ursprung der Schussspur
+            var muzzle = new GameObject("Muzzle");
+            muzzle.transform.SetParent(aimPivot.transform, false);
+            muzzle.transform.localPosition = new Vector3(0.2f, -0.1f, 0.5f);
+
+            var weaponComponent = root.AddComponent<NetworkWeapon>();
+            root.AddComponent<TracerEffect>();
+            var lifecycle = root.AddComponent<PlayerLifecycle>();
+
+            // Referenzen per SerializedObject setzen (private [SerializeField])
+            var so = new SerializedObject(playerController);
+            so.FindProperty("_aimPivot").objectReferenceValue = aimPivot.transform;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var soWeapon = new SerializedObject(weaponComponent);
+            soWeapon.FindProperty("_stats").objectReferenceValue = weapon;
+            soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
+            soWeapon.ApplyModifiedPropertiesWithoutUndo();
+
+            var soLife = new SerializedObject(lifecycle);
+            var hideArray = soLife.FindProperty("_hideOnDeath");
+            hideArray.arraySize = 2;
+            hideArray.GetArrayElementAtIndex(0).objectReferenceValue = body;
+            hideArray.GetArrayElementAtIndex(1).objectReferenceValue = nose;
+            soLife.ApplyModifiedPropertiesWithoutUndo();
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, PlayerPrefabPath, out bool ok);
             Object.DestroyImmediate(root);
@@ -90,17 +146,56 @@ namespace Infront.EditorTools
 
             AssetDatabase.ImportAsset(PlayerPrefabPath, ImportAssetOptions.ForceUpdate);
             prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath);
-
-            bool hasNetworkObject = prefab.GetComponent<NetworkObject>() != null;
-            Debug.Log($"[Infront] Spieler-Prefab bereit. NetworkObject={hasNetworkObject}");
+            Debug.Log($"[Infront] Spieler-Prefab bereit. NetworkObject={prefab.GetComponent<NetworkObject>() != null}");
             return prefab;
         }
 
-        static void BuildArenaScene(GameObject playerPrefab)
+        static GameObject BuildDummyPrefab()
+        {
+            var root = new GameObject("TargetDummy");
+            root.AddComponent<NetworkObject>();
+            root.AddComponent<Health>();
+            var dummy = root.AddComponent<TargetDummy>();
+
+            var netTransform = root.AddComponent<NetworkTransform>();
+            netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
+            netTransform.Interpolate = false;
+
+            // Sichtbarer Koerper MIT Collider (muss getroffen werden koennen)
+            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            body.name = "Body";
+            body.transform.SetParent(root.transform, false);
+            body.transform.localPosition = new Vector3(0f, 1f, 0f);
+
+            var soDummy = new SerializedObject(dummy);
+            var hideArray = soDummy.FindProperty("_hideOnDeath");
+            hideArray.arraySize = 1;
+            hideArray.GetArrayElementAtIndex(0).objectReferenceValue = body;
+            soDummy.ApplyModifiedPropertiesWithoutUndo();
+
+            var soHealth = new SerializedObject(root.GetComponent<Health>());
+            soHealth.FindProperty("_maxHealth").intValue = 60;
+            soHealth.ApplyModifiedPropertiesWithoutUndo();
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, DummyPrefabPath, out bool ok);
+            Object.DestroyImmediate(root);
+
+            if (!ok || prefab == null)
+            {
+                Debug.LogError("[Infront] Dummy-Prefab konnte nicht gespeichert werden.");
+                return null;
+            }
+
+            AssetDatabase.ImportAsset(DummyPrefabPath, ImportAssetOptions.ForceUpdate);
+            prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DummyPrefabPath);
+            Debug.Log($"[Infront] Dummy-Prefab bereit.");
+            return prefab;
+        }
+
+        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            // Licht
             var lightGo = new GameObject("Directional Light");
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
@@ -109,12 +204,10 @@ namespace Infront.EditorTools
             light.shadows = LightShadows.Soft;
             lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
 
-            // Boden: 60 x 60 Meter (Plane ist 10 m, Scale 6)
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground";
             ground.transform.localScale = new Vector3(6f, 1f, 6f);
 
-            // Ein paar Kisten als Deckung / Orientierung
             var rng = new System.Random(12345);
             var boxParent = new GameObject("Boxes").transform;
             for (int i = 0; i < 12; i++)
@@ -129,11 +222,20 @@ namespace Infront.EditorTools
                 box.transform.localScale = new Vector3(s, s, s);
             }
 
-            // Spawn-Punkt
-            var spawn = new GameObject("SpawnPoint");
-            spawn.transform.position = new Vector3(0f, 1f, 0f);
+            // Mehrere Spawn-Punkte
+            var spawnParent = new GameObject("SpawnPoints").transform;
+            Vector3[] spawnPositions =
+            {
+                new(0f, 1f, -4f), new(-8f, 1f, -2f), new(8f, 1f, -2f), new(0f, 1f, 4f),
+            };
+            foreach (var pos in spawnPositions)
+            {
+                var sp = new GameObject("SpawnPoint");
+                sp.transform.SetParent(spawnParent, true);
+                sp.transform.position = pos;
+                sp.AddComponent<SpawnPoint>();
+            }
 
-            // Kamera mit Schulterkamera-Skript
             var camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             var cam = camGo.AddComponent<Camera>();
@@ -143,7 +245,6 @@ namespace Infront.EditorTools
             camGo.transform.position = new Vector3(0f, 3f, -6f);
             camGo.transform.rotation = Quaternion.Euler(15f, 0f, 0f);
 
-            // NetworkManager + Transport + Auto-Host
             var nmGo = new GameObject("NetworkManager");
             var nm = nmGo.AddComponent<NetworkManager>();
             var transport = nmGo.AddComponent<UnityTransport>();
@@ -154,23 +255,27 @@ namespace Infront.EditorTools
             nm.NetworkConfig.PlayerPrefab = playerPrefab;
             nm.NetworkConfig.ConnectionApproval = false;
             nm.NetworkConfig.EnableSceneManagement = false;
-
-            if (playerPrefab != null)
-                nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = playerPrefab });
+            nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = playerPrefab });
+            if (dummyPrefab != null)
+                nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = dummyPrefab });
 
             nmGo.AddComponent<MatchBootstrap>();
 
-            EditorUtility.SetDirty(nm);
+            var spawnerGo = new GameObject("DummySpawner");
+            var spawner = spawnerGo.AddComponent<DummySpawner>();
+            if (dummyPrefab != null)
+            {
+                var soSpawner = new SerializedObject(spawner);
+                soSpawner.FindProperty("_dummyPrefab").objectReferenceValue = dummyPrefab.GetComponent<NetworkObject>();
+                soSpawner.ApplyModifiedPropertiesWithoutUndo();
+            }
 
+            EditorUtility.SetDirty(nm);
             EditorSceneManager.MarkSceneDirty(scene);
             bool saved = EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"[Infront] Arena gespeichert: {saved} -> {ScenePath}");
 
-            // In die Build-Settings aufnehmen (als einzige/erste Szene)
-            EditorBuildSettings.scenes = new[]
-            {
-                new EditorBuildSettingsScene(ScenePath, true)
-            };
+            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
         }
     }
 }
