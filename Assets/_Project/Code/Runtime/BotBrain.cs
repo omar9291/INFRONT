@@ -79,6 +79,14 @@ namespace Infront
             AimDirection = transform.forward;
         }
 
+        /// <summary>Nur Server: Schwierigkeits-Kennwerte setzen (Menue-Auswahl).</summary>
+        public void SetStats(BotStats stats)
+        {
+            if (stats == null) return;
+            _stats = stats;
+            if (_agent != null) _agent.speed = stats.MoveSpeed;
+        }
+
         /// <summary>Nur Server: KI an/aus (z.B. waehrend Tod).</summary>
         public void SetActive(bool value)
         {

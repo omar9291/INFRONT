@@ -131,6 +131,14 @@ namespace Infront
             StartRound();
         }
 
+        /// <summary>Nur Server: Pause ueberspringen, sofort neue Runde.</summary>
+        public void ServerStartNextRoundNow()
+        {
+            if (!IsServer || CurrentPhase != Phase.RoundOver) return;
+            if (_restartRoutine != null) StopCoroutine(_restartRoutine);
+            StartRound();
+        }
+
         /// <summary>Nur fuer Tests: kleineres Punktelimit und kurze Pause zwischen Runden.</summary>
         public void ServerApplyTestConfig(int scoreLimit, float roundDuration, float restDuration)
         {

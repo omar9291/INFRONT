@@ -74,7 +74,7 @@ namespace Infront
         {
             if (IsOwner)
             {
-                _input ??= new KeyboardMouseInputSource(transform.eulerAngles.y);
+                _input ??= new KeyboardMouseInputSource(transform.eulerAngles.y, GameSettings.MouseSensitivity);
 
                 _viewYaw = transform.eulerAngles.y;
                 _viewPitch = 0f;
@@ -88,9 +88,6 @@ namespace Infront
                     if (part != null)
                         foreach (var r in part.GetComponentsInChildren<Renderer>())
                             r.enabled = false;
-
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
             }
 
             if (IsServer)

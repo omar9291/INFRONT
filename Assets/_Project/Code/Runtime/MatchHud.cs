@@ -22,11 +22,8 @@ namespace Infront
 
         void OnGUI()
         {
-            // IMGUI ruft OnGUI mehrfach pro Bild auf. Fuer reine Anzeige
-            // reicht das Repaint-Ereignis - halbiert die Last.
-            if (Event.current.type != EventType.Repaint)
-                return;
-
+            // Kein Repaint-Guard mehr: die Rundenende-Knoepfe brauchen alle
+            // Ereignisse (Layout/MouseUp), sonst reagieren sie nicht.
             EnsureStyles();
 
             var match = MatchManager.Instance;
@@ -42,7 +39,16 @@ namespace Infront
                 if (match.CurrentPhase == MatchManager.Phase.RoundOver)
                 {
                     string text = match.Winner == Team.None ? "Unentschieden" : Team.Name(match.Winner) + " gewinnt!";
-                    GUI.Label(new Rect(0, Screen.height / 2 - 30, Screen.width, 60), text, Center(_big));
+                    GUI.Label(new Rect(0, Screen.height / 2 - 90, Screen.width, 60), text, Center(_big));
+
+                    float bw = 260f;
+                    float bx = (Screen.width - bw) / 2f;
+                    if (GUI.Button(new Rect(bx, Screen.height / 2f, bw, 42), "Sofort weiter")
+                        && match.IsServer)
+                        match.ServerStartNextRoundNow();
+                    if (GUI.Button(new Rect(bx, Screen.height / 2f + 52f, bw, 42), "Zurueck zum Menue")
+                        && GameFlow.Instance != null)
+                        GameFlow.Instance.ToMenu();
                 }
             }
 

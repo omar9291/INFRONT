@@ -18,6 +18,11 @@ namespace Infront
         [SerializeField] int _teamSize = 3;
         [SerializeField] float _startDelay = 0.6f;
 
+        [Header("Bot-Schwierigkeit")]
+        [SerializeField] BotStats _statsEasy;
+        [SerializeField] BotStats _statsNormal;
+        [SerializeField] BotStats _statsHard;
+
         readonly int[] _teams = { Team.Alpha, Team.Bravo };
         bool _started;
 
@@ -63,6 +68,8 @@ namespace Infront
             var manager = NetworkManager.Singleton;
             if (manager == null || !manager.IsServer) return;
 
+            _teamSize = Mathf.Clamp(GameSettings.TeamSize, 1, 10);
+
             // Spieler ohne Team noch zuteilen
             foreach (var client in manager.ConnectedClientsList)
             {
@@ -102,6 +109,20 @@ namespace Infront
             var member = instance.GetComponent<TeamMember>();
             if (member != null)
                 member.SetTeam(team);
+
+            var brain = instance.GetComponent<BotBrain>();
+            if (brain != null)
+                brain.SetStats(StatsForDifficulty());
+        }
+
+        BotStats StatsForDifficulty()
+        {
+            switch (GameSettings.Difficulty)
+            {
+                case GameSettings.Level.Leicht: return _statsEasy != null ? _statsEasy : _statsNormal;
+                case GameSettings.Level.Schwer: return _statsHard != null ? _statsHard : _statsNormal;
+                default: return _statsNormal;
+            }
         }
 
         int SmallerTeam()
