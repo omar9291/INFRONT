@@ -70,6 +70,25 @@ sinnvoll, wenn es echte Spieler gibt.
 - Punktestand: NetworkVariable, nur Server schreibt
 - Bots: existieren nur auf dem Server
 
+## Spaeter: Lag-Kompensation (Hit Registration)
+
+Im Host-Modus rechnet der Server Schuesse mit seinem aktuellen Weltzustand.
+Das ist dort exakt richtig, weil Server und Spieler derselbe Rechner sind.
+
+Sobald echtes Online kommt, entsteht das bekannte Shooter-Problem: der
+Spieler sieht den Gegner ~50-100 ms in der Vergangenheit, zielt genau,
+trifft aber laut Server nicht, weil der Gegner inzwischen weiter ist.
+
+Loesung (spaeter, Stufe 3): der Server fuehrt eine kurze Historie der
+Positionen aller Figuren. Beim Schuss spult er die Welt auf den Zeitpunkt
+zurueck, den der Schuetze gesehen hat (aus dem Zeitstempel in der
+Schuss-Anfrage), rechnet dort und stellt die Welt wieder her.
+
+Vorbereitet: die Schuss-Anfrage (FireRpc in NetworkWeapon) traegt bereits
+ein Feld clientRenderTime. Es wird jetzt noch nicht ausgewertet, aber die
+Lag-Kompensation kann spaeter eingehaengt werden, ohne die Signatur zu
+aendern.
+
 ## Was in V1 der Client lokal macht (nur Anzeige)
 
 - Kamera

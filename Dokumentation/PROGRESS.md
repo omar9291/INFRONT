@@ -7,73 +7,82 @@ Letzte Aktualisierung: 2026-08-29
 
 ## Aktueller Stand
 
-Phase 1 (URP-Setup + Charakter bewegen) ist abgeschlossen und getestet.
-Wartet auf Go fuer Phase 2 (Schiessen & Schaden).
+Phase 2 (Schiessen & Schaden) ist abgeschlossen und getestet.
+Wartet auf Go fuer Phase 3 (Bot-Gegner).
 
 ## Was fertig ist
 
-### Phase 0
-- Diagnose, Engine-Wechsel Unreal -> Unity, Speicher 5 -> 15 GB frei.
-- Unity-Projekt /Users/user/UnityProjects/INFRONT, 6000.5.8f1.
-- Ordnerstruktur, Git-Repo, Doku (SCOPE/ARCHITECTURE/NETCODE/ASSETS/CLAUDE).
+### Phase 0 - Grundgeruest
+Diagnose, Engine-Wechsel Unreal->Unity, Speicher 5->15 GB, Unity-Projekt,
+Ordnerstruktur, Git-Repo, Doku.
 
-### Phase 1
-- Pakete installiert: URP 17.6.0, Netcode for GameObjects 2.13.2,
-  Input System 1.20.0, AI Navigation 2.0.14, Test Framework 1.7.0.
-- Render-Pipeline: URP eingerichtet (PC_RenderPipeline + PC_UniversalRenderer
-  in Assets/_Project/Settings/), als Standard in Graphics-/Quality-Settings.
-- Assemblies: Infront.Runtime, Infront.Editor, Infront.Tests.PlayMode.
-- Server-autoritativer Charakter (NetworkPlayerController):
-  - Client schickt Eingabe-Kommandos, nur der Server bewegt den
-    CharacterController und wendet Schwerkraft/Sprung an.
-  - NetworkTransform server-autoritativ verteilt die Position.
-  - Laufen, Sprinten (Shift), Springen (Space), Drehen (Maus).
-- Schulterkamera (ShoulderCamera): folgt dem lokalen Charakter.
-- MatchBootstrap: startet in Phase 1 automatisch den Host.
-- Editor-Skripte: UrpSetup (URP), SceneBuilder (Prefab + Arena komplett
-  per Code). Menue "Infront/Setup/...". Nichts von Hand gebaut.
-- Arena.unity: Boden 60x60 m, 12 Kisten, Licht, NetworkManager, SpawnPoint,
-  Kamera. Einzige Build-Szene.
+### Phase 1 - Bewegung
+Pakete (URP, Netcode 2.13.2, Input System). Server-autoritativer Charakter:
+Laufen/Sprinten/Springen. Schulterkamera. Arena per Code. 2 Tests gruen.
 
-## Tests (headless, PlayMode)
+### Phase 2 - Schiessen & Schaden
+- Zielen hoch/runter: Maus Y neigt den Ziel-Drehpunkt, server-autoritativ,
+  Pitch als NetworkVariable an andere Clients. Kamera neigt mit.
+- Health-Bauteil: Leben + Lebendig-Status als server-geschriebene
+  NetworkVariables. IDamageable-Schnittstelle (Spieler, Dummy, spaeter Bots).
+- Sturmgewehr (NetworkWeapon): Hitscan. Client fragt an, Server prueft
+  Feuerrate/Munition/Nachladen und macht den Raycast. Munition als
+  NetworkVariable. Schussspur (TracerEffect) per ClientRpc.
+  Kennwerte in Sturmgewehr.asset (Balance ohne Code).
+- Tod + Respawn: ausblenden/stillstellen statt loeschen; Server teleportiert
+  nach Wartezeit zum SpawnPoint und setzt Leben zurueck. Gleicher Ablauf
+  fuer den stehenden Trainings-Dummy.
+- SpawnService kennt alle SpawnPoints (4 in der Arena). DummySpawner
+  erzeugt 3 Dummies beim Host-Start.
+
+## Tests (headless PlayMode) - 8 von 8 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
-- Spieler_spawnt_im_Host_Modus: PASS
-- Spieler_laeuft_auf_Vorwaerts_Eingabe_nach_vorne: PASS
-  (2 von 2 gruen, Stand 2026-08-29)
+- Spieler_spawnt_im_Host_Modus
+- Spieler_laeuft_auf_Vorwaerts_Eingabe_nach_vorne
+- Server_Schaden_senkt_Leben_des_Dummys
+- Dummy_stirbt_bei_null_Leben_und_respawnt
+- Schuss_auf_Dummy_macht_Schaden
+- Feuerrate_begrenzt_die_Schussanzahl
+- Spieler_stirbt_und_respawnt_mit_vollem_Leben
+- Waffe_startet_mit_vollem_Magazin
 
 Nicht automatisiert geprueft (auf diesem Mac nicht moeglich):
-- Aussehen der Szene, Kamera-Gefuehl, Steuerungs-Feeling.
-- Framerate. URP ist bewusst schlank aufgesetzt, aber ungemessen.
+Aussehen, Kamera-Gefuehl, Schiessgefuehl, Framerate.
 
 ## Bekannte offene Probleme / Risiken
 
-- Speicher: 11 GB frei (Projekt 1,7 GB). Weiter beobachten; bei Bedarf
-  Gruppe B (Spiele, ~6,6 GB) nachziehen.
-- 8 GB RAM: Editor-Starts dauern ~1-2 min headless. Kein Blocker.
-- Auto-generierte Assets liegen in Assets/ (DefaultNetworkPrefabs,
-  DefaultVolumeProfile, UniversalRenderPipelineGlobalSettings). Standard
-  bei URP/NGO. Verschieben ist riskant (Referenzen), daher belassen.
-- Sprung wird verworfen, wenn er eintrifft waehrend der Spieler in der
-  Luft ist (kein Input-Buffering). Ok fuer Phase 1, spaeter verbessern.
-- Kamera folgt der Charakter-Drehung. Fuer einen Shooter muss spaeter die
-  Maus die Kamera fuehren und der Charakter sich zur Kamera drehen.
+- Lag-Kompensation fehlt (bewusst). Vorbereitet ueber clientRenderTime-Feld
+  in FireRpc. Details + Plan in NETCODE.md. Erst Stufe 3 noetig.
+- CharacterController auf Nicht-Server-Instanzen noch aktiv. Muss in Phase 3
+  abgeschaltet werden, sobald echte Remote-Clients dazukommen.
+- Waffe uebernimmt die Zielrichtung des Servers (aus dem Eingabe-Strom),
+  nicht eine mitgesendete Richtung. Sauber server-autoritativ, aber bei
+  Paketverlust koennte ein Schuss "schief" wirken. Mit Lag-Kompensation
+  spaeter zu haerten.
+- Treffer-Kollision ist die CharacterController-Kapsel, keine echten
+  Hitboxen (Kopf/Koerper). Reicht fuer jetzt.
+- Speicher: 11 GB frei, Projekt 1,7 GB. Weiter beobachten.
 
 ## Naechster geplanter Schritt
 
-Phase 2: Schiessen & Schaden.
-Definition of Done (Vorschlag, vor Start bestaetigen lassen):
-- Sturmgewehr: Client sendet Schuss-Anfrage, Server macht den Raycast
-  (server-autoritativ), Magazin + Nachladen.
-- Leben als NetworkVariable, nur Server schreibt.
-- Tod + Respawn nach kurzer Wartezeit am SpawnPoint.
-- Ein zweites Ziel zum Draufschiessen (stehender Dummy mit Leben).
-- PlayMode-Test: Server-Schuss auf Dummy senkt dessen Leben; bei 0 stirbt er.
+Phase 3: Bot-Gegner.
+Definition of Done (Vorschlag, vor Start bestaetigen):
+- NavMesh wird per Editor-Code aus der Arena gebacken.
+- Ein Bot-Typ: patrouilliert, entdeckt den Spieler per Sichtlinie, verfolgt,
+  schiesst mit derselben NetworkWeapon-Logik, nutzt Deckung grob.
+- Bots existieren nur auf dem Server; NGO verteilt sie.
+- Bots benutzen Health/IDamageable/PlayerLifecycle-Muster (ausblenden +
+  Respawn), damit Team Deathmatch spaeter zaehlen kann.
+- Schwierigkeit ueber WeaponStats + Reaktionszeit + Zielgenauigkeit
+  einstellbar (mehrere Stufen kommen aber erst spaeter).
+- PlayMode-Tests: Bot findet und verfolgt den Spieler; Bot-Schuss trifft;
+  Bot stirbt und respawnt.
 
 ## Sitzungsprotokoll
 
 ### 2026-08-29 (Sitzung 1)
-Diagnose, Engine-Wechsel, Speicher, Projekt-Grundgeruest (Phase 0).
-Danach Phase 1 komplett: Pakete, URP, server-autoritativer Charakter,
-Kamera, Arena per Code, 2 PlayMode-Tests gruen.
+Phase 0, 1 und 2 komplett. Grundgeruest, server-autoritative Bewegung,
+Zielen, Sturmgewehr mit Hitscan, Schaden/Tod/Respawn, Trainings-Dummy.
+8 PlayMode-Tests gruen.
