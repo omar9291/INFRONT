@@ -36,8 +36,8 @@ namespace Infront.Tests
             yield return null;
 
             BotBrain.GloballyFrozen = false;
-            Combatants.ResetForTests();
-            SpawnService.ResetForTests();
+            Combatants.Reset();
+            SpawnService.Reset();
             yield return null;
         }
 

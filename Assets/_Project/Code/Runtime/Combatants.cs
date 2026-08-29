@@ -43,8 +43,8 @@ namespace Infront
             }
         }
 
-        /// <summary>Nur fuer Tests: Liste komplett leeren.</summary>
-        public static void ResetForTests()
+        /// <summary>Alles zuruecksetzen (Szenenwechsel, Tests).</summary>
+        public static void Reset()
         {
             All.Clear();
             Added = null;
