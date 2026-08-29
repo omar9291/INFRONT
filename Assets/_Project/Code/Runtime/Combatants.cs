@@ -43,6 +43,14 @@ namespace Infront
             }
         }
 
+        /// <summary>Nur fuer Tests: Liste komplett leeren.</summary>
+        public static void ResetForTests()
+        {
+            All.Clear();
+            Added = null;
+            Removed = null;
+        }
+
         public static int CountByTeam(int team)
         {
             int n = 0;

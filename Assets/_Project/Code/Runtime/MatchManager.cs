@@ -99,9 +99,12 @@ namespace Infront
             else if (_scoreBravo.Value >= _scoreLimit) EndRound(Team.Bravo);
         }
 
+        /// <summary>Nur fuer Tests: kein automatisches Rundenende (Zeit/Punkte weiter zaehlbar).</summary>
+        public bool SuspendedForTests { get; set; }
+
         void Update()
         {
-            if (!IsServer || CurrentPhase != Phase.Playing)
+            if (!IsServer || SuspendedForTests || CurrentPhase != Phase.Playing)
                 return;
 
             if (NetworkManager.ServerTime.Time >= _roundEndTime.Value)

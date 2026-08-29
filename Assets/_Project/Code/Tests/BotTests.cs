@@ -3,228 +3,128 @@ using NUnit.Framework;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace Infront.Tests
 {
     /// <summary>
     /// Phase-3-Tests: NavMesh, Bot-Wahrnehmung, Bot-Beschuss, Bot-Respawn.
-    /// Headless im Host-Modus.
+    /// Fuer Verhaltenstests wird gezielt EIN Gegner-Bot aufgetaut.
     /// </summary>
     public sealed class BotTests
     {
-        [UnityTearDown]
-        public IEnumerator TearDown()
-        {
-            if (NetworkManager.Singleton != null)
-            {
-                NetworkManager.Singleton.Shutdown();
-                yield return null;
-                Object.Destroy(NetworkManager.Singleton.gameObject);
-            }
-            yield return null;
-        }
+        [UnityTearDown] public IEnumerator TearDown() => MatchTestHarness.Teardown();
 
-        static IEnumerator LoadArenaAndHost()
+        static BotBrain EnemyBot(NetworkPlayerController player)
         {
-            SceneManager.LoadScene("Arena");
-            yield return null;
-            yield return null;
-
-            float timeout = 8f;
-            while ((NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) && timeout > 0f)
+            int myTeam = player.GetComponent<TeamMember>().TeamId;
+            foreach (var b in Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
             {
-                timeout -= Time.deltaTime;
-                yield return null;
+                int bt = b.GetComponent<TeamMember>().TeamId;
+                if (bt != myTeam && bt != Team.None)
+                    return b;
             }
-            Assert.IsTrue(NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening, "Host nicht gestartet.");
-        }
-
-        static IEnumerator WaitFor<T>(System.Action<T> onFound, float seconds = 10f) where T : Object
-        {
-            T found = null;
-            while (found == null && seconds > 0f)
-            {
-                found = Object.FindAnyObjectByType<T>();
-                seconds -= Time.deltaTime;
-                yield return null;
-            }
-            Assert.IsNotNull(found, $"{typeof(T).Name} nicht gefunden.");
-            onFound(found);
+            return null;
         }
 
         [UnityTest]
         public IEnumerator NavMesh_wird_zur_Laufzeit_gebacken()
         {
-            yield return LoadArenaAndHost();
-
-            float waited = 0f;
-            NavMeshTriangulation tri = default;
-            while (waited < 6f)
-            {
-                tri = NavMesh.CalculateTriangulation();
-                if (tri.vertices != null && tri.vertices.Length > 0)
-                    break;
-                waited += Time.deltaTime;
-                yield return null;
-            }
-
-            Assert.Greater(tri.vertices.Length, 0, "Es wurde kein NavMesh gebacken.");
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+            var tri = NavMesh.CalculateTriangulation();
+            Assert.Greater(tri.vertices.Length, 0);
         }
 
         [UnityTest]
         public IEnumerator Bot_spawnt_und_steht_auf_dem_NavMesh()
         {
-            yield return LoadArenaAndHost();
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
 
-            BotBrain brain = null;
-            yield return WaitFor<BotBrain>(b => brain = b);
-
-            // NavMesh + Agent brauchen ein paar Frames
-            float waited = 0f;
-            var agent = brain.GetComponent<NavMeshAgent>();
-            while (!agent.isOnNavMesh && waited < 5f)
-            {
-                waited += Time.deltaTime;
-                yield return null;
-            }
-
-            Assert.IsTrue(agent.isOnNavMesh, "Bot steht nicht auf dem NavMesh.");
-            Assert.IsTrue(brain.GetComponent<Health>().IsAlive);
+            var bot = EnemyBot(player);
+            Assert.IsNotNull(bot);
+            var agent = bot.GetComponent<NavMeshAgent>();
+            yield return MatchTestHarness.WaitUntil(() => agent.isOnNavMesh, 5f, "Bot nicht auf NavMesh.");
+            Assert.IsTrue(bot.GetComponent<Health>().IsAlive);
         }
 
         [UnityTest]
         public IEnumerator Bot_entdeckt_und_verfolgt_den_Spieler()
         {
-            yield return LoadArenaAndHost();
-
             NetworkPlayerController player = null;
-            yield return WaitFor<NetworkPlayerController>(p => player = p);
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
 
-            // Teams abwarten, dann einen GEGNER-Bot nehmen und den Rest stilllegen
-            float w0 = 0f;
-            while (Infront.MatchManager.Instance == null && w0 < 6f) { w0 += Time.deltaTime; yield return null; }
-            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
-            int myTeam = player.GetComponent<TeamMember>().TeamId;
-
-            BotBrain brain = null;
-            foreach (var b in Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
-            {
-                int bt = b.GetComponent<TeamMember>().TeamId;
-                if (bt != myTeam && bt != Team.None && brain == null) brain = b;
-                else b.SetActive(false);
-            }
-            Assert.IsNotNull(brain, "Kein Gegner-Bot gefunden.");
-            brain.SetActive(true);
-
+            var brain = EnemyBot(player);
+            Assert.IsNotNull(brain);
             var agent = brain.GetComponent<NavMeshAgent>();
-            float w = 0f;
-            while (!agent.isOnNavMesh && w < 5f) { w += Time.deltaTime; yield return null; }
+            yield return MatchTestHarness.WaitUntil(() => agent.isOnNavMesh, 5f, "Bot nicht auf NavMesh.");
 
-            // Bot 15 m vor den Spieler stellen, so dass er ihn sieht
-            Vector3 inFront = player.transform.position + player.transform.forward * 15f + Vector3.up;
-            if (NavMesh.SamplePosition(inFront, out NavMeshHit navHit, 5f, NavMesh.AllAreas))
-                agent.Warp(navHit.position);
+            // Kisten weg, alle Bots weg - dann der eine Bot 14 m vor den Spieler
+            MatchTestHarness.ClearArena();
+            MatchTestHarness.PlacePlayer(player, new Vector3(0f, 1f, 0f), 0f);
+            Assert.IsTrue(MatchTestHarness.ReviveBotAt(brain, new Vector3(0f, 1f, 14f), out _),
+                "Bot nicht platzierbar.");
             brain.transform.LookAt(player.transform.position);
+            BotBrain.GloballyFrozen = false;
+            brain.SetActive(true);
+            for (int i = 0; i < 3; i++) yield return new WaitForFixedUpdate();
 
             float startDist = Vector3.Distance(brain.transform.position, player.transform.position);
-
-            float waited = 0f;
-            while (!brain.HasTarget && waited < 5f)
-            {
-                waited += Time.deltaTime;
-                yield return null;
-            }
-            Assert.IsTrue(brain.HasTarget, "Bot hat den Spieler nicht entdeckt.");
-
-            // etwas Zeit zum Verfolgen
-            for (int i = 0; i < 3; i++) yield return new WaitForSeconds(0.5f);
+            yield return MatchTestHarness.WaitUntil(() => brain.HasTarget, 5f, "Bot hat den Spieler nicht entdeckt.");
+            for (int i = 0; i < 4; i++) yield return new WaitForSeconds(0.5f);
 
             float endDist = Vector3.Distance(brain.transform.position, player.transform.position);
-            Assert.Less(endDist, startDist - 1f,
-                $"Bot ist dem Spieler nicht naeher gekommen (start {startDist:F1}, ende {endDist:F1}).");
+            Assert.Less(endDist, startDist - 1f, $"Bot nicht naeher gekommen ({startDist:F1} -> {endDist:F1}).");
         }
 
         [UnityTest]
         public IEnumerator Bot_schiesst_auf_den_Spieler()
         {
-            yield return LoadArenaAndHost();
-
             NetworkPlayerController player = null;
-            yield return WaitFor<NetworkPlayerController>(p => player = p);
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
 
-            // Warten, bis Teams zugeteilt sind, dann einen GEGNER-Bot nehmen
-            float w0 = 0f;
-            while (Infront.MatchManager.Instance == null && w0 < 6f) { w0 += Time.deltaTime; yield return null; }
-            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
-
-            int myTeam = player.GetComponent<TeamMember>().TeamId;
-
-            BotBrain brain = null;
-            foreach (var b in Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
-            {
-                int bt = b.GetComponent<TeamMember>().TeamId;
-                if (bt != myTeam && bt != Team.None && brain == null)
-                    brain = b;
-                else
-                    b.SetActive(false); // nur der eine Gegner-Bot bleibt aktiv
-            }
-            Assert.IsNotNull(brain, "Kein Gegner-Bot gefunden.");
+            var brain = EnemyBot(player);
+            Assert.IsNotNull(brain);
             var botWeapon = brain.GetComponent<NetworkWeapon>();
-
             var agent = brain.GetComponent<NavMeshAgent>();
-            float w = 0f;
-            while (!agent.isOnNavMesh && w < 5f) { w += Time.deltaTime; yield return null; }
+            yield return MatchTestHarness.WaitUntil(() => agent.isOnNavMesh, 5f, "Bot nicht auf NavMesh.");
 
-            // Spieler und Bot auf eine freie Stelle mit klarer Sichtlinie stellen.
-            // Eine Stelle mit Boxen dazwischen suchen wir aktiv weg.
-            Vector3 basePos = new Vector3(0f, 1f, 0f);
-            NavMesh.SamplePosition(basePos, out NavMeshHit baseHit, 8f, NavMesh.AllAreas);
-            player.GetComponent<CharacterController>().enabled = false;
-            player.transform.position = baseHit.position + Vector3.up * 0.1f;
-            player.GetComponent<CharacterController>().enabled = true;
-
-            Vector3 botSpot = baseHit.position + Vector3.forward * 3.5f;
-            if (NavMesh.SamplePosition(botSpot, out NavMeshHit navHit, 4f, NavMesh.AllAreas))
-                agent.Warp(navHit.position);
-            agent.ResetPath();
+            MatchTestHarness.ClearArena();
+            MatchTestHarness.PlacePlayer(player, new Vector3(0f, 1f, 0f), 0f);
+            Assert.IsTrue(MatchTestHarness.ReviveBotAt(brain, new Vector3(0f, 1f, 4f), out _),
+                "Bot nicht platzierbar.");
             brain.transform.LookAt(player.transform.position);
 
             var playerHp = player.GetComponent<Health>();
             playerHp.ResetFull();
             brain.GetComponent<Health>().ResetFull();
+            BotBrain.GloballyFrozen = false;
+            brain.SetActive(true);
             for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
-            int ammoBefore = botWeapon.Ammo;
-            int playerHpBefore = playerHp.Current;
 
+            int ammoBefore = botWeapon.Ammo;
+            int hpBefore = playerHp.Current;
             for (int i = 0; i < 8; i++) yield return new WaitForSeconds(0.5f);
 
             Assert.Less(botWeapon.Ammo, ammoBefore, "Der Bot hat nicht geschossen.");
-            Assert.IsTrue(playerHp.Current < playerHpBefore || !playerHp.IsAlive,
-                "Der Spieler hat keinen Bot-Schaden genommen.");
+            Assert.IsTrue(playerHp.Current < hpBefore || !playerHp.IsAlive, "Der Spieler hat keinen Bot-Schaden genommen.");
         }
 
         [UnityTest]
         public IEnumerator Bot_stirbt_und_respawnt()
         {
-            yield return LoadArenaAndHost();
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
 
-            BotBrain brain = null;
-            yield return WaitFor<BotBrain>(b => brain = b);
+            var brain = EnemyBot(player);
+            Assert.IsNotNull(brain);
             var health = brain.GetComponent<Health>();
 
             health.ApplyDamage(9999, NetworkManager.ServerClientId);
             yield return null;
-            Assert.IsFalse(health.IsAlive, "Bot sollte tot sein.");
+            Assert.IsFalse(health.IsAlive);
 
-            float waited = 0f;
-            while (!health.IsAlive && waited < 10f)
-            {
-                waited += Time.deltaTime;
-                yield return null;
-            }
-            Assert.IsTrue(health.IsAlive, "Bot ist nicht respawnt.");
+            yield return MatchTestHarness.WaitUntil(() => health.IsAlive, 10f, "Bot nicht respawnt.");
             Assert.AreEqual(health.Max, health.Current);
         }
     }

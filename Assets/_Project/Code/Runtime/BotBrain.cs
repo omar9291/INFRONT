@@ -24,6 +24,9 @@ namespace Infront
     {
         enum State { Patrol, Chase, Combat, Search }
 
+        /// <summary>Nur fuer Tests: legt ALLE Bots still (kein Denken, kein Bewegen, kein Schiessen).</summary>
+        public static bool GloballyFrozen;
+
         [SerializeField] BotStats _stats;
         [SerializeField] Transform _eyes;
         [SerializeField] LayerMask _sightBlockers = ~0;
@@ -86,7 +89,7 @@ namespace Infront
 
         void Update()
         {
-            if (!IsServer || !_active || _stats == null)
+            if (!IsServer || !_active || GloballyFrozen || _stats == null)
                 return;
             if (!_agent.enabled || !_agent.isOnNavMesh)
                 return;

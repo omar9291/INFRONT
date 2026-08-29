@@ -20,6 +20,9 @@ namespace Infront
 
         public static void Unregister(SpawnPoint point) => Points.Remove(point);
 
+        /// <summary>Nur fuer Tests.</summary>
+        public static void ResetForTests() => Points.Clear();
+
         public static bool TryGetSpawn(out Vector3 position, out Quaternion rotation)
             => TryGetSpawn(Team.None, out position, out rotation);
 
