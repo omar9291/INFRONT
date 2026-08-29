@@ -24,6 +24,7 @@ namespace Infront
         [SerializeField] BotStats _statsHard;
 
         readonly int[] _teams = { Team.Alpha, Team.Bravo };
+        readonly Dictionary<int, int> _slotCount = new();
         bool _started;
 
         void Start()
@@ -69,13 +70,17 @@ namespace Infront
             if (manager == null || !manager.IsServer) return;
 
             _teamSize = Mathf.Clamp(GameSettings.TeamSize, 1, 10);
+            _slotCount.Clear();
 
             // Spieler ohne Team noch zuteilen
             foreach (var client in manager.ConnectedClientsList)
             {
                 var player = client.PlayerObject != null ? client.PlayerObject.GetComponent<TeamMember>() : null;
-                if (player != null && player.TeamId == Team.None)
+                if (player == null) continue;
+                if (player.TeamId == Team.None)
                     player.SetTeam(SmallerTeam());
+                if (player.Slot == 0)
+                    player.SetSlot(NextSlot(player.TeamId));
             }
 
             // Beide Teams mit Bots auffuellen
@@ -108,7 +113,10 @@ namespace Infront
 
             var member = instance.GetComponent<TeamMember>();
             if (member != null)
+            {
                 member.SetTeam(team);
+                member.SetSlot(NextSlot(team));
+            }
 
             var brain = instance.GetComponent<BotBrain>();
             if (brain != null)
@@ -123,6 +131,14 @@ namespace Infront
                 case GameSettings.Level.Schwer: return _statsHard != null ? _statsHard : _statsNormal;
                 default: return _statsNormal;
             }
+        }
+
+        int NextSlot(int team)
+        {
+            _slotCount.TryGetValue(team, out int n);
+            n++;
+            _slotCount[team] = n;
+            return n;
         }
 
         int SmallerTeam()
