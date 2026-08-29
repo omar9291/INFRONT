@@ -52,17 +52,6 @@ namespace Infront
                 }
             }
 
-            // Fadenkreuz (nicht im Pausemenue)
-            if (!PauseMenu.IsPaused)
-            {
-            float cx = Screen.width / 2f, cy = Screen.height / 2f;
-            var cross = new Color(1f, 1f, 1f, 0.75f);
-            GUI.color = cross;
-            GUI.DrawTexture(new Rect(cx - 1f, cy - 8f, 2f, 16f), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(cx - 8f, cy - 1f, 16f, 2f), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            }
-
             var local = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null
                 ? NetworkManager.Singleton.LocalClient.PlayerObject
                 : null;
@@ -70,10 +59,31 @@ namespace Infront
             {
                 var health = local.GetComponent<Health>();
                 var weapon = local.GetComponent<NetworkWeapon>();
-                string line = "";
-                if (health != null) line += $"Leben {health.Current}/{health.Max}";
-                if (weapon != null) line += $"    Munition {weapon.Ammo}/{weapon.MagazineSize}" + (weapon.IsReloading ? " (nachladen...)" : "");
-                GUI.Label(new Rect(16, Screen.height - 40, Screen.width, 30), line, _mid);
+
+                if (health != null)
+                {
+                    float f = health.Max > 0 ? (float)health.Current / health.Max : 0f;
+                    var bar = new Rect(16, Screen.height - 44, 240, 20);
+
+                    GUI.color = new Color(0f, 0f, 0f, 0.5f);
+                    GUI.DrawTexture(bar, Texture2D.whiteTexture);
+
+                    // gruen -> gelb -> rot
+                    Color fill = f > 0.5f
+                        ? Color.Lerp(new Color(1f, 0.85f, 0.1f), new Color(0.3f, 0.85f, 0.2f), (f - 0.5f) * 2f)
+                        : Color.Lerp(new Color(0.85f, 0.15f, 0.1f), new Color(1f, 0.85f, 0.1f), f * 2f);
+                    GUI.color = fill;
+                    GUI.DrawTexture(new Rect(bar.x + 2, bar.y + 2, (bar.width - 4) * f, bar.height - 4), Texture2D.whiteTexture);
+
+                    GUI.color = Color.white;
+                    GUI.Label(new Rect(bar.xMax + 10, bar.y - 2, 200, 24), $"{health.Current}/{health.Max}", _mid);
+                }
+
+                if (weapon != null)
+                {
+                    string ammo = $"Munition {weapon.Ammo}/{weapon.MagazineSize}" + (weapon.IsReloading ? "  (nachladen...)" : "");
+                    GUI.Label(new Rect(16, Screen.height - 22, Screen.width, 22), ammo, _mid);
+                }
             }
         }
 

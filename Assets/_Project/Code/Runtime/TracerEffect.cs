@@ -13,8 +13,8 @@ namespace Infront
     [RequireComponent(typeof(NetworkWeapon))]
     public sealed class TracerEffect : MonoBehaviour
     {
-        [SerializeField] float _lifetime = 0.06f;
-        [SerializeField] float _width = 0.04f;
+        [SerializeField] float _lifetime = 0.1f;
+        [SerializeField] float _width = 0.05f;
         [SerializeField] Color _color = new(1f, 0.9f, 0.5f, 1f);
         [SerializeField] int _poolSize = 4;
 
