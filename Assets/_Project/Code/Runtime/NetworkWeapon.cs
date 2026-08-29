@@ -26,6 +26,7 @@ namespace Infront
 
         IAimSource _aim;
         NetworkPlayerController _playerController;
+        TeamMember _team;
 
         readonly NetworkVariable<int> _ammo = new(
             0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -50,6 +51,7 @@ namespace Infront
         {
             _aim = GetComponent<IAimSource>();
             _playerController = GetComponent<NetworkPlayerController>();
+            _team = GetComponent<TeamMember>();
         }
 
         public override void OnNetworkSpawn()
@@ -97,6 +99,14 @@ namespace Infront
                 _ammo.Value = _stats.MagazineSize;
                 _reloading.Value = false;
             }
+        }
+
+        /// <summary>Nur Server: Magazin sofort voll, Nachladen abbrechen (Rundenstart).</summary>
+        public void ServerRefillMagazine()
+        {
+            if (!IsServer || _stats == null) return;
+            _ammo.Value = _stats.MagazineSize;
+            _reloading.Value = false;
         }
 
         /// <summary>Nur Server (z.B. vom Bot aufgerufen). Gibt zurueck, ob geschossen wurde.</summary>
@@ -154,12 +164,21 @@ namespace Infront
                 if (hitObject != null && hitObject == NetworkObject)
                     continue; // eigene Kollider ueberspringen
 
+                var damageable = hit.collider.GetComponentInParent<IDamageable>();
+
+                // Verbuendete: Kugel fliegt hindurch (kein Freundschaftsbeschuss)
+                var otherTeam = hit.collider.GetComponentInParent<TeamMember>();
+                if (damageable != null && otherTeam != null && _team != null
+                    && Team.AreFriendly(_team.TeamId, otherTeam.TeamId))
+                {
+                    continue;
+                }
+
                 endPoint = hit.point;
 
-                var damageable = hit.collider.GetComponentInParent<IDamageable>();
                 if (damageable != null && damageable.IsAlive)
                 {
-                    damageable.ApplyDamage(_stats.Damage, OwnerClientId);
+                    damageable.ApplyDamage(_stats.Damage, gameObject);
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, _stats.Damage);
                 }
                 break;
