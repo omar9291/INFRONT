@@ -18,7 +18,7 @@ namespace Infront
     /// </summary>
     [RequireComponent(typeof(Health))]
     [RequireComponent(typeof(NetworkPlayerController))]
-    public sealed class PlayerLifecycle : NetworkBehaviour
+    public sealed class PlayerLifecycle : NetworkBehaviour, IRespawnable
     {
         [SerializeField] float _respawnDelay = 3f;
         [SerializeField] GameObject[] _hideOnDeath;
@@ -75,6 +75,11 @@ namespace Infront
             TeleportTo(position, rotation);
 
             _health.ResetFull();
+        }
+
+        public void ServerTeleport(Vector3 position, Quaternion rotation)
+        {
+            if (IsServer) TeleportTo(position, rotation);
         }
 
         void TeleportTo(Vector3 position, Quaternion rotation)

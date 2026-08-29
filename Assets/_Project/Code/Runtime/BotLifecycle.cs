@@ -11,7 +11,7 @@ namespace Infront
     /// </summary>
     [RequireComponent(typeof(Health))]
     [RequireComponent(typeof(BotBrain))]
-    public sealed class BotLifecycle : NetworkBehaviour
+    public sealed class BotLifecycle : NetworkBehaviour, IRespawnable
     {
         [SerializeField] float _respawnDelay = 4f;
         [SerializeField] GameObject[] _hideOnDeath;
@@ -63,12 +63,18 @@ namespace Infront
             yield return new WaitForSeconds(_respawnDelay);
 
             SpawnService.TryGetSpawn(out Vector3 position, out Quaternion rotation);
-            if (_agent != null && _agent.enabled)
+            ServerTeleport(position, rotation);
+            _health.ResetFull();
+        }
+
+        public void ServerTeleport(Vector3 position, Quaternion rotation)
+        {
+            if (!IsServer) return;
+            transform.rotation = rotation;
+            if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
                 _agent.Warp(position);
             else
                 transform.position = position;
-
-            _health.ResetFull();
         }
 
         void SetVisible(bool visible)
