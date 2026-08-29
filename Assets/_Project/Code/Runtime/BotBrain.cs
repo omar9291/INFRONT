@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
@@ -30,6 +31,8 @@ namespace Infront
         NavMeshAgent _agent;
         Health _health;
         NetworkWeapon _weapon;
+        TeamMember _team;
+        readonly List<TeamMember> _enemyBuffer = new();
 
         State _state = State.Patrol;
         bool _active = true;
@@ -55,6 +58,7 @@ namespace Infront
             _agent = GetComponent<NavMeshAgent>();
             _health = GetComponent<Health>();
             _weapon = GetComponent<NetworkWeapon>();
+            _team = GetComponent<TeamMember>();
         }
 
         public override void OnNetworkSpawn()
@@ -139,28 +143,26 @@ namespace Infront
             Transform best = null;
             float bestDist = float.MaxValue;
 
-            foreach (var client in NetworkManager.ConnectedClientsList)
+            int myTeam = _team != null ? _team.TeamId : Team.None;
+            Combatants.CollectEnemies(myTeam, _enemyBuffer);
+
+            foreach (var enemy in _enemyBuffer)
             {
-                var playerObject = client.PlayerObject;
-                if (playerObject == null) continue;
+                var enemyObject = enemy.GetComponent<NetworkObject>();
+                if (enemyObject == null) continue;
 
-                var playerHealth = playerObject.GetComponent<Health>();
-                if (playerHealth == null || !playerHealth.IsAlive) continue;
-
-                Vector3 targetPoint = playerObject.transform.position + Vector3.up * 1.4f;
+                Vector3 targetPoint = enemy.transform.position + Vector3.up * 1.4f;
                 Vector3 toTarget = targetPoint - EyePosition;
                 float distance = toTarget.magnitude;
 
                 if (distance > _stats.ViewDistance) continue;
                 if (Vector3.Angle(transform.forward, toTarget) > _stats.ViewAngle) continue;
-
-                if (IsSightBlocked(toTarget.normalized, distance, playerObject))
-                    continue;
+                if (IsSightBlocked(toTarget.normalized, distance, enemyObject)) continue;
 
                 if (distance < bestDist)
                 {
                     bestDist = distance;
-                    best = playerObject.transform;
+                    best = enemy.transform;
                 }
             }
 
