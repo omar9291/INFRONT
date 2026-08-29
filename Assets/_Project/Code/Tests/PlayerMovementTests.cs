@@ -16,25 +16,6 @@ namespace Infront.Tests
     /// </summary>
     public sealed class PlayerMovementTests
     {
-        sealed class FakeInput : IPlayerInputSource
-        {
-            public Vector2 Move { get; set; }
-            public float LookYaw { get; set; }
-            public bool Sprint { get; set; }
-
-            bool _jumpQueued;
-            public bool JumpPressed
-            {
-                get
-                {
-                    if (!_jumpQueued) return false;
-                    _jumpQueued = false;
-                    return true;
-                }
-            }
-            public void QueueJump() => _jumpQueued = true;
-        }
-
         [UnityTearDown]
         public IEnumerator TearDown()
         {
@@ -91,7 +72,7 @@ namespace Infront.Tests
             NetworkPlayerController player = null;
             yield return StartHostAndGetPlayer(p => player = p);
 
-            var input = new FakeInput { Move = new Vector2(0f, 1f), LookYaw = 0f };
+            var input = new FakePlayerInput { Move = new Vector2(0f, 1f), LookYaw = 0f };
             player.SetInputSource(input);
 
             // Auf echte Physik-Ticks warten, nicht auf Frames: headless rasen die
