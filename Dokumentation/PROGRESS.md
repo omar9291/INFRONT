@@ -60,6 +60,14 @@ Aussehen, HUD-Lesbarkeit, Kampf-/Rundengefuehl, Framerate mit 5 Bots.
 
 ## Bekannte offene Probleme / Risiken
 
+- BEHOBEN 2026-08-29: Im ersten macOS-Build konnte man sich nicht bewegen.
+  Ursache: activeInputHandler stand auf 0 (nur altes Input Manager), der
+  Code nutzt aber das neue Input System. Jetzt auf 2 (beide). Lehre: die
+  headless-Tests faelschen die Eingabe und pruefen den echten Geraete-Pfad
+  nicht - ein echter Build/Playtest bleibt noetig.
+- Cursor wird jetzt im Spiel gefangen (Maus-Look). Freigabe/Pause-Menue
+  fehlt noch -> Phase 5. Zum Beenden Cmd+Q.
+
 - HUD ist ein Platzhalter (s.o.). Nicht mit "fertig" verwechseln.
 - Bildrate mit 5 Bots (3v3) auf dem M1 mit 8 GB ist ungemessen. Wenn es
   ruckelt: Teamgroesse in MatchDirector runter, Wahrnehmung ist schon
