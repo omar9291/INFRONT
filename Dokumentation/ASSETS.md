@@ -28,14 +28,16 @@ erzeugte Platzhalter-Geometrie (graue Boxen).
 
 ## Unity-Pakete (Package Manager, keine Store-Assets)
 
-| Paket | Zweck | Lizenz |
-|-------|-------|--------|
-| com.unity.netcode.gameobjects | Netzwerk (server-autoritativ) | Unity Companion License, frei nutzbar |
-| com.unity.inputsystem | Eingabe (Tastatur/Maus/Gamepad) | Unity Companion License |
-| com.unity.ai.navigation | NavMesh fuer Bots | Unity Companion License |
-| com.unity.test-framework | PlayMode-Tests | Unity Companion License |
+| Paket | Version | Zweck | Lizenz |
+|-------|---------|-------|--------|
+| com.unity.render-pipelines.universal | 17.6.0 | Render-Pipeline (URP) | Unity Companion License |
+| com.unity.netcode.gameobjects | 2.13.2 | Netzwerk (server-autoritativ) | Unity Companion License |
+| com.unity.inputsystem | 1.20.0 | Eingabe (Tastatur/Maus/Gamepad) | Unity Companion License |
+| com.unity.ai.navigation | 2.0.14 | NavMesh fuer Bots (ab Phase 3) | Unity Companion License |
+| com.unity.test-framework | 1.7.0 | PlayMode-Tests | Unity Companion License |
 
-(Diese werden in Phase 1 hinzugefuegt, sobald gebraucht.)
+Alle unter Unity Companion License: im fertigen Spiel frei nutzbar, auch
+kommerziell. Stand: installiert in Phase 1 (2026-08-29).
 
 ## Spaeter geplante Asset-Kategorien
 
