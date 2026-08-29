@@ -36,6 +36,30 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Jeder_Kaempfer_hat_Team_Nummer_und_Namen()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+
+            var alpha = new System.Collections.Generic.HashSet<int>();
+            var bravo = new System.Collections.Generic.HashSet<int>();
+
+            foreach (var member in Combatants.Everyone)
+            {
+                Assert.AreNotEqual(Team.None, member.TeamId, "Kaempfer ohne Team.");
+                Assert.Greater(member.Slot, 0, $"{member.name} hat keine Slot-Nummer.");
+                Assert.IsTrue(member.DisplayName.StartsWith("Alpha-") || member.DisplayName.StartsWith("Bravo-"),
+                    $"Unerwarteter Name: {member.DisplayName}");
+
+                var set = member.TeamId == Team.Alpha ? alpha : bravo;
+                Assert.IsTrue(set.Add(member.Slot), $"Doppelte Slot-Nummer {member.Slot} in einem Team.");
+            }
+
+            Assert.AreEqual(3, alpha.Count);
+            Assert.AreEqual(3, bravo.Count);
+        }
+
+        [UnityTest]
         public IEnumerator Abschuss_gibt_dem_Schuetzen_Team_einen_Punkt()
         {
             NetworkPlayerController player = null; MatchManager match = null;

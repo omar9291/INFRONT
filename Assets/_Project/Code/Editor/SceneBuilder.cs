@@ -131,6 +131,8 @@ namespace Infront.EditorTools
             var playerController = root.AddComponent<NetworkPlayerController>();
             root.AddComponent<Health>();
             root.AddComponent<TeamMember>();
+            root.AddComponent<TeamTint>();
+            root.AddComponent<FriendlyNameplates>();
 
             // Sichtbarer Koerper (nur Optik, keine Collider)
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -251,6 +253,7 @@ namespace Infront.EditorTools
 
             var health = root.AddComponent<Health>();
             root.AddComponent<TeamMember>();
+            root.AddComponent<TeamTint>();
 
             var netTransform = root.AddComponent<NetworkTransform>();
             netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
