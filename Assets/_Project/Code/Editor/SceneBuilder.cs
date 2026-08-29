@@ -420,6 +420,7 @@ namespace Infront.EditorTools
 
             var hudGo = new GameObject("HUD");
             hudGo.AddComponent<MatchHud>();
+            hudGo.AddComponent<PauseMenu>();
 
             EditorUtility.SetDirty(nm);
             EditorSceneManager.MarkSceneDirty(scene);

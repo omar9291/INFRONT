@@ -157,7 +157,7 @@ MonoBehaviour:
   _sprintSpeed: 10
   _jumpHeight: 1.5
   _gravity: 20
-  _turnLerp: 15
+  _turnLerp: 20
   _aimPivot: {fileID: 7107910297437154381}
   _maxPitch: 80
 --- !u!114 &7834866920853241012
@@ -217,8 +217,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2336c4f69c56e438a8115956d1c21e63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.TracerEffect
-  _lifetime: 0.05
-  _color: {r: 1, g: 0.85, b: 0.4, a: 1}
+  _lifetime: 0.06
+  _width: 0.04
+  _color: {r: 1, g: 0.9, b: 0.5, a: 1}
+  _poolSize: 4
 --- !u!114 &5848086797243524067
 MonoBehaviour:
   m_ObjectHideFlags: 0
