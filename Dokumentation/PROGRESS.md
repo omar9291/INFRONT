@@ -7,82 +7,90 @@ Letzte Aktualisierung: 2026-08-29
 
 ## Aktueller Stand
 
-Phase 2 (Schiessen & Schaden) ist abgeschlossen und getestet.
-Wartet auf Go fuer Phase 3 (Bot-Gegner).
+Phase 3 (Bot-Gegner) ist abgeschlossen und getestet.
+Wartet auf Go fuer Phase 4 (Team-Deathmatch-Regeln).
 
 ## Was fertig ist
 
 ### Phase 0 - Grundgeruest
-Diagnose, Engine-Wechsel Unreal->Unity, Speicher 5->15 GB, Unity-Projekt,
-Ordnerstruktur, Git-Repo, Doku.
+Diagnose, Engine-Wechsel Unreal->Unity, Speicher 5->15 GB, Projekt,
+Ordnerstruktur, Git, Doku.
 
 ### Phase 1 - Bewegung
 Pakete (URP, Netcode 2.13.2, Input System). Server-autoritativer Charakter:
-Laufen/Sprinten/Springen. Schulterkamera. Arena per Code. 2 Tests gruen.
+Laufen/Sprinten/Springen. Schulterkamera. Arena per Code.
 
 ### Phase 2 - Schiessen & Schaden
-- Zielen hoch/runter: Maus Y neigt den Ziel-Drehpunkt, server-autoritativ,
-  Pitch als NetworkVariable an andere Clients. Kamera neigt mit.
-- Health-Bauteil: Leben + Lebendig-Status als server-geschriebene
-  NetworkVariables. IDamageable-Schnittstelle (Spieler, Dummy, spaeter Bots).
-- Sturmgewehr (NetworkWeapon): Hitscan. Client fragt an, Server prueft
-  Feuerrate/Munition/Nachladen und macht den Raycast. Munition als
-  NetworkVariable. Schussspur (TracerEffect) per ClientRpc.
-  Kennwerte in Sturmgewehr.asset (Balance ohne Code).
-- Tod + Respawn: ausblenden/stillstellen statt loeschen; Server teleportiert
-  nach Wartezeit zum SpawnPoint und setzt Leben zurueck. Gleicher Ablauf
-  fuer den stehenden Trainings-Dummy.
-- SpawnService kennt alle SpawnPoints (4 in der Arena). DummySpawner
-  erzeugt 3 Dummies beim Host-Start.
+Zielen hoch/runter. Health-Bauteil (server-geschriebene NetworkVariables).
+Sturmgewehr als Hitscan, server-autoritativ, Magazin/Nachladen. Schussspur.
+Tod + Respawn (ausblenden statt loeschen). Trainings-Dummy.
 
-## Tests (headless PlayMode) - 8 von 8 gruen (2026-08-29)
+### Phase 3 - Bot-Gegner
+- IAimSource: Spieler und Bot liefern der Waffe Ursprung/Richtung. Die
+  Waffe (NetworkWeapon) hat jetzt einen server-Feuerpfad (ServerTryFire),
+  den der Bot direkt nutzt - kein RPC an sich selbst.
+- NavMeshBaker: baeckt die Arena beim Host-Start zur Laufzeit. Kein
+  Handklick. Funktioniert headless.
+- BotBrain (nur Server): Zustandsautomat Patrol -> Chase -> Combat -> Search.
+  Sichtlinien-Wahrnehmung, auf 10 Pruefungen/Sekunde gedrosselt.
+  Kurzzeitgedaechtnis (laeuft zur letzten bekannten Stelle). Zielt mit
+  Streuung (AimSpread) und Reaktionszeit. Bewegung per NavMeshAgent.
+- BotLifecycle: Tod/Respawn wie beim Spieler.
+- BotStats-Asset: Schwierigkeitsstufen sind spaeter neue Assets, kein Code.
+- Bot-Waffe schwaecher (12 statt 18 Schaden).
+- Altlast aus Phase 1/2 erledigt: CharacterController auf Nicht-Server-
+  Instanzen ist jetzt aus.
+- Arena: 3 Bots, 1 Dummy, 4 SpawnPoints.
+
+## Tests (headless PlayMode) - 13 von 13 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
-- Spieler_spawnt_im_Host_Modus
-- Spieler_laeuft_auf_Vorwaerts_Eingabe_nach_vorne
-- Server_Schaden_senkt_Leben_des_Dummys
-- Dummy_stirbt_bei_null_Leben_und_respawnt
-- Schuss_auf_Dummy_macht_Schaden
-- Feuerrate_begrenzt_die_Schussanzahl
-- Spieler_stirbt_und_respawnt_mit_vollem_Leben
-- Waffe_startet_mit_vollem_Magazin
+Bewegung (2), Schaden/Waffe (6), Bots (5):
+- NavMesh_wird_zur_Laufzeit_gebacken
+- Bot_spawnt_und_steht_auf_dem_NavMesh
+- Bot_entdeckt_und_verfolgt_den_Spieler
+- Bot_schiesst_auf_den_Spieler
+- Bot_stirbt_und_respawnt
 
 Nicht automatisiert geprueft (auf diesem Mac nicht moeglich):
-Aussehen, Kamera-Gefuehl, Schiessgefuehl, Framerate.
+Aussehen, Kamera-/Schiessgefuehl, wie "clever" die Bots wirken, Framerate.
 
 ## Bekannte offene Probleme / Risiken
 
-- Lag-Kompensation fehlt (bewusst). Vorbereitet ueber clientRenderTime-Feld
-  in FireRpc. Details + Plan in NETCODE.md. Erst Stufe 3 noetig.
-- CharacterController auf Nicht-Server-Instanzen noch aktiv. Muss in Phase 3
-  abgeschaltet werden, sobald echte Remote-Clients dazukommen.
-- Waffe uebernimmt die Zielrichtung des Servers (aus dem Eingabe-Strom),
-  nicht eine mitgesendete Richtung. Sauber server-autoritativ, aber bei
-  Paketverlust koennte ein Schuss "schief" wirken. Mit Lag-Kompensation
-  spaeter zu haerten.
-- Treffer-Kollision ist die CharacterController-Kapsel, keine echten
-  Hitboxen (Kopf/Koerper). Reicht fuer jetzt.
-- Speicher: 11 GB frei, Projekt 1,7 GB. Weiter beobachten.
+- Lag-Kompensation fehlt (bewusst, im Host-Modus irrelevant). Vorbereitet
+  ueber clientRenderTime-Feld. Plan in NETCODE.md. Erst Stufe 3 noetig.
+- Treffer-Kollision ist die Kapsel (CharacterController bzw. Body-Capsule),
+  keine echten Hitboxen (Kopf/Koerper).
+- Bots und Spieler sind noch teamlos - jeder trifft jeden. Teams kommen in
+  Phase 4. Aktuell koennen Bots sich theoretisch gegenseitig treffen
+  (Raycast unterscheidet nur "lebendes IDamageable"). In Phase 4 ueber
+  Team-Pruefung ausschliessen.
+- Bot-Wahrnehmung sucht nur echte Spieler (ConnectedClients), keine anderen
+  Bots. Fuer Phase 4 (Bot-vs-Bot-Teams) erweitern.
+- NavMesh wird bei jedem Host-Start neu gebacken (~0,3 s). Ok fuer die
+  kleine Arena; bei grossen Karten spaeter cachen.
+- Speicher: 11 GB frei, Projekt 1,7 GB.
 
 ## Naechster geplanter Schritt
 
-Phase 3: Bot-Gegner.
+Phase 4: Team-Deathmatch-Regeln.
 Definition of Done (Vorschlag, vor Start bestaetigen):
-- NavMesh wird per Editor-Code aus der Arena gebacken.
-- Ein Bot-Typ: patrouilliert, entdeckt den Spieler per Sichtlinie, verfolgt,
-  schiesst mit derselben NetworkWeapon-Logik, nutzt Deckung grob.
-- Bots existieren nur auf dem Server; NGO verteilt sie.
-- Bots benutzen Health/IDamageable/PlayerLifecycle-Muster (ausblenden +
-  Respawn), damit Team Deathmatch spaeter zaehlen kann.
-- Schwierigkeit ueber WeaponStats + Reaktionszeit + Zielgenauigkeit
-  einstellbar (mehrere Stufen kommen aber erst spaeter).
-- PlayMode-Tests: Bot findet und verfolgt den Spieler; Bot-Schuss trifft;
-  Bot stirbt und respawnt.
+- Zwei Teams. Spieler und Bots gehoeren einem Team an (w's einstellbar).
+- Kein Freundschaftsbeschuss: Raycast und Bot-Wahrnehmung ignorieren das
+  eigene Team.
+- Punktezaehler pro Team als server-geschriebene NetworkVariable, +1 pro
+  Abschuss.
+- Rundenende bei Punktelimit oder Zeitlimit; danach Sieger anzeigen und
+  Runde neu starten.
+- Bots fuellen die Teams auf die gewaehlte Groesse auf.
+- Minimal-HUD: Leben, Munition, Punktestand beider Teams.
+- PlayMode-Tests: Abschuss gibt dem richtigen Team einen Punkt; kein
+  Freundschaftsbeschuss; Runde endet bei Limit.
 
 ## Sitzungsprotokoll
 
 ### 2026-08-29 (Sitzung 1)
-Phase 0, 1 und 2 komplett. Grundgeruest, server-autoritative Bewegung,
-Zielen, Sturmgewehr mit Hitscan, Schaden/Tod/Respawn, Trainings-Dummy.
-8 PlayMode-Tests gruen.
+Phasen 0-3 komplett. Grundgeruest, server-autoritative Bewegung, Zielen,
+Sturmgewehr mit Hitscan, Schaden/Tod/Respawn, Trainings-Dummy,
+Bot-Gegner mit Zustandsautomat und NavMesh. 13 PlayMode-Tests gruen.
