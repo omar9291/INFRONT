@@ -39,16 +39,23 @@ Wartet auf Go fuer Phase 1.
 
 ## Offene Entscheidungen (Nutzer)
 
-1. Render-Pipeline: Built-in oder URP? (Details in ARCHITECTURE.md)
-   Empfehlung: URP, jetzt umstellen solange das Projekt leer ist.
-2. Git LFS: jetzt installieren (Homebrew noetig) oder verschieben bis
-   Grafik-Assets dazukommen? Empfehlung: verschieben.
+Derzeit keine. Beide offenen Punkte aus Phase 0 sind entschieden:
+- Render-Pipeline: URP (entschieden 2026-08-29, Begruendung in ARCHITECTURE.md)
+- Git LFS: verschoben bis Grafik-Assets kommen (.gitattributes ist vorbereitet)
 
 ## Naechster geplanter Schritt
 
-Phase 1: Charakter bewegen.
-Definition of Done: Host startet, Third-Person-Charakter laeuft/sprintet/
-springt server-autoritativ, Schulterkamera folgt, ein PlayMode-Test gruen.
+Phase 1: URP-Setup + Charakter bewegen. Go vom Nutzer liegt vor (2026-08-29).
+
+Definition of Done Phase 1:
+- URP installiert, URP-Asset + Renderer per Editor-Skript erzeugt und in
+  Graphics-/Quality-Settings zugewiesen
+- Netcode for GameObjects und Input System als Pakete eingerichtet
+- Third-Person-Charakter laeuft, sprintet und springt, server-autoritativ
+- Schulterkamera folgt dem Charakter
+- Testkarte: flacher Boden mit ein paar Kisten, per Editor-Skript erzeugt
+- Mindestens ein PlayMode-Test gruen (Charakter spawnt im Host-Modus und bewegt sich)
+- Zwischen-Commits: URP-Setup und Charakter getrennt committen
 
 ## Sitzungsprotokoll
 

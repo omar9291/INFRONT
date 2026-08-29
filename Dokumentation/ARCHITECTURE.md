@@ -25,9 +25,43 @@ in C++, Feinschliff visuell") wird so uebersetzt:
   (ScriptableObjects fuer Waffen-Kennwerte, serialisierte Felder fuer
   Tuning-Parameter). So kann ohne Code-Aenderung balanciert werden.
 
-## Render-Pipeline
+## Render-Pipeline: URP
 
-OFFEN — Entscheidung siehe "Offene Entscheidungen" unten.
+ENTSCHIEDEN am 2026-08-29: Universal Render Pipeline (URP).
+
+Unity bietet drei Renderer. Kurzvergleich fuer dieses Projekt:
+
+| | Built-in | URP | HDRP |
+|---|---|---|---|
+| Zweck | alter Standard | breite Hardware, 60 FPS | Fotorealismus, starke PCs |
+| Wird weiterentwickelt | nein | ja | ja |
+| Shader Graph (visuell) | nein | ja | ja |
+| Qualitaetsstufen | kaum | ja | ja |
+| Auf M1/8 GB nutzbar | ja | ja | nein |
+| Neue Store-Assets zielen darauf | selten | ueblich | teilweise |
+
+Gruende fuer URP:
+
+1. Das Projektziel "60 FPS auf Mittelklasse-PC-Hardware" ist genau der
+   Zweck, fuer den URP gebaut wurde. Qualitaetsstufen erlauben, Schatten
+   und Effekte je nach Rechner herunterzuregeln, ohne Code zu aendern.
+2. Neue Asset-Store-Pakete (Charaktere, Waffen, Umgebung) zielen
+   ueblicherweise auf URP. Built-in-Assets muessten konvertiert werden.
+3. Ein spaeterer Wechsel Built-in -> URP macht ALLE Materialien im
+   Projekt kaputt (pink) und muss von Hand repariert werden. Jetzt, im
+   leeren Projekt, kostet die Umstellung Minuten.
+
+HDRP wurde verworfen: braucht eine dedizierte Grafikkarte und viel RAM,
+laeuft auf Apple Silicon schlecht. Auf einem M1 mit 8 GB nicht benutzbar.
+
+Ehrliche Einschraenkung: URP macht den Editor auf 8 GB RAM nicht
+schneller. Lange Startzeiten bleiben. Built-in waere aber nicht spuerbar
+besser und wuerde spaeter Nacharbeit verursachen.
+
+Umsetzung: com.unity.render-pipelines.universal als Paket, URP-Asset und
+Renderer per Editor-Skript erzeugt (nicht von Hand geklickt), zugewiesen
+in Graphics- und Quality-Settings. Assets liegen in
+Assets/_Project/Settings/.
 
 ## Projektstruktur
 
@@ -79,8 +113,12 @@ ehrlich als ungeprueft benannt.
 
 ## Offene Entscheidungen
 
-- [ ] Render-Pipeline: Built-in vs URP (Universal Render Pipeline).
-      URP ist der uebliche Weg fuer PC-Spiele mit Ziel 60 FPS auf
-      Mittelklasse-Hardware und noetig fuer moderne Grafik-Effekte.
-      Wechsel spaeter ist muehsam (alle Materialien brechen). Sollte
-      vor Phase 1 entschieden werden.
+Derzeit keine.
+
+Getroffene Entscheidungen mit Datum:
+- 2026-08-29: Engine Unity 6000.5.8f1 (statt Unreal, Hardware-Gruende)
+- 2026-08-29: Sprache C#
+- 2026-08-29: Render-Pipeline URP
+- 2026-08-29: Netzwerk server-autoritativ, V1 Host-Modus (siehe NETCODE.md)
+- 2026-08-29: Spaeter dedizierte Server statt Peer-to-Peer (siehe NETCODE.md)
+- 2026-08-29: Git LFS vorbereitet, Installation verschoben bis Grafik-Assets kommen
