@@ -73,6 +73,11 @@ namespace Infront
                 var cam = Camera.main;
                 if (cam != null && cam.TryGetComponent(out ShoulderCamera shoulder))
                     shoulder.SetTarget(transform, this);
+
+                // Maus fangen, damit Maus-Look funktioniert. Freigabe (Menue,
+                // Pause) kommt in Phase 5.
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
 
             if (IsServer)
