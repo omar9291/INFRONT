@@ -22,6 +22,11 @@ namespace Infront
 
         void OnGUI()
         {
+            // IMGUI ruft OnGUI mehrfach pro Bild auf. Fuer reine Anzeige
+            // reicht das Repaint-Ereignis - halbiert die Last.
+            if (Event.current.type != EventType.Repaint)
+                return;
+
             EnsureStyles();
 
             var match = MatchManager.Instance;
