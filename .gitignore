@@ -46,3 +46,4 @@ crashlytics-build.properties
 
 # JetBrains Rider
 /.idea/
+Packages/manifest.json.bak
