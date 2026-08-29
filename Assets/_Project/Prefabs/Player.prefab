@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4479797393786588466}
   - component: {fileID: 2293026451274847912}
   - component: {fileID: 7834866920853241012}
+  - component: {fileID: 8983441413690471175}
   - component: {fileID: 8968626863771665551}
   - component: {fileID: 6224702109042957362}
   - component: {fileID: 5848086797243524067}
@@ -173,6 +174,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Infront.Runtime::Infront.Health
   ShowTopMostFoldoutHeaderGroup: 1
   _maxHealth: 100
+--- !u!114 &8983441413690471175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4533054041791499376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38b975aa33694488bbd997fb76bd905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.TeamMember
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &8968626863771665551
 MonoBehaviour:
   m_ObjectHideFlags: 0

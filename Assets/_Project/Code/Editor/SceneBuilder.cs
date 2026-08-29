@@ -29,6 +29,7 @@ namespace Infront.EditorTools
         const string BotWeaponStatsPath = SettingsDir + "/Bot_Sturmgewehr.asset";
         const string BotStatsPath = SettingsDir + "/Bot_Standard.asset";
         const string BotPrefabPath = PrefabDir + "/Bot.prefab";
+        const string MatchManagerPrefabPath = PrefabDir + "/MatchManager.prefab";
         const string ScenePath = SceneDir + "/Arena.unity";
 
         [MenuItem("Infront/Setup/2 - Arena und Spieler bauen")]
@@ -45,7 +46,8 @@ namespace Infront.EditorTools
             GameObject playerPrefab = BuildPlayerPrefab(weapon);
             GameObject dummyPrefab = BuildDummyPrefab();
             GameObject botPrefab = BuildBotPrefab(botWeapon, botStats);
-            BuildArenaScene(playerPrefab, dummyPrefab, botPrefab);
+            GameObject matchManagerPrefab = BuildMatchManagerPrefab();
+            BuildArenaScene(playerPrefab, dummyPrefab, botPrefab, matchManagerPrefab);
 
             Debug.Log("SCENE_BUILD_OK");
         }
@@ -109,6 +111,7 @@ namespace Infront.EditorTools
 
             var playerController = root.AddComponent<NetworkPlayerController>();
             root.AddComponent<Health>();
+            root.AddComponent<TeamMember>();
 
             // Sichtbarer Koerper (nur Optik, keine Collider)
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -219,6 +222,7 @@ namespace Infront.EditorTools
             root.AddComponent<NetworkObject>();
 
             var health = root.AddComponent<Health>();
+            root.AddComponent<TeamMember>();
 
             var netTransform = root.AddComponent<NetworkTransform>();
             netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
@@ -288,7 +292,24 @@ namespace Infront.EditorTools
             return prefab;
         }
 
-        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab, GameObject botPrefab)
+        static GameObject BuildMatchManagerPrefab()
+        {
+            var root = new GameObject("MatchManager");
+            root.AddComponent<NetworkObject>();
+            root.AddComponent<MatchManager>();
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, MatchManagerPrefabPath, out bool ok);
+            Object.DestroyImmediate(root);
+            if (!ok || prefab == null)
+            {
+                Debug.LogError("[Infront] MatchManager-Prefab konnte nicht gespeichert werden.");
+                return null;
+            }
+            AssetDatabase.ImportAsset(MatchManagerPrefabPath, ImportAssetOptions.ForceUpdate);
+            return AssetDatabase.LoadAssetAtPath<GameObject>(MatchManagerPrefabPath);
+        }
+
+        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab, GameObject botPrefab, GameObject matchManagerPrefab)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
@@ -328,16 +349,21 @@ namespace Infront.EditorTools
 
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;
-            Vector3[] spawnPositions =
+            (Vector3 pos, int team)[] spawns =
             {
-                new(0f, 1f, -4f), new(-8f, 1f, -2f), new(8f, 1f, -2f), new(0f, 1f, 4f),
+                (new(-6f, 1f, -16f), Team.Alpha), (new(6f, 1f, -16f), Team.Alpha),
+                (new(-6f, 1f, 18f), Team.Bravo),  (new(6f, 1f, 18f), Team.Bravo),
             };
-            foreach (var pos in spawnPositions)
+            foreach (var (pos, team) in spawns)
             {
-                var sp = new GameObject("SpawnPoint");
+                var sp = new GameObject($"SpawnPoint_{Team.Name(team)}");
                 sp.transform.SetParent(spawnParent, true);
                 sp.transform.position = pos;
-                sp.AddComponent<SpawnPoint>();
+                sp.transform.rotation = Quaternion.LookRotation(team == Team.Alpha ? Vector3.forward : Vector3.back);
+                var comp = sp.AddComponent<SpawnPoint>();
+                var soSp = new SerializedObject(comp);
+                soSp.FindProperty("_teamId").intValue = team;
+                soSp.ApplyModifiedPropertiesWithoutUndo();
             }
 
             var camGo = new GameObject("Main Camera");
@@ -364,6 +390,8 @@ namespace Infront.EditorTools
                 nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = dummyPrefab });
             if (botPrefab != null)
                 nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = botPrefab });
+            if (matchManagerPrefab != null)
+                nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = matchManagerPrefab });
 
             nmGo.AddComponent<MatchBootstrap>();
 
@@ -379,16 +407,19 @@ namespace Infront.EditorTools
                 soSpawner.ApplyModifiedPropertiesWithoutUndo();
             }
 
-            // Bots
-            var botSpawnerGo = new GameObject("BotSpawner");
-            var botSpawner = botSpawnerGo.AddComponent<BotSpawner>();
+            // Teams + Bots + MatchManager
+            var directorGo = new GameObject("MatchDirector");
+            var director = directorGo.AddComponent<MatchDirector>();
+            var soDir = new SerializedObject(director);
             if (botPrefab != null)
-            {
-                var soBot = new SerializedObject(botSpawner);
-                soBot.FindProperty("_botPrefab").objectReferenceValue = botPrefab.GetComponent<NetworkObject>();
-                soBot.FindProperty("_count").intValue = 3;
-                soBot.ApplyModifiedPropertiesWithoutUndo();
-            }
+                soDir.FindProperty("_botPrefab").objectReferenceValue = botPrefab.GetComponent<NetworkObject>();
+            if (matchManagerPrefab != null)
+                soDir.FindProperty("_matchManagerPrefab").objectReferenceValue = matchManagerPrefab.GetComponent<NetworkObject>();
+            soDir.FindProperty("_teamSize").intValue = 3;
+            soDir.ApplyModifiedPropertiesWithoutUndo();
+
+            var hudGo = new GameObject("HUD");
+            hudGo.AddComponent<MatchHud>();
 
             EditorUtility.SetDirty(nm);
             EditorSceneManager.MarkSceneDirty(scene);
