@@ -58,6 +58,23 @@ still, weil sonst das laufende Gefecht den Test stoert.
 Nicht automatisiert geprueft (auf diesem Mac nicht moeglich):
 Aussehen, HUD-Lesbarkeit, Kampf-/Rundengefuehl, Framerate mit 5 Bots.
 
+## Playtest-Fixes (Phase 4.5, 2026-08-29)
+
+Erster echter Playtest deckte auf (headless-Tests konnten das nicht sehen):
+- BEHOBEN: Kamera-Rueckkopplung. Koerper drehte zur Laufrichtung, Kamera
+  folgte dem Koerper -> Ruckeln + "vertauschte Tasten". Jetzt fuehrt die
+  Maus die Kamera, der Koerper folgt der Blickrichtung.
+- BEHOBEN: Build rendert in 1280x720 statt Retina 2880x1800
+  (macRetinaSupport aus). VSync fix an, Zielbildrate 60.
+- BEHOBEN: Schussspur unsichtbar (alter Nicht-URP-Shader) + Leistungsfresser
+  (pro Schuss ein GameObject). Jetzt URP-Shader, wiederverwendete Linien.
+- NEU: Esc-Pause mit Maus-Freigabe (Weiter / Beenden). Platzhalter-IMGUI.
+- Tests: gemeinsamer MatchTestHarness, deterministischer Startzustand,
+  Gefecht eingefroren. 5 volle Laeufe hintereinander gruen.
+- OFFEN: "Linien, manche andersherum" - koennte zerrissenes Bild (jetzt
+  VSync an) oder kaputte Schussspur (jetzt URP-Shader) gewesen sein.
+  Muss der Nutzer im naechsten Build pruefen.
+
 ## Bekannte offene Probleme / Risiken
 
 - BEHOBEN 2026-08-29: Im ersten macOS-Build konnte man sich nicht bewegen.
