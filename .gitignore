@@ -1,0 +1,48 @@
+# Unity generiert (regenerierbar, gehoert nicht ins Repo)
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Asset-Meta-Backups / OS-Dateien
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+.DS_Store
+sysinfo.txt
+
+# IDE
+.vs/
+.idea/
+*.csproj
+*.sln
+*.slnx
+*.suo
+*.user
+*.userprefs
+*.unityproj
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Crashlytics
+crashlytics-build.properties
+
+# Gradle / Android Build
+/[Aa]ssets/[Aa]ndroidLib*/
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# JetBrains Rider
+/.idea/
