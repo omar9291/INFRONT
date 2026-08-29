@@ -23,7 +23,7 @@ namespace Infront
         [SerializeField] float _sprintSpeed = 10f;
         [SerializeField] float _jumpHeight = 1.5f;
         [SerializeField] float _gravity = 20f;
-        [SerializeField] float _turnLerp = 15f;
+        [SerializeField] float _turnLerp = 20f;
 
         [Header("Zielen")]
         [SerializeField] Transform _aimPivot;
@@ -31,6 +31,9 @@ namespace Infront
 
         CharacterController _controller;
         IPlayerInputSource _input;
+        ShoulderCamera _camera;
+        float _viewYaw;
+        float _viewPitch;
 
         // Nur Client-Besitzer
         PlayerInputCommand _pending;
@@ -70,12 +73,12 @@ namespace Infront
             {
                 _input ??= new KeyboardMouseInputSource(transform.eulerAngles.y);
 
-                var cam = Camera.main;
-                if (cam != null && cam.TryGetComponent(out ShoulderCamera shoulder))
-                    shoulder.SetTarget(transform, this);
+                _viewYaw = transform.eulerAngles.y;
 
-                // Maus fangen, damit Maus-Look funktioniert. Freigabe (Menue,
-                // Pause) kommt in Phase 5.
+                var cam = Camera.main;
+                if (cam != null && cam.TryGetComponent(out _camera))
+                    _camera.SetTarget(transform);
+
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
@@ -103,12 +106,24 @@ namespace Infront
         {
             if (IsOwner && _input != null)
             {
-                _pending.Move = _input.Move;
-                _pending.Yaw = _input.LookYaw;
-                _pending.Pitch = Mathf.Clamp(_input.LookPitch, -_maxPitch, _maxPitch);
-                _pending.Sprint = _input.Sprint;
-                if (_input.JumpPressed)
+                bool paused = PauseMenu.IsPaused;
+
+                if (!paused)
+                {
+                    _viewYaw = _input.LookYaw;
+                    _viewPitch = Mathf.Clamp(_input.LookPitch, -_maxPitch, _maxPitch);
+                }
+
+                _pending.Move = paused ? Vector2.zero : _input.Move;
+                _pending.Yaw = _viewYaw;
+                _pending.Pitch = _viewPitch;
+                _pending.Sprint = !paused && _input.Sprint;
+                if (!paused && _input.JumpPressed)
                     _jumpLatched = true;
+
+                // Kamera SOFORT lokal fuehren - kein Netzwerk, keine Verzoegerung
+                if (_camera != null)
+                    _camera.SetView(_viewYaw, _viewPitch);
             }
 
             // Nicht-Server-Instanzen: Ziel-Drehpunkt aus der NetworkVariable neigen
@@ -174,13 +189,9 @@ namespace Infront
             Vector3 velocity = wish * speed + Vector3.up * _verticalVelocity;
             _controller.Move(velocity * dt);
 
-            Vector3 face = wish.sqrMagnitude > 0.001f ? wish : (yawRotation * Vector3.forward);
-            face.y = 0f;
-            if (face.sqrMagnitude > 0.001f)
-            {
-                Quaternion target = Quaternion.LookRotation(face, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, target, _turnLerp * dt);
-            }
+            // Koerper schaut dorthin, wo gezielt wird (Kamera-Yaw), nicht in die
+            // Laufrichtung. Schnelle, aber weiche Drehung.
+            transform.rotation = Quaternion.Slerp(transform.rotation, yawRotation, _turnLerp * dt);
         }
     }
 }
