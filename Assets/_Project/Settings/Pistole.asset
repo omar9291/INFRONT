@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
-  m_Name: Bot_Sturmgewehr
+  m_Name: Pistole
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
-  DisplayName: Sturmgewehr
-  SlotKind: 0
-  SwitchTime: 0.5
-  Damage: 12
-  FireRate: 9
-  MagazineSize: 30
-  ReloadTime: 2
-  Range: 200
+  DisplayName: Pistole
+  SlotKind: 1
+  SwitchTime: 0.3
+  Damage: 14
+  FireRate: 5
+  MagazineSize: 14
+  ReloadTime: 1.5
+  Range: 90
   HeadshotMultiplier: 999
-  RecoilUp: 0.4
-  RecoilSide: 0.2
+  RecoilUp: 1.2
+  RecoilSide: 0.4
   RecoilRecovery: 14
-  SpreadStand: 0.3
-  SpreadWalk: 1.6
-  SpreadSprint: 3.5
+  SpreadStand: 0.4
+  SpreadWalk: 1.5
+  SpreadSprint: 3
   SpreadAir: 5
   SpreadPerShot: 0.5
   SpreadRecovery: 6

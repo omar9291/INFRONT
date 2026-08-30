@@ -92,5 +92,7 @@ Gruppe B - Schiessgefuehl (2026-08-30 gebaut):
       aufgehendes Fadenkreuz, Kopfschuesse (Trefferzonen Kopf/Koerper)
 
 Gruppe C - grosse Systeme (offen):
-- Mehrere Waffen -> dann Kaufmenue mit Geld -> Bomben-Modus
+- [x] Mehrere Waffen (2026-08-30): Primaer(1)/Pistole(2), je eigene
+      Munition, Wechselzeit. 4 Waffen im WeaponCatalog.
+- Karte (offen, als naechstes) -> Kaufmenue mit Geld -> Bomben-Modus
 - Sound (Beschaffung durch den Nutzer)

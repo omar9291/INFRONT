@@ -186,6 +186,66 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Waffenwechsel_auf_Pistole_und_zurueck()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            var weapon = player.GetComponent<NetworkWeapon>();
+
+            Assert.AreEqual(0, weapon.ActiveSlot, "Sollte auf Primaer starten.");
+            string primaryName = weapon.WeaponName;
+            int primaryMag = weapon.MagazineSize;
+
+            var input = new FakePlayerInput { LookYaw = 0f };
+            player.SetInputSource(input);
+
+            input.SwitchToSlot = 1;
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            input.SwitchToSlot = -1;
+
+            Assert.AreEqual(1, weapon.ActiveSlot, "Nicht auf Pistole gewechselt.");
+            Assert.AreNotEqual(primaryName, weapon.WeaponName, "Waffenname nicht gewechselt.");
+
+            input.SwitchToSlot = 0;
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            input.SwitchToSlot = -1;
+
+            Assert.AreEqual(0, weapon.ActiveSlot);
+            Assert.AreEqual(primaryName, weapon.WeaponName);
+            Assert.AreEqual(primaryMag, weapon.MagazineSize);
+        }
+
+        [UnityTest]
+        public IEnumerator Jede_Waffe_behaelt_ihre_Munition()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            var weapon = player.GetComponent<NetworkWeapon>();
+            MatchTestHarness.ClearArena();
+            MatchTestHarness.PlacePlayer(player, new Vector3(0f, 1f, 0f), 0f);
+
+            var input = new FakePlayerInput { LookYaw = 0f };
+            player.SetInputSource(input);
+            for (int i = 0; i < 10; i++) yield return new WaitForFixedUpdate();
+
+            int primaryFull = weapon.Ammo;
+            input.FireHeld = true;
+            for (int i = 0; i < 25; i++) yield return new WaitForFixedUpdate();
+            input.FireHeld = false;
+            int primaryAfter = weapon.Ammo;
+            Assert.Less(primaryAfter, primaryFull, "Primaerwaffe hat nicht gefeuert.");
+
+            // auf Pistole und zurueck
+            input.SwitchToSlot = 1;
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            input.SwitchToSlot = 0;
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            input.SwitchToSlot = -1;
+
+            Assert.AreEqual(primaryAfter, weapon.Ammo, "Primaerwaffe hat ihre Munition nicht behalten.");
+        }
+
+        [UnityTest]
         public IEnumerator Feuerrate_begrenzt_die_Schussanzahl()
         {
             NetworkPlayerController player = null;

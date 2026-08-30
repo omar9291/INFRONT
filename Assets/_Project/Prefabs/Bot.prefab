@@ -262,7 +262,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.NetworkWeapon
   ShowTopMostFoldoutHeaderGroup: 1
-  _stats: {fileID: 11400000, guid: cf6297830c0344eae917c76ad325a754, type: 2}
+  _catalog: {fileID: 11400000, guid: 89ac189b989994e9f9ae81c40d5db66e, type: 2}
+  _defaultPrimary: 4
+  _defaultSecondary: 3
   _muzzle: {fileID: 5145523918240973159}
   _hitMask:
     serializedVersion: 2

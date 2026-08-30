@@ -93,8 +93,13 @@ namespace Infront
 
                 if (weapon != null)
                 {
-                    string ammo = $"Munition {weapon.Ammo}/{weapon.MagazineSize}" + (weapon.IsReloading ? "  (nachladen...)" : "");
+                    string ammo = $"{weapon.WeaponName}   {weapon.Ammo}/{weapon.MagazineSize}"
+                        + (weapon.IsReloading ? "  (nachladen...)" : "");
                     GUI.Label(new Rect(16, Screen.height - 22, Screen.width, 22), ammo, _mid);
+                    GUI.color = new Color(1f, 1f, 1f, 0.5f);
+                    GUI.Label(new Rect(Screen.width - 220, Screen.height - 22, 210, 22),
+                        weapon.ActiveSlot == 0 ? "[1] Primaer   2 Pistole" : "1 Primaer   [2] Pistole", _mid);
+                    GUI.color = Color.white;
                 }
             }
         }

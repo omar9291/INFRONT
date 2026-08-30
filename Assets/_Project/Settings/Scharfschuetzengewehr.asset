@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
-  m_Name: Bot_Sturmgewehr
+  m_Name: Scharfschuetzengewehr
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
-  DisplayName: Sturmgewehr
+  DisplayName: Scharfschuetzengewehr
   SlotKind: 0
-  SwitchTime: 0.5
-  Damage: 12
-  FireRate: 9
-  MagazineSize: 30
-  ReloadTime: 2
-  Range: 200
-  HeadshotMultiplier: 999
-  RecoilUp: 0.4
+  SwitchTime: 0.9
+  Damage: 120
+  FireRate: 1.1
+  MagazineSize: 5
+  ReloadTime: 3.2
+  Range: 300
+  HeadshotMultiplier: 2
+  RecoilUp: 4
   RecoilSide: 0.2
   RecoilRecovery: 14
-  SpreadStand: 0.3
-  SpreadWalk: 1.6
-  SpreadSprint: 3.5
-  SpreadAir: 5
+  SpreadStand: 0.02
+  SpreadWalk: 4
+  SpreadSprint: 9
+  SpreadAir: 12
   SpreadPerShot: 0.5
   SpreadRecovery: 6
   SpreadMax: 9

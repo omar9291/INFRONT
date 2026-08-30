@@ -9,7 +9,13 @@ namespace Infront
     [CreateAssetMenu(menuName = "Infront/Waffe", fileName = "Waffe")]
     public sealed class WeaponStats : ScriptableObject
     {
+        public enum Slot { Primaer = 0, Pistole = 1 }
+
         public string DisplayName = "Sturmgewehr";
+        [Tooltip("Auf welchem Platz die Waffe gefuehrt wird.")]
+        public Slot SlotKind = Slot.Primaer;
+        [Tooltip("Wechselzeit in Sekunden - so lange kann nach dem Umschalten nicht gefeuert werden.")]
+        public float SwitchTime = 0.5f;
 
         [Tooltip("Schaden pro Treffer.")]
         public int Damage = 18;

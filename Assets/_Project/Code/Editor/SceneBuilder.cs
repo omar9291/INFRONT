@@ -25,8 +25,7 @@ namespace Infront.EditorTools
         const string SettingsDir = "Assets/_Project/Settings";
         const string PlayerPrefabPath = PrefabDir + "/Player.prefab";
         const string DummyPrefabPath = PrefabDir + "/TargetDummy.prefab";
-        const string WeaponStatsPath = SettingsDir + "/Sturmgewehr.asset";
-        const string BotWeaponStatsPath = SettingsDir + "/Bot_Sturmgewehr.asset";
+        const string CatalogPath = SettingsDir + "/WeaponCatalog.asset";
         const string BotStatsPath = SettingsDir + "/Bot_Normal.asset";
         const string BotStatsEasyPath = SettingsDir + "/Bot_Leicht.asset";
         const string BotStatsHardPath = SettingsDir + "/Bot_Schwer.asset";
@@ -43,12 +42,11 @@ namespace Infront.EditorTools
             Directory.CreateDirectory(SettingsDir);
             AssetDatabase.Refresh();
 
-            WeaponStats weapon = CreateWeaponStats(WeaponStatsPath, "Sturmgewehr", 18);
-            WeaponStats botWeapon = CreateWeaponStats(BotWeaponStatsPath, "Bot-Sturmgewehr", 12);
+            WeaponCatalog catalog = CreateWeaponCatalog();
             BotStats botStats = CreateBotStats();
-            GameObject playerPrefab = BuildPlayerPrefab(weapon);
+            GameObject playerPrefab = BuildPlayerPrefab(catalog);
             GameObject dummyPrefab = BuildDummyPrefab();
-            GameObject botPrefab = BuildBotPrefab(botWeapon, botStats);
+            GameObject botPrefab = BuildBotPrefab(catalog, botStats);
             GameObject matchManagerPrefab = BuildMatchManagerPrefab();
             BuildArenaScene(playerPrefab, dummyPrefab, botPrefab, matchManagerPrefab);
             BuildMenuScene();
@@ -64,25 +62,71 @@ namespace Infront.EditorTools
             Debug.Log("FULL_SETUP_OK");
         }
 
-        static WeaponStats CreateWeaponStats(string path, string name, int damage)
+        static WeaponStats MakeWeapon(string file, System.Action<WeaponStats> setup)
         {
-            var stats = AssetDatabase.LoadAssetAtPath<WeaponStats>(path);
-            if (stats == null)
+            string path = SettingsDir + "/" + file + ".asset";
+            var s = AssetDatabase.LoadAssetAtPath<WeaponStats>(path);
+            if (s == null)
             {
-                stats = ScriptableObject.CreateInstance<WeaponStats>();
-                stats.FireRate = 9f;
-                stats.MagazineSize = 30;
-                stats.ReloadTime = 2f;
-                stats.Range = 200f;
-                AssetDatabase.CreateAsset(stats, path);
+                s = ScriptableObject.CreateInstance<WeaponStats>();
+                AssetDatabase.CreateAsset(s, path);
             }
-            stats.DisplayName = name;
-            stats.Damage = damage;
-            stats.RecoilUp = 0.85f;
-            stats.RecoilSide = 0.3f;
-            EditorUtility.SetDirty(stats);
+            setup(s);
+            EditorUtility.SetDirty(s);
             AssetDatabase.SaveAssets();
-            return stats;
+            return s;
+        }
+
+        static WeaponCatalog CreateWeaponCatalog()
+        {
+            // Reihenfolge = Netz-Index. Nicht umsortieren!
+            var sturmgewehr = MakeWeapon("Sturmgewehr", w =>
+            {
+                w.DisplayName = "Sturmgewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.Damage = 18; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
+                w.RecoilUp = 0.85f; w.RecoilSide = 0.3f; w.SwitchTime = 0.5f;
+                w.SpreadStand = 0.15f; w.SpreadWalk = 1.4f; w.SpreadSprint = 3.2f;
+            });
+            var mp = MakeWeapon("Maschinenpistole", w =>
+            {
+                w.DisplayName = "Maschinenpistole"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.Damage = 12; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
+                w.RecoilUp = 0.5f; w.RecoilSide = 0.25f; w.SwitchTime = 0.4f;
+                w.SpreadStand = 0.4f; w.SpreadWalk = 1.2f; w.SpreadSprint = 2.5f;
+            });
+            var sniper = MakeWeapon("Scharfschuetzengewehr", w =>
+            {
+                w.DisplayName = "Scharfschuetzengewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.Damage = 120; w.FireRate = 1.1f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
+                w.RecoilUp = 4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
+                w.SpreadStand = 0.02f; w.SpreadWalk = 4f; w.SpreadSprint = 9f; w.SpreadAir = 12f;
+                w.HeadshotMultiplier = 2f;
+            });
+            var pistole = MakeWeapon("Pistole", w =>
+            {
+                w.DisplayName = "Pistole"; w.SlotKind = WeaponStats.Slot.Pistole;
+                w.Damage = 14; w.FireRate = 5f; w.MagazineSize = 14; w.ReloadTime = 1.5f; w.Range = 90f;
+                w.RecoilUp = 1.2f; w.RecoilSide = 0.4f; w.SwitchTime = 0.3f;
+                w.SpreadStand = 0.4f; w.SpreadWalk = 1.5f; w.SpreadSprint = 3f;
+            });
+            var botRifle = MakeWeapon("Bot_Sturmgewehr", w =>
+            {
+                w.DisplayName = "Sturmgewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.Damage = 12; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
+                w.RecoilUp = 0.4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.5f;
+                w.SpreadStand = 0.3f; w.SpreadWalk = 1.6f; w.SpreadSprint = 3.5f;
+            });
+
+            var cat = AssetDatabase.LoadAssetAtPath<WeaponCatalog>(CatalogPath);
+            if (cat == null)
+            {
+                cat = ScriptableObject.CreateInstance<WeaponCatalog>();
+                AssetDatabase.CreateAsset(cat, CatalogPath);
+            }
+            cat.Weapons = new[] { sturmgewehr, mp, sniper, pistole, botRifle };
+            EditorUtility.SetDirty(cat);
+            AssetDatabase.SaveAssets();
+            return cat;
         }
 
         static BotStats CreateBotStats()
@@ -112,7 +156,7 @@ namespace Infront.EditorTools
             return stats;
         }
 
-        static GameObject BuildPlayerPrefab(WeaponStats weapon)
+        static GameObject BuildPlayerPrefab(WeaponCatalog catalog)
         {
             var root = new GameObject("Player");
 
@@ -174,7 +218,9 @@ namespace Infront.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var soWeapon = new SerializedObject(weaponComponent);
-            soWeapon.FindProperty("_stats").objectReferenceValue = weapon;
+            soWeapon.FindProperty("_catalog").objectReferenceValue = catalog;
+            soWeapon.FindProperty("_defaultPrimary").intValue = 0;   // Sturmgewehr
+            soWeapon.FindProperty("_defaultSecondary").intValue = 3; // Pistole
             soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
             soWeapon.FindProperty("_hitMask").intValue = (1 << 0) | (1 << 6);
             soWeapon.ApplyModifiedPropertiesWithoutUndo();
@@ -271,7 +317,7 @@ namespace Infront.EditorTools
             head.AddComponent<Hitbox>().Configure(true, owner);
         }
 
-        static GameObject BuildBotPrefab(WeaponStats weapon, BotStats botStats)
+        static GameObject BuildBotPrefab(WeaponCatalog catalog, BotStats botStats)
         {
             var root = new GameObject("Bot");
             root.AddComponent<NetworkObject>();
@@ -317,7 +363,9 @@ namespace Infront.EditorTools
             var lifecycle = root.AddComponent<BotLifecycle>();
 
             var soWeapon = new SerializedObject(weaponComponent);
-            soWeapon.FindProperty("_stats").objectReferenceValue = weapon;
+            soWeapon.FindProperty("_catalog").objectReferenceValue = catalog;
+            soWeapon.FindProperty("_defaultPrimary").intValue = 4;   // Bot-Sturmgewehr
+            soWeapon.FindProperty("_defaultSecondary").intValue = 3; // Pistole
             soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
             soWeapon.FindProperty("_hitMask").intValue = (1 << 0) | (1 << 6);
             soWeapon.ApplyModifiedPropertiesWithoutUndo();

@@ -20,9 +20,13 @@ namespace Infront
     /// </summary>
     public sealed class NetworkWeapon : NetworkBehaviour
     {
-        [SerializeField] WeaponStats _stats;
+        [SerializeField] WeaponCatalog _catalog;
+        [SerializeField] int _defaultPrimary = 0;
+        [SerializeField] int _defaultSecondary = 3;
         [SerializeField] Transform _muzzle;
         [SerializeField] LayerMask _hitMask = ~0;
+
+        WeaponStats _stats;   // aktive Waffe, aus dem Katalog
 
         IAimSource _aim;
         NetworkPlayerController _playerController;
@@ -33,6 +37,14 @@ namespace Infront
             0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<bool> _reloading = new(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _ammoOther = new(
+            0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _primaryIdx = new(
+            0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _secondaryIdx = new(
+            0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _activeSlot = new(
+            0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         double _nextFireTime;
         double _reloadFinishTime;
@@ -45,6 +57,9 @@ namespace Infront
         public bool IsReloading => _reloading.Value;
         public int MagazineSize => _stats != null ? _stats.MagazineSize : 0;
         public WeaponStats Stats => _stats;
+        public int ActiveSlot => _activeSlot.Value;
+        public string WeaponName => _stats != null ? _stats.DisplayName : "-";
+        int ActiveIndex => _activeSlot.Value == 0 ? _primaryIdx.Value : _secondaryIdx.Value;
 
         public event Action<Vector3, Vector3> FireVisual;
         public event Action<GameObject, int> ServerHitConfirmed;
@@ -63,11 +78,51 @@ namespace Infront
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer && _stats != null)
-            {
-                _ammo.Value = _stats.MagazineSize;
-                _reloading.Value = false;
-            }
+            _activeSlot.OnValueChanged += (_, __) => RefreshStats();
+            _primaryIdx.OnValueChanged += (_, __) => RefreshStats();
+            _secondaryIdx.OnValueChanged += (_, __) => RefreshStats();
+
+            if (IsServer)
+                ServerSetLoadout(_defaultPrimary, _defaultSecondary);
+
+            RefreshStats();
+        }
+
+        void RefreshStats()
+        {
+            _stats = _catalog != null ? _catalog.Get(ActiveIndex) : null;
+        }
+
+        /// <summary>Nur Server: Waffen der beiden Plaetze setzen (Rundenstart, spaeter Kaufmenue).</summary>
+        public void ServerSetLoadout(int primaryIndex, int secondaryIndex)
+        {
+            if (!IsServer || _catalog == null) return;
+
+            _primaryIdx.Value = Mathf.Clamp(primaryIndex, 0, _catalog.Weapons.Length - 1);
+            _secondaryIdx.Value = Mathf.Clamp(secondaryIndex, 0, _catalog.Weapons.Length - 1);
+            _activeSlot.Value = 0;
+            _reloading.Value = false;
+            RefreshStats();
+
+            var prim = _catalog.Get(_primaryIdx.Value);
+            var sec = _catalog.Get(_secondaryIdx.Value);
+            _ammo.Value = prim != null ? prim.MagazineSize : 0;
+            _ammoOther.Value = sec != null ? sec.MagazineSize : 0;
+        }
+
+        [Rpc(SendTo.Server)]
+        void RequestSlotRpc(int slot)
+        {
+            if (!IsServer || slot == _activeSlot.Value || (slot != 0 && slot != 1)) return;
+            if (_stats == null) return;
+
+            int keep = _ammo.Value;
+            _ammo.Value = _ammoOther.Value;
+            _ammoOther.Value = keep;
+            _activeSlot.Value = slot;
+            _reloading.Value = false;
+            RefreshStats();
+            _nextFireTime = ServerNow + (_stats != null ? _stats.SwitchTime : 0.5f);
         }
 
         void Update()
@@ -76,6 +131,9 @@ namespace Infront
                 return;
 
             var input = _playerController.Input;
+
+            if (input.SwitchToSlot >= 0)
+                RequestSlotRpc(input.SwitchToSlot);
 
             if (input.ReloadPressed)
                 RequestReloadRpc();
@@ -154,12 +212,11 @@ namespace Infront
             }
         }
 
-        /// <summary>Nur Server: Magazin sofort voll, Nachladen abbrechen (Rundenstart).</summary>
+        /// <summary>Nur Server: beide Waffen voll, aktive Waffe auf Primaer, Nachladen abbrechen.</summary>
         public void ServerRefillMagazine()
         {
-            if (!IsServer || _stats == null) return;
-            _ammo.Value = _stats.MagazineSize;
-            _reloading.Value = false;
+            if (!IsServer || _catalog == null) return;
+            ServerSetLoadout(_primaryIdx.Value, _secondaryIdx.Value);
         }
 
         /// <summary>Nur Server (z.B. vom Bot aufgerufen). Gibt zurueck, ob geschossen wurde.</summary>

@@ -29,5 +29,8 @@ namespace Infront
 
         /// <summary>Wurde in diesem Frame die Nachladetaste gedrueckt?</summary>
         bool ReloadPressed { get; }
+
+        /// <summary>Gewuenschter Waffenplatz in diesem Frame: -1 = keiner, 0 = Primaer, 1 = Pistole.</summary>
+        int SwitchToSlot { get; }
     }
 }

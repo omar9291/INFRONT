@@ -26,6 +26,8 @@ namespace Infront.Tests
             get { if (!_reloadQueued) return false; _reloadQueued = false; return true; }
         }
 
+        public int SwitchToSlot { get; set; } = -1;
+
         public void QueueJump() => _jumpQueued = true;
         public void QueueReload() => _reloadQueued = true;
     }

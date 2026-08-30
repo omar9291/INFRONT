@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Sturmgewehr
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
   DisplayName: Sturmgewehr
+  SlotKind: 0
+  SwitchTime: 0.5
   Damage: 18
   FireRate: 9
   MagazineSize: 30

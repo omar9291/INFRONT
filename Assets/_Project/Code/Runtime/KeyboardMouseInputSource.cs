@@ -76,5 +76,17 @@ namespace Infront
         {
             get { var k = Keyboard.current; return k != null && k.rKey.wasPressedThisFrame; }
         }
+
+        public int SwitchToSlot
+        {
+            get
+            {
+                var k = Keyboard.current;
+                if (k == null) return -1;
+                if (k.digit1Key.wasPressedThisFrame) return 0;
+                if (k.digit2Key.wasPressedThisFrame) return 1;
+                return -1;
+            }
+        }
     }
 }
