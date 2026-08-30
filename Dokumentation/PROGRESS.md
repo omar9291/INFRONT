@@ -150,26 +150,40 @@ Erster echter Playtest deckte auf (headless-Tests konnten das nicht sehen):
 
 ## Bekannte offene Probleme / Risiken
 
-- BEHOBEN 2026-08-29: Im ersten macOS-Build konnte man sich nicht bewegen.
-  Ursache: activeInputHandler stand auf 0 (nur altes Input Manager), der
-  Code nutzt aber das neue Input System. Jetzt auf 2 (beide). Lehre: die
-  headless-Tests faelschen die Eingabe und pruefen den echten Geraete-Pfad
-  nicht - ein echter Build/Playtest bleibt noetig.
-- Cursor wird jetzt im Spiel gefangen (Maus-Look). Freigabe/Pause-Menue
-  fehlt noch -> Phase 5. Zum Beenden Cmd+Q.
+Stand 2026-08-30. Aeltere Eintraege, die inzwischen erledigt sind, wurden
+entfernt (Input-Bug, Pause-Menue, echte Hitboxen - alles behoben).
 
-- HUD ist ein Platzhalter (s.o.). Nicht mit "fertig" verwechseln.
-- Bildrate mit 5 Bots (3v3) auf dem M1 mit 8 GB ist ungemessen. Wenn es
-  ruckelt: Teamgroesse in MatchDirector runter, Wahrnehmung ist schon
-  gedrosselt.
-- Lag-Kompensation fehlt (bewusst, im Host-Modus egal). Plan in NETCODE.md.
-- Rundenneustart per Test (2 Runden am Stueck) gruen - aber nur headless
-  geprueft, nicht optisch.
-- Treffer weiterhin ueber die Kapsel, keine Kopf-/Koerper-Hitboxen.
-- Combatants/SpawnService/MatchManager.Instance sind statisch. In den Tests
-  sauber (TearDown schaltet alles ab), aber bei einem Editor-Domain-Reload-
-  Wechsel im Blick behalten.
-- Speicher: 11 GB frei, Projekt 1,7 GB.
+### Bewusst vertagt (mit Plan)
+- Lag-Kompensation fehlt. Im Host-Modus egal. clientRenderTime-Feld in
+  NetworkWeapon ist der Einhaengepunkt. Plan in NETCODE.md.
+- Kein echtes Online-Multiplayer. Server-autoritativ ist gebaut, aber nur
+  Host-Modus getestet. Dedizierte Server / Matchmaking = Spaeter Stufe 3.
+- Reservemunition: Nachladen ist unbegrenzt. Kommt mit dem Kaufmenue.
+- Karte: flache Platte + 12 Zufallskisten. Naechster Gruppe-C-Schritt.
+
+### Technische Schulden
+- Alle Menues/HUD sind IMGUI-Platzhalter (OnGUI). Funktioniert, ist aber
+  nicht die endgueltige UI. Spaeter Stufe 4.
+- Statischer Zustand: Combatants, SpawnService, MatchManager.Instance,
+  BotBrain.GloballyFrozen. Funktioniert fuer eine Spielinstanz; global
+  veraenderlicher Zustand bleibt ein Risiko (die Test-Flakiness kam daher).
+- Test-Haken in Produktionsklassen: SuspendedForTests, SkipFreezeForTests,
+  GloballyFrozen, ServerApplyTestConfig, Hitbox.Configure. Klar benannt,
+  aber Testcode in Runtime-Dateien.
+- Bot-KI kann nur: patrouillieren, sehen, verfolgen, schiessen, suchen.
+  Keine Deckung, keine Absprache, kein Ziel-Verstaendnis (fuer Bombe noetig).
+- Waffen-Sichtmodell ist ein schwebender grauer Quader.
+- Kein .inputactions-Asset, keine Tastenbelegung, kein Gamepad.
+- Zuschauen waehlt per Listen-Index - kann springen, wenn Verbuendete sterben.
+
+### Nicht messbar auf diesem Mac
+- Bildrate. Der M1/8 GB ist nicht die Zielhardware, und Unity 6 + URP + Metal
+  hat eigene Macken (die Streifen kamen von Adaptive Performance).
+- Aussehen und Spielgefuehl - nur per F9-Screenshot und Nutzer-Rueckmeldung.
+
+### Aus dem Original-Auftrag noch nicht gebaut (alles "Spaeter")
+Granaten/Gadgets, Fahrzeuge, Sliden, Klettern, zerstoerbare Umgebung,
+Battle Pass, Skins, Grafik, Sound, Animationen.
 
 ## Naechster geplanter Schritt
 
