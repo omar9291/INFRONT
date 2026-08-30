@@ -229,9 +229,11 @@ namespace Infront
             if (_aimPivot != null)
                 _aimPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
-            if (!_movementEnabled)
+            bool frozen = MatchManager.Instance != null && MatchManager.Instance.IsFrozen;
+            if (!_movementEnabled || frozen)
             {
-                _verticalVelocity = 0f;
+                _verticalVelocity = _controller.isGrounded ? -2f : _verticalVelocity - _gravity * dt;
+                _controller.Move(Vector3.up * _verticalVelocity * dt);
                 return;
             }
 

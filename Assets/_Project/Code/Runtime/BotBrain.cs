@@ -101,6 +101,11 @@ namespace Infront
                 return;
             if (!_agent.enabled || !_agent.isOnNavMesh)
                 return;
+            if (MatchManager.Instance != null && MatchManager.Instance.IsFrozen)
+            {
+                if (_agent.hasPath) _agent.ResetPath();
+                return;
+            }
 
             _perceptionTimer -= Time.deltaTime;
             if (_perceptionTimer <= 0f)

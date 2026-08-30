@@ -35,6 +35,9 @@ namespace Infront
         /// <summary>NUR beim getroffenen Client: Weltposition des Angreifers.</summary>
         public event Action<Vector3> LocalDamageFrom;
 
+        /// <summary>NUR beim getoeteten Client: NetworkObjectId des Toeters (0 = unbekannt).</summary>
+        public event Action<ulong> LocalKilledBy;
+
         GameObject _lastInstigator;
 
         public override void OnNetworkSpawn()
@@ -74,7 +77,16 @@ namespace Infront
             DamageTaken?.Invoke(amount, sourceId);
 
             if (newValue == 0)
+            {
                 _alive.Value = false;
+                ulong killerId = 0;
+                if (instigator != null)
+                {
+                    var no = instigator.GetComponentInParent<NetworkObject>();
+                    if (no != null) killerId = no.NetworkObjectId;
+                }
+                KilledByRpc(killerId);
+            }
         }
 
         /// <summary>Nur Server: volles Leben, wieder lebendig.</summary>
@@ -93,6 +105,9 @@ namespace Infront
         {
             LocalDamageFrom?.Invoke(attackerPosition);
         }
+
+        [Rpc(SendTo.Owner)]
+        void KilledByRpc(ulong killerObjectId) => LocalKilledBy?.Invoke(killerObjectId);
 
         void OnCurrentChanged(int previous, int current) => HealthChanged?.Invoke(previous, current);
 

@@ -24,6 +24,7 @@ namespace Infront
         [SerializeField] float _roundDuration = 120f;
         [SerializeField] float _restDuration = 5f;
         [SerializeField] float _matchEndRest = 8f;
+        [SerializeField] float _freezeDuration = 3f;
 
         public static MatchManager Instance { get; private set; }
 
@@ -33,6 +34,7 @@ namespace Infront
         readonly NetworkVariable<double> _roundEndTime = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<int> _roundWinner = new(Team.None, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<int> _matchWinner = new(Team.None, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<double> _freezeEndTime = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         readonly HashSet<Health> _hooked = new();
         readonly List<Transform> _spawnBuffer = new();
@@ -48,6 +50,20 @@ namespace Infront
             Mathf.Max(0f, (float)(_roundEndTime.Value - NetworkManager.ServerTime.Time));
 
         public bool SuspendedForTests { get; set; }
+        public bool SkipFreezeForTests { get; set; }
+
+        /// <summary>Startsperre: niemand darf laufen oder schiessen.</summary>
+        public bool IsFrozen =>
+            !SkipFreezeForTests
+            && CurrentPhase == Phase.Playing
+            && NetworkManager != null
+            && NetworkManager.ServerTime.Time < _freezeEndTime.Value;
+
+        public double FreezeSecondsLeft =>
+            Mathf.Max(0f, (float)(_freezeEndTime.Value - NetworkManager.ServerTime.Time));
+
+        /// <summary>Event auf allen Clients: (ToeterId, OpferId). ToeterId 0 = kein gueltiger Toeter.</summary>
+        public event System.Action<ulong, ulong> KillReported;
 
         public override void OnNetworkSpawn()
         {
@@ -69,8 +85,6 @@ namespace Infront
 
             Combatants.Added -= HookCombatant;
             Combatants.Removed -= UnhookCombatant;
-            foreach (var h in _hooked)
-                if (h != null) h.Died -= OnAnyDeath;
             _hooked.Clear();
         }
 
@@ -78,28 +92,45 @@ namespace Infront
         {
             if (member == null || member.Health == null) return;
             if (_hooked.Add(member.Health))
-                member.Health.Died += OnAnyDeath;
+                member.Health.DiedWithInstigator += g => OnCombatantDied(member, g);
         }
 
         void UnhookCombatant(TeamMember member)
         {
             if (member == null || member.Health == null) return;
-            if (_hooked.Remove(member.Health))
-                member.Health.Died -= OnAnyDeath;
+            _hooked.Remove(member.Health);
+            // Delegat-Abmeldung: beim Szenenabbau wird ohnehin alles zerstoert.
         }
 
-        void OnAnyDeath()
+        void OnCombatantDied(TeamMember victim, GameObject instigator)
         {
-            if (!IsServer || SuspendedForTests || CurrentPhase != Phase.Playing)
+            if (!IsServer) return;
+
+            // Kill-/Tod-Statistik und Kill-Feed
+            ulong victimId = victim.NetworkObject != null ? victim.NetworkObject.NetworkObjectId : 0;
+            ulong killerId = 0;
+            var killer = instigator != null ? instigator.GetComponentInParent<TeamMember>() : null;
+
+            victim.AddDeath();
+            if (killer != null && killer != victim && !Team.AreFriendly(killer.TeamId, victim.TeamId))
+            {
+                killer.AddKill();
+                killerId = killer.NetworkObject != null ? killer.NetworkObject.NetworkObjectId : 0;
+            }
+            BroadcastKillRpc(killerId, victimId);
+
+            if (SuspendedForTests || CurrentPhase != Phase.Playing)
                 return;
 
             int aliveAlpha = AliveCount(Team.Alpha);
             int aliveBravo = AliveCount(Team.Bravo);
-
             if (aliveAlpha == 0 && aliveBravo == 0) EndRound(Team.None);
             else if (aliveAlpha == 0) EndRound(Team.Bravo);
             else if (aliveBravo == 0) EndRound(Team.Alpha);
         }
+
+        [Rpc(SendTo.Everyone)]
+        void BroadcastKillRpc(ulong killerId, ulong victimId) => KillReported?.Invoke(killerId, victimId);
 
         static int AliveCount(int team)
         {
@@ -162,6 +193,7 @@ namespace Infront
             _roundDuration = roundDuration;
             _restDuration = restDuration;
             _matchEndRest = restDuration;
+            _freezeEndTime.Value = 0;
             _roundEndTime.Value = NetworkManager.ServerTime.Time + roundDuration;
         }
 
@@ -172,6 +204,8 @@ namespace Infront
             _winsAlpha.Value = 0;
             _winsBravo.Value = 0;
             _matchWinner.Value = Team.None;
+            foreach (var m in Combatants.Everyone)
+                m?.ResetStats();
             StartRound();
         }
 
@@ -182,7 +216,9 @@ namespace Infront
 
             _roundWinner.Value = Team.None;
             _phase.Value = (int)Phase.Playing;
-            _roundEndTime.Value = NetworkManager.ServerTime.Time + _roundDuration;
+            double now = NetworkManager.ServerTime.Time;
+            _freezeEndTime.Value = now + _freezeDuration;
+            _roundEndTime.Value = now + _freezeDuration + _roundDuration;
 
             PlaceTeam(Team.Alpha);
             PlaceTeam(Team.Bravo);

@@ -146,6 +146,8 @@ namespace Infront
                 return false;
             if (_health != null && !_health.IsAlive)
                 return false; // Tote schiessen nicht
+            if (MatchManager.Instance != null && MatchManager.Instance.IsFrozen)
+                return false; // Startsperre
             if (ServerNow < _nextFireTime)
                 return false;
             if (_ammo.Value <= 0)

@@ -20,8 +20,13 @@ namespace Infront
         readonly NetworkVariable<int> _slot = new(
             0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+        readonly NetworkVariable<int> _kills = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _deaths = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
         public int TeamId => _team.Value;
         public int Slot => _slot.Value;
+        public int Kills => _kills.Value;
+        public int Deaths => _deaths.Value;
         public Health Health { get; private set; }
 
         public string DisplayName
@@ -63,6 +68,11 @@ namespace Infront
             if (IsServer)
                 _slot.Value = slot;
         }
+
+        /// <summary>Nur Server.</summary>
+        public void AddKill() { if (IsServer) _kills.Value += 1; }
+        public void AddDeath() { if (IsServer) _deaths.Value += 1; }
+        public void ResetStats() { if (IsServer) { _kills.Value = 0; _deaths.Value = 0; } }
 
         void OnTeamChanged(int previous, int current) => TeamChanged?.Invoke(previous, current);
     }
