@@ -77,4 +77,10 @@ MonoBehaviour:
   _roundDuration: 120
   _restDuration: 5
   _matchEndRest: 8
-  _freezeDuration: 3
+  _freezeDuration: 10
+  _moneyStart: 800
+  _moneyRoundWin: 3000
+  _moneyRoundLoss: 1400
+  _moneyLossStreakBonus: 500
+  _moneyLossStreakMax: 4
+  _moneyKill: 300

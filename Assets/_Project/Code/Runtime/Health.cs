@@ -11,14 +11,21 @@ namespace Infront
     public sealed class Health : NetworkBehaviour, IDamageable
     {
         [SerializeField] int _maxHealth = 100;
+        [SerializeField] int _maxArmor = 100;
 
         readonly NetworkVariable<int> _current = new(
             100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<bool> _alive = new(
             true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        // Schutzweste. Schluckt die Haelfte des Koerperschadens und verbraucht
+        // sich dabei. Kopfschuesse ignorieren die Weste (siehe ApplyDamage).
+        readonly NetworkVariable<int> _armor = new(
+            0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         public int Current => _current.Value;
         public int Max => _maxHealth;
+        public int Armor => _armor.Value;
+        public int MaxArmor => _maxArmor;
         public bool IsAlive => _alive.Value;
 
         /// <summary>Server + Clients: (vorher, nachher).</summary>
@@ -58,14 +65,27 @@ namespace Infront
             _alive.OnValueChanged -= OnAliveChanged;
         }
 
-        public void ApplyDamage(int amount, ulong sourceClientId) => ApplyDamage(amount, (GameObject)null);
+        public void ApplyDamage(int amount, ulong sourceClientId) => ApplyDamage(amount, (GameObject)null, false);
 
-        public void ApplyDamage(int amount, GameObject instigator)
+        public void ApplyDamage(int amount, GameObject instigator) => ApplyDamage(amount, instigator, false);
+
+        /// <param name="ignoreArmor">true bei Kopfschuss - die Weste hilft dann nicht.</param>
+        public void ApplyDamage(int amount, GameObject instigator, bool ignoreArmor)
         {
             if (!IsServer || !_alive.Value || amount <= 0)
                 return;
 
             _lastInstigator = instigator;
+
+            // Schutzweste: schluckt die Haelfte des ankommenden Schadens,
+            // solange sie Punkte hat, und verbraucht diese dabei.
+            if (!ignoreArmor && _armor.Value > 0)
+            {
+                int half = amount / 2;
+                int fromArmor = Mathf.Min(_armor.Value, half);
+                _armor.Value -= fromArmor;
+                amount -= fromArmor;
+            }
 
             int newValue = Mathf.Max(0, _current.Value - amount);
             _current.Value = newValue;
@@ -89,7 +109,10 @@ namespace Infront
             }
         }
 
-        /// <summary>Nur Server: volles Leben, wieder lebendig.</summary>
+        /// <summary>
+        /// Nur Server: volles Leben, wieder lebendig. Die Weste wird hier NICHT
+        /// angefasst - die verwaltet der MatchManager (Kauf bzw. Verlust bei Tod).
+        /// </summary>
         public void ResetFull()
         {
             if (!IsServer)
@@ -98,6 +121,20 @@ namespace Infront
             _lastInstigator = null;
             _current.Value = _maxHealth;
             _alive.Value = true;
+        }
+
+        /// <summary>Nur Server: Weste geben (Kaufmenue).</summary>
+        public void ServerGiveArmor(int amount)
+        {
+            if (IsServer)
+                _armor.Value = Mathf.Clamp(amount, 0, _maxArmor);
+        }
+
+        /// <summary>Nur Server: Weste weg (Tod, Matchstart).</summary>
+        public void ServerClearArmor()
+        {
+            if (IsServer)
+                _armor.Value = 0;
         }
 
         [Rpc(SendTo.Owner)]

@@ -76,10 +76,16 @@ namespace Infront.Tests
                 return tri.vertices != null && tri.vertices.Length > 0;
             }, 6f, "NavMesh nicht gebacken.");
 
-            // Alle frisch machen und einen Moment setzen lassen
+            // Alle frisch machen und einen Moment setzen lassen.
+            // Das Spiel startet jetzt jede Runde nur mit der Pistole (Kaufmenue).
+            // Die alten Tests gehen von einer Primaerwaffe aus - also hier
+            // ausdruecklich die Standardwaffe aus dem Prefab geben.
             foreach (var member in Combatants.Everyone)
-                if (member != null && member.Health != null)
-                    member.Health.ResetFull();
+            {
+                if (member == null || member.Health == null) continue;
+                member.Health.ResetFull();
+                member.GetComponent<NetworkWeapon>()?.ServerEquipDefaultPrimary();
+            }
             for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
 
             ready(player, match);

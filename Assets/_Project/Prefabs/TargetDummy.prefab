@@ -307,6 +307,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Infront.Runtime::Infront.Health
   ShowTopMostFoldoutHeaderGroup: 1
   _maxHealth: 60
+  _maxArmor: 100
 --- !u!114 &4725071499866145357
 MonoBehaviour:
   m_ObjectHideFlags: 0

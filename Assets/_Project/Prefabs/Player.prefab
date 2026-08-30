@@ -158,6 +158,9 @@ GameObject:
   - component: {fileID: 8968626863771665551}
   - component: {fileID: 6224702109042957362}
   - component: {fileID: 4823488442558896910}
+  - component: {fileID: 4222759956829425713}
+  - component: {fileID: 2127647467158026548}
+  - component: {fileID: 6289869710058346413}
   - component: {fileID: 5848086797243524067}
   m_Layer: 7
   m_Name: Player
@@ -321,6 +324,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Infront.Runtime::Infront.Health
   ShowTopMostFoldoutHeaderGroup: 1
   _maxHealth: 100
+  _maxArmor: 100
 --- !u!114 &8983441413690471175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -413,6 +417,48 @@ MonoBehaviour:
   _markerFade: 1.3
   _fadeToBlack: 0.7
   _fadeFromBlack: 0.5
+--- !u!114 &4222759956829425713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4533054041791499376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28bbdff7312ef4f24a88388b9f836321, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.Wallet
+  ShowTopMostFoldoutHeaderGroup: 1
+  _maxMoney: 16000
+--- !u!114 &2127647467158026548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4533054041791499376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b215f9d02f8c741e0b6aff4d936c7f6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.PurchaseAgent
+  ShowTopMostFoldoutHeaderGroup: 1
+  _catalog: {fileID: 11400000, guid: 89ac189b989994e9f9ae81c40d5db66e, type: 2}
+  _armorPrice: 1000
+--- !u!114 &6289869710058346413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4533054041791499376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee75840984a0f4063853d985a345d342, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.BuyMenuHud
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &5848086797243524067
 MonoBehaviour:
   m_ObjectHideFlags: 0

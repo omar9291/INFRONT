@@ -59,6 +59,9 @@ namespace Infront
         public WeaponStats Stats => _stats;
         public int ActiveSlot => _activeSlot.Value;
         public string WeaponName => _stats != null ? _stats.DisplayName : "-";
+        /// <summary>Hat der Kaempfer gerade eine Primaerwaffe (Platz 1)? -1 = nur Pistole.</summary>
+        public bool HasPrimary => _primaryIdx.Value >= 0;
+        public int PrimaryIndex => _primaryIdx.Value;
         int ActiveIndex => _activeSlot.Value == 0 ? _primaryIdx.Value : _secondaryIdx.Value;
 
         public event Action<Vector3, Vector3> FireVisual;
@@ -83,7 +86,7 @@ namespace Infront
             _secondaryIdx.OnValueChanged += (_, __) => RefreshStats();
 
             if (IsServer)
-                ServerSetLoadout(_defaultPrimary, _defaultSecondary);
+                ServerSetPistolOnly();   // Jede Runde startet man mit der Pistole
 
             RefreshStats();
         }
@@ -93,27 +96,59 @@ namespace Infront
             _stats = _catalog != null ? _catalog.Get(ActiveIndex) : null;
         }
 
-        /// <summary>Nur Server: Waffen der beiden Plaetze setzen (Rundenstart, spaeter Kaufmenue).</summary>
-        public void ServerSetLoadout(int primaryIndex, int secondaryIndex)
+        int PistolMag => _catalog != null && _catalog.Get(_secondaryIdx.Value) != null
+            ? _catalog.Get(_secondaryIdx.Value).MagazineSize : 0;
+
+        /// <summary>Nur Server: nur Pistole, keine Primaerwaffe (Rundenstart / nach Tod).</summary>
+        public void ServerSetPistolOnly()
         {
             if (!IsServer || _catalog == null) return;
 
-            _primaryIdx.Value = Mathf.Clamp(primaryIndex, 0, _catalog.Weapons.Length - 1);
-            _secondaryIdx.Value = Mathf.Clamp(secondaryIndex, 0, _catalog.Weapons.Length - 1);
+            _primaryIdx.Value = -1;
+            _secondaryIdx.Value = Mathf.Clamp(_defaultSecondary, 0, _catalog.Weapons.Length - 1);
+            _activeSlot.Value = 1;        // Pistole in der Hand
+            _reloading.Value = false;
+            RefreshStats();
+
+            _ammo.Value = PistolMag;      // aktive Waffe = Pistole
+            _ammoOther.Value = 0;         // kein Primaerplatz belegt
+        }
+
+        /// <summary>Nur Server: Primaerwaffe setzen (Kaufmenue). Wechselt in die Hand.</summary>
+        public void ServerSetPrimary(int weaponIndex)
+        {
+            if (!IsServer || _catalog == null) return;
+
+            _primaryIdx.Value = Mathf.Clamp(weaponIndex, 0, _catalog.Weapons.Length - 1);
             _activeSlot.Value = 0;
             _reloading.Value = false;
             RefreshStats();
 
             var prim = _catalog.Get(_primaryIdx.Value);
-            var sec = _catalog.Get(_secondaryIdx.Value);
             _ammo.Value = prim != null ? prim.MagazineSize : 0;
-            _ammoOther.Value = sec != null ? sec.MagazineSize : 0;
+            _ammoOther.Value = PistolMag;
+        }
+
+        /// <summary>Nur Server + nur Tests: die im Prefab hinterlegte Standardwaffe geben.</summary>
+        public void ServerEquipDefaultPrimary() => ServerSetPrimary(_defaultPrimary);
+
+        /// <summary>
+        /// Alt-API. Bleibt fuer bestehende Aufrufer erhalten und leitet auf die
+        /// klareren Methoden um.
+        /// </summary>
+        public void ServerSetLoadout(int primaryIndex, int secondaryIndex)
+        {
+            if (!IsServer || _catalog == null) return;
+            _secondaryIdx.Value = Mathf.Clamp(secondaryIndex, 0, _catalog.Weapons.Length - 1);
+            if (primaryIndex < 0) ServerSetPistolOnly();
+            else ServerSetPrimary(primaryIndex);
         }
 
         [Rpc(SendTo.Server)]
         void RequestSlotRpc(int slot)
         {
             if (!IsServer || slot == _activeSlot.Value || (slot != 0 && slot != 1)) return;
+            if (slot == 0 && !HasPrimary) return;   // nichts auf dem Primaerplatz
             if (_stats == null) return;
 
             int keep = _ammo.Value;
@@ -297,7 +332,8 @@ namespace Infront
                     int dmg = head
                         ? Mathf.RoundToInt(_stats.Damage * _stats.HeadshotMultiplier)
                         : _stats.Damage;
-                    targetHealth.ApplyDamage(dmg, gameObject);
+                    // Kopfschuss geht an der Weste vorbei
+                    targetHealth.ApplyDamage(dmg, gameObject, head);
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, dmg);
                     HitConfirmedRpc();
                 }

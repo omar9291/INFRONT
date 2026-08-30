@@ -89,6 +89,7 @@ namespace Infront.Tests
             MatchTestHarness.ClearArena();
             match.SuspendedForTests = false;
             match.SkipFreezeForTests = false;
+            match.ServerSetFreezeDuration(2f);   // kurze Kaufzeit fuer den Test
             match.StartRound();
             for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
 

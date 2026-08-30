@@ -116,6 +116,23 @@ namespace Infront.EditorTools
                 w.RecoilUp = 0.4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.5f;
                 w.SpreadStand = 0.3f; w.SpreadWalk = 1.6f; w.SpreadSprint = 3.5f;
             });
+            // Bot-Versionen der Kaufwaffen: etwas weniger Schaden, mehr Streuung,
+            // damit die Schwierigkeit stimmt (wie beim Bot-Sturmgewehr).
+            var botMp = MakeWeapon("Bot_Maschinenpistole", w =>
+            {
+                w.DisplayName = "Maschinenpistole"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.Damage = 9; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
+                w.RecoilUp = 0.3f; w.RecoilSide = 0.15f; w.SwitchTime = 0.4f;
+                w.SpreadStand = 0.6f; w.SpreadWalk = 1.6f; w.SpreadSprint = 3f;
+            });
+            var botSniper = MakeWeapon("Bot_Scharfschuetzengewehr", w =>
+            {
+                w.DisplayName = "Scharfschuetzengewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.Damage = 90; w.FireRate = 1.0f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
+                w.RecoilUp = 3f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
+                w.SpreadStand = 0.4f; w.SpreadWalk = 4f; w.SpreadSprint = 9f; w.SpreadAir = 12f;
+                w.HeadshotMultiplier = 2f;
+            });
 
             var cat = AssetDatabase.LoadAssetAtPath<WeaponCatalog>(CatalogPath);
             if (cat == null)
@@ -123,7 +140,18 @@ namespace Infront.EditorTools
                 cat = ScriptableObject.CreateInstance<WeaponCatalog>();
                 AssetDatabase.CreateAsset(cat, CatalogPath);
             }
-            cat.Weapons = new[] { sturmgewehr, mp, sniper, pistole, botRifle };
+            // Reihenfolge = Netz-Index. 0..4 nie umsortieren (steht in Speicherdaten
+            // fuer spaeter). Neue Bot-Waffen hinten anhaengen.
+            cat.Weapons = new[] { sturmgewehr, mp, sniper, pistole, botRifle, botMp, botSniper };
+            //                    0            1   2      3        4         5      6
+
+            cat.BuyEntries = new[]
+            {
+                new WeaponCatalog.BuyEntry { DisplayName = "Maschinenpistole",       Price = 1500, PlayerWeaponIndex = 1, BotWeaponIndex = 5 },
+                new WeaponCatalog.BuyEntry { DisplayName = "Sturmgewehr",             Price = 2700, PlayerWeaponIndex = 0, BotWeaponIndex = 4 },
+                new WeaponCatalog.BuyEntry { DisplayName = "Scharfschuetzengewehr",   Price = 4750, PlayerWeaponIndex = 2, BotWeaponIndex = 6 },
+            };
+
             EditorUtility.SetDirty(cat);
             AssetDatabase.SaveAssets();
             return cat;
@@ -210,6 +238,9 @@ namespace Infront.EditorTools
             var weaponComponent = root.AddComponent<NetworkWeapon>();
             root.AddComponent<TracerEffect>();
             root.AddComponent<DamageFeedback>();
+            root.AddComponent<Wallet>();
+            var purchaseAgent = root.AddComponent<PurchaseAgent>();
+            root.AddComponent<BuyMenuHud>();
             var lifecycle = root.AddComponent<PlayerLifecycle>();
 
             // Referenzen per SerializedObject setzen (private [SerializeField])
@@ -219,11 +250,15 @@ namespace Infront.EditorTools
 
             var soWeapon = new SerializedObject(weaponComponent);
             soWeapon.FindProperty("_catalog").objectReferenceValue = catalog;
-            soWeapon.FindProperty("_defaultPrimary").intValue = 0;   // Sturmgewehr
+            soWeapon.FindProperty("_defaultPrimary").intValue = 0;   // Sturmgewehr (nur fuer Tests)
             soWeapon.FindProperty("_defaultSecondary").intValue = 3; // Pistole
             soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
             soWeapon.FindProperty("_hitMask").intValue = (1 << 0) | (1 << 6);
             soWeapon.ApplyModifiedPropertiesWithoutUndo();
+
+            var soPurchase = new SerializedObject(purchaseAgent);
+            soPurchase.FindProperty("_catalog").objectReferenceValue = catalog;
+            soPurchase.ApplyModifiedPropertiesWithoutUndo();
 
             var soLife = new SerializedObject(lifecycle);
             var hideArray = soLife.FindProperty("_hideOnDeath");
@@ -477,16 +512,23 @@ namespace Infront.EditorTools
 
             var weaponComponent = root.AddComponent<NetworkWeapon>();
             root.AddComponent<TracerEffect>();
+            root.AddComponent<Wallet>();
+            var purchaseAgent = root.AddComponent<PurchaseAgent>();
+            root.AddComponent<BotBuyer>();
             var brain = root.AddComponent<BotBrain>();
             var lifecycle = root.AddComponent<BotLifecycle>();
 
             var soWeapon = new SerializedObject(weaponComponent);
             soWeapon.FindProperty("_catalog").objectReferenceValue = catalog;
-            soWeapon.FindProperty("_defaultPrimary").intValue = 4;   // Bot-Sturmgewehr
+            soWeapon.FindProperty("_defaultPrimary").intValue = 4;   // Bot-Sturmgewehr (nur fuer Tests)
             soWeapon.FindProperty("_defaultSecondary").intValue = 3; // Pistole
             soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
             soWeapon.FindProperty("_hitMask").intValue = (1 << 0) | (1 << 6);
             soWeapon.ApplyModifiedPropertiesWithoutUndo();
+
+            var soPurchase = new SerializedObject(purchaseAgent);
+            soPurchase.FindProperty("_catalog").objectReferenceValue = catalog;
+            soPurchase.ApplyModifiedPropertiesWithoutUndo();
 
             var soBrain = new SerializedObject(brain);
             soBrain.FindProperty("_stats").objectReferenceValue = botStats;

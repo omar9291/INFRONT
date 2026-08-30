@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
+  m_Name: Bot_Scharfschuetzengewehr
+  m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
+  DisplayName: Scharfschuetzengewehr
+  SlotKind: 0
+  SwitchTime: 0.9
+  Damage: 90
+  FireRate: 1
+  MagazineSize: 5
+  ReloadTime: 3.2
+  Range: 300
+  HeadshotMultiplier: 2
+  RecoilUp: 3
+  RecoilSide: 0.2
+  RecoilRecovery: 14
+  SpreadStand: 0.4
+  SpreadWalk: 4
+  SpreadSprint: 9
+  SpreadAir: 12
+  SpreadPerShot: 0.5
+  SpreadRecovery: 6
+  SpreadMax: 9

@@ -71,6 +71,7 @@ namespace Infront
             {
                 var health = local.GetComponent<Health>();
                 var weapon = local.GetComponent<NetworkWeapon>();
+                var wallet = local.GetComponent<Wallet>();
 
                 if (health != null)
                 {
@@ -89,6 +90,25 @@ namespace Infront
 
                     GUI.color = Color.white;
                     GUI.Label(new Rect(bar.xMax + 10, bar.y - 2, 200, 24), $"{health.Current}/{health.Max}", _mid);
+
+                    // Schutzweste: schmaler blauer Balken ueber dem Lebensbalken
+                    if (health.MaxArmor > 0 && health.Armor > 0)
+                    {
+                        float af = (float)health.Armor / health.MaxArmor;
+                        var abar = new Rect(bar.x, bar.y - 10, bar.width, 6);
+                        GUI.color = new Color(0f, 0f, 0f, 0.5f);
+                        GUI.DrawTexture(abar, Texture2D.whiteTexture);
+                        GUI.color = new Color(0.3f, 0.6f, 1f, 0.95f);
+                        GUI.DrawTexture(new Rect(abar.x + 1, abar.y + 1, (abar.width - 2) * af, abar.height - 2), Texture2D.whiteTexture);
+                        GUI.color = Color.white;
+                    }
+                }
+
+                if (wallet != null)
+                {
+                    GUI.color = new Color(0.4f, 0.9f, 0.4f, 0.95f);
+                    GUI.Label(new Rect(16, Screen.height - 66, 240, 22), $"$ {wallet.Money}", _mid);
+                    GUI.color = Color.white;
                 }
 
                 if (weapon != null)
