@@ -89,7 +89,16 @@ Auf Wunsch des Nutzers: weg vom Team-Deathmatch, hin zu Ausscheiden pro Runde.
   (war die Ursache von "man spawnt in den Gegnern").
 - Todes-Blende blinzelt nur kurz, dann klar zum Zuschauen.
 
-## Tests (headless PlayMode) - 22 von 22 gruen (2026-08-29)
+### Counter-Strike Gruppe A "Ueberblick" (2026-08-30)
+- Kill-Feed oben rechts (Freund blau, Feind rot, blendet aus).
+- Todesbildschirm: "Getoetet von Bravo-2".
+- Punktetabelle auf Tab: beide Teams, Name/Abschuesse/Tode/lebt.
+  Zaehlt ueber das ganze Match.
+- Freeze-Time: 3 s Startsperre pro Runde, Countdown im Bild. Niemand
+  laeuft oder schiesst. Test-Schalter SkipFreezeForTests.
+- Wunschliste B (Schiessgefuehl) und C (Waffen/Kaufmenue/Bombe) in SCOPE.md.
+
+## Tests (headless PlayMode) - 24 von 24 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
