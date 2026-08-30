@@ -98,7 +98,17 @@ Auf Wunsch des Nutzers: weg vom Team-Deathmatch, hin zu Ausscheiden pro Runde.
   laeuft oder schiesst. Test-Schalter SkipFreezeForTests.
 - Wunschliste B (Schiessgefuehl) und C (Waffen/Kaufmenue/Bombe) in SCOPE.md.
 
-## Tests (headless PlayMode) - 24 von 24 gruen (2026-08-29)
+### Counter-Strike Gruppe B "Schiessgefuehl" (2026-08-30)
+- Trefferzonen Kopf/Koerper (eigene Physik-Ebene). Kopfschuss = ein Treffer
+  toetet (WeaponStats.HeadshotMultiplier). Loest die Altlast "keine echten
+  Hitboxen" aus Phase 2.
+- Rueckstoss: festes lernbares Muster, zieht die Sicht hoch, geht erst
+  nach dem Feuern zurueck.
+- Streuung: rechnet der Server nach Bewegungszustand + Aufbau pro Schuss.
+- Fadenkreuz geht mit der Streuung auf.
+- Alle Werte im WeaponStats-Asset. Layer Hitbox(6)/Character(7).
+
+## Tests (headless PlayMode) - 26 von 26 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
