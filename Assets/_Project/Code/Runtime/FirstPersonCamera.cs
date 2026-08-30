@@ -20,6 +20,10 @@ namespace Infront
         bool _hasView;
         GameObject _viewModel;
 
+        bool _spectating;
+        Vector3 _specPos;
+        Vector3 _specDir = Vector3.forward;
+
         public void SetTarget(Transform eyeAnchor)
         {
             _anchor = eyeAnchor;
@@ -33,6 +37,22 @@ namespace Infront
             _yaw = yaw;
             _pitch = pitch;
             _hasView = true;
+        }
+
+        /// <summary>Zuschauen: Kamera an fremde Augen setzen.</summary>
+        public void SetSpectate(Vector3 eyePos, Vector3 lookDir)
+        {
+            _spectating = true;
+            _hasView = true;
+            _specPos = eyePos;
+            if (lookDir.sqrMagnitude > 0.0001f) _specDir = lookDir.normalized;
+            if (_viewModel != null) _viewModel.SetActive(false);
+        }
+
+        public void StopSpectate()
+        {
+            _spectating = false;
+            if (_viewModel != null) _viewModel.SetActive(true);
         }
 
         void EnsureViewModel()
@@ -54,7 +74,18 @@ namespace Infront
 
         void LateUpdate()
         {
-            if (_anchor == null || !_hasView)
+            if (!_hasView) return;
+
+            if (_spectating)
+            {
+                float ts = 1f - Mathf.Exp(-_positionSmooth * Time.deltaTime);
+                transform.position = Vector3.Lerp(transform.position, _specPos, ts);
+                var look = Quaternion.LookRotation(_specDir, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, look, ts * 1.5f);
+                return;
+            }
+
+            if (_anchor == null)
                 return;
 
             float t = 1f - Mathf.Exp(-_positionSmooth * Time.deltaTime);

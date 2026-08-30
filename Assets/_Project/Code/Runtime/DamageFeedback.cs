@@ -23,6 +23,7 @@ namespace Infront
         Health _health;
         NetworkWeapon _weapon;
         PlayerLifecycle _lifecycle;
+        NetworkPlayerController _controller;
         Transform _camera;
 
         readonly List<Marker> _markers = new();
@@ -43,6 +44,7 @@ namespace Infront
             _health = GetComponent<Health>();
             _weapon = GetComponent<NetworkWeapon>();
             _lifecycle = GetComponent<PlayerLifecycle>();
+            _controller = GetComponent<NetworkPlayerController>();
             if (Camera.main != null) _camera = Camera.main.transform;
 
             _health.LocalDamageFrom += OnDamageFrom;
@@ -88,8 +90,14 @@ namespace Infront
 
             if (_hitFlash > 0f) _hitFlash = Mathf.Max(0f, _hitFlash - Time.deltaTime * 3f);
 
-            float target = _dead ? 1f : 0f;
-            float speed = _dead ? 1f / _fadeToBlack : 1f / _fadeFromBlack;
+            // Beim Sterben kurz schwarz blinzeln, dann wieder aufblenden
+            // (damit man zuschauen kann). Beim Wiederbeleben ebenfalls klar.
+            float sinceDeath = Time.time - _deathTime;
+            float target;
+            if (_dead && sinceDeath < _fadeToBlack) target = 1f;          // reinblenden
+            else if (_dead) target = 0f;                                  // wieder aufblenden
+            else target = 0f;
+            float speed = 1f / (_dead && sinceDeath < _fadeToBlack ? _fadeToBlack : _fadeFromBlack);
             _black = Mathf.MoveTowards(_black, target, speed * Time.deltaTime);
         }
 
@@ -119,25 +127,27 @@ namespace Infront
                 GUI.color = prev;
             }
 
-            // Todes-Blende
+            // Todes-Blende (kurzes Blinzeln)
             if (_black > 0.001f)
             {
                 GUI.color = new Color(0f, 0f, 0f, _black);
                 GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
                 GUI.color = prev;
+            }
 
-                if (_dead && _black > 0.55f)
-                {
-                    if (_big == null)
-                        _big = new GUIStyle(GUI.skin.label)
-                        { fontSize = 38, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, wordWrap = true };
-                    float delay = _lifecycle != null ? _lifecycle.RespawnDelay : 3f;
-                    int rest = Mathf.Max(0, Mathf.CeilToInt(delay - (Time.time - _deathTime)));
-                    GUI.color = new Color(1f, 1f, 1f, Mathf.Clamp01((_black - 0.55f) / 0.4f));
-                    GUI.Label(new Rect(0, Screen.height / 2f - 50, Screen.width, 100),
-                        $"Ausgeschaltet\nRespawn in {rest}", _big);
-                    GUI.color = prev;
-                }
+            // Zuschau-Hinweis, solange man tot ist
+            if (_dead)
+            {
+                if (_big == null)
+                    _big = new GUIStyle(GUI.skin.label)
+                    { fontSize = 20, fontStyle = FontStyle.Bold, alignment = TextAnchor.UpperCenter, wordWrap = true };
+                string who = _controller != null ? _controller.SpectatingName : null;
+                string line = who != null
+                    ? $"Ausgeschaltet  -  Zuschauen bei {who}   (Links/Rechtsklick wechselt)"
+                    : "Ausgeschaltet  -  warte auf das Rundenende";
+                GUI.color = new Color(1f, 0.9f, 0.9f, 0.9f);
+                GUI.Label(new Rect(0, 24f, Screen.width, 30), line, _big);
+                GUI.color = prev;
             }
         }
 

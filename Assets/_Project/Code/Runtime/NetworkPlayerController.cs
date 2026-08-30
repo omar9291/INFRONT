@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -35,8 +36,14 @@ namespace Infront
         CharacterController _controller;
         IPlayerInputSource _input;
         FirstPersonCamera _camera;
+        Health _health;
+        TeamMember _teamMember;
         float _viewYaw;
         float _viewPitch;
+
+        readonly List<TeamMember> _specList = new();
+        int _specIndex;
+        bool _wasSpectating;
 
         // Nur Client-Besitzer
         PlayerInputCommand _pending;
@@ -68,6 +75,8 @@ namespace Infront
         void Awake()
         {
             _controller = GetComponent<CharacterController>();
+            _health = GetComponent<Health>();
+            _teamMember = GetComponent<TeamMember>();
         }
 
         public override void OnNetworkSpawn()
@@ -113,6 +122,23 @@ namespace Infront
         {
             if (IsOwner && _input != null)
             {
+                // Tot und Runde laeuft noch -> zuschauen
+                bool dead = _health != null && !_health.IsAlive;
+                bool roundPlaying = MatchManager.Instance != null
+                    && MatchManager.Instance.CurrentPhase == MatchManager.Phase.Playing;
+
+                if (dead && roundPlaying)
+                {
+                    UpdateSpectator();
+                    _wasSpectating = true;
+                    return;
+                }
+                if (_wasSpectating)
+                {
+                    _wasSpectating = false;
+                    _camera?.StopSpectate();
+                }
+
                 bool paused = PauseMenu.IsPaused;
 
                 if (!paused)
@@ -137,6 +163,37 @@ namespace Infront
             if (!IsServer && _aimPivot != null)
                 _aimPivot.localRotation = Quaternion.Euler(_aimPitch.Value, 0f, 0f);
         }
+
+        void UpdateSpectator()
+        {
+            if (_teamMember == null) return;
+
+            _specList.Clear();
+            foreach (var m in Combatants.Everyone)
+                if (m != null && m != _teamMember && m.TeamId == _teamMember.TeamId
+                    && m.Health != null && m.Health.IsAlive)
+                    _specList.Add(m);
+
+            if (_specList.Count == 0) return;
+
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            if (mouse != null)
+            {
+                if (mouse.leftButton.wasPressedThisFrame) _specIndex++;
+                if (mouse.rightButton.wasPressedThisFrame) _specIndex--;
+            }
+            _specIndex = ((_specIndex % _specList.Count) + _specList.Count) % _specList.Count;
+
+            var target = _specList[_specIndex];
+            var aim = target.GetComponent<IAimSource>();
+            if (aim != null)
+                _camera?.SetSpectate(aim.AimOrigin, aim.AimDirection);
+        }
+
+        /// <summary>Name des gerade beobachteten Verbuendeten (fuer die Anzeige).</summary>
+        public string SpectatingName =>
+            (_wasSpectating && _specList.Count > 0 && _specIndex < _specList.Count && _specList[_specIndex] != null)
+                ? _specList[_specIndex].DisplayName : null;
 
         void FixedUpdate()
         {
