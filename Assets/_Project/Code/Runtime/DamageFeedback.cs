@@ -32,6 +32,7 @@ namespace Infront
         float _deathTime;
         float _hitFlash;
         GUIStyle _big;
+        GUIStyle _small;
 
         public override void OnNetworkSpawn()
         {
@@ -135,19 +136,32 @@ namespace Infront
                 GUI.color = prev;
             }
 
-            // Zuschau-Hinweis, solange man tot ist
+            // Zuschau-Anzeige, solange man tot ist
             if (_dead)
             {
                 if (_big == null)
                     _big = new GUIStyle(GUI.skin.label)
-                    { fontSize = 20, fontStyle = FontStyle.Bold, alignment = TextAnchor.UpperCenter, wordWrap = true };
+                    { fontSize = 18, fontStyle = FontStyle.Bold, alignment = TextAnchor.UpperCenter, wordWrap = true };
+                if (_small == null)
+                    _small = new GUIStyle(GUI.skin.label)
+                    { fontSize = 22, fontStyle = FontStyle.Bold, alignment = TextAnchor.LowerCenter };
+
                 string who = _controller != null ? _controller.SpectatingName : null;
-                string line = who != null
-                    ? $"Ausgeschaltet  -  Zuschauen bei {who}   (Links/Rechtsklick wechselt)"
-                    : "Ausgeschaltet  -  warte auf das Rundenende";
-                GUI.color = new Color(1f, 0.9f, 0.9f, 0.9f);
-                GUI.Label(new Rect(0, 24f, Screen.width, 30), line, _big);
+
+                GUI.color = new Color(1f, 0.85f, 0.85f, 0.85f);
+                GUI.Label(new Rect(0, 22f, Screen.width, 28f), "Ausgeschaltet", _big);
                 GUI.color = prev;
+
+                if (who != null)
+                {
+                    GUI.color = new Color(0.7f, 0.85f, 1f, 0.95f);
+                    GUI.Label(new Rect(0, Screen.height - 90f, Screen.width, 30f),
+                        $"Zuschauen bei  {who}", _small);
+                    GUI.color = new Color(1f, 1f, 1f, 0.6f);
+                    GUI.Label(new Rect(0, Screen.height - 62f, Screen.width, 22f),
+                        "Linksklick / Rechtsklick  wechselt", _big);
+                    GUI.color = prev;
+                }
             }
         }
 
