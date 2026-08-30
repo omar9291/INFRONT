@@ -6,66 +6,71 @@ using UnityEngine;
 namespace Infront
 {
     /// <summary>
-    /// Team-Deathmatch-Regeln: Punktestand, Rundenzeit, Rundenende und Neustart.
-    /// Alle Zahlen sind server-geschriebene NetworkVariables. Die Restzeit wird
-    /// NICHT laufend gesendet - der Server nennt einmal die Endzeit, jeder
-    /// rechnet selbst herunter.
+    /// Rundenmodus mit Ausscheiden (wie Counter-Strike):
+    ///  - Wer stirbt, bleibt die ganze Runde tot (kein Respawn).
+    ///  - Ist ein Team ausgeloescht, gewinnt das andere die Runde.
+    ///  - Laeuft die Zeit ab, gewinnt das Team mit mehr Ueberlebenden
+    ///    (Gleichstand = kein Punkt).
+    ///  - Wer zuerst 15 Runden gewinnt, gewinnt das Match; danach neues Match.
+    ///
+    /// Alle Zahlen sind server-geschriebene NetworkVariables. Die Restzeit
+    /// wird nicht laufend gesendet - der Server nennt einmal die Endzeit.
     /// </summary>
     public sealed class MatchManager : NetworkBehaviour
     {
         public enum Phase { Playing = 0, RoundOver = 1 }
 
-        [SerializeField] int _scoreLimit = 25;
-        [SerializeField] float _roundDuration = 480f;
-        [SerializeField] float _restDuration = 6f;
+        [SerializeField] int _roundsToWin = 15;
+        [SerializeField] float _roundDuration = 120f;
+        [SerializeField] float _restDuration = 5f;
+        [SerializeField] float _matchEndRest = 8f;
 
         public static MatchManager Instance { get; private set; }
 
-        readonly NetworkVariable<int> _scoreAlpha = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-        readonly NetworkVariable<int> _scoreBravo = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _winsAlpha = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _winsBravo = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<int> _phase = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         readonly NetworkVariable<double> _roundEndTime = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-        readonly NetworkVariable<int> _winner = new(Team.None, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _roundWinner = new(Team.None, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        readonly NetworkVariable<int> _matchWinner = new(Team.None, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         readonly HashSet<Health> _hooked = new();
+        readonly List<Transform> _spawnBuffer = new();
         Coroutine _restartRoutine;
 
-        public int ScoreLimit => _scoreLimit;
-        public int GetScore(int team) => team == Team.Alpha ? _scoreAlpha.Value : team == Team.Bravo ? _scoreBravo.Value : 0;
+        public int RoundsToWin => _roundsToWin;
+        public int GetScore(int team) => team == Team.Alpha ? _winsAlpha.Value : team == Team.Bravo ? _winsBravo.Value : 0;
         public Phase CurrentPhase => (Phase)_phase.Value;
-        public int Winner => _winner.Value;
+        public int RoundWinner => _roundWinner.Value;
+        public int MatchWinner => _matchWinner.Value;
 
         public double SecondsRemaining =>
             Mathf.Max(0f, (float)(_roundEndTime.Value - NetworkManager.ServerTime.Time));
 
+        public bool SuspendedForTests { get; set; }
+
         public override void OnNetworkSpawn()
         {
             Instance = this;
-
-            if (!IsServer)
-                return;
+            if (!IsServer) return;
 
             Combatants.Added += HookCombatant;
             Combatants.Removed += UnhookCombatant;
             foreach (var member in Combatants.Everyone)
                 HookCombatant(member);
 
-            StartRound();
+            StartMatch();
         }
 
         public override void OnNetworkDespawn()
         {
-            if (Instance == this)
-                Instance = null;
-
-            if (!IsServer)
-                return;
+            if (Instance == this) Instance = null;
+            if (!IsServer) return;
 
             Combatants.Added -= HookCombatant;
             Combatants.Removed -= UnhookCombatant;
-            foreach (var health in _hooked)
-                if (health != null)
-                    health.DiedWithInstigator -= OnCombatantDied;
+            foreach (var h in _hooked)
+                if (h != null) h.Died -= OnAnyDeath;
             _hooked.Clear();
         }
 
@@ -73,34 +78,37 @@ namespace Infront
         {
             if (member == null || member.Health == null) return;
             if (_hooked.Add(member.Health))
-                member.Health.DiedWithInstigator += OnCombatantDied;
+                member.Health.Died += OnAnyDeath;
         }
 
         void UnhookCombatant(TeamMember member)
         {
             if (member == null || member.Health == null) return;
             if (_hooked.Remove(member.Health))
-                member.Health.DiedWithInstigator -= OnCombatantDied;
+                member.Health.Died -= OnAnyDeath;
         }
 
-        void OnCombatantDied(GameObject instigator)
+        void OnAnyDeath()
         {
-            if (!IsServer || CurrentPhase != Phase.Playing || instigator == null)
+            if (!IsServer || SuspendedForTests || CurrentPhase != Phase.Playing)
                 return;
 
-            var killerTeam = instigator.GetComponentInParent<TeamMember>();
-            if (killerTeam == null || killerTeam.TeamId == Team.None)
-                return;
+            int aliveAlpha = AliveCount(Team.Alpha);
+            int aliveBravo = AliveCount(Team.Bravo);
 
-            if (killerTeam.TeamId == Team.Alpha) _scoreAlpha.Value += 1;
-            else if (killerTeam.TeamId == Team.Bravo) _scoreBravo.Value += 1;
-
-            if (_scoreAlpha.Value >= _scoreLimit) EndRound(Team.Alpha);
-            else if (_scoreBravo.Value >= _scoreLimit) EndRound(Team.Bravo);
+            if (aliveAlpha == 0 && aliveBravo == 0) EndRound(Team.None);
+            else if (aliveAlpha == 0) EndRound(Team.Bravo);
+            else if (aliveBravo == 0) EndRound(Team.Alpha);
         }
 
-        /// <summary>Nur fuer Tests: kein automatisches Rundenende (Zeit/Punkte weiter zaehlbar).</summary>
-        public bool SuspendedForTests { get; set; }
+        static int AliveCount(int team)
+        {
+            int n = 0;
+            foreach (var m in Combatants.Everyone)
+                if (m != null && m.TeamId == team && m.Health != null && m.Health.IsAlive)
+                    n++;
+            return n;
+        }
 
         void Update()
         {
@@ -109,72 +117,95 @@ namespace Infront
 
             if (NetworkManager.ServerTime.Time >= _roundEndTime.Value)
             {
-                int winner = _scoreAlpha.Value > _scoreBravo.Value ? Team.Alpha
-                           : _scoreBravo.Value > _scoreAlpha.Value ? Team.Bravo
-                           : Team.None;
-                EndRound(winner);
+                int a = AliveCount(Team.Alpha), b = AliveCount(Team.Bravo);
+                EndRound(a > b ? Team.Alpha : b > a ? Team.Bravo : Team.None);
             }
         }
 
         void EndRound(int winner)
         {
             _phase.Value = (int)Phase.RoundOver;
-            _winner.Value = winner;
+            _roundWinner.Value = winner;
+
+            if (winner == Team.Alpha) _winsAlpha.Value += 1;
+            else if (winner == Team.Bravo) _winsBravo.Value += 1;
+
+            bool matchOver = false;
+            if (_winsAlpha.Value >= _roundsToWin) { _matchWinner.Value = Team.Alpha; matchOver = true; }
+            else if (_winsBravo.Value >= _roundsToWin) { _matchWinner.Value = Team.Bravo; matchOver = true; }
 
             if (_restartRoutine != null) StopCoroutine(_restartRoutine);
-            _restartRoutine = StartCoroutine(RestartAfterRest());
+            _restartRoutine = StartCoroutine(RestartAfterRest(matchOver ? _matchEndRest : _restDuration, matchOver));
         }
 
-        IEnumerator RestartAfterRest()
+        IEnumerator RestartAfterRest(float rest, bool matchOver)
         {
-            yield return new WaitForSeconds(_restDuration);
-            StartRound();
+            yield return new WaitForSeconds(rest);
+            if (matchOver) StartMatch();
+            else StartRound();
         }
 
-        /// <summary>Nur Server: Pause ueberspringen, sofort neue Runde.</summary>
+        /// <summary>Nur Server: Pause ueberspringen.</summary>
         public void ServerStartNextRoundNow()
         {
             if (!IsServer || CurrentPhase != Phase.RoundOver) return;
             if (_restartRoutine != null) StopCoroutine(_restartRoutine);
-            StartRound();
+            if (_matchWinner.Value != Team.None) StartMatch();
+            else StartRound();
         }
 
-        /// <summary>Nur fuer Tests: kleineres Punktelimit und kurze Pause zwischen Runden.</summary>
-        public void ServerApplyTestConfig(int scoreLimit, float roundDuration, float restDuration)
+        /// <summary>Nur fuer Tests.</summary>
+        public void ServerApplyTestConfig(int roundsToWin, float roundDuration, float restDuration)
         {
             if (!IsServer) return;
-            _scoreLimit = scoreLimit;
+            _roundsToWin = roundsToWin;
             _roundDuration = roundDuration;
             _restDuration = restDuration;
+            _matchEndRest = restDuration;
             _roundEndTime.Value = NetworkManager.ServerTime.Time + roundDuration;
         }
 
-        /// <summary>Nur Server. Setzt Punkte, Zeit und alle Kaempfer zurueck.</summary>
+        /// <summary>Nur Server: neues Match - Rundensiege auf 0, dann erste Runde.</summary>
+        public void StartMatch()
+        {
+            if (!IsServer) return;
+            _winsAlpha.Value = 0;
+            _winsBravo.Value = 0;
+            _matchWinner.Value = Team.None;
+            StartRound();
+        }
+
+        /// <summary>Nur Server: alle wiederbeleben, an eigene Spawns, Magazine voll.</summary>
         public void StartRound()
         {
-            if (!IsServer)
-                return;
+            if (!IsServer) return;
 
-            _scoreAlpha.Value = 0;
-            _scoreBravo.Value = 0;
-            _winner.Value = Team.None;
+            _roundWinner.Value = Team.None;
             _phase.Value = (int)Phase.Playing;
             _roundEndTime.Value = NetworkManager.ServerTime.Time + _roundDuration;
 
+            PlaceTeam(Team.Alpha);
+            PlaceTeam(Team.Bravo);
+        }
+
+        void PlaceTeam(int team)
+        {
+            SpawnService.CollectTeamSpawns(team, _spawnBuffer);
+            int i = 0;
+
             foreach (var member in Combatants.Everyone)
             {
-                if (member == null) continue;
+                if (member == null || member.TeamId != team) continue;
 
-                if (SpawnService.TryGetSpawn(member.TeamId, out Vector3 pos, out Quaternion rot))
+                if (_spawnBuffer.Count > 0)
                 {
-                    var respawnable = member.GetComponent<IRespawnable>();
-                    respawnable?.ServerTeleport(pos, rot);
+                    var sp = _spawnBuffer[i % _spawnBuffer.Count];
+                    i++;
+                    member.GetComponent<IRespawnable>()?.ServerTeleport(sp.position, sp.rotation);
                 }
 
                 member.Health.ResetFull();
-
-                var weapon = member.GetComponent<NetworkWeapon>();
-                weapon?.ServerRefillMagazine();
+                member.GetComponent<NetworkWeapon>()?.ServerRefillMagazine();
             }
         }
     }

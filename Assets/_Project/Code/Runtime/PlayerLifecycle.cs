@@ -54,10 +54,9 @@ namespace Infront
             SetVisible(false);
 
             if (IsServer)
-            {
                 _controller.SetMovementEnabled(false);
-                StartCoroutine(RespawnAfterDelay());
-            }
+            // Kein Respawn mitten in der Runde - der MatchManager belebt beim
+            // Rundenstart alle wieder.
         }
 
         void OnRevived()

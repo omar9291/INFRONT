@@ -47,8 +47,8 @@ namespace Infront
                 _brain.SetActive(false);
                 if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
                     _agent.ResetPath();
-                StartCoroutine(RespawnAfterDelay());
             }
+            // Kein Respawn mitten in der Runde.
         }
 
         void OnRevived()

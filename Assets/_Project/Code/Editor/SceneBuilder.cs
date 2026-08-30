@@ -399,11 +399,14 @@ namespace Infront.EditorTools
 
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;
-            (Vector3 pos, int team)[] spawns =
+            var spawns = new System.Collections.Generic.List<(Vector3 pos, int team)>();
+            // 6 pro Team, weit auseinander an den gegenueberliegenden Enden
+            for (int k = 0; k < 6; k++)
             {
-                (new(-6f, 1f, -16f), Team.Alpha), (new(6f, 1f, -16f), Team.Alpha),
-                (new(-6f, 1f, 18f), Team.Bravo),  (new(6f, 1f, 18f), Team.Bravo),
-            };
+                float sx = -15f + k * 6f;
+                spawns.Add((new Vector3(sx, 1f, -17f), Team.Alpha));
+                spawns.Add((new Vector3(sx, 1f, 19f), Team.Bravo));
+            }
             foreach (var (pos, team) in spawns)
             {
                 var sp = new GameObject($"SpawnPoint_{Team.Name(team)}");
