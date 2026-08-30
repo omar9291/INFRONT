@@ -36,6 +36,12 @@ namespace Infront
                     $"ALPHA  {a}  :  {b}  BRAVO      Runde bis {match.RoundsToWin}      {seconds / 60}:{seconds % 60:00}",
                     Center(_big));
 
+                if (match.IsFrozen)
+                {
+                    int fz = Mathf.CeilToInt((float)match.FreezeSecondsLeft);
+                    GUI.Label(new Rect(0, Screen.height * 0.28f, Screen.width, 80), fz.ToString(), Center(_big));
+                }
+
                 if (match.CurrentPhase == MatchManager.Phase.RoundOver)
                 {
                     string text;

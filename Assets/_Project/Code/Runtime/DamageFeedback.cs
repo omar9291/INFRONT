@@ -31,6 +31,7 @@ namespace Infront
         bool _dead;
         float _deathTime;
         float _hitFlash;
+        string _killerName;
         GUIStyle _big;
         GUIStyle _small;
 
@@ -49,6 +50,7 @@ namespace Infront
             if (Camera.main != null) _camera = Camera.main.transform;
 
             _health.LocalDamageFrom += OnDamageFrom;
+            _health.LocalKilledBy += OnKilledBy;
             _health.Died += OnDied;
             _health.Revived += OnRevived;
             if (_weapon != null) _weapon.LocalHitConfirmed += OnHitConfirmed;
@@ -59,6 +61,7 @@ namespace Infront
             if (_health != null)
             {
                 _health.LocalDamageFrom -= OnDamageFrom;
+                _health.LocalKilledBy -= OnKilledBy;
                 _health.Died -= OnDied;
                 _health.Revived -= OnRevived;
             }
@@ -76,7 +79,19 @@ namespace Infront
         }
 
         void OnDied() { _dead = true; _deathTime = Time.time; }
-        void OnRevived() { _dead = false; }
+        void OnRevived() { _dead = false; _killerName = null; }
+
+        void OnKilledBy(ulong killerId)
+        {
+            _killerName = null;
+            var nm = Unity.Netcode.NetworkManager.Singleton;
+            if (killerId != 0 && nm != null && nm.SpawnManager != null
+                && nm.SpawnManager.SpawnedObjects.TryGetValue(killerId, out var no) && no != null)
+            {
+                var tm = no.GetComponent<TeamMember>();
+                if (tm != null) _killerName = tm.DisplayName;
+            }
+        }
         void OnHitConfirmed() { _hitFlash = 1f; }
 
         void Update()
@@ -148,8 +163,9 @@ namespace Infront
 
                 string who = _controller != null ? _controller.SpectatingName : null;
 
-                GUI.color = new Color(1f, 0.85f, 0.85f, 0.85f);
-                GUI.Label(new Rect(0, 22f, Screen.width, 28f), "Ausgeschaltet", _big);
+                GUI.color = new Color(1f, 0.85f, 0.85f, 0.9f);
+                string headline = _killerName != null ? $"Getoetet von {_killerName}" : "Ausgeschaltet";
+                GUI.Label(new Rect(0, 22f, Screen.width, 28f), headline, _big);
                 GUI.color = prev;
 
                 if (who != null)
