@@ -60,21 +60,49 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Abschuss_gibt_dem_Schuetzen_Team_einen_Punkt()
+        public IEnumerator Team_ausloeschen_gibt_einen_Rundensieg()
         {
             NetworkPlayerController player = null; MatchManager match = null;
             yield return MatchTestHarness.LoadReady((p, m) => { player = p; match = m; });
+            match.SuspendedForTests = false;
 
             int myTeam = player.GetComponent<TeamMember>().TeamId;
-            var enemy = BotsOnTeam(Team.Opponent(myTeam))[0].GetComponent<Health>();
-            enemy.ResetFull();
+            int enemyTeam = Team.Opponent(myTeam);
+            int before = match.GetScore(myTeam);
+
+            // Alle Gegner ausschalten
+            foreach (var e in BotsOnTeam(enemyTeam))
+                e.GetComponent<Health>().ApplyDamage(9999, player.gameObject);
+            yield return null;
             yield return null;
 
-            int before = match.GetScore(myTeam);
-            enemy.ApplyDamage(9999, player.gameObject);
+            Assert.AreEqual(MatchManager.Phase.RoundOver, match.CurrentPhase, "Runde endete nicht.");
+            Assert.AreEqual(myTeam, match.RoundWinner, "Falscher Rundensieger.");
+            Assert.AreEqual(before + 1, match.GetScore(myTeam), "Kein Rundensieg gutgeschrieben.");
+        }
+
+        [UnityTest]
+        public IEnumerator Toter_bleibt_die_ganze_Runde_tot()
+        {
+            NetworkPlayerController player = null; MatchManager match = null;
+            yield return MatchTestHarness.LoadReady((p, m) => { player = p; match = m; });
+            match.SuspendedForTests = false;
+
+            var health = player.GetComponent<Health>();
+            health.ApplyDamage(9999, NetworkManager.ServerClientId);
             yield return null;
-            yield return null;
-            Assert.AreEqual(before + 1, match.GetScore(myTeam));
+            Assert.IsFalse(health.IsAlive);
+
+            // deutlich laenger warten als der alte Respawn (3 s)
+            float waited = 0f;
+            while (waited < 5f && match.CurrentPhase == MatchManager.Phase.Playing)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+            // Solange die Runde laeuft, bleibt der Spieler tot
+            if (match.CurrentPhase == MatchManager.Phase.Playing)
+                Assert.IsFalse(health.IsAlive, "Spieler ist mitten in der Runde respawnt.");
         }
 
         [UnityTest]
@@ -124,34 +152,40 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Runde_endet_bei_Punktelimit_und_startet_neu()
+        public IEnumerator Match_endet_bei_genug_Rundensiegen_und_startet_neu()
         {
             NetworkPlayerController player = null; MatchManager match = null;
             yield return MatchTestHarness.LoadReady((p, m) => { player = p; match = m; });
 
             match.SuspendedForTests = false;
-            match.ServerApplyTestConfig(scoreLimit: 2, roundDuration: 999f, restDuration: 1f);
+            match.ServerApplyTestConfig(roundsToWin: 2, roundDuration: 999f, restDuration: 1f);
 
             int myTeam = player.GetComponent<TeamMember>().TeamId;
-            var enemies = BotsOnTeam(Team.Opponent(myTeam));
-            Assert.GreaterOrEqual(enemies.Count, 2);
+            int enemyTeam = Team.Opponent(myTeam);
 
-            var h0 = enemies[0].GetComponent<Health>();
-            var h1 = enemies[1].GetComponent<Health>();
-            h0.ResetFull(); h1.ResetFull();
-            yield return null;
-            h0.ApplyDamage(9999, player.gameObject);
-            yield return null;
-            h1.ApplyDamage(9999, player.gameObject);
-            yield return null; yield return null;
+            // Zwei Runden gewinnen: jeweils alle Gegner ausschalten
+            for (int round = 1; round <= 2; round++)
+            {
+                yield return MatchTestHarness.WaitUntil(
+                    () => match.CurrentPhase == MatchManager.Phase.Playing, 6f, $"Runde {round} startete nicht.");
+                for (int i = 0; i < 10; i++) yield return new WaitForFixedUpdate();
 
-            Assert.AreEqual(MatchManager.Phase.RoundOver, match.CurrentPhase, "Runde endete nicht.");
-            Assert.AreEqual(myTeam, match.Winner);
+                foreach (var e in BotsOnTeam(enemyTeam))
+                {
+                    var h = e.GetComponent<Health>();
+                    if (h.IsAlive) h.ApplyDamage(9999, player.gameObject);
+                }
+                yield return null;
+                yield return null;
+                Assert.AreEqual(MatchManager.Phase.RoundOver, match.CurrentPhase, $"Runde {round} endete nicht.");
+            }
 
-            yield return MatchTestHarness.WaitUntil(() => match.CurrentPhase == MatchManager.Phase.Playing, 6f,
-                "Neue Runde startete nicht.");
-            Assert.AreEqual(0, match.GetScore(Team.Alpha));
-            Assert.AreEqual(0, match.GetScore(Team.Bravo));
+            Assert.AreEqual(myTeam, match.MatchWinner, "Falscher Match-Sieger.");
+
+            // Neues Match: Rundensiege zurueck auf 0
+            yield return MatchTestHarness.WaitUntil(
+                () => match.CurrentPhase == MatchManager.Phase.Playing && match.GetScore(Team.Alpha) == 0 && match.GetScore(Team.Bravo) == 0,
+                8f, "Neues Match startete nicht mit 0:0.");
         }
     }
 }

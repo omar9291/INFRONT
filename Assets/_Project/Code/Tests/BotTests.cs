@@ -111,10 +111,10 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Bot_stirbt_und_respawnt()
+        public IEnumerator Bot_lebt_beim_Rundenstart_wieder()
         {
-            NetworkPlayerController player = null;
-            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            NetworkPlayerController player = null; MatchManager match = null;
+            yield return MatchTestHarness.LoadReady((p, m) => { player = p; match = m; });
 
             var brain = EnemyBot(player);
             Assert.IsNotNull(brain);
@@ -124,7 +124,10 @@ namespace Infront.Tests
             yield return null;
             Assert.IsFalse(health.IsAlive);
 
-            yield return MatchTestHarness.WaitUntil(() => health.IsAlive, 10f, "Bot nicht respawnt.");
+            match.StartRound();
+            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
+
+            Assert.IsTrue(health.IsAlive, "Bot lebt nach Rundenstart nicht.");
             Assert.AreEqual(health.Max, health.Current);
         }
     }

@@ -67,17 +67,20 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Spieler_stirbt_und_respawnt_mit_vollem_Leben()
+        public IEnumerator Spieler_lebt_beim_Rundenstart_wieder()
         {
-            NetworkPlayerController player = null;
-            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            NetworkPlayerController player = null; MatchManager match = null;
+            yield return MatchTestHarness.LoadReady((p, m) => { player = p; match = m; });
             var health = player.GetComponent<Health>();
 
             health.ApplyDamage(9999, NetworkManager.ServerClientId);
             yield return null;
             Assert.IsFalse(health.IsAlive);
 
-            yield return MatchTestHarness.WaitUntil(() => health.IsAlive, 8f, "Spieler nicht respawnt.");
+            match.StartRound();
+            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
+
+            Assert.IsTrue(health.IsAlive, "Spieler lebt nach Rundenstart nicht.");
             Assert.AreEqual(health.Max, health.Current);
         }
 

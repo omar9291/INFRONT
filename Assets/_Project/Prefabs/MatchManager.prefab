@@ -73,6 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.MatchManager
   ShowTopMostFoldoutHeaderGroup: 1
-  _scoreLimit: 25
-  _roundDuration: 480
-  _restDuration: 6
+  _roundsToWin: 15
+  _roundDuration: 120
+  _restDuration: 5
+  _matchEndRest: 8

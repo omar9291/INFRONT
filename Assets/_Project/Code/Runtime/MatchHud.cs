@@ -33,12 +33,18 @@ namespace Infront
                 int b = match.GetScore(Team.Bravo);
                 int seconds = Mathf.CeilToInt((float)match.SecondsRemaining);
                 GUI.Label(new Rect(0, 8, Screen.width, 34),
-                    $"ALPHA  {a}   -   {b}  BRAVO      {seconds / 60}:{seconds % 60:00}",
+                    $"ALPHA  {a}  :  {b}  BRAVO      Runde bis {match.RoundsToWin}      {seconds / 60}:{seconds % 60:00}",
                     Center(_big));
 
                 if (match.CurrentPhase == MatchManager.Phase.RoundOver)
                 {
-                    string text = match.Winner == Team.None ? "Unentschieden" : Team.Name(match.Winner) + " gewinnt!";
+                    string text;
+                    if (match.MatchWinner != Team.None)
+                        text = Team.Name(match.MatchWinner) + " GEWINNT DAS MATCH!";
+                    else if (match.RoundWinner == Team.None)
+                        text = "Runde unentschieden";
+                    else
+                        text = Team.Name(match.RoundWinner) + " gewinnt die Runde";
                     GUI.Label(new Rect(0, Screen.height / 2 - 90, Screen.width, 60), text, Center(_big));
 
                     float bw = 260f;

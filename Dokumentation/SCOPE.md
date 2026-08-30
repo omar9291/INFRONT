@@ -11,8 +11,9 @@ unten — nicht sofort ins Spiel.
 
 - Engine: Unity 6000.5.8f1 (festgelegt, wird nicht mehr gewechselt)
 - Sprache: C#
-- Genre: First-Person Team-Deathmatch-Shooter
-  (Auftrag sagte "Third Person" - am 2026-08-29 auf First Person geaendert)
+- Genre: First-Person Rundenmodus mit Ausscheiden (wie Counter-Strike)
+  (Auftrag sagte "Third Person Team-Deathmatch" - am 2026-08-29/30 auf
+  First Person + Rundenmodus geaendert)
 - Plattform-Ziel: PC (Windows/Mac/Linux)
 - V1-Modus: Einzelspieler gegen Bots, im Host-Modus (dein Rechner ist
   Server und Spieler zugleich)
@@ -25,14 +26,18 @@ Die Kernschleife: bewegen -> Gegner sehen -> schiessen -> treffen -> sterben -> 
 - [ ] Third-Person-Charakter: Laufen, Sprinten, Springen, Schulterkamera
 - [ ] Eine Waffe: Sturmgewehr mit Magazin und Nachladen
 - [ ] Trefferabfrage (Hitscan), Schaden, Tod
-- [ ] Respawn nach kurzer Wartezeit an einem Spawnpunkt
+- [x] Wiederbelebung beim Rundenstart an eigenem Spawn (kein Respawn
+      mitten in der Runde)
 - [ ] Ein Bot-Typ: sucht den Spieler ueber NavMesh, schiesst, ist besiegbar
 - [ ] Eine kleine Testkarte: graues Blockout, keine Kunst
-- [ ] Team Deathmatch: 2 Teams, Punkte bis zum Limit, Rundenende
+- [x] Rundenmodus: wer stirbt bleibt die Runde tot; Team ausloeschen =
+      Rundensieg; bis 15 Rundensiege = Match; Zeitablauf -> Team mit mehr
+      Ueberlebenden
 - [x] Startmenue: Runde starten, Beenden, Teamgroesse, Bot-Schwierigkeit,
       Maus-Empfindlichkeit (Einstellungen bleiben gespeichert)
 - [x] Kreislauf Menue -> Runde -> Rundenende -> Menue, mehrfach ohne Absturz
-- [x] Minimal-HUD: Leben, Munition, Punktestand, Restzeit, Fadenkreuz
+- [x] Minimal-HUD: Leben, Munition, Rundensiege, Restzeit, Fadenkreuz
+- [x] Zuschauen bei Verbuendeten waehrend man tot ist (Links/Rechtsklick)
       ACHTUNG: bewusst ein PLATZHALTER (reiner IMGUI-Text, keine Grafik).
       Das richtige HUD kommt in "Spaeter - Stufe 4" mit der Grafik.
 - [ ] Einfaches Menue: Start -> Runde -> Endbildschirm -> zurueck ins Menue
