@@ -80,3 +80,16 @@ geprueft ist.
 1. Idee aufschreiben.
 2. Gehoert sie zur V1-Kernschleife oben? Wenn nein:
 3. Auf die passende "Spaeter"-Stufe setzen. Fertig. Nicht jetzt bauen.
+
+
+## Counter-Strike-Elemente (Wunschliste, in Reihenfolge)
+
+Gruppe A - Ueberblick (2026-08-30 gebaut):
+- [x] Kill-Feed, "Getoetet von X", Punktetabelle (Tab), Freeze-Time
+
+Gruppe B - Schiessgefuehl (offen):
+- Rueckstoss, Ungenauigkeit im Laufen, aufgehendes Fadenkreuz, Kopfschuesse
+
+Gruppe C - grosse Systeme (offen):
+- Mehrere Waffen -> dann Kaufmenue mit Geld -> Bomben-Modus
+- Sound (Beschaffung durch den Nutzer)

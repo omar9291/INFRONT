@@ -60,6 +60,57 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Abschuss_zaehlt_beim_Schuetzen_und_Tod_beim_Opfer()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+
+            var me = player.GetComponent<TeamMember>();
+            var enemy = BotsOnTeam(Team.Opponent(me.TeamId))[0];
+            var enemyTm = enemy.GetComponent<TeamMember>();
+
+            int myKills = me.Kills;
+            int enemyDeaths = enemyTm.Deaths;
+
+            enemy.GetComponent<Health>().ApplyDamage(9999, player.gameObject);
+            yield return null;
+            yield return null;
+
+            Assert.AreEqual(myKills + 1, me.Kills, "Abschuss nicht gezaehlt.");
+            Assert.AreEqual(enemyDeaths + 1, enemyTm.Deaths, "Tod nicht gezaehlt.");
+        }
+
+        [UnityTest]
+        public IEnumerator Freeze_Time_blockiert_Bewegung_am_Rundenstart()
+        {
+            NetworkPlayerController player = null; MatchManager match = null;
+            yield return MatchTestHarness.LoadReady((p, m) => { player = p; match = m; });
+
+            MatchTestHarness.ClearArena();
+            match.SuspendedForTests = false;
+            match.SkipFreezeForTests = false;
+            match.StartRound();
+            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
+
+            Assert.IsTrue(match.IsFrozen, "Nach Rundenstart sollte Freeze-Time aktiv sein.");
+
+            player.SetMovementEnabled(true);
+            var input = new FakePlayerInput { Move = new Vector2(0f, 1f), LookYaw = 0f };
+            player.SetInputSource(input);
+
+            Vector3 start = player.transform.position;
+            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
+            float movedDuringFreeze = Vector3.Distance(start, player.transform.position);
+            Assert.Less(movedDuringFreeze, 0.5f, "Spieler hat sich waehrend Freeze bewegt.");
+
+            // Freeze abwarten (3 s), dann muss Bewegung gehen
+            yield return MatchTestHarness.WaitUntil(() => !match.IsFrozen, 5f, "Freeze endete nicht.");
+            Vector3 s2 = player.transform.position;
+            for (int i = 0; i < 60; i++) yield return new WaitForFixedUpdate();
+            Assert.Greater(Vector3.Distance(s2, player.transform.position), 1f, "Bewegung nach Freeze klappt nicht.");
+        }
+
+        [UnityTest]
         public IEnumerator Team_ausloeschen_gibt_einen_Rundensieg()
         {
             NetworkPlayerController player = null; MatchManager match = null;

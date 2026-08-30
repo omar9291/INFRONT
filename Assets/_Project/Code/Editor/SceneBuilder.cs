@@ -479,6 +479,8 @@ namespace Infront.EditorTools
             hudGo.AddComponent<PauseMenu>();
             hudGo.AddComponent<ScreenshotKey>();
             hudGo.AddComponent<CursorController>();
+            hudGo.AddComponent<KillFeedHud>();
+            hudGo.AddComponent<Scoreboard>();
 
             EditorUtility.SetDirty(nm);
             EditorSceneManager.MarkSceneDirty(scene);

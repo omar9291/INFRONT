@@ -57,6 +57,7 @@ namespace Infront.Tests
             yield return WaitUntil(() => MatchManager.Instance != null, 8f, "Kein MatchManager.");
             var match = MatchManager.Instance;
             match.SuspendedForTests = true;
+            match.SkipFreezeForTests = true;
 
             NetworkPlayerController player = null;
             yield return WaitUntil(() =>

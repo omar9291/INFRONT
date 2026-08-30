@@ -77,3 +77,4 @@ MonoBehaviour:
   _roundDuration: 120
   _restDuration: 5
   _matchEndRest: 8
+  _freezeDuration: 3
