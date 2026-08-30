@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.AI.Navigation;
 using UnityEngine.SceneManagement;
 
 namespace Infront.Tests
@@ -101,8 +102,12 @@ namespace Infront.Tests
         /// </summary>
         public static void ClearArena()
         {
-            var boxes = GameObject.Find("Boxes");
-            if (boxes != null) boxes.SetActive(false);
+            // Karte ausblenden und den NavMesh flach neu backen - Tests, die
+            // freie Sicht brauchen, laufen dann auf leerem Boden.
+            var map = GameObject.Find("Map");
+            if (map != null) map.SetActive(false);
+            var surface = UnityEngine.Object.FindAnyObjectByType<Unity.AI.Navigation.NavMeshSurface>();
+            if (surface != null) surface.BuildNavMesh();
 
             foreach (var bot in UnityEngine.Object.FindObjectsByType<BotBrain>(FindObjectsSortMode.None))
             {

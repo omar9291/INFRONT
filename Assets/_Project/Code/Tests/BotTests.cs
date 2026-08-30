@@ -36,6 +36,40 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Bots_finden_einen_Weg_von_Spawn_zu_Spawn()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+
+            // NavMesh ist beim LoadReady schon gebacken. Alle Spawn-Punkte holen.
+            var alpha = new System.Collections.Generic.List<Vector3>();
+            var bravo = new System.Collections.Generic.List<Vector3>();
+            foreach (var sp in Object.FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None))
+                (sp.TeamId == Team.Alpha ? alpha : bravo).Add(sp.transform.position);
+
+            Assert.Greater(alpha.Count, 0);
+            Assert.Greater(bravo.Count, 0);
+
+            // Von jedem Alpha-Spawn zu mindestens einem Bravo-Spawn muss ein
+            // vollstaendiger Weg existieren.
+            foreach (var a in alpha)
+            {
+                bool reached = false;
+                foreach (var b in bravo)
+                {
+                    var path = new UnityEngine.AI.NavMeshPath();
+                    if (UnityEngine.AI.NavMesh.CalculatePath(a, b, UnityEngine.AI.NavMesh.AllAreas, path)
+                        && path.status == UnityEngine.AI.NavMeshPathStatus.PathComplete)
+                    {
+                        reached = true;
+                        break;
+                    }
+                }
+                Assert.IsTrue(reached, $"Von Alpha-Spawn {a} fuehrt kein vollstaendiger Weg zu Bravo.");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator Bot_spawnt_und_steht_auf_dem_NavMesh()
         {
             NetworkPlayerController player = null;

@@ -94,5 +94,8 @@ Gruppe B - Schiessgefuehl (2026-08-30 gebaut):
 Gruppe C - grosse Systeme (offen):
 - [x] Mehrere Waffen (2026-08-30): Primaer(1)/Pistole(2), je eigene
       Munition, Wechselzeit. 4 Waffen im WeaponCatalog.
-- Karte (offen, als naechstes) -> Kaufmenue mit Geld -> Bomben-Modus
+- [x] Richtige Karte (2026-08-30): spiegelsymmetrisch, 3 Bahnen, Mitte
+      offen (Scharfschuetze), Seiten eng, 2 erhoehte Platz-Bereiche mit
+      Rampen (spaeter Bombenplaetze), Sichtschutz vor den Spawns.
+- Kaufmenue mit Geld -> Bomben-Modus (offen)
 - Sound (Beschaffung durch den Nutzer)

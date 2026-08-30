@@ -301,6 +301,124 @@ namespace Infront.EditorTools
             return prefab;
         }
 
+        // ---- Karte: spiegelsymmetrisch in Z (Alpha bei -Z, Bravo bei +Z) ----
+
+        static Transform _mapRoot;
+
+        static void Block(string name, float x, float y, float z, float sx, float sy, float sz)
+            => Tinted(name, x, y, z, sx, sy, sz, new Color(0.12f, 0.14f, 0.22f));   // Wand: fast schwarz
+
+        static void Crate(string name, float x, float y, float z, float sx, float sy, float sz)
+            => Tinted(name, x, y, z, sx, sy, sz, new Color(0.85f, 0.45f, 0.15f));   // Deckung: orange
+
+        static readonly System.Collections.Generic.Dictionary<Color, Material> _mats = new();
+
+        static Material MapMat(Color c)
+        {
+            if (_mats.TryGetValue(c, out var m)) return m;
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            m = new Material(shader) { name = "MapMat" };
+            m.color = c;
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+            _mats[c] = m;
+            return m;
+        }
+
+        static void Tinted(string name, float x, float y, float z, float sx, float sy, float sz, Color c)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            b.name = name;
+            b.transform.SetParent(_mapRoot, true);
+            b.transform.position = new Vector3(x, y, z);
+            b.transform.localScale = new Vector3(sx, sy, sz);
+            b.GetComponent<Renderer>().sharedMaterial = MapMat(c);
+        }
+
+        // Block plus sein Spiegelbild an -z
+        static void BlockM(string name, float x, float y, float z, float sx, float sy, float sz)
+        {
+            Block(name + "_B", x, y, z, sx, sy, sz);
+            Block(name + "_A", x, y, -z, sx, sy, sz);
+        }
+
+        static void CrateM(string name, float x, float y, float z, float sx, float sy, float sz)
+        {
+            Crate(name + "_B", x, y, z, sx, sy, sz);
+            Crate(name + "_A", x, y, -z, sx, sy, sz);
+        }
+
+        static void Ramp(string name, float x, float z, float lowZ, float highY, float width)
+        {
+            // schraege Flaeche als gedrehter, flacher Block
+            var r = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            r.name = name;
+            r.transform.SetParent(_mapRoot, true);
+            float len = 6f;
+            r.transform.position = new Vector3(x, highY * 0.5f, z);
+            r.transform.localScale = new Vector3(width, 0.4f, len);
+            float ang = Mathf.Atan2(highY, len) * Mathf.Rad2Deg * (lowZ < z ? 1f : -1f);
+            r.transform.rotation = Quaternion.Euler(ang, 0f, 0f);
+            r.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.9f, 0.8f, 0.2f));
+        }
+
+        static void BuildMap()
+        {
+            _mats.Clear();
+            _mapRoot = new GameObject("Map").transform;
+
+            // Aussenwaende (Box bei +/-30)
+            Block("Wall_N", 0f, 2f, 30f, 62f, 4f, 2f);
+            Block("Wall_S", 0f, 2f, -30f, 62f, 4f, 2f);
+            Block("Wall_E", 30f, 2f, 0f, 2f, 4f, 62f);
+            Block("Wall_W", -30f, 2f, 0f, 2f, 4f, 62f);
+
+            // Bahn-Trenner: zwei lange Waende bei x = -9 und x = +9 mit Luecken
+            for (int seg = 0; seg < 3; seg++)
+            {
+                float cz = -16f + seg * 16f;
+                Block($"LaneWall_L{seg}", -9f, 2f, cz, 1.2f, 4f, 10f);
+                Block($"LaneWall_R{seg}", 9f, 2f, cz, 1.2f, 4f, 10f);
+            }
+
+            // Sichtschutz direkt vor beiden Spawns
+            BlockM("SpawnScreen_mid", 0f, 1.5f, 22f, 10f, 3f, 1f);
+            BlockM("SpawnScreen_l", -19f, 1.5f, 22f, 8f, 3f, 1f);
+            BlockM("SpawnScreen_r", 19f, 1.5f, 22f, 8f, 3f, 1f);
+
+            // Deckung in der Mitte: genug zum Ueberqueren, Sichtachse bleibt lang
+            CrateM("MidCrate1", 0f, 0.8f, 14f, 2.5f, 1.6f, 2f);
+            CrateM("MidCrate2", -4f, 0.7f, 9f, 2f, 1.4f, 1.8f);
+            CrateM("MidCrate3", 4f, 0.7f, 9f, 2f, 1.4f, 1.8f);
+            CrateM("MidLow1", -2f, 0.5f, 4f, 3f, 1f, 1.2f);
+            CrateM("MidLow2", 5f, 0.5f, 2f, 1.2f, 1f, 3f);
+            Block("MidPillar", 0f, 2f, 0f, 1.5f, 4f, 1.5f);  // Saeule genau in der Mitte
+
+            // Seitenbahnen: mehr Deckung, engere Kaempfe
+            CrateM("LeftCrateA", -20f, 1f, 14f, 3f, 2f, 3f);
+            CrateM("LeftCrateB", -15f, 0.9f, 8f, 2f, 1.8f, 2f);
+            CrateM("RightCrateA", 20f, 1f, 14f, 3f, 2f, 3f);
+            CrateM("RightCrateB", 15f, 0.9f, 8f, 2f, 1.8f, 2f);
+
+            // Zwei erhoehte Platz-Bereiche (spaeter Bombenplaetze), auf Z=0,
+            // damit beide Teams gleich weit haben. Ueber Rampen erreichbar.
+            BuildSite("Site_Links", -19f);
+            BuildSite("Site_Rechts", 19f);
+        }
+
+        static void BuildSite(string name, float x)
+        {
+            float y = 1.2f;
+            Tinted(name + "_Platform", x, y * 0.5f, 0f, 11f, y, 12f, new Color(0.2f, 0.7f, 0.7f));
+
+            // Rampe von beiden Seiten (Alpha- und Bravo-Zugang)
+            Ramp(name + "_RampB", x, 8f, 3f, y, 4f);
+            Ramp(name + "_RampA", x, -8f, -3f, y, 4f);
+
+            // etwas Deckung auf dem Platz
+            Crate(name + "_Cover1", x - 3f, y + 0.7f, 2f, 1.5f, 1.4f, 1.5f);
+            Crate(name + "_Cover2", x + 3f, y + 0.7f, -2f, 1.5f, 1.4f, 1.5f);
+        }
+
         static void AddHitboxes(GameObject root, Health owner)
         {
             var body = new GameObject("Hitbox_Body") { layer = 6 };
@@ -462,29 +580,17 @@ namespace Infront.EditorTools
             surface.layerMask = ~0;
             navGo.AddComponent<NavMeshBaker>();
 
-            var rng = new System.Random(12345);
-            var boxParent = new GameObject("Boxes").transform;
-            for (int i = 0; i < 12; i++)
-            {
-                var box = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                box.name = $"Box_{i:00}";
-                box.transform.SetParent(boxParent, true);
-                float x = (float)(rng.NextDouble() * 40.0 - 20.0);
-                float z = (float)(rng.NextDouble() * 40.0 - 20.0);
-                float s = (float)(rng.NextDouble() * 1.5 + 1.5);
-                box.transform.position = new Vector3(x, s * 0.5f, z);
-                box.transform.localScale = new Vector3(s, s, s);
-            }
+            BuildMap();
 
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;
             var spawns = new System.Collections.Generic.List<(Vector3 pos, int team)>();
-            // 6 pro Team, weit auseinander an den gegenueberliegenden Enden
-            for (int k = 0; k < 6; k++)
+            // 6 pro Team, auf die drei Bahnen verteilt, hinter dem Sichtschutz
+            float[] laneX = { -20f, -18f, -1f, 1f, 19f, 21f };
+            foreach (float sx in laneX)
             {
-                float sx = -15f + k * 6f;
-                spawns.Add((new Vector3(sx, 1f, -17f), Team.Alpha));
-                spawns.Add((new Vector3(sx, 1f, 19f), Team.Bravo));
+                spawns.Add((new Vector3(sx, 1f, -25f), Team.Alpha));
+                spawns.Add((new Vector3(sx, 1f, 25f), Team.Bravo));
             }
             foreach (var (pos, team) in spawns)
             {
