@@ -3,7 +3,7 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-08-29 (Phase 5)
+Letzte Aktualisierung: 2026-08-30 (Counter-Strike Gruppe C.3 - Kaufmenue)
 
 ## Aktueller Stand
 
@@ -123,18 +123,51 @@ Auf Wunsch des Nutzers: weg vom Team-Deathmatch, hin zu Ausscheiden pro Runde.
 - Werkzeug MapSnapshot: 2D-Grundriss als Bild (Menue Infront/Karte).
 - Test: Bots finden einen Weg Spawn->Spawn. ClearArena baeckt NavMesh flach.
 
-## Tests (headless PlayMode) - 29 von 29 gruen (2026-08-29)
+### Counter-Strike Gruppe C.3 "Kaufmenue mit Geld" (2026-08-30)
+- Wallet-Bauteil pro Kaempfer: Geld als server-geschriebene NetworkVariable.
+  Start 800, Rundensieg 3000, Niederlage 1400 + 500 pro Serienrunde
+  (Deckel 3400), Abschuss 300, Gesamtdeckel 16000.
+- Kaufzeit = die verlaengerte Startsperre (3 -> 10 s). "Bereit" (Knopf im
+  Menue) beendet sie sofort. RequestEndBuyTimeRpc.
+- Jede Runde startet man NUR mit der Pistole. Wer stirbt, verliert
+  Primaerwaffe und Weste fuer die naechste Runde (MatchManager merkt sich
+  _diedThisRound); wer ueberlebt, behaelt beides.
+- NetworkWeapon: _primaryIdx == -1 = keine Primaerwaffe. ServerSetPistolOnly
+  / ServerSetPrimary / ServerEquipDefaultPrimary (Letzteres nur fuer Tests).
+- PurchaseAgent: prueft Kaeufe server-autoritativ (nur Kaufzeit, nur
+  lebendig, nur wenn Geld reicht). Spieler-Client per Rpc, Bot direkt.
+- BuyMenuHud (nur Besitzer, IMGUI): B oeffnet/schliesst, oeffnet sich am
+  Rundenanfang selbst. Ziffern 1-3 Waffen, 4 Weste, "Bereit".
+- BotBuyer (nur Server): kauft zu Beginn der Kaufzeit die teuerste
+  bezahlbare Waffe, danach die Weste, mit Zufalls-Verzoegerung und
+  gelegentlichen Sparrunden.
+- Schutzweste: Health._armor (0-100). Schluckt die Haelfte des ankommenden
+  Koerperschadens und verbraucht sich dabei. Kopfschuss (ignoreArmor)
+  geht vorbei. 1000 $.
+- WeaponCatalog.BuyEntries (Netz = nur Index). Bot-Versionen von MP und
+  Sniper an Index 5 und 6 - Index 0..4 unveraendert (stehen fuer spaeter
+  in Speicherdaten).
+- MatchHud zeigt Geld ($) und einen schmalen blauen Westen-Balken.
+
+## Tests (headless PlayMode) - 36 von 36 gruen (2026-08-30)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
-Bewegung (2), Schaden/Waffe (6), Bots (5), Teams (4):
-- Spieler_und_Bots_haben_Teams
-- Abschuss_gibt_dem_Schuetzen_Team_einen_Punkt
-- Kein_Freundschaftsbeschuss_Kugel_fliegt_durch_Verbuendete
-- Runde_endet_bei_Punktelimit_und_startet_neu
+Bewegung (2), Schaden/Waffe (13), Bots (6), Teams (8), Kaufmenue (7).
+
+Kaufmenue-Tests (BuyMenuTests):
+- Kauf_zieht_Geld_ab_und_gibt_die_Waffe
+- Zu_wenig_Geld_kein_Kauf
+- Kauf_nur_in_der_Kaufzeit
+- Wer_stirbt_verliert_die_Primaerwaffe
+- Wer_ueberlebt_behaelt_die_Primaerwaffe
+- Rundensieg_gibt_mehr_Geld_als_Niederlage
+- Weste_halbiert_den_Koerperschaden
 
 Der Bewegungs- und der Bot-Schiesstest legen jetzt zuerst die anderen Bots
-still, weil sonst das laufende Gefecht den Test stoert.
+still, weil sonst das laufende Gefecht den Test stoert. Der MatchTestHarness
+ruestet nach dem Laden jedem Kaempfer die Standardwaffe aus (das Spiel
+startet jetzt mit der Pistole).
 
 Nicht automatisiert geprueft (auf diesem Mac nicht moeglich):
 Aussehen, HUD-Lesbarkeit, Kampf-/Rundengefuehl, Framerate mit 5 Bots.
@@ -166,8 +199,14 @@ entfernt (Input-Bug, Pause-Menue, echte Hitboxen - alles behoben).
   NetworkWeapon ist der Einhaengepunkt. Plan in NETCODE.md.
 - Kein echtes Online-Multiplayer. Server-autoritativ ist gebaut, aber nur
   Host-Modus getestet. Dedizierte Server / Matchmaking = Spaeter Stufe 3.
-- Reservemunition: Nachladen ist unbegrenzt. Kommt mit dem Kaufmenue.
-- Karte: flache Platte + 12 Zufallskisten. Naechster Gruppe-C-Schritt.
+- Reservemunition: Nachladen ist unbegrenzt (auch nach dem Kaufmenue noch).
+- "Bereit" beendet die Kaufzeit fuer ALLE sofort. Richtig, solange nur
+  ein Mensch gegen Bots spielt. Bei echten Mitspielern spaeter: pro
+  Spieler bereit, oder erst wenn alle bereit sind.
+- Spieler, die mitten im Match dazukommen, haben 0 Geld bis zum naechsten
+  Matchstart (MatchDirector.OnClientConnected). Nur Host-Modus, egal.
+- Bomben-Modus: letzter Gruppe-C-Schritt. Braucht groessere Bot-KI-Arbeit
+  (Ziel-Verstaendnis).
 
 ### Technische Schulden
 - Alle Menues/HUD sind IMGUI-Platzhalter (OnGUI). Funktioniert, ist aber
@@ -195,17 +234,14 @@ Battle Pass, Skins, Grafik, Sound, Animationen.
 
 ## Naechster geplanter Schritt
 
-Phase 5: Spielbar machen.
-Definition of Done (Vorschlag, vor Start bestaetigen):
-- Startmenue (Platzhalter-IMGUI): "Runde starten", "Beenden".
-- Menue -> Arena -> Runde spielen -> Rundenende-Bildschirm -> zurueck ins
-  Menue, ohne Absturz, mehrfach hintereinander.
-- Host wird erst aus dem Menue gestartet, nicht mehr automatisch beim
-  Szenenstart (MatchBootstrap/Auto-Host anpassen).
-- Maus-Sichtbarkeit/-Sperre: im Menue frei, im Spiel gefangen.
-- Ein "Neustart"- und ein "Zurueck zum Menue"-Weg, die alles sauber
-  abbauen (NetworkManager.Shutdown, Szene neu laden).
-- PlayMode-Test: kompletter Durchlauf Menue -> Runde -> Menue -> Runde.
+Counter-Strike Gruppe C, letzter Schritt: **Bomben-Modus**. Groesster
+Brocken der ganzen Wunschliste.
+- Ein Team legt an Platz A oder B eine Bombe, das andere entschaerft.
+- Runde endet: Bombe explodiert, Bombe entschaerft, oder ein Team tot.
+- Braucht deutlich mehr Bot-KI: Ziel verstehen (hin zum Platz, legen /
+  entschaerfen, den Leger decken). Heute koennen Bots nur
+  patrouillieren/verfolgen/schiessen.
+- Vor Start: Opus-Planung (STOPP).
 
 ## Sitzungsprotokoll
 
@@ -213,3 +249,9 @@ Definition of Done (Vorschlag, vor Start bestaetigen):
 Phasen 0-4 komplett an einem Tag. Grundgeruest bis Team-Deathmatch mit
 Bots, Punktestand und Rundenende. 17 PlayMode-Tests gruen. V1-Kernschleife
 steht.
+
+### 2026-08-30 (Sitzung 2)
+Rundenmodus (Ausscheiden statt Deathmatch), Hit-Feedback, Team-Erkennung.
+Dann Counter-Strike-Wunschliste: Gruppe A (Ueberblick), B (Schiessgefuehl),
+C.1 (mehrere Waffen), C.2 (richtige Karte), C.3 (Kaufmenue mit Geld).
+36 PlayMode-Tests gruen. Offen: Bomben-Modus.

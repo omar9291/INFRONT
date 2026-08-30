@@ -97,5 +97,10 @@ Gruppe C - grosse Systeme (offen):
 - [x] Richtige Karte (2026-08-30): spiegelsymmetrisch, 3 Bahnen, Mitte
       offen (Scharfschuetze), Seiten eng, 2 erhoehte Platz-Bereiche mit
       Rampen (spaeter Bombenplaetze), Sichtschutz vor den Spawns.
-- Kaufmenue mit Geld -> Bomben-Modus (offen)
+- [x] Kaufmenue mit Geld (2026-08-30): Wallet pro Kaempfer, 10 s Kaufzeit
+      am Rundenanfang ("Bereit" kuerzt ab), jede Runde Start mit Pistole,
+      Tote verlieren Waffe + Weste, Ueberlebende behalten sie. Bots kaufen
+      selbst. Schutzweste schluckt halben Koerperschaden. Geld fuer
+      Rundensieg / Niederlage (mit Serienbonus) / Abschuss.
+- Bomben-Modus (offen) - letzter Schritt, groesster Brocken
 - Sound (Beschaffung durch den Nutzer)
