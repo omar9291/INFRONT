@@ -87,8 +87,9 @@ geprueft ist.
 Gruppe A - Ueberblick (2026-08-30 gebaut):
 - [x] Kill-Feed, "Getoetet von X", Punktetabelle (Tab), Freeze-Time
 
-Gruppe B - Schiessgefuehl (offen):
-- Rueckstoss, Ungenauigkeit im Laufen, aufgehendes Fadenkreuz, Kopfschuesse
+Gruppe B - Schiessgefuehl (2026-08-30 gebaut):
+- [x] Rueckstoss (festes Muster), Streuung nach Bewegungszustand,
+      aufgehendes Fadenkreuz, Kopfschuesse (Trefferzonen Kopf/Koerper)
 
 Gruppe C - grosse Systeme (offen):
 - Mehrere Waffen -> dann Kaufmenue mit Geld -> Bomben-Modus

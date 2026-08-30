@@ -45,6 +45,13 @@ namespace Infront
         int _specIndex;
         bool _wasSpectating;
 
+        [Header("Rueckstoss")]
+        [SerializeField] float _recoilRecovery = 16f;
+        float _recoilPitch;   // negativ = nach oben
+        float _recoilYaw;
+        float _recoilHold;    // solange > 0: kein Rueckgang (man feuert gerade)
+        float _fireBloom;     // 0..1, fuers Fadenkreuz
+
         // Nur Client-Besitzer
         PlayerInputCommand _pending;
         bool _jumpLatched;
@@ -61,6 +68,7 @@ namespace Infront
 
         public float VerticalVelocity => _verticalVelocity;
         public float AimPitch => _aimPitch.Value;
+        public float RecoilPitch => _recoilPitch;
 
         /// <summary>Die Eingabequelle dieses Spielers. Auch die Waffe liest hier.</summary>
         public IPlayerInputSource Input => _input;
@@ -147,16 +155,28 @@ namespace Infront
                     _viewPitch = Mathf.Clamp(_input.LookPitch, -_maxPitch, _maxPitch);
                 }
 
+                // Rueckstoss geht erst zurueck, wenn man aufhoert zu feuern
+                _recoilHold = Mathf.Max(0f, _recoilHold - Time.deltaTime);
+                if (_recoilHold <= 0f)
+                {
+                    _recoilPitch = Mathf.MoveTowards(_recoilPitch, 0f, _recoilRecovery * Time.deltaTime);
+                    _recoilYaw = Mathf.MoveTowards(_recoilYaw, 0f, _recoilRecovery * Time.deltaTime);
+                }
+                _fireBloom = Mathf.MoveTowards(_fireBloom, 0f, 2.5f * Time.deltaTime);
+
+                float finalYaw = _viewYaw + _recoilYaw;
+                float finalPitch = Mathf.Clamp(_viewPitch + _recoilPitch, -_maxPitch, _maxPitch);
+
                 _pending.Move = paused ? Vector2.zero : _input.Move;
-                _pending.Yaw = _viewYaw;
-                _pending.Pitch = _viewPitch;
+                _pending.Yaw = finalYaw;
+                _pending.Pitch = finalPitch;
                 _pending.Sprint = !paused && _input.Sprint;
                 if (!paused && _input.JumpPressed)
                     _jumpLatched = true;
 
                 // Kamera SOFORT lokal fuehren - kein Netzwerk, keine Verzoegerung
                 if (_camera != null)
-                    _camera.SetView(_viewYaw, _viewPitch);
+                    _camera.SetView(finalYaw, finalPitch);
             }
 
             // Nicht-Server-Instanzen: Ziel-Drehpunkt aus der NetworkVariable neigen
@@ -188,6 +208,28 @@ namespace Infront
             var aim = target.GetComponent<IAimSource>();
             if (aim != null)
                 _camera?.SetSpectate(aim.AimOrigin, aim.AimDirection);
+        }
+
+        /// <summary>Vom Waffen-Code aufgerufen: Rueckstoss auf die Sicht geben.</summary>
+        public void AddRecoil(float up, float side)
+        {
+            _recoilPitch -= up;
+            _recoilYaw += side;
+            _recoilHold = 0.16f;
+            _fireBloom = Mathf.Min(1f, _fireBloom + 0.18f);
+        }
+
+        /// <summary>Wie weit das Fadenkreuz aufgehen soll (0..1). Nur Anzeige.</summary>
+        public float CrosshairSpread01
+        {
+            get
+            {
+                Vector3 v = _controller != null && _controller.enabled ? _controller.velocity : Vector3.zero;
+                float sp = new Vector2(v.x, v.z).magnitude;
+                float m = Mathf.Clamp01(sp / 10f);
+                if (_controller != null && _controller.enabled && !_controller.isGrounded) m = 1f;
+                return Mathf.Clamp01(m * 0.7f + _fireBloom);
+            }
         }
 
         /// <summary>Name des gerade beobachteten Verbuendeten (fuer die Anzeige).</summary>

@@ -78,6 +78,8 @@ namespace Infront.EditorTools
             }
             stats.DisplayName = name;
             stats.Damage = damage;
+            stats.RecoilUp = 0.85f;
+            stats.RecoilSide = 0.3f;
             EditorUtility.SetDirty(stats);
             AssetDatabase.SaveAssets();
             return stats;
@@ -122,6 +124,7 @@ namespace Infront.EditorTools
             controller.stepOffset = 0.3f;
 
             root.AddComponent<NetworkObject>();
+            root.layer = 7; // Character - vom Trefferstrahl ausgenommen
 
             var netTransform = root.AddComponent<NetworkTransform>();
             netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
@@ -129,10 +132,11 @@ namespace Infront.EditorTools
             netTransform.Interpolate = true;
 
             var playerController = root.AddComponent<NetworkPlayerController>();
-            root.AddComponent<Health>();
+            var health = root.AddComponent<Health>();
             root.AddComponent<TeamMember>();
             root.AddComponent<TeamTint>();
             root.AddComponent<FriendlyNameplates>();
+            AddHitboxes(root, health);
 
             // Sichtbarer Koerper (nur Optik, keine Collider)
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -172,6 +176,7 @@ namespace Infront.EditorTools
             var soWeapon = new SerializedObject(weaponComponent);
             soWeapon.FindProperty("_stats").objectReferenceValue = weapon;
             soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
+            soWeapon.FindProperty("_hitMask").intValue = (1 << 0) | (1 << 6);
             soWeapon.ApplyModifiedPropertiesWithoutUndo();
 
             var soLife = new SerializedObject(lifecycle);
@@ -208,18 +213,22 @@ namespace Infront.EditorTools
         {
             var root = new GameObject("TargetDummy");
             root.AddComponent<NetworkObject>();
-            root.AddComponent<Health>();
+            root.layer = 7;
+            var dummyHealth = root.AddComponent<Health>();
             var dummy = root.AddComponent<TargetDummy>();
 
             var netTransform = root.AddComponent<NetworkTransform>();
             netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
             netTransform.Interpolate = false;
 
-            // Sichtbarer Koerper MIT Collider (muss getroffen werden koennen)
+            // Sichtbarer Koerper (nur Optik) - Trefferflaechen sind eigene Hitboxen
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.name = "Body";
+            Object.DestroyImmediate(body.GetComponent<Collider>());
             body.transform.SetParent(root.transform, false);
             body.transform.localPosition = new Vector3(0f, 1f, 0f);
+
+            AddHitboxes(root, dummyHealth);
 
             var soDummy = new SerializedObject(dummy);
             var hideArray = soDummy.FindProperty("_hideOnDeath");
@@ -246,10 +255,27 @@ namespace Infront.EditorTools
             return prefab;
         }
 
+        static void AddHitboxes(GameObject root, Health owner)
+        {
+            var body = new GameObject("Hitbox_Body") { layer = 6 };
+            body.transform.SetParent(root.transform, false);
+            body.transform.localPosition = new Vector3(0f, 0.95f, 0f);
+            var bc = body.AddComponent<CapsuleCollider>();
+            bc.radius = 0.35f; bc.height = 1.3f; bc.direction = 1;
+            body.AddComponent<Hitbox>().Configure(false, owner);
+
+            var head = new GameObject("Hitbox_Head") { layer = 6 };
+            head.transform.SetParent(root.transform, false);
+            head.transform.localPosition = new Vector3(0f, 1.75f, 0f);
+            head.AddComponent<SphereCollider>().radius = 0.22f;
+            head.AddComponent<Hitbox>().Configure(true, owner);
+        }
+
         static GameObject BuildBotPrefab(WeaponStats weapon, BotStats botStats)
         {
             var root = new GameObject("Bot");
             root.AddComponent<NetworkObject>();
+            root.layer = 7; // Character - vom Trefferstrahl ausgenommen
 
             var health = root.AddComponent<Health>();
             root.AddComponent<TeamMember>();
@@ -270,9 +296,10 @@ namespace Infront.EditorTools
             agent.stoppingDistance = 0.2f;
             agent.autoBraking = true;
 
-            // Sichtbarer Koerper MIT Collider (muss getroffen werden koennen)
+            // Sichtbarer Koerper (nur Optik) - Trefferflaechen sind eigene Hitboxen
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.name = "Body";
+            Object.DestroyImmediate(body.GetComponent<Collider>());
             body.transform.SetParent(root.transform, false);
             body.transform.localPosition = new Vector3(0f, 1f, 0f);
 
@@ -292,12 +319,16 @@ namespace Infront.EditorTools
             var soWeapon = new SerializedObject(weaponComponent);
             soWeapon.FindProperty("_stats").objectReferenceValue = weapon;
             soWeapon.FindProperty("_muzzle").objectReferenceValue = muzzle.transform;
+            soWeapon.FindProperty("_hitMask").intValue = (1 << 0) | (1 << 6);
             soWeapon.ApplyModifiedPropertiesWithoutUndo();
 
             var soBrain = new SerializedObject(brain);
             soBrain.FindProperty("_stats").objectReferenceValue = botStats;
             soBrain.FindProperty("_eyes").objectReferenceValue = eyes.transform;
+            soBrain.FindProperty("_sightBlockers").intValue = 1 << 0;
             soBrain.ApplyModifiedPropertiesWithoutUndo();
+
+            AddHitboxes(root, health);
 
             var soHealth = new SerializedObject(health);
             soHealth.FindProperty("_maxHealth").intValue = 100;

@@ -173,7 +173,7 @@ namespace Infront.Tests
             for (int i = 0; i < 15; i++) yield return new WaitForFixedUpdate();
 
             Vector3 aim = player.AimDirection; aim.y = 0f; aim.Normalize();
-            Vector3 spot = player.transform.position + aim * 5f;
+            Vector3 spot = player.transform.position + aim * 3.5f;
 
             // 1) Verbuendeter davor -> kein Schaden
             friend.transform.position = spot;
@@ -183,9 +183,11 @@ namespace Infront.Tests
             int friendBefore = friendHp.Current;
 
             input.FireHeld = true;
-            for (int i = 0; i < 30; i++) yield return new WaitForFixedUpdate();
+            for (int i = 0; i < 12; i++) yield return new WaitForFixedUpdate();
             input.FireHeld = false;
             Assert.AreEqual(friendBefore, friendHp.Current, "Freundschaftsbeschuss!");
+            // Rueckstoss abklingen lassen
+            for (int i = 0; i < 40; i++) yield return new WaitForFixedUpdate();
 
             // 2) Gegner an dieselbe Stelle -> Schaden
             friend.transform.position += Vector3.up * 60f;
@@ -197,7 +199,7 @@ namespace Infront.Tests
             Assert.Greater(enemyBefore, 0, "Gegner-Bot tot - Testaufbau kaputt.");
 
             input.FireHeld = true;
-            for (int i = 0; i < 30; i++) yield return new WaitForFixedUpdate();
+            for (int i = 0; i < 12; i++) yield return new WaitForFixedUpdate();
             input.FireHeld = false;
             Assert.Less(enemyHp.Current, enemyBefore, "Gegner wurde nicht getroffen.");
         }

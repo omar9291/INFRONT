@@ -18,3 +18,14 @@ MonoBehaviour:
   MagazineSize: 30
   ReloadTime: 2
   Range: 200
+  HeadshotMultiplier: 999
+  RecoilUp: 0.85
+  RecoilSide: 0.3
+  RecoilRecovery: 14
+  SpreadStand: 0.15
+  SpreadWalk: 1.4
+  SpreadSprint: 3.2
+  SpreadAir: 5
+  SpreadPerShot: 0.5
+  SpreadRecovery: 6
+  SpreadMax: 9

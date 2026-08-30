@@ -136,6 +136,56 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Kopfschuss_toetet_mit_einem_Treffer()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            TargetDummy dummy = null;
+            yield return MatchTestHarness.WaitUntil(() => (dummy = FindDummy()) != null, 6f, "Kein Dummy.");
+
+            MatchTestHarness.ClearArena();
+            MatchTestHarness.PlacePlayer(player, new Vector3(0f, 1f, 0f), 0f);
+            var input = new FakePlayerInput { Move = Vector2.zero, LookYaw = 0f, LookPitch = 0f };
+            player.SetInputSource(input);
+            for (int i = 0; i < 12; i++) yield return new WaitForFixedUpdate();
+
+            // Dummy so setzen, dass die Augen-Linie genau den Kopf trifft.
+            // Augen auf ~1.6, Kopf-Hitbox des Dummys auf lokal 1.75 -> Dummy tiefer stellen.
+            Vector3 aim = player.AimDirection; aim.y = 0f; aim.Normalize();
+            dummy.transform.position = player.transform.position + aim * 6f + Vector3.down * 0.15f;
+            var hp = dummy.GetComponent<Health>();
+            hp.ResetFull();
+            for (int i = 0; i < 6; i++) yield return new WaitForFixedUpdate();
+
+            input.FireHeld = true;
+            for (int i = 0; i < 8; i++) yield return new WaitForFixedUpdate();
+            input.FireHeld = false;
+
+            Assert.IsFalse(hp.IsAlive, $"Kopfschuss hat nicht getoetet (Leben {hp.Current}).");
+        }
+
+        [UnityTest]
+        public IEnumerator Rueckstoss_zieht_die_Sicht_nach_oben()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+
+            MatchTestHarness.ClearArena();
+            MatchTestHarness.PlacePlayer(player, new Vector3(0f, 1f, 0f), 0f);
+            var input = new FakePlayerInput { Move = Vector2.zero, LookYaw = 0f, LookPitch = 0f };
+            player.SetInputSource(input);
+            for (int i = 0; i < 10; i++) yield return new WaitForFixedUpdate();
+
+            float before = player.RecoilPitch;
+            input.FireHeld = true;
+            for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
+            float during = player.RecoilPitch;
+            input.FireHeld = false;
+
+            Assert.Less(during, before - 1f, "Rueckstoss zieht die Sicht nicht nach oben.");
+        }
+
+        [UnityTest]
         public IEnumerator Feuerrate_begrenzt_die_Schussanzahl()
         {
             NetworkPlayerController player = null;

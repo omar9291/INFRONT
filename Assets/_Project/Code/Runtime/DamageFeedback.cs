@@ -133,7 +133,8 @@ namespace Infront
             if (!_dead && !PauseMenu.IsPaused && _black < 0.05f)
             {
                 float cx = Screen.width / 2f, cy = Screen.height / 2f;
-                float gap = 4f + _hitFlash * 7f;
+                float spread = _controller != null ? _controller.CrosshairSpread01 : 0f;
+                float gap = 4f + spread * 26f + _hitFlash * 7f;
                 float len = 9f;
                 GUI.color = _hitFlash > 0f ? new Color(1f, 0.55f, 0.25f, 0.95f) : new Color(1f, 1f, 1f, 0.7f);
                 GUI.DrawTexture(new Rect(cx - 1, cy - gap - len, 2, len), Texture2D.whiteTexture);

@@ -37,6 +37,9 @@ namespace Infront
         double _nextFireTime;
         double _reloadFinishTime;
         double _clientNextFire;
+        float _spread;          // Server: Aufbau-Streuung
+        int _clientShot;        // Client: Schuss-Index fuers Rueckstoss-Muster
+        double _lastClientShot;
 
         public int Ammo => _ammo.Value;
         public bool IsReloading => _reloading.Value;
@@ -78,13 +81,59 @@ namespace Infront
                 RequestReloadRpc();
 
             if (input.FireHeld && ClientReadyToTry())
+            {
+                ApplyLocalRecoil();
                 FireRpc(ServerNow);
+            }
         }
 
         void LateUpdate()
         {
             if (IsServer)
+            {
                 TickReload();
+                if (_stats != null)
+                    _spread = Mathf.Max(0f, _spread - _stats.SpreadRecovery * Time.deltaTime);
+            }
+        }
+
+        void ApplyLocalRecoil()
+        {
+            if (_stats == null || _playerController == null) return;
+            if (ServerNow - _lastClientShot > 0.3) _clientShot = 0;
+            _lastClientShot = ServerNow;
+
+            float up = _stats.RecoilUp;
+            float side = _stats.RecoilSide * Mathf.Sin(_clientShot * 1.2f) * Mathf.Clamp01(_clientShot / 3f);
+            _playerController.AddRecoil(up, side);
+            _clientShot++;
+        }
+
+        float ServerMovementSpread()
+        {
+            if (_stats == null) return 0f;
+            Vector3 v = Vector3.zero;
+            bool grounded = true;
+            var cc = GetComponent<CharacterController>();
+            if (cc != null && cc.enabled) { v = cc.velocity; grounded = cc.isGrounded; }
+            else
+            {
+                var agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+                if (agent != null && agent.enabled) v = agent.velocity;
+            }
+            float speed = new Vector2(v.x, v.z).magnitude;
+            if (!grounded) return _stats.SpreadAir;
+            if (speed < 0.5f) return _stats.SpreadStand;
+            if (speed < 7f) return Mathf.Lerp(_stats.SpreadStand, _stats.SpreadWalk, (speed - 0.5f) / 6.5f);
+            return _stats.SpreadSprint;
+        }
+
+        static Vector3 ApplyCone(Vector3 dir, float degrees)
+        {
+            if (degrees <= 0.01f) return dir;
+            float rad = degrees * Mathf.Deg2Rad;
+            Vector2 r = UnityEngine.Random.insideUnitCircle * Mathf.Tan(rad);
+            return (Quaternion.LookRotation(dir) * new Vector3(r.x, r.y, 1f)).normalized;
         }
 
         bool ClientReadyToTry()
@@ -159,10 +208,10 @@ namespace Infront
             _nextFireTime = ServerNow + _stats.ShotInterval;
             _ammo.Value -= 1;
 
-            // Trefferstrahl aus der Augenmitte (dorthin zeigt das Fadenkreuz).
-            // Die sichtbare Spur startet spaeter am Lauf - das ist Absicht.
             Vector3 rayOrigin = _aim.AimOrigin;
-            Vector3 direction = _aim.AimDirection;
+            float totalSpread = Mathf.Min(ServerMovementSpread() + _spread, _stats.SpreadMax);
+            Vector3 direction = ApplyCone(_aim.AimDirection, totalSpread);
+            _spread = Mathf.Min(_spread + _stats.SpreadPerShot, _stats.SpreadMax);
             Vector3 endPoint = rayOrigin + direction * _stats.Range;
 
             var hits = Physics.RaycastAll(rayOrigin, direction, _stats.Range, _hitMask, QueryTriggerInteraction.Ignore);
@@ -172,24 +221,27 @@ namespace Infront
             {
                 var hitObject = hit.collider.GetComponentInParent<NetworkObject>();
                 if (hitObject != null && hitObject == NetworkObject)
-                    continue; // eigene Kollider ueberspringen
+                    continue; // eigene Kollider
 
-                var damageable = hit.collider.GetComponentInParent<IDamageable>();
+                var box = hit.collider.GetComponent<Hitbox>();
+                Health targetHealth = box != null ? box.Owner : hit.collider.GetComponentInParent<Health>();
+                var otherTeam = targetHealth != null ? targetHealth.GetComponent<TeamMember>() : null;
 
-                // Verbuendete: Kugel fliegt hindurch (kein Freundschaftsbeschuss)
-                var otherTeam = hit.collider.GetComponentInParent<TeamMember>();
-                if (damageable != null && otherTeam != null && _team != null
+                // Verbuendete: Kugel fliegt hindurch
+                if (targetHealth != null && otherTeam != null && _team != null
                     && Team.AreFriendly(_team.TeamId, otherTeam.TeamId))
-                {
                     continue;
-                }
 
                 endPoint = hit.point;
 
-                if (damageable != null && damageable.IsAlive)
+                if (targetHealth != null && targetHealth.IsAlive)
                 {
-                    damageable.ApplyDamage(_stats.Damage, gameObject);
-                    ServerHitConfirmed?.Invoke(hit.collider.gameObject, _stats.Damage);
+                    bool head = box != null && box.IsHead;
+                    int dmg = head
+                        ? Mathf.RoundToInt(_stats.Damage * _stats.HeadshotMultiplier)
+                        : _stats.Damage;
+                    targetHealth.ApplyDamage(dmg, gameObject);
+                    ServerHitConfirmed?.Invoke(hit.collider.gameObject, dmg);
                     HitConfirmedRpc();
                 }
                 break;
