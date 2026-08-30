@@ -38,8 +38,11 @@ namespace Infront
 
                 if (match.IsFrozen)
                 {
+                    // Waehrend der Kaufzeit zeigt das Kaufmenue schon die Sekunden -
+                    // hier nur weit oben, damit nichts das Menue verdeckt.
                     int fz = Mathf.CeilToInt((float)match.FreezeSecondsLeft);
-                    GUI.Label(new Rect(0, Screen.height * 0.28f, Screen.width, 80), fz.ToString(), Center(_big));
+                    GUI.Label(new Rect(0, Screen.height * 0.13f, Screen.width, 40),
+                        $"Kaufzeit   {fz}", Center(_big));
                 }
 
                 if (match.CurrentPhase == MatchManager.Phase.RoundOver)
