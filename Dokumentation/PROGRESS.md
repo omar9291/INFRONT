@@ -77,7 +77,19 @@ NavMesh.
 - Offen fuer den Nutzer: Timing der Blenden und ob die roten Raender
   sich richtig anfuehlen - kann ich nicht selbst beurteilen.
 
-## Tests (headless PlayMode) - 20 von 20 gruen (2026-08-29)
+### Rundenmodus (2026-08-30)
+Auf Wunsch des Nutzers: weg vom Team-Deathmatch, hin zu Ausscheiden pro Runde.
+- Wer stirbt, bleibt die Runde tot. Kein Respawn mitten in der Runde.
+- Team ausgeloescht -> anderes Team gewinnt die Runde. Zeitablauf ->
+  Team mit mehr Ueberlebenden.
+- Bis 15 Rundensiege -> Match, dann neues Match.
+- Zuschauen bei lebenden Verbuendeten waehrend man tot ist
+  (Links/Rechtsklick wechselt). Kamera an fremde Augen ueber IAimSource.
+- Spawn-Fix: 6 Punkte pro Team, verteilte Aufstellung ohne Doppelungen
+  (war die Ursache von "man spawnt in den Gegnern").
+- Todes-Blende blinzelt nur kurz, dann klar zum Zuschauen.
+
+## Tests (headless PlayMode) - 22 von 22 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
