@@ -13,7 +13,8 @@ namespace Infront
             bool playing =
                 MatchManager.Instance != null
                 && MatchManager.Instance.CurrentPhase == MatchManager.Phase.Playing
-                && !PauseMenu.IsPaused;
+                && !PauseMenu.IsPaused
+                && !BuyMenuHud.IsOpen;
 
             var wanted = playing ? CursorLockMode.Locked : CursorLockMode.None;
             if (Cursor.lockState != wanted)

@@ -28,6 +28,9 @@ namespace Infront
         GUIStyle _row;
         GUIStyle _hint;
 
+        /// <summary>true, solange das Kaufmenue sichtbar ist (Maus frei, Sicht steht still).</summary>
+        public static bool IsOpen { get; private set; }
+
         public override void OnNetworkSpawn()
         {
             if (!IsOwner) { enabled = false; return; }
@@ -39,16 +42,27 @@ namespace Infront
             _catalog = _agent != null ? _agent.Catalog : null;
         }
 
-        void Update()
+        public override void OnNetworkDespawn() => IsOpen = false;
+        void OnDisable() => IsOpen = false;
+
+        bool BuyTimeNow()
         {
             var mm = MatchManager.Instance;
-            bool buyTime = mm != null && mm.IsBuyTime && _health != null && _health.IsAlive;
+            return mm != null && !mm.SuspendedForTests && mm.IsBuyTime
+                   && _health != null && _health.IsAlive;
+        }
+
+        void Update()
+        {
+            bool buyTime = BuyTimeNow();
 
             // Kaufzeit beginnt -> Menue automatisch auf
             if (buyTime && !_wasBuyTime) _open = true;
             // Kaufzeit vorbei -> zu
             if (!buyTime && _wasBuyTime) _open = false;
             _wasBuyTime = buyTime;
+
+            IsOpen = buyTime && _open;
 
             if (!buyTime) return;
 
@@ -84,7 +98,7 @@ namespace Infront
         void OnGUI()
         {
             var mm = MatchManager.Instance;
-            bool buyTime = mm != null && mm.IsBuyTime && _health != null && _health.IsAlive;
+            bool buyTime = BuyTimeNow();
             if (!buyTime || _catalog == null) return;
 
             EnsureStyles();

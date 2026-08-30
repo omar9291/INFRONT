@@ -147,7 +147,9 @@ namespace Infront
                     _camera?.StopSpectate();
                 }
 
-                bool paused = PauseMenu.IsPaused;
+                // Bei Pause und offenem Kaufmenue ist die Maus frei - dann die
+                // Sicht nicht mitdrehen lassen.
+                bool paused = PauseMenu.IsPaused || BuyMenuHud.IsOpen;
 
                 if (!paused)
                 {
