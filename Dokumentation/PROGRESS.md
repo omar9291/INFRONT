@@ -108,7 +108,14 @@ Auf Wunsch des Nutzers: weg vom Team-Deathmatch, hin zu Ausscheiden pro Runde.
 - Fadenkreuz geht mit der Streuung auf.
 - Alle Werte im WeaponStats-Asset. Layer Hitbox(6)/Character(7).
 
-## Tests (headless PlayMode) - 26 von 26 gruen (2026-08-29)
+### Counter-Strike Gruppe C.1 "mehrere Waffen" (2026-08-30)
+- Zwei Plaetze: Primaer (1), Pistole (2). Jede Waffe eigene Munition,
+  Wechselzeit. WeaponCatalog-Asset (Netz = nur Index).
+- 4 Waffen: Sturmgewehr, Maschinenpistole, Scharfschuetzengewehr, Pistole.
+- Alle Werte im jeweiligen WeaponStats-Asset.
+- Als naechstes in Gruppe C: eine richtige Karte, dann Kaufmenue, dann Bombe.
+
+## Tests (headless PlayMode) - 28 von 28 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
