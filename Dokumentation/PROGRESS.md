@@ -115,7 +115,15 @@ Auf Wunsch des Nutzers: weg vom Team-Deathmatch, hin zu Ausscheiden pro Runde.
 - Alle Werte im jeweiligen WeaponStats-Asset.
 - Als naechstes in Gruppe C: eine richtige Karte, dann Kaufmenue, dann Bombe.
 
-## Tests (headless PlayMode) - 28 von 28 gruen (2026-08-29)
+### Counter-Strike Gruppe C.2 "richtige Karte" (2026-08-30)
+- Spiegelsymmetrische Karte: 3 Bahnen, Mitte lange Sichtachse, Seiten eng
+  mit Deckung, 2 erhoehte Platz-Bereiche mit Rampen (spaeter Bombenplaetze),
+  Sichtschutz vor den Spawns, Aussenwaende.
+- Karte per Code als Block-Tabelle mit Z-Spiegel-Helfer.
+- Werkzeug MapSnapshot: 2D-Grundriss als Bild (Menue Infront/Karte).
+- Test: Bots finden einen Weg Spawn->Spawn. ClearArena baeckt NavMesh flach.
+
+## Tests (headless PlayMode) - 29 von 29 gruen (2026-08-29)
 
     Unity -batchmode -runTests -testPlatform PlayMode -projectPath <PROJ>
 
