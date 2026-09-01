@@ -1,0 +1,3 @@
+/* Standard-Laufzeit-Thema von Unity - Grund-Optik der Bedienelemente. */
+@import url("unity-theme://default");
+VisualElement {}

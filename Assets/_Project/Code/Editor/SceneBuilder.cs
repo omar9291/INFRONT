@@ -8,6 +8,8 @@ using UnityEditor.SceneManagement;
 using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
 namespace Infront.EditorTools
 {
@@ -26,13 +28,19 @@ namespace Infront.EditorTools
         const string PlayerPrefabPath = PrefabDir + "/Player.prefab";
         const string DummyPrefabPath = PrefabDir + "/TargetDummy.prefab";
         const string CatalogPath = SettingsDir + "/WeaponCatalog.asset";
+        const string AbilityCatalogPath = SettingsDir + "/AbilityCatalog.asset";
         const string BotStatsPath = SettingsDir + "/Bot_Normal.asset";
         const string BotStatsEasyPath = SettingsDir + "/Bot_Leicht.asset";
         const string BotStatsHardPath = SettingsDir + "/Bot_Schwer.asset";
         const string MenuScenePath = SceneDir + "/Menu.unity";
         const string BotPrefabPath = PrefabDir + "/Bot.prefab";
         const string MatchManagerPrefabPath = PrefabDir + "/MatchManager.prefab";
+        const string BombPrefabPath = PrefabDir + "/Bomb.prefab";
         const string ScenePath = SceneDir + "/Arena.unity";
+        const string UiResourcesDir = "Assets/_Project/UI/Resources";
+        const string UiThemePath = UiResourcesDir + "/InfrontRuntimeTheme.tss";
+        const string UiPanelPath = UiResourcesDir + "/InfrontPanel.asset";
+        const string AudioResourcesDir = "Assets/_Project/Audio/Resources";
 
         [MenuItem("Infront/Setup/2 - Arena und Spieler bauen")]
         public static void Build()
@@ -40,15 +48,26 @@ namespace Infront.EditorTools
             Directory.CreateDirectory(PrefabDir);
             Directory.CreateDirectory(SceneDir);
             Directory.CreateDirectory(SettingsDir);
+            EnsureAudioFolder();
             AssetDatabase.Refresh();
 
+            // P2-P4: heruntergeladene CC0-Pakete einbauen (falls da). Ohne die
+            // Ordner passiert nichts - dann bleibt alles Code-Geometrie wie bisher.
+            AssetImporterTools.BuildAllSurfaceMaterials();   // Flaechen-Texturen
+            AssetImporterTools.BuildHdriSkybox();            // HDRI-Himmel
+            AssetImporterTools.BuildAllDecoModels();         // Deko-FBX -> Prefabs
+            AssetImporterTools.BuildAllWeaponModels();       // Waffen-FBX -> Prefabs
+            AssetImporterTools.BuildFigureModel();           // Mixamo-Figur (falls da)
+
             WeaponCatalog catalog = CreateWeaponCatalog();
+            AbilityCatalog abilityCatalog = CreateAbilityCatalog();
             BotStats botStats = CreateBotStats();
-            GameObject playerPrefab = BuildPlayerPrefab(catalog);
+            GameObject playerPrefab = BuildPlayerPrefab(catalog, abilityCatalog);
             GameObject dummyPrefab = BuildDummyPrefab();
-            GameObject botPrefab = BuildBotPrefab(catalog, botStats);
+            GameObject botPrefab = BuildBotPrefab(catalog, abilityCatalog, botStats);
             GameObject matchManagerPrefab = BuildMatchManagerPrefab();
-            BuildArenaScene(playerPrefab, dummyPrefab, botPrefab, matchManagerPrefab);
+            GameObject bombPrefab = BuildBombPrefab();
+            BuildArenaScene(playerPrefab, dummyPrefab, botPrefab, matchManagerPrefab, bombPrefab);
             BuildMenuScene();
 
             Debug.Log("SCENE_BUILD_OK");
@@ -58,8 +77,38 @@ namespace Infront.EditorTools
         public static void SetupEverything()
         {
             UrpSetup.Run();
+            GraphicsTune.Apply();   // HDR + Adaptive-Performance-Fix
             Build();
             Debug.Log("FULL_SETUP_OK");
+        }
+
+        /// <summary>
+        /// Legt den Ordner an, in den echte Sounddateien kommen. Solange er
+        /// leer ist, benutzt der <see cref="Infront.AudioService"/> die
+        /// Platzhalter-Töne aus <see cref="Infront.ProceduralSfx"/>.
+        /// </summary>
+        static void EnsureAudioFolder()
+        {
+            Directory.CreateDirectory(AudioResourcesDir);
+            string readme = AudioResourcesDir + "/LIESMICH.txt";
+            if (!File.Exists(readme))
+            {
+                File.WriteAllText(readme,
+                    "Echte Sounddateien hier ablegen (.wav oder .ogg).\n\n" +
+                    "Der Dateiname MUSS zum Ton passen - Kleinschreibung mit\n" +
+                    "Unterstrichen, so wie die Einträge in SoundId.cs:\n\n" +
+                    "  schuss_gewehr.wav      schuss_mp.wav      schuss_sniper.wav\n" +
+                    "  schuss_pistole.wav     nachladen.wav      waffe_wechsel.wav\n" +
+                    "  treffer_marke.wav      treffer_kopf.wav   abschuss.wav\n" +
+                    "  eigener_tod.wav        einschlag_wand.wav einschlag_koerper.wav\n" +
+                    "  schritt_leise.wav      schritt_normal.wav schritt_laut.wav\n" +
+                    "  runde_start.wav        runde_sieg.wav     runde_niederlage.wav\n" +
+                    "  kaufzeit_vorbei.wav    bombe_piep.wav     bombe_gelegt.wav\n" +
+                    "  bombe_entschaerft.wav  bombe_explosion.wav\n\n" +
+                    "Liegt eine Datei da, wird sie automatisch statt des\n" +
+                    "Platzhalter-Tons benutzt. Du kannst einzeln austauschen.\n" +
+                    "Gute Gratis-Quellen: freesound.org, kenney.nl/assets (Audio).\n");
+            }
         }
 
         static WeaponStats MakeWeapon(string file, System.Action<WeaponStats> setup)
@@ -83,6 +132,7 @@ namespace Infront.EditorTools
             var sturmgewehr = MakeWeapon("Sturmgewehr", w =>
             {
                 w.DisplayName = "Sturmgewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.ShotSound = SoundId.SchussGewehr;
                 w.Damage = 18; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
                 w.RecoilUp = 0.85f; w.RecoilSide = 0.3f; w.SwitchTime = 0.5f;
                 w.SpreadStand = 0.15f; w.SpreadWalk = 1.4f; w.SpreadSprint = 3.2f;
@@ -90,6 +140,7 @@ namespace Infront.EditorTools
             var mp = MakeWeapon("Maschinenpistole", w =>
             {
                 w.DisplayName = "Maschinenpistole"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.ShotSound = SoundId.SchussMp;
                 w.Damage = 12; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
                 w.RecoilUp = 0.5f; w.RecoilSide = 0.25f; w.SwitchTime = 0.4f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 1.2f; w.SpreadSprint = 2.5f;
@@ -97,6 +148,7 @@ namespace Infront.EditorTools
             var sniper = MakeWeapon("Scharfschuetzengewehr", w =>
             {
                 w.DisplayName = "Scharfschuetzengewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.ShotSound = SoundId.SchussSniper;
                 w.Damage = 120; w.FireRate = 1.1f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
                 w.RecoilUp = 4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
                 w.SpreadStand = 0.02f; w.SpreadWalk = 4f; w.SpreadSprint = 9f; w.SpreadAir = 12f;
@@ -105,6 +157,7 @@ namespace Infront.EditorTools
             var pistole = MakeWeapon("Pistole", w =>
             {
                 w.DisplayName = "Pistole"; w.SlotKind = WeaponStats.Slot.Pistole;
+                w.ShotSound = SoundId.SchussPistole;
                 w.Damage = 14; w.FireRate = 5f; w.MagazineSize = 14; w.ReloadTime = 1.5f; w.Range = 90f;
                 w.RecoilUp = 1.2f; w.RecoilSide = 0.4f; w.SwitchTime = 0.3f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 1.5f; w.SpreadSprint = 3f;
@@ -112,6 +165,7 @@ namespace Infront.EditorTools
             var botRifle = MakeWeapon("Bot_Sturmgewehr", w =>
             {
                 w.DisplayName = "Sturmgewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.ShotSound = SoundId.SchussGewehr;
                 w.Damage = 12; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
                 w.RecoilUp = 0.4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.5f;
                 w.SpreadStand = 0.3f; w.SpreadWalk = 1.6f; w.SpreadSprint = 3.5f;
@@ -121,6 +175,7 @@ namespace Infront.EditorTools
             var botMp = MakeWeapon("Bot_Maschinenpistole", w =>
             {
                 w.DisplayName = "Maschinenpistole"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.ShotSound = SoundId.SchussMp;
                 w.Damage = 9; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
                 w.RecoilUp = 0.3f; w.RecoilSide = 0.15f; w.SwitchTime = 0.4f;
                 w.SpreadStand = 0.6f; w.SpreadWalk = 1.6f; w.SpreadSprint = 3f;
@@ -128,6 +183,7 @@ namespace Infront.EditorTools
             var botSniper = MakeWeapon("Bot_Scharfschuetzengewehr", w =>
             {
                 w.DisplayName = "Scharfschuetzengewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.ShotSound = SoundId.SchussSniper;
                 w.Damage = 90; w.FireRate = 1.0f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
                 w.RecoilUp = 3f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 4f; w.SpreadSprint = 9f; w.SpreadAir = 12f;
@@ -157,18 +213,92 @@ namespace Infront.EditorTools
             return cat;
         }
 
+        static AbilityStats MakeAbility(string file, System.Action<AbilityStats> setup)
+        {
+            string path = SettingsDir + "/" + file + ".asset";
+            var s = AssetDatabase.LoadAssetAtPath<AbilityStats>(path);
+            if (s == null)
+            {
+                s = ScriptableObject.CreateInstance<AbilityStats>();
+                AssetDatabase.CreateAsset(s, path);
+            }
+            setup(s);
+            EditorUtility.SetDirty(s);
+            AssetDatabase.SaveAssets();
+            return s;
+        }
+
+        static AbilityCatalog CreateAbilityCatalog()
+        {
+            var rauch = MakeAbility("Faehigkeit_Rauchwand", a =>
+            {
+                a.Kind = AbilityKind.Rauchwand; a.DisplayName = "Rauchwand"; a.Slot = AbilitySlot.Q;
+                a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
+                a.Duration = 15f; a.Radius = 4.5f; a.ThrowRange = 16f;
+            });
+            var blend = MakeAbility("Faehigkeit_Blendgranate", a =>
+            {
+                a.Kind = AbilityKind.Blendgranate; a.DisplayName = "Blendgranate"; a.Slot = AbilitySlot.G;
+                a.Price = 250; a.Charges = 2; a.Cooldown = 0f;
+                a.Duration = 2f; a.Radius = 10f; a.ThrowRange = 14f;
+            });
+            var splitter = MakeAbility("Faehigkeit_Splittergranate", a =>
+            {
+                a.Kind = AbilityKind.Splittergranate; a.DisplayName = "Splittergranate"; a.Slot = AbilitySlot.G;
+                a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
+                a.Duration = 0f; a.Radius = 5.5f; a.ThrowRange = 16f;
+            });
+            var scan = MakeAbility("Faehigkeit_ScanPuls", a =>
+            {
+                a.Kind = AbilityKind.ScanPuls; a.DisplayName = "Scan-Puls"; a.Slot = AbilitySlot.F;
+                a.Price = 250; a.Charges = 1; a.Cooldown = 0f;
+                a.Duration = 3f; a.Radius = 16f; a.ThrowRange = 2f;
+            });
+            var brand = MakeAbility("Faehigkeit_Brandwand", a =>
+            {
+                a.Kind = AbilityKind.Brandwand; a.DisplayName = "Brandwand"; a.Slot = AbilitySlot.Q;
+                a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
+                a.Duration = 8f; a.Radius = 4f; a.ThrowRange = 14f;
+            });
+            var draht = MakeAbility("Faehigkeit_Stolperdraht", a =>
+            {
+                a.Kind = AbilityKind.Stolperdraht; a.DisplayName = "Stolperdraht"; a.Slot = AbilitySlot.F;
+                a.Price = 200; a.Charges = 1; a.Cooldown = 0f;
+                a.Duration = 30f; a.Radius = 3f; a.ThrowRange = 6f;
+            });
+
+            var cat = AssetDatabase.LoadAssetAtPath<AbilityCatalog>(AbilityCatalogPath);
+            if (cat == null)
+            {
+                cat = ScriptableObject.CreateInstance<AbilityCatalog>();
+                AssetDatabase.CreateAsset(cat, AbilityCatalogPath);
+            }
+            // Reihenfolge = Netz-Index. Neue Faehigkeiten hinten anhaengen.
+            cat.Abilities = new[] { rauch, blend, splitter, scan, brand, draht };
+
+            EditorUtility.SetDirty(cat);
+            AssetDatabase.SaveAssets();
+            return cat;
+        }
+
         static BotStats CreateBotStats()
         {
-            // Normal = Standardwerte des Assets
-            var normal = LoadOrCreateBotStats(BotStatsPath, spread: 5f, reaction: 0.35f, view: 28f);
-            // Leicht: zittriger, langsamere Reaktion, sieht schlechter
-            LoadOrCreateBotStats(BotStatsEasyPath, spread: 9f, reaction: 0.7f, view: 20f);
-            // Schwer: praeziser, schnelle Reaktion, sieht weiter
-            LoadOrCreateBotStats(BotStatsHardPath, spread: 2.5f, reaction: 0.18f, view: 34f);
+            // Leicht/Normal/Schwer stellen jetzt Reaktion, Zielguete, Nachziehen,
+            // Aggressivitaet, Hoervermoegen und Teamwork ein - nicht nur das Tempo.
+            var normal = LoadOrCreateBotStats(BotStatsPath,
+                spread: 5f, reaction: 0.35f, view: 28f,
+                track: 220f, aggr: 0.5f, hearing: 1f, teamwork: 0.5f);
+            LoadOrCreateBotStats(BotStatsEasyPath,
+                spread: 9f, reaction: 0.75f, view: 20f,
+                track: 120f, aggr: 0.3f, hearing: 0.6f, teamwork: 0.25f);
+            LoadOrCreateBotStats(BotStatsHardPath,
+                spread: 2.3f, reaction: 0.16f, view: 34f,
+                track: 340f, aggr: 0.8f, hearing: 1.3f, teamwork: 0.8f);
             return normal;
         }
 
-        static BotStats LoadOrCreateBotStats(string path, float spread, float reaction, float view)
+        static BotStats LoadOrCreateBotStats(string path, float spread, float reaction, float view,
+                                             float track, float aggr, float hearing, float teamwork)
         {
             var stats = AssetDatabase.LoadAssetAtPath<BotStats>(path);
             if (stats == null)
@@ -179,12 +309,16 @@ namespace Infront.EditorTools
             stats.AimSpread = spread;
             stats.ReactionTime = reaction;
             stats.ViewDistance = view;
+            stats.AimTrackSpeed = track;
+            stats.Aggression = aggr;
+            stats.Hearing = hearing;
+            stats.Teamwork = teamwork;
             EditorUtility.SetDirty(stats);
             AssetDatabase.SaveAssets();
             return stats;
         }
 
-        static GameObject BuildPlayerPrefab(WeaponCatalog catalog)
+        static GameObject BuildPlayerPrefab(WeaponCatalog catalog, AbilityCatalog abilityCatalog)
         {
             var root = new GameObject("Player");
 
@@ -207,6 +341,7 @@ namespace Infront.EditorTools
             var health = root.AddComponent<Health>();
             root.AddComponent<TeamMember>();
             root.AddComponent<TeamTint>();
+            root.AddComponent<CharacterVisual>();   // stilisierte Figur statt Kapsel
             root.AddComponent<FriendlyNameplates>();
             AddHitboxes(root, health);
 
@@ -237,10 +372,19 @@ namespace Infront.EditorTools
 
             var weaponComponent = root.AddComponent<NetworkWeapon>();
             root.AddComponent<TracerEffect>();
+            root.AddComponent<MuzzleFlash>();      // Muendungsfeuer pro Schuss
+            root.AddComponent<ShellEjector>();     // fliegende Patronenhuelsen
             root.AddComponent<DamageFeedback>();
+            root.AddComponent<ViewModel>();        // sichtbare Waffe in der Hand (nur Besitzer)
+            root.AddComponent<CombatAudio>();      // Treffer-/Abschuss-/Tod-Ton (nur Besitzer)
+            root.AddComponent<FootstepSounds>();   // Schritt-Geraeusche nach Tempo
             root.AddComponent<Wallet>();
+            root.AddComponent<BombAction>();
+            var abilityHolder = root.AddComponent<AbilityHolder>();
             var purchaseAgent = root.AddComponent<PurchaseAgent>();
             root.AddComponent<BuyMenuHud>();
+            root.AddComponent<BombHud>();
+            root.AddComponent<AbilityHud>();       // Q/F/G-Leiste + Blitz-Bildschirm
             var lifecycle = root.AddComponent<PlayerLifecycle>();
 
             // Referenzen per SerializedObject setzen (private [SerializeField])
@@ -258,7 +402,12 @@ namespace Infront.EditorTools
 
             var soPurchase = new SerializedObject(purchaseAgent);
             soPurchase.FindProperty("_catalog").objectReferenceValue = catalog;
+            soPurchase.FindProperty("_abilityCatalog").objectReferenceValue = abilityCatalog;
             soPurchase.ApplyModifiedPropertiesWithoutUndo();
+
+            var soAbility = new SerializedObject(abilityHolder);
+            soAbility.FindProperty("_catalog").objectReferenceValue = abilityCatalog;
+            soAbility.ApplyModifiedPropertiesWithoutUndo();
 
             var soLife = new SerializedObject(lifecycle);
             var hideArray = soLife.FindProperty("_hideOnDeath");
@@ -341,10 +490,12 @@ namespace Infront.EditorTools
         static Transform _mapRoot;
 
         static void Block(string name, float x, float y, float z, float sx, float sy, float sz)
-            => Tinted(name, x, y, z, sx, sy, sz, new Color(0.12f, 0.14f, 0.22f));   // Wand: fast schwarz
+            => Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(0.5f, 0.5f),
+                        new Color(0.12f, 0.14f, 0.22f));   // Wand: Beton, sonst fast schwarz
 
         static void Crate(string name, float x, float y, float z, float sx, float sy, float sz)
-            => Tinted(name, x, y, z, sx, sy, sz, new Color(0.85f, 0.45f, 0.15f));   // Deckung: orange
+            => Surfaced(name, x, y, z, sx, sy, sz, "deckung_metall", new Vector2(0.7f, 0.7f),
+                        new Color(0.85f, 0.45f, 0.15f));   // Deckung: Metall, sonst orange
 
         static readonly System.Collections.Generic.Dictionary<Color, Material> _mats = new();
 
@@ -359,6 +510,35 @@ namespace Infront.EditorTools
             return m;
         }
 
+        // --- P2: echte Textur-Materialien mit Rueckfall auf die Farbtoene -----
+        static readonly System.Collections.Generic.Dictionary<string, Material> _texMats = new();
+
+        /// <summary>
+        /// Material fuer eine Flaechen-Rolle: liegt unter Resources/Materials/&lt;key&gt;
+        /// ein echtes Textur-Material (via <see cref="AssetImporterTools"/> gebaut),
+        /// wird das benutzt - mit einer eigenen Instanz, damit die Kachelung pro
+        /// Rolle stimmt und das Resources-Material selbst unangetastet bleibt.
+        /// Sonst kommt das bisherige einfarbige <see cref="MapMat"/> zurueck.
+        /// <paramref name="tilePerUnit"/> ist die Kachelung pro Weltmeter.
+        /// </summary>
+        static Material RoleMat(string key, Vector2 tilePerUnit, Color fallbackTint)
+        {
+            string cacheKey = key + tilePerUnit;
+            if (_texMats.TryGetValue(cacheKey, out var m)) return m;
+
+            var real = Infront.AssetLibrary.Surface(key);
+            if (real != null)
+            {
+                m = new Material(real) { name = "Tex_" + key };
+            }
+            else
+            {
+                m = MapMat(fallbackTint);
+            }
+            _texMats[cacheKey] = m;
+            return m;
+        }
+
         static void Tinted(string name, float x, float y, float z, float sx, float sy, float sz, Color c)
         {
             var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -367,6 +547,111 @@ namespace Infront.EditorTools
             b.transform.position = new Vector3(x, y, z);
             b.transform.localScale = new Vector3(sx, sy, sz);
             b.GetComponent<Renderer>().sharedMaterial = MapMat(c);
+        }
+
+        /// <summary>Wie <see cref="Tinted"/>, aber mit Textur-Material (Rolle
+        /// <paramref name="key"/>) und pro-Objekt richtig eingestellter Kachelung.</summary>
+        static void Surfaced(string name, float x, float y, float z, float sx, float sy, float sz,
+                             string key, Vector2 tilePerUnit, Color fallbackTint)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            b.name = name;
+            b.transform.SetParent(_mapRoot, true);
+            b.transform.position = new Vector3(x, y, z);
+            b.transform.localScale = new Vector3(sx, sy, sz);
+
+            var baseMat = RoleMat(key, tilePerUnit, fallbackTint);
+            var r = b.GetComponent<Renderer>();
+
+            if (baseMat.HasProperty("_BaseMap") && baseMat.GetTexture("_BaseMap") != null)
+            {
+                // Kachelung an die groesste sichtbare Flaeche des Quaders anpassen,
+                // damit die Textur nicht gestreckt wirkt.
+                var inst = new Material(baseMat) { name = baseMat.name + "_" + name };
+                Vector2 scale = new Vector2(Mathf.Max(sx, sz) * tilePerUnit.x, sy * tilePerUnit.y);
+                inst.SetTextureScale("_BaseMap", scale);
+                if (inst.HasProperty("_BumpMap")) inst.SetTextureScale("_BumpMap", scale);
+                r.sharedMaterial = inst;
+            }
+            else
+            {
+                r.sharedMaterial = baseMat;
+            }
+        }
+
+        static readonly System.Collections.Generic.Dictionary<Color, Material> _glowMats = new();
+
+        static Material GlowMat(Color c)
+        {
+            if (_glowMats.TryGetValue(c, out var m)) return m;
+            m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "GlowMat" };
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+            m.color = c;
+            m.EnableKeyword("_EMISSION");
+            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", c * 3.2f);
+            _glowMats[c] = m;
+            return m;
+        }
+
+        /// <summary>Leuchtender Akzentstreifen (Bloom laesst ihn strahlen) - fuehrt
+        /// das Auge an Kanten und Durchgaengen.</summary>
+        static void Stripe(string name, float x, float y, float z, float sx, float sy, float sz)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            b.name = name;
+            b.transform.SetParent(_mapRoot, true);
+            b.transform.position = new Vector3(x, y, z);
+            b.transform.localScale = new Vector3(sx, sy, sz);
+            var col = b.GetComponent<Collider>();
+            if (col != null) Object.DestroyImmediate(col);   // Deko, nicht beschussrelevant
+            b.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(1f, 0.42f, 0.10f));
+        }
+
+        static void StripeM(string name, float x, float y, float z, float sx, float sy, float sz)
+        {
+            Stripe(name + "_B", x, y, z, sx, sy, sz);
+            Stripe(name + "_A", x, y, -z, sx, sy, sz);
+        }
+
+        /// <summary>Punktlicht an einer Engstelle - Gegner zeichnen sich als
+        /// Silhouette ab.</summary>
+        static void PointLightAt(string name, Vector3 pos, Color c, float range, float intensity)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_mapRoot, true);
+            go.transform.position = pos;
+            var l = go.AddComponent<Light>();
+            l.type = LightType.Point;
+            l.color = c;
+            l.range = range;
+            l.intensity = intensity;
+            l.shadows = LightShadows.None;
+        }
+
+        /// <summary>Farbige Bodenmarkierung fuer einen Bombenplatz mit grossem
+        /// Buchstaben (A / B), aus flachen leuchtenden Balken.</summary>
+        static void SiteLetter(float x, float z, char letter, Color c)
+        {
+            var mat = GlowMat(c);
+            void Bar(float bx, float bz, float bw, float bd)
+            {
+                var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                b.name = $"Site{letter}_Bar";
+                b.transform.SetParent(_mapRoot, true);
+                b.transform.position = new Vector3(x + bx, 1.30f, z + bz);
+                b.transform.localScale = new Vector3(bw, 0.05f, bd);
+                var col = b.GetComponent<Collider>();
+                if (col != null) Object.DestroyImmediate(col);
+                b.GetComponent<Renderer>().sharedMaterial = mat;
+            }
+
+            // gemeinsame Grundform: zwei senkrechte Striche + Querbalken
+            Bar(-0.9f, 0f, 0.35f, 3.6f);   // linker Strich
+            Bar(0.9f, 0f, 0.35f, 3.6f);    // rechter Strich
+            Bar(0f, 0f, 2.1f, 0.35f);      // Querbalken Mitte
+            if (letter == 'A') Bar(0f, 1.6f, 2.1f, 0.35f);        // A: oben zu
+            else { Bar(0f, 1.6f, 2.1f, 0.35f); Bar(0f, -1.6f, 2.1f, 0.35f); }  // B: oben + unten zu
         }
 
         // Block plus sein Spiegelbild an -z
@@ -396,9 +681,151 @@ namespace Infront.EditorTools
             r.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.9f, 0.8f, 0.2f));
         }
 
+        // ---- Deko (nur Optik, keine Collider - stoert NavMesh/Gameplay nicht) ----
+
+        static Transform _decoRoot;
+
+        static void Deco(string name, PrimitiveType shape, Vector3 pos, Vector3 scale, Color c,
+                         Quaternion rot = default)
+        {
+            var go = GameObject.CreatePrimitive(shape);
+            go.name = name;
+            go.transform.SetParent(_decoRoot, true);
+            go.transform.position = pos;
+            go.transform.localScale = scale;
+            go.transform.rotation = rot == default ? Quaternion.identity : rot;
+            var col = go.GetComponent<Collider>();
+            if (col != null) Object.DestroyImmediate(col);
+            go.GetComponent<Renderer>().sharedMaterial = MapMat(c);
+        }
+
+        /// <summary>
+        /// Setzt ein echtes Deko-Modell (Resources/Models/&lt;key&gt;), wenn es das
+        /// gibt. Rueckgabe true = Modell gesetzt, false = der Aufrufer baut seine
+        /// Grundkoerper. So bleibt die alte Geometrie als Rueckfall erhalten.
+        /// </summary>
+        static bool DecoModel(string key, Vector3 pos, Quaternion rot, float scale = 1f)
+            => Infront.AssetLibrary.SpawnModel(key, _decoRoot, pos, rot, scale) != null;
+
+        static readonly System.Random _decoRnd = new System.Random(4242);
+        static Quaternion RandomYaw() => Quaternion.Euler(0f, (float)_decoRnd.NextDouble() * 360f, 0f);
+
+        /// <summary>Rohr an der Aussenwand: echtes Rohr-Modell (mit
+        /// <paramref name="modelRot"/>), sonst der lange Deko-Zylinder.</summary>
+        static void Pipe(string name, Vector3 pos, Quaternion cylinderRot, Quaternion modelRot)
+        {
+            if (DecoModel("rohre", pos, modelRot, 2f)) return;
+            Deco(name, PrimitiveType.Cylinder, pos,
+                new Vector3(0.18f, 30f, 0.18f), new Color(0.2f, 0.21f, 0.23f), cylinderRot);
+        }
+
+        static void Barrel(float x, float z)
+        {
+            if (DecoModel("fass", new Vector3(x, 0f, z), RandomYaw())) return;
+
+            Deco("Fass", PrimitiveType.Cylinder, new Vector3(x, 0.55f, z),
+                new Vector3(0.62f, 0.55f, 0.62f), new Color(0.16f, 0.17f, 0.19f));
+            Deco("Fass_Band", PrimitiveType.Cylinder, new Vector3(x, 0.7f, z),
+                new Vector3(0.66f, 0.06f, 0.66f), new Color(0.85f, 0.42f, 0.12f));
+        }
+
+        static void Lamp(float x, float z, float y = 4.4f)
+        {
+            // Echte Haengelampe (Pivot oben an der Decke): am Modell haengt kein
+            // Licht - das leuchtende Kaestchen darunter bleibt fuer den Bloom.
+            bool real = DecoModel("haengelampe", new Vector3(x, y + 0.5f, z), Quaternion.identity);
+
+            if (!real)
+            {
+                Deco("Lampe_Buegel", PrimitiveType.Cube, new Vector3(x, y + 0.3f, z),
+                    new Vector3(0.1f, 0.6f, 0.1f), new Color(0.1f, 0.11f, 0.12f));
+                Deco("Lampe_Schirm", PrimitiveType.Cube, new Vector3(x, y, z),
+                    new Vector3(1.1f, 0.18f, 0.5f), new Color(0.1f, 0.11f, 0.12f));
+            }
+
+            var bulb = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bulb.name = "Lampe_Licht";
+            bulb.transform.SetParent(_decoRoot, true);
+            bulb.transform.position = new Vector3(x, y - 0.12f, z);
+            bulb.transform.localScale = new Vector3(0.9f, 0.06f, 0.35f);
+            var bc = bulb.GetComponent<Collider>();
+            if (bc != null) Object.DestroyImmediate(bc);
+            bulb.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(1f, 0.85f, 0.55f));
+        }
+
+        static void BuildDecoration()
+        {
+            _decoRoot = new GameObject("Deko").transform;
+            _decoRoot.SetParent(_mapRoot, true);
+
+            // Faesser in den Ecken und an Deckungen
+            float[,] barrels =
+            {
+                { -26f, -24f }, { 26f, -24f }, { -26f, 24f }, { 26f, 24f },
+                { -5f, 12f }, { 6f, 11f }, { -21f, 6f }, { 22f, 7f },
+                { -13f, -6f }, { 14f, -5f },
+            };
+            for (int i = 0; i < barrels.GetLength(0); i++)
+                Barrel(barrels[i, 0], barrels[i, 1]);
+
+            // Haengelampen ueber den drei Bahnen
+            for (int seg = -1; seg <= 1; seg++)
+            {
+                Lamp(-19f, seg * 12f);
+                Lamp(0f, seg * 12f, 5.2f);
+                Lamp(19f, seg * 12f);
+            }
+
+            // Rohrleitungen oben an den Aussenwaenden. Echtes Rohr-Segment,
+            // sonst der lange Zylinder wie bisher.
+            Pipe("Rohr_N", new Vector3(0f, 3.4f, 29f), Quaternion.Euler(0f, 0f, 90f), Quaternion.Euler(0f, 90f, 0f));
+            Pipe("Rohr_S", new Vector3(0f, 3.4f, -29f), Quaternion.Euler(0f, 0f, 90f), Quaternion.Euler(0f, 90f, 0f));
+            Pipe("Rohr_E", new Vector3(29f, 3.0f, 0f), Quaternion.Euler(90f, 0f, 0f), Quaternion.identity);
+            Pipe("Rohr_W", new Vector3(-29f, 3.0f, 0f), Quaternion.Euler(90f, 0f, 0f), Quaternion.identity);
+
+            // Sandsack-Reihen vor beiden Spawns (echter Zementsack, sonst Cube)
+            for (int s = -1; s <= 1; s += 2)
+            for (int i = -2; i <= 2; i++)
+            {
+                var p = new Vector3(i * 0.8f, 0f, s * 26f);
+                if (DecoModel("sandsack", p, RandomYaw())) continue;
+                Deco("Sandsack", PrimitiveType.Cube,
+                    new Vector3(i * 0.8f, 0.3f, s * 26f), new Vector3(0.7f, 0.5f, 0.5f),
+                    new Color(0.32f, 0.3f, 0.24f));
+            }
+
+            // Munitions- und Holzkisten als zusaetzliche Deckungs-Deko an den Bahnen
+            // (nur wenn Modelle da sind - sonst nichts, kein Cube-Ersatz noetig).
+            DecoModel("muni_kiste", new Vector3(-16f, 0f, -3f), RandomYaw());
+            DecoModel("muni_kiste", new Vector3(16f, 0f, 3f), RandomYaw());
+            DecoModel("holz_kiste", new Vector3(-7f, 0f, -14f), RandomYaw());
+            DecoModel("holz_kiste", new Vector3(7f, 0f, 14f), RandomYaw());
+            DecoModel("kanister", new Vector3(-25f, 0f, 2f), RandomYaw());
+            DecoModel("kanister", new Vector3(25f, 0f, -2f), RandomYaw());
+
+            // dunkle Boden-Flecken (Grunge)
+            var rnd = new System.Random(1234);
+            for (int i = 0; i < 14; i++)
+            {
+                float gx = (float)(rnd.NextDouble() * 48f - 24f);
+                float gz = (float)(rnd.NextDouble() * 44f - 22f);
+                Deco("Fleck", PrimitiveType.Quad, new Vector3(gx, 0.02f, gz),
+                    new Vector3(3f + (float)rnd.NextDouble() * 4f, 3f + (float)rnd.NextDouble() * 4f, 1f),
+                    new Color(0.05f, 0.055f, 0.065f), Quaternion.Euler(90f, 0f, 0f));
+            }
+
+            // Masten in zwei Ecken
+            Deco("Mast_A", PrimitiveType.Cylinder, new Vector3(-27f, 4f, -27f),
+                new Vector3(0.14f, 4f, 0.14f), new Color(0.12f, 0.13f, 0.14f));
+            Deco("Mast_B", PrimitiveType.Cylinder, new Vector3(27f, 4f, 27f),
+                new Vector3(0.14f, 4f, 0.14f), new Color(0.12f, 0.13f, 0.14f));
+        }
+
         static void BuildMap()
         {
             _mats.Clear();
+            _glowMats.Clear();
+            _texMats.Clear();
             _mapRoot = new GameObject("Map").transform;
 
             // Aussenwaende (Box bei +/-30)
@@ -413,12 +840,21 @@ namespace Infront.EditorTools
                 float cz = -16f + seg * 16f;
                 Block($"LaneWall_L{seg}", -9f, 2f, cz, 1.2f, 4f, 10f);
                 Block($"LaneWall_R{seg}", 9f, 2f, cz, 1.2f, 4f, 10f);
+                // leuchtende Kante oben auf den Trennwaenden
+                Stripe($"LaneGlow_L{seg}", -9f, 4.05f, cz, 1.3f, 0.12f, 10f);
+                Stripe($"LaneGlow_R{seg}", 9f, 4.05f, cz, 1.3f, 0.12f, 10f);
             }
+            // Licht in den Luecken zwischen den Trennwand-Segmenten
+            PointLightAt("LaneGapLight_L", new Vector3(-9f, 2.6f, -8f), new Color(1f, 0.55f, 0.25f), 14f, 6f);
+            PointLightAt("LaneGapLight_R", new Vector3(9f, 2.6f, 8f), new Color(1f, 0.55f, 0.25f), 14f, 6f);
 
             // Sichtschutz direkt vor beiden Spawns
             BlockM("SpawnScreen_mid", 0f, 1.5f, 22f, 10f, 3f, 1f);
             BlockM("SpawnScreen_l", -19f, 1.5f, 22f, 8f, 3f, 1f);
             BlockM("SpawnScreen_r", 19f, 1.5f, 22f, 8f, 3f, 1f);
+            // Team-Kante auf dem Sichtschutz: blau bei Alpha (-Z), rot bei Bravo (+Z)
+            Stripe("SpawnEdge_midB", 0f, 3.05f, 22f, 10f, 0.14f, 1.1f);
+            Stripe("SpawnEdge_midA", 0f, 3.05f, -22f, 10f, 0.14f, 1.1f);
 
             // Deckung in der Mitte: genug zum Ueberqueren, Sichtachse bleibt lang
             CrateM("MidCrate1", 0f, 0.8f, 14f, 2.5f, 1.6f, 2f);
@@ -427,6 +863,8 @@ namespace Infront.EditorTools
             CrateM("MidLow1", -2f, 0.5f, 4f, 3f, 1f, 1.2f);
             CrateM("MidLow2", 5f, 0.5f, 2f, 1.2f, 1f, 3f);
             Block("MidPillar", 0f, 2f, 0f, 1.5f, 4f, 1.5f);  // Saeule genau in der Mitte
+            Stripe("MidPillarGlow", 0f, 4.1f, 0f, 1.6f, 0.16f, 1.6f);
+            PointLightAt("MidLight", new Vector3(0f, 5f, 0f), new Color(1f, 0.6f, 0.3f), 22f, 10f);
 
             // Seitenbahnen: mehr Deckung, engere Kaempfe
             CrateM("LeftCrateA", -20f, 1f, 14f, 3f, 2f, 3f);
@@ -434,16 +872,43 @@ namespace Infront.EditorTools
             CrateM("RightCrateA", 20f, 1f, 14f, 3f, 2f, 3f);
             CrateM("RightCrateB", 15f, 0.9f, 8f, 2f, 1.8f, 2f);
 
-            // Zwei erhoehte Platz-Bereiche (spaeter Bombenplaetze), auf Z=0,
-            // damit beide Teams gleich weit haben. Ueber Rampen erreichbar.
+            // Zwei erhoehte Platz-Bereiche, auf Z=0, damit beide Teams gleich
+            // weit haben. Ueber Rampen erreichbar.
             BuildSite("Site_Links", -19f);
             BuildSite("Site_Rechts", 19f);
+
+            // Bomben-Zonen (Bomben-Modus): A links, B rechts.
+            MakeBombSite("BombZone_A", 0, -19f);
+            MakeBombSite("BombZone_B", 1, 19f);
+            SiteLetter(-19f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
+            SiteLetter(19f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
+            PointLightAt("SiteLight_A", new Vector3(-19f, 4.5f, 0f), new Color(1f, 0.8f, 0.4f), 20f, 8f);
+            PointLightAt("SiteLight_B", new Vector3(19f, 4.5f, 0f), new Color(0.6f, 0.8f, 1f), 20f, 8f);
+
+            BuildDecoration();
+        }
+
+        static void MakeBombSite(string name, int siteId, float x)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_mapRoot, true);
+            go.transform.position = new Vector3(x, 1.6f, 0f);
+
+            var site = go.AddComponent<BombSite>();
+            var so = new SerializedObject(site);
+            so.FindProperty("_siteId").intValue = siteId;
+            so.FindProperty("_halfExtents").vector3Value = new Vector3(6f, 2.5f, 7f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // sichtbare Markierung auf dem Platzboden
+            Tinted(name + "_Mark", x, 1.28f, 0f, 9f, 0.06f, 10f, new Color(0.85f, 0.2f, 0.2f));
         }
 
         static void BuildSite(string name, float x)
         {
             float y = 1.2f;
-            Tinted(name + "_Platform", x, y * 0.5f, 0f, 11f, y, 12f, new Color(0.2f, 0.7f, 0.7f));
+            Surfaced(name + "_Platform", x, y * 0.5f, 0f, 11f, y, 12f, "platte",
+                     new Vector2(0.4f, 0.4f), new Color(0.2f, 0.7f, 0.7f));
 
             // Rampe von beiden Seiten (Alpha- und Bravo-Zugang)
             Ramp(name + "_RampB", x, 8f, 3f, y, 4f);
@@ -470,7 +935,7 @@ namespace Infront.EditorTools
             head.AddComponent<Hitbox>().Configure(true, owner);
         }
 
-        static GameObject BuildBotPrefab(WeaponCatalog catalog, BotStats botStats)
+        static GameObject BuildBotPrefab(WeaponCatalog catalog, AbilityCatalog abilityCatalog, BotStats botStats)
         {
             var root = new GameObject("Bot");
             root.AddComponent<NetworkObject>();
@@ -479,6 +944,7 @@ namespace Infront.EditorTools
             var health = root.AddComponent<Health>();
             root.AddComponent<TeamMember>();
             root.AddComponent<TeamTint>();
+            root.AddComponent<CharacterVisual>();   // stilisierte Figur statt Kapsel
 
             var netTransform = root.AddComponent<NetworkTransform>();
             netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
@@ -512,10 +978,16 @@ namespace Infront.EditorTools
 
             var weaponComponent = root.AddComponent<NetworkWeapon>();
             root.AddComponent<TracerEffect>();
+            root.AddComponent<MuzzleFlash>();      // Muendungsfeuer pro Schuss
+            root.AddComponent<ShellEjector>();     // fliegende Patronenhuelsen
+            root.AddComponent<FootstepSounds>();   // Schritt-Geraeusche nach Tempo
             root.AddComponent<Wallet>();
+            root.AddComponent<BombAction>();
+            root.AddComponent<AbilityHolder>();
             var purchaseAgent = root.AddComponent<PurchaseAgent>();
             root.AddComponent<BotBuyer>();
             var brain = root.AddComponent<BotBrain>();
+            root.AddComponent<BotObjective>();   // Bomben-Modus: legen / bewachen / entschaerfen
             var lifecycle = root.AddComponent<BotLifecycle>();
 
             var soWeapon = new SerializedObject(weaponComponent);
@@ -528,7 +1000,12 @@ namespace Infront.EditorTools
 
             var soPurchase = new SerializedObject(purchaseAgent);
             soPurchase.FindProperty("_catalog").objectReferenceValue = catalog;
+            soPurchase.FindProperty("_abilityCatalog").objectReferenceValue = abilityCatalog;
             soPurchase.ApplyModifiedPropertiesWithoutUndo();
+
+            var soBotAbility = new SerializedObject(root.GetComponent<AbilityHolder>());
+            soBotAbility.FindProperty("_catalog").objectReferenceValue = abilityCatalog;
+            soBotAbility.ApplyModifiedPropertiesWithoutUndo();
 
             var soBrain = new SerializedObject(brain);
             soBrain.FindProperty("_stats").objectReferenceValue = botStats;
@@ -571,14 +1048,72 @@ namespace Infront.EditorTools
             camGo.tag = "MainCamera";
             var cam = camGo.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.06f, 0.07f, 0.09f);
+            cam.backgroundColor = new Color(0.043f, 0.051f, 0.059f);   // wie UiTheme.Bg
+            cam.allowHDR = true;
+            var menuCamData = camGo.AddComponent<UniversalAdditionalCameraData>();
+            menuCamData.renderPostProcessing = true;
             camGo.AddComponent<AudioListener>();
+            new GameObject("PostFx").AddComponent<PostFxController>();
 
+            // Altes IMGUI-Menue bleibt als Rueckfallebene im Baum (F10 schaltet um).
             new GameObject("MainMenu").AddComponent<MainMenu>();
+
+            // Neues Menue mit Unity UI Toolkit.
+            var panel = BuildUiPanel();
+            var uiGo = new GameObject("MenuUI");
+            var doc = uiGo.AddComponent<UIDocument>();
+            var soDoc = new SerializedObject(doc);
+            var panelProp = soDoc.FindProperty("m_PanelSettings");
+            if (panelProp != null) panelProp.objectReferenceValue = panel;
+            var sortProp = soDoc.FindProperty("m_SortingOrder");
+            if (sortProp != null) sortProp.floatValue = 0f;
+            soDoc.ApplyModifiedPropertiesWithoutUndo();
+            uiGo.AddComponent<MainMenuUi>();
 
             EditorSceneManager.MarkSceneDirty(scene);
             bool saved = EditorSceneManager.SaveScene(scene, MenuScenePath);
             Debug.Log($"[Infront] Menue-Szene gespeichert: {saved} -> {MenuScenePath}");
+        }
+
+        /// <summary>
+        /// Erzeugt (einmalig) das PanelSettings-Asset fuer die UI-Toolkit-Oberflaeche
+        /// und das Standard-Laufzeit-Thema, das die Grund-Optik der Bedienelemente
+        /// liefert. Liegt unter Resources, damit auch der Ladebildschirm
+        /// (LoadingOverlay) es per Resources.Load findet.
+        /// </summary>
+        static PanelSettings BuildUiPanel()
+        {
+            Directory.CreateDirectory(UiResourcesDir);
+
+            if (!File.Exists(UiThemePath))
+            {
+                File.WriteAllText(UiThemePath,
+                    "/* Standard-Laufzeit-Thema von Unity - Grund-Optik der Bedienelemente. */\n" +
+                    "@import url(\"unity-theme://default\");\n" +
+                    "VisualElement {}\n");
+            }
+            AssetDatabase.Refresh();
+            AssetDatabase.ImportAsset(UiThemePath, ImportAssetOptions.ForceUpdate);
+            var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(UiThemePath);
+            if (theme == null)
+                Debug.LogWarning("[Infront] Laufzeit-Thema nicht ladbar - Menue nutzt nur eigene Styles.");
+
+            var panel = AssetDatabase.LoadAssetAtPath<PanelSettings>(UiPanelPath);
+            if (panel == null)
+            {
+                panel = ScriptableObject.CreateInstance<PanelSettings>();
+                AssetDatabase.CreateAsset(panel, UiPanelPath);
+            }
+            if (theme != null) panel.themeStyleSheet = theme;
+            panel.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            panel.referenceResolution = new Vector2Int(1920, 1080);
+            panel.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+            panel.match = 0.5f;
+            panel.clearColor = false;
+            EditorUtility.SetDirty(panel);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Infront] UI-Panel bereit: " + UiPanelPath);
+            return panel;
         }
 
         static GameObject BuildMatchManagerPrefab()
@@ -586,6 +1121,7 @@ namespace Infront.EditorTools
             var root = new GameObject("MatchManager");
             root.AddComponent<NetworkObject>();
             root.AddComponent<MatchManager>();
+            root.AddComponent<HighlightTracker>();   // erkennt Doppelkill / Ace / Clutch
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, MatchManagerPrefabPath, out bool ok);
             Object.DestroyImmediate(root);
@@ -598,21 +1134,116 @@ namespace Infront.EditorTools
             return AssetDatabase.LoadAssetAtPath<GameObject>(MatchManagerPrefabPath);
         }
 
-        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab, GameObject botPrefab, GameObject matchManagerPrefab)
+        static GameObject BuildBombPrefab()
+        {
+            var root = new GameObject("Bomb");
+            root.AddComponent<NetworkObject>();
+            root.AddComponent<Bomb>();
+            root.AddComponent<BombExplosionFx>();   // Explosions-Optik (per RPC ausgeloest)
+
+            var netTransform = root.AddComponent<NetworkTransform>();
+            netTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
+            netTransform.SyncScaleX = netTransform.SyncScaleY = netTransform.SyncScaleZ = false;
+            netTransform.Interpolate = true;
+
+            // Sichtbarer Koerper (nur Optik, kein Collider - Kugeln fliegen durch)
+            var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            body.name = "Body";
+            Object.DestroyImmediate(body.GetComponent<Collider>());
+            body.transform.SetParent(root.transform, false);
+            body.transform.localScale = new Vector3(0.4f, 0.3f, 0.5f);
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, BombPrefabPath, out bool ok);
+            Object.DestroyImmediate(root);
+            if (!ok || prefab == null)
+            {
+                Debug.LogError("[Infront] Bomben-Prefab konnte nicht gespeichert werden.");
+                return null;
+            }
+            AssetDatabase.ImportAsset(BombPrefabPath, ImportAssetOptions.ForceUpdate);
+            return AssetDatabase.LoadAssetAtPath<GameObject>(BombPrefabPath);
+        }
+
+        static void BuildArenaScene(GameObject playerPrefab, GameObject dummyPrefab, GameObject botPrefab, GameObject matchManagerPrefab, GameObject bombPrefab)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             var lightGo = new GameObject("Directional Light");
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
-            light.intensity = 1.1f;
-            light.color = new Color(1f, 0.96f, 0.9f);
+            light.intensity = 1.0f;   // leicht gedimmt - das Post-Processing hebt wieder an
+            light.color = new Color(1f, 0.95f, 0.88f);
             light.shadows = LightShadows.Soft;
             lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+
+            // P3: echter HDRI-Himmel, sonst der dunkle prozedurale Himmel (wie bisher).
+            {
+                var hdriSky = Infront.AssetLibrary.Surface("himmel");   // Resources/Materials/himmel.mat
+                bool isSkybox = hdriSky != null && hdriSky.shader != null
+                                && hdriSky.shader.name.Contains("Skybox");
+
+                if (isSkybox)
+                {
+                    RenderSettings.skybox = hdriSky;
+                    // Licht kommt jetzt aus der HDRI - Umgebungslicht vom Himmel nehmen.
+                    RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox;
+                    RenderSettings.ambientIntensity = 0.6f;   // gedaempft zum dunklen Look
+                    light.intensity = 0.75f;                  // Sonne etwas zuruecknehmen
+                    DynamicGI.UpdateEnvironment();
+                }
+                else
+                {
+                    string skyPath = SettingsDir + "/ArenaSky.mat";
+                    var sky = AssetDatabase.LoadAssetAtPath<Material>(skyPath);
+                    if (sky == null)
+                    {
+                        var sh = Shader.Find("Skybox/Procedural");
+                        if (sh != null)
+                        {
+                            sky = new Material(sh) { name = "ArenaSky" };
+                            AssetDatabase.CreateAsset(sky, skyPath);
+                        }
+                    }
+                    if (sky != null)
+                    {
+                        if (sky.HasProperty("_AtmosphereThickness")) sky.SetFloat("_AtmosphereThickness", 0.4f);
+                        if (sky.HasProperty("_Exposure")) sky.SetFloat("_Exposure", 0.35f);
+                        if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", new Color(0.18f, 0.22f, 0.3f));
+                        if (sky.HasProperty("_GroundColor")) sky.SetColor("_GroundColor", new Color(0.05f, 0.05f, 0.06f));
+                        EditorUtility.SetDirty(sky);
+                        RenderSettings.skybox = sky;
+                        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+                        RenderSettings.ambientSkyColor = new Color(0.12f, 0.14f, 0.18f);
+                        RenderSettings.ambientEquatorColor = new Color(0.08f, 0.09f, 0.1f);
+                        RenderSettings.ambientGroundColor = new Color(0.03f, 0.03f, 0.035f);
+                    }
+                }
+            }
 
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground";
             ground.transform.localScale = new Vector3(6f, 1f, 6f);
+            // Boden: echter Asphalt, sonst dunkler kuehler Farbton (wie bisher).
+            {
+                var real = Infront.AssetLibrary.Surface("boden");
+                if (real != null && real.HasProperty("_BaseMap") && real.GetTexture("_BaseMap") != null)
+                {
+                    var gm = new Material(real) { name = "GroundMat" };
+                    // Plane ist 10x10 Einheiten je Scale-Einheit -> hier 60x60 m.
+                    gm.SetTextureScale("_BaseMap", new Vector2(30f, 30f));
+                    if (gm.HasProperty("_BumpMap")) gm.SetTextureScale("_BumpMap", new Vector2(30f, 30f));
+                    ground.GetComponent<Renderer>().sharedMaterial = gm;
+                }
+                else
+                {
+                    var gm = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "GroundMat" };
+                    var gc = new Color(0.08f, 0.09f, 0.11f);
+                    gm.color = gc;
+                    if (gm.HasProperty("_BaseColor")) gm.SetColor("_BaseColor", gc);
+                    if (gm.HasProperty("_Smoothness")) gm.SetFloat("_Smoothness", 0.12f);
+                    ground.GetComponent<Renderer>().sharedMaterial = gm;
+                }
+            }
 
             // NavMesh-Flaeche: wird zur Laufzeit gebacken (NavMeshBaker)
             var navGo = new GameObject("Navigation");
@@ -650,10 +1281,17 @@ namespace Infront.EditorTools
             camGo.tag = "MainCamera";
             var cam = camGo.AddComponent<Camera>();
             cam.fieldOfView = 85f;
+            cam.allowHDR = true;
             camGo.AddComponent<AudioListener>();
             camGo.AddComponent<FirstPersonCamera>();
+            var camData = camGo.AddComponent<UniversalAdditionalCameraData>();
+            camData.renderPostProcessing = true;   // Bild-Aufwertung (PostFxController)
+            camData.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
             camGo.transform.position = new Vector3(0f, 3f, -6f);
             camGo.transform.rotation = Quaternion.Euler(15f, 0f, 0f);
+
+            // Bild-Aufwertung: baut zur Laufzeit das globale Post-Processing-Volume.
+            new GameObject("PostFx").AddComponent<PostFxController>();
 
             var nmGo = new GameObject("NetworkManager");
             var nm = nmGo.AddComponent<NetworkManager>();
@@ -672,6 +1310,8 @@ namespace Infront.EditorTools
                 nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = botPrefab });
             if (matchManagerPrefab != null)
                 nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = matchManagerPrefab });
+            if (bombPrefab != null)
+                nm.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = bombPrefab });
 
             nmGo.AddComponent<MatchBootstrap>();
 
@@ -695,6 +1335,8 @@ namespace Infront.EditorTools
                 soDir.FindProperty("_botPrefab").objectReferenceValue = botPrefab.GetComponent<NetworkObject>();
             if (matchManagerPrefab != null)
                 soDir.FindProperty("_matchManagerPrefab").objectReferenceValue = matchManagerPrefab.GetComponent<NetworkObject>();
+            if (bombPrefab != null)
+                soDir.FindProperty("_bombPrefab").objectReferenceValue = bombPrefab.GetComponent<NetworkObject>();
             soDir.FindProperty("_teamSize").intValue = 3;
             soDir.FindProperty("_statsEasy").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsEasyPath);
             soDir.FindProperty("_statsNormal").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BotStats>(BotStatsPath);
@@ -702,12 +1344,15 @@ namespace Infront.EditorTools
             soDir.ApplyModifiedPropertiesWithoutUndo();
 
             var hudGo = new GameObject("HUD");
-            hudGo.AddComponent<MatchHud>();
+            hudGo.AddComponent<HudController>();   // zusammenhaengendes HUD (UI Toolkit)
             hudGo.AddComponent<PauseMenu>();
             hudGo.AddComponent<ScreenshotKey>();
             hudGo.AddComponent<CursorController>();
             hudGo.AddComponent<KillFeedHud>();
-            hudGo.AddComponent<Scoreboard>();
+            hudGo.AddComponent<HighlightBanner>();   // Doppelkill/Ace/Clutch-Banner + Laufbahn
+            hudGo.AddComponent<CinematicMoments>();  // Zeitlupe bei Ace/Clutch/Matchgewinn
+            hudGo.AddComponent<MatchAudio>();   // Runden-/Bomben-Toene
+            hudGo.AddComponent<ImpactPool>();   // Einschlagfunken + bleibende Loecher
 
             EditorUtility.SetDirty(nm);
             EditorSceneManager.MarkSceneDirty(scene);

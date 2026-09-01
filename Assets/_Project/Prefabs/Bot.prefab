@@ -83,14 +83,21 @@ GameObject:
   - component: {fileID: 2896555248792447463}
   - component: {fileID: 9081850194517058580}
   - component: {fileID: 7985430369483869045}
+  - component: {fileID: 3094389007842733960}
   - component: {fileID: 5510249712897941437}
   - component: {fileID: 7311728777969248716}
   - component: {fileID: 1592720873319782779}
   - component: {fileID: 1401953706404023270}
+  - component: {fileID: 6685988269515785844}
+  - component: {fileID: 3954128800537473100}
+  - component: {fileID: 8374045780184939198}
   - component: {fileID: 4072505590015040498}
+  - component: {fileID: 8772911016255431554}
+  - component: {fileID: 8940519830397328918}
   - component: {fileID: 8627205252778513026}
   - component: {fileID: 7724272312276240929}
   - component: {fileID: 4474647486833197032}
+  - component: {fileID: 7843354415560311325}
   - component: {fileID: 4489904422936479355}
   m_Layer: 7
   m_Name: Bot
@@ -185,6 +192,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4995140268094862b3c1318551bab45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.TeamTint
+--- !u!114 &3094389007842733960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0bb4bddbd00e4b95bc69974ffabd335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.CharacterVisual
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &5510249712897941437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,10 +305,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2336c4f69c56e438a8115956d1c21e63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.TracerEffect
-  _lifetime: 0.1
-  _width: 0.05
+  _lifetime: 0.12
+  _width: 0.07
   _color: {r: 1, g: 0.9, b: 0.5, a: 1}
   _poolSize: 4
+--- !u!114 &6685988269515785844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8028096dd9df244aba2c81f5461217be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.MuzzleFlash
+--- !u!114 &3954128800537473100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348471981d1d34cd7987f235be2cdab0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.ShellEjector
+--- !u!114 &8374045780184939198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcb23fa13527f4d04afc7364f13b286a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.FootstepSounds
 --- !u!114 &4072505590015040498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,6 +359,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Infront.Runtime::Infront.Wallet
   ShowTopMostFoldoutHeaderGroup: 1
   _maxMoney: 16000
+--- !u!114 &8772911016255431554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52b97c4c38e624aa0aa5d1cc8a78c369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.BombAction
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &8940519830397328918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55ac4ef1429c84366ad78b395fe7e10b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityHolder
+  ShowTopMostFoldoutHeaderGroup: 1
+  _catalog: {fileID: 11400000, guid: e1523eab19ea84f44adaa66fd35fd7fa, type: 2}
 --- !u!114 &8627205252778513026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -317,7 +400,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Infront.Runtime::Infront.PurchaseAgent
   ShowTopMostFoldoutHeaderGroup: 1
   _catalog: {fileID: 11400000, guid: 89ac189b989994e9f9ae81c40d5db66e, type: 2}
+  _abilityCatalog: {fileID: 11400000, guid: e1523eab19ea84f44adaa66fd35fd7fa, type: 2}
   _armorPrice: 1000
+  _kitPrice: 400
 --- !u!114 &7724272312276240929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,6 +434,20 @@ MonoBehaviour:
   _sightBlockers:
     serializedVersion: 2
     m_Bits: 1
+  _advanceDistance: 18
+--- !u!114 &7843354415560311325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 109a718f33294475a8fa01fd67be48e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.BotObjective
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &4489904422936479355
 MonoBehaviour:
   m_ObjectHideFlags: 0

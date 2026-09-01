@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4650171166589473576}
   - component: {fileID: 1684320167715080253}
   - component: {fileID: 4716036626307640390}
+  - component: {fileID: 5014818807094979987}
   m_Layer: 0
   m_Name: MatchManager
   m_TagString: Untagged
@@ -73,7 +74,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.MatchManager
   ShowTopMostFoldoutHeaderGroup: 1
-  _roundsToWin: 15
+  _roundsToWin: 16
+  _roundsPerHalf: 15
   _roundDuration: 120
   _restDuration: 5
   _matchEndRest: 8
@@ -84,3 +86,18 @@ MonoBehaviour:
   _moneyLossStreakBonus: 500
   _moneyLossStreakMax: 4
   _moneyKill: 300
+  _moneyPlant: 300
+  _moneyDefuse: 300
+  _moneyPlantedButLost: 800
+--- !u!114 &5014818807094979987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2822697220122958163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9daf2a3e3d3c04a06b6cb2b5ba5b4985, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.HighlightTracker

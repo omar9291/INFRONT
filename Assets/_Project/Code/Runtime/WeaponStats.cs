@@ -14,6 +14,8 @@ namespace Infront
         public string DisplayName = "Sturmgewehr";
         [Tooltip("Auf welchem Platz die Waffe gefuehrt wird.")]
         public Slot SlotKind = Slot.Primaer;
+        [Tooltip("Welcher Schuss-Ton beim Feuern gespielt wird.")]
+        public SoundId ShotSound = SoundId.SchussGewehr;
         [Tooltip("Wechselzeit in Sekunden - so lange kann nach dem Umschalten nicht gefeuert werden.")]
         public float SwitchTime = 0.5f;
 

@@ -85,6 +85,23 @@ namespace Infront
             // Weste, wenn danach noch ein Polster bleibt.
             if (_wallet.Money >= _agent.ArmorPrice + 500)
                 _agent.ServerBuyArmor();
+
+            // Eine Faehigkeit, wenn noch Geld da ist (mal Rauch, mal Blend).
+            var abilities = _agent.AbilityCatalog;
+            if (abilities != null && abilities.Abilities.Length > 0)
+            {
+                int start = Random.Range(0, abilities.Abilities.Length);
+                for (int n = 0; n < abilities.Abilities.Length; n++)
+                {
+                    int i = (start + n) % abilities.Abilities.Length;
+                    var a = abilities.Abilities[i];
+                    if (a != null && _wallet.Money >= a.Price + 300)
+                    {
+                        _agent.ServerBuyAbility(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 }

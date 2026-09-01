@@ -60,6 +60,7 @@ namespace Infront
         PlayerInputCommand _serverCommand;
         float _verticalVelocity;
         bool _movementEnabled = true;
+        float _stepNoiseTimer;   // Server: Abstand bis zum naechsten hoerbaren Schritt
 
         readonly NetworkVariable<float> _aimPitch = new(
             0f,
@@ -190,13 +191,18 @@ namespace Infront
         {
             if (_teamMember == null) return;
 
-            _specList.Clear();
-            foreach (var m in Combatants.Everyone)
-                if (m != null && m != _teamMember && m.TeamId == _teamMember.TeamId
-                    && m.Health != null && m.Health.IsAlive)
-                    _specList.Add(m);
+            BuildSpectateList();
 
-            if (_specList.Count == 0) return;
+            if (_specList.Count == 0)
+            {
+                // Wirklich niemand mehr am Leben - die Runde endet gerade eben.
+                // Die Kamera NICHT einfrieren, sondern frei umsehen lassen.
+                _camera?.StopSpectate();
+                if (_input != null)
+                    _camera?.SetView(_input.LookYaw,
+                        Mathf.Clamp(_input.LookPitch, -_maxPitch, _maxPitch));
+                return;
+            }
 
             var mouse = UnityEngine.InputSystem.Mouse.current;
             if (mouse != null)
@@ -212,6 +218,29 @@ namespace Infront
                 _camera?.SetSpectate(aim.AimOrigin, aim.AimDirection);
         }
 
+        /// <summary>
+        /// Fuellt <see cref="_specList"/>: zuerst lebende Verbuendete. Ist keiner
+        /// mehr uebrig (z.B. die Bombe tickt noch, waehrend das ganze Team tot
+        /// ist), darf man auch lebenden Gegnern zuschauen - sonst friert die
+        /// Kamera an der eigenen Leiche fest.
+        /// </summary>
+        void BuildSpectateList()
+        {
+            _specList.Clear();
+
+            foreach (var m in Combatants.Everyone)
+                if (m != null && m != _teamMember && m.TeamId == _teamMember.TeamId
+                    && m.Health != null && m.Health.IsAlive)
+                    _specList.Add(m);
+
+            if (_specList.Count > 0) return;
+
+            foreach (var m in Combatants.Everyone)
+                if (m != null && m != _teamMember
+                    && m.Health != null && m.Health.IsAlive)
+                    _specList.Add(m);
+        }
+
         /// <summary>Vom Waffen-Code aufgerufen: Rueckstoss auf die Sicht geben.</summary>
         public void AddRecoil(float up, float side)
         {
@@ -219,6 +248,7 @@ namespace Infront
             _recoilYaw += side;
             _recoilHold = 0.16f;
             _fireBloom = Mathf.Min(1f, _fireBloom + 0.18f);
+            _camera?.Shake(0.05f, 0.12f);   // leichtes Zucken pro Schuss
         }
 
         /// <summary>Wie weit das Fadenkreuz aufgehen soll (0..1). Nur Anzeige.</summary>
@@ -234,10 +264,21 @@ namespace Infront
             }
         }
 
-        /// <summary>Name des gerade beobachteten Verbuendeten (fuer die Anzeige).</summary>
-        public string SpectatingName =>
-            (_wasSpectating && _specList.Count > 0 && _specIndex < _specList.Count && _specList[_specIndex] != null)
-                ? _specList[_specIndex].DisplayName : null;
+        /// <summary>Name des gerade beobachteten Kaempfers (fuer die Anzeige).
+        /// Bei einem Gegner wird "Gegner" vorangestellt.</summary>
+        public string SpectatingName
+        {
+            get
+            {
+                if (!_wasSpectating || _specList.Count == 0
+                    || _specIndex >= _specList.Count || _specList[_specIndex] == null)
+                    return null;
+
+                var m = _specList[_specIndex];
+                bool enemy = _teamMember != null && m.TeamId != _teamMember.TeamId;
+                return enemy ? $"Gegner {m.DisplayName}" : m.DisplayName;
+            }
+        }
 
         void FixedUpdate()
         {
@@ -298,6 +339,22 @@ namespace Infront
 
             Vector3 velocity = wish * speed + Vector3.up * _verticalVelocity;
             _controller.Move(velocity * dt);
+
+            // Hoerbare Schritte fuer die Bots: schleichen (kein Input in dieser
+            // Version) / gehen = leise, sprinten = weithin hoerbar.
+            float planarSpeed = new Vector2(_controller.velocity.x, _controller.velocity.z).magnitude;
+            if (_controller.isGrounded && planarSpeed > 1f)
+            {
+                _stepNoiseTimer -= dt;
+                if (_stepNoiseTimer <= 0f)
+                {
+                    bool sprinting = command.Sprint && planarSpeed > _walkSpeed + 0.5f;
+                    _stepNoiseTimer = sprinting ? 0.30f : 0.50f;
+                    SoundEvents.ServerReport(transform.position,
+                        sprinting ? SoundEvents.SprintLoud : SoundEvents.WalkLoud,
+                        _teamMember != null ? _teamMember.TeamId : Team.None);
+                }
+            }
 
             // Koerper schaut dorthin, wo gezielt wird (Kamera-Yaw), nicht in die
             // Laufrichtung. Schnelle, aber weiche Drehung.

@@ -20,3 +20,7 @@ MonoBehaviour:
   MemoryTime: 4
   ReactionTime: 0.35
   AimSpread: 5
+  AimTrackSpeed: 220
+  Aggression: 0.5
+  Hearing: 1
+  Teamwork: 0.5

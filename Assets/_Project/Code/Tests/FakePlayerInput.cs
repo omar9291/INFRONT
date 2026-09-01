@@ -12,6 +12,7 @@ namespace Infront.Tests
         public float LookPitch { get; set; }
         public bool Sprint { get; set; }
         public bool FireHeld { get; set; }
+        public bool UseHeld { get; set; }
 
         bool _jumpQueued;
         bool _reloadQueued;
@@ -27,6 +28,7 @@ namespace Infront.Tests
         }
 
         public int SwitchToSlot { get; set; } = -1;
+        public int UseAbilitySlot { get; set; } = -1;
 
         public void QueueJump() => _jumpQueued = true;
         public void QueueReload() => _reloadQueued = true;

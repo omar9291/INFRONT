@@ -49,3 +49,12 @@ crashlytics-build.properties
 Packages/manifest.json.bak
 mono_crash*.json
 /Screenshots/
+
+# Arbeitsdateien aus headless Test- und Build-Laeufen (regenerierbar)
+scratch_*.log
+scratch_*.xml
+/scratchpad/
+
+# Vom PlayMode-Testlaeufer automatisch angelegte Wegwerf-Szenen
+/[Aa]ssets/InitTestScene*.unity
+/[Aa]ssets/InitTestScene*.unity.meta

@@ -9,6 +9,13 @@ namespace Infront
     /// </summary>
     public sealed class MainMenu : MonoBehaviour
     {
+        /// <summary>
+        /// Solange true, zeichnet dieses alte IMGUI-Menue nichts. Das neue
+        /// UI-Toolkit-Menue (<see cref="MainMenuUi"/>) setzt das beim Start.
+        /// F10 im Spiel schaltet zurueck auf dieses Menue (Rueckfallebene).
+        /// </summary>
+        public static bool Suppressed;
+
         GUIStyle _title, _label, _button;
 
         void OnEnable()
@@ -27,6 +34,7 @@ namespace Infront
 
         void OnGUI()
         {
+            if (Suppressed) return;   // neues Menue ist aktiv
             Styles();
 
             float w = 460f;
@@ -49,6 +57,15 @@ namespace Infront
             int diff = (int)GameSettings.Difficulty;
             diff = GUI.Toolbar(new Rect(x, y, w, 34), diff, names);
             GameSettings.Difficulty = (GameSettings.Level)diff;
+            y += 50f;
+
+            // Spielmodus
+            GUI.Label(new Rect(x, y, w, 26), "Spielmodus", _label);
+            y += 28f;
+            string[] modes = { "Ausscheiden", "Bombe" };
+            int mode = (int)GameSettings.GameMode;
+            mode = GUI.Toolbar(new Rect(x, y, w, 34), mode, modes);
+            GameSettings.GameMode = (GameSettings.Mode)mode;
             y += 50f;
 
             // Maus-Empfindlichkeit

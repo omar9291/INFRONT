@@ -6,21 +6,37 @@ namespace Infront
 {
     /// <summary>
     /// Einfaches Pause-Overlay: Esc gibt die Maus frei und zeigt "Weiter" /
-    /// "Spiel beenden". Die Simulation laeuft weiter (Netzwerkspiel -
-    /// Time.timeScale = 0 wuerde den Host mit einfrieren), aber die lokale
-    /// Eingabe des Spielers pausiert (siehe NetworkPlayerController).
+    /// "Spiel beenden".
     ///
-    /// Platzhalter-IMGUI, wie das HUD. Ein richtiges Menue kommt in Phase 5.
+    /// Spielt man allein (nur Host, keine weiteren Spieler), ist es eine ECHTE
+    /// Pause: Time.timeScale = 0 haelt Bewegung und Bots an, die Bots werden
+    /// zusaetzlich stillgelegt, und der MatchManager schiebt beim Fortsetzen
+    /// alle Rundenuhren um die Pausenzeit nach hinten - es dreht sich also
+    /// nichts weg, waehrend man im Menue steht.
+    ///
+    /// Sobald ein zweiter Spieler verbunden ist, wird NICHT die Zeit angehalten
+    /// (das wuerde den anderen mit einfrieren) - dann pausiert nur die eigene
+    /// Eingabe (siehe NetworkPlayerController).
+    ///
+    /// Das Pause-Overlay selbst zeichnet der <see cref="HudController"/>
+    /// (UI Toolkit). Diese Klasse haelt nur den Zustand und die Solo-Pause-Logik.
     /// </summary>
     public sealed class PauseMenu : MonoBehaviour
     {
         public static bool IsPaused { get; private set; }
 
-        GUIStyle _title;
-        GUIStyle _button;
+        // Laeuft gerade die echte Solo-Pause (Zeitlupe/Bots/Uhren angehalten)?
+        // Getrennt von IsPaused, damit der Start-Reset (OnEnable) nichts anfasst.
+        static bool _soloEffectsActive;
 
         void OnEnable() => SetPaused(false);
-        void OnDisable() => IsPaused = false;
+
+        void OnDisable()
+        {
+            // Beim Abbau nie in Zeitlupe stehen bleiben.
+            if (IsPaused) SetPaused(false);
+            IsPaused = false;
+        }
 
         void Update()
         {
@@ -29,38 +45,44 @@ namespace Infront
                 SetPaused(!IsPaused);
         }
 
+        /// <summary>Vor jedem Szenenwechsel: sicher aus der Pause zurueck, damit
+        /// nichts in Zeitlupe in den Ladebildschirm laeuft.</summary>
+        public static void ForceResume()
+        {
+            SetPaused(false);
+            IsPaused = false;
+        }
+
+        /// <summary>Vom HUD-Knopf "Weiter": Pause von aussen umschalten.</summary>
+        public static void SetPausedExternally(bool paused) => SetPaused(paused);
+
         static void SetPaused(bool paused)
         {
             IsPaused = paused;
             Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked;
             Cursor.visible = paused;
-        }
 
-        void OnGUI()
-        {
-            if (!IsPaused)
-                return;
+            // Echte Pause nur solo: Host laeuft, kein zweiter Spieler verbunden.
+            var nm = NetworkManager.Singleton;
+            bool solo = nm != null && nm.IsListening && nm.ConnectedClients.Count <= 1;
 
-            if (_title == null)
+            if (paused && solo && !_soloEffectsActive)
             {
-                _title = new GUIStyle(GUI.skin.label) { fontSize = 34, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-                _button = new GUIStyle(GUI.skin.button) { fontSize = 20 };
+                _soloEffectsActive = true;
+                Time.timeScale = 0f;
+                AudioListener.pause = true;
+                BotBrain.GloballyFrozen = true;
+                MatchManager.Instance?.ServerBeginSoloPause();
             }
-
-            float w = 320f, h = 220f;
-            var box = new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h);
-            GUI.Box(box, GUIContent.none);
-            GUI.Label(new Rect(box.x, box.y + 16, w, 44), "Pause", _title);
-
-            if (GUI.Button(new Rect(box.x + 40, box.y + 80, w - 80, 44), "Weiter", _button))
-                SetPaused(false);
-
-            if (GUI.Button(new Rect(box.x + 40, box.y + 140, w - 80, 44), "Spiel beenden", _button))
+            else if (!paused && _soloEffectsActive)
             {
-                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-                    NetworkManager.Singleton.Shutdown();
-                Application.Quit();
+                _soloEffectsActive = false;
+                Time.timeScale = 1f;
+                AudioListener.pause = false;
+                BotBrain.GloballyFrozen = false;
+                MatchManager.Instance?.ServerEndSoloPause();
             }
         }
+
     }
 }

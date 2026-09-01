@@ -77,6 +77,11 @@ namespace Infront
             get { var k = Keyboard.current; return k != null && k.rKey.wasPressedThisFrame; }
         }
 
+        public bool UseHeld
+        {
+            get { var k = Keyboard.current; return k != null && k.eKey.isPressed; }
+        }
+
         public int SwitchToSlot
         {
             get
@@ -85,6 +90,19 @@ namespace Infront
                 if (k == null) return -1;
                 if (k.digit1Key.wasPressedThisFrame) return 0;
                 if (k.digit2Key.wasPressedThisFrame) return 1;
+                return -1;
+            }
+        }
+
+        public int UseAbilitySlot
+        {
+            get
+            {
+                var k = Keyboard.current;
+                if (k == null) return -1;
+                if (k.qKey.wasPressedThisFrame) return 0;
+                if (k.fKey.wasPressedThisFrame) return 1;
+                if (k.gKey.wasPressedThisFrame) return 2;
                 return -1;
             }
         }

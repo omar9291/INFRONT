@@ -1,11 +1,16 @@
 # SCOPE.md — Was ist Version 1?
 
-Letzte Aktualisierung: 2026-08-29
+Letzte Aktualisierung: 2026-08-31
 
 Dieses Dokument legt fest, was Version 1 (der spielbare Kern / MVP) enthaelt
 und was bewusst NICHT. Jede neue Idee waehrend der Entwicklung wird gegen
 diese Liste geprueft. Passt sie nicht rein, kommt sie auf die "Spaeter"-Liste
 unten — nicht sofort ins Spiel.
+
+**Seit 2026-08-31 gilt zusaetzlich MASTERPLAN.md**: V1-Kernschleife steht,
+jetzt wird das Spiel in Etappen A-G auf das Niveau der grossen Titel
+gebracht (Valorant-Weg: Faehigkeiten). Die "Spaeter"-Stufen unten sind
+darin aufgegangen bzw. neu geordnet.
 
 ## Projektrahmen
 
@@ -74,6 +79,10 @@ geprueft ist.
 - Realistische Grafik: Modelle, Texturen, Umgebung aus dem Asset Store
 - Realistischer, ernster Sound und Musik (Battlefield-artig)
 - Feinschliff Schiessgefuehl (schnell, arcadig)
+- [x] Hauptmenue + Ladebildschirm mit echtem UI (Unity UI Toolkit,
+      "Dark Tactical") - 2026-08-31 vorgezogen, weil die Kernschleife
+      komplett steht und ein cooles Menue beim Weiterbauen motiviert.
+      Das restliche HUD bleibt vorerst IMGUI.
 
 ## Regel fuer neue Ideen
 
@@ -102,5 +111,25 @@ Gruppe C - grosse Systeme (offen):
       Tote verlieren Waffe + Weste, Ueberlebende behalten sie. Bots kaufen
       selbst. Schutzweste schluckt halben Koerperschaden. Geld fuer
       Rundensieg / Niederlage (mit Serienbonus) / Abschuss.
-- Bomben-Modus (offen) - letzter Schritt, groesster Brocken
-- Sound (Beschaffung durch den Nutzer)
+- [x] Bomben-Modus (2026-08-30/31) - letzter Schritt, groesster Brocken. In 3 Etappen:
+  - [x] Etappe 1 (2026-08-30): Bombe legen/entschaerfen/explodieren,
+        Modus-Umschalter im Menue, Bombenzonen A/B, "E" halten, Bombe
+        faellt beim Tod des Traegers, Entschaerfungs-Kit im Kaufmenue.
+        Bots kaempfen dabei noch wie bisher (kein Ziel-Verstaendnis).
+  - [x] Etappe 2 (2026-08-30): Bots spielen das Ziel. Patrouillen-Punkt
+        rueckt zur Kartenmitte vor (sonst treffen sich die Teams nie);
+        neue Komponente BotObjective: Traeger zum Platz + legen,
+        Begleiter mit der Bombe mit, Verteidiger teilen die Plaetze auf +
+        zur gelegten Bombe + entschaerfen. Kampf hat weiter Vorrang.
+        Rollen-Anzeige im HUD (Angriff/Verteidigung, eigenes Team markiert).
+  - [x] Etappe 3 (2026-08-31): Seitenwechsel zur Halbzeit (nach 15 Runden,
+        Sieg bei 16 - wie CS), Geld auf Start zurueck. Geld-Boni: Legen +300,
+        Entschaerfen +300, Angreifer-Trostgeld +800 bei verlorener Runde
+        trotz gelegter Bombe. Explosions-Optik (Feuerkugel + Lichtblitz +
+        Bildschirm-Blitz + Kamera-Wackeln). Kill-Feed-Meldungen "X hat die
+        Bombe gelegt / entschaerft", "Die Bombe ist explodiert!".
+- [x] Sound-Grundsystem (2026-08-31, Masterplan Etappe A Paket 1):
+      AudioService + Platzhalter-Toene aus Code, echte Dateien spaeter
+      einzeln eintauschbar. Schuss / Einschlag / Nachladen / Schritte /
+      Treffer / Rundenmeldungen / Bombe. Feinschliff + echte Dateien
+      spaeter.

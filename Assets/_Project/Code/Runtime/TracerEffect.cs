@@ -13,8 +13,8 @@ namespace Infront
     [RequireComponent(typeof(NetworkWeapon))]
     public sealed class TracerEffect : MonoBehaviour
     {
-        [SerializeField] float _lifetime = 0.1f;
-        [SerializeField] float _width = 0.05f;
+        [SerializeField] float _lifetime = 0.12f;
+        [SerializeField] float _width = 0.07f;
         [SerializeField] Color _color = new(1f, 0.9f, 0.5f, 1f);
         [SerializeField] int _poolSize = 4;
 
@@ -23,6 +23,9 @@ namespace Infront
         LineRenderer[] _lines;
         float[] _timers;
         int _next;
+
+        static readonly AnimationCurve WidthFade = new(
+            new Keyframe(0f, 1f), new Keyframe(0.35f, 0.55f), new Keyframe(1f, 0f));
 
         void Awake()
         {
@@ -62,11 +65,12 @@ namespace Infront
         void OnEnable() => _weapon.FireVisual += Show;
         void OnDisable() => _weapon.FireVisual -= Show;
 
-        void Show(Vector3 origin, Vector3 end)
+        void Show(ShotFx fx)
         {
             var lr = _lines[_next];
-            lr.SetPosition(0, origin);
-            lr.SetPosition(1, end);
+            lr.SetPosition(0, fx.Origin);
+            lr.SetPosition(1, fx.End);
+            lr.widthMultiplier = _width;
             lr.enabled = true;
             _timers[_next] = _lifetime;
             _next = (_next + 1) % _poolSize;
@@ -79,7 +83,13 @@ namespace Infront
                 if (_timers[i] <= 0f) continue;
                 _timers[i] -= Time.deltaTime;
                 if (_timers[i] <= 0f)
+                {
                     _lines[i].enabled = false;
+                    continue;
+                }
+                // duenner werden lassen, waehrend der Tracer verblasst
+                float k = 1f - _timers[i] / _lifetime;
+                _lines[i].widthMultiplier = _width * WidthFade.Evaluate(k);
             }
         }
     }

@@ -101,8 +101,12 @@ namespace Infront.Tests
 
             Vector3 start = player.transform.position;
             for (int i = 0; i < 20; i++) yield return new WaitForFixedUpdate();
-            float movedDuringFreeze = Vector3.Distance(start, player.transform.position);
-            Assert.Less(movedDuringFreeze, 0.5f, "Spieler hat sich waehrend Freeze bewegt.");
+            // Nur die waagrechte Bewegung zaehlt: senkrechtes Nachsacken auf den
+            // Boden (Schwerkraft wirkt im Freeze weiter) ist kein Fehler und hat
+            // diesen Test frueher wackeln lassen (0,64 gegen die 0,5-Schwelle).
+            Vector3 delta = player.transform.position - start;
+            float movedDuringFreeze = new Vector2(delta.x, delta.z).magnitude;
+            Assert.Less(movedDuringFreeze, 0.5f, "Spieler hat sich waehrend Freeze waagrecht bewegt.");
 
             // Freeze abwarten (3 s), dann muss Bewegung gehen
             yield return MatchTestHarness.WaitUntil(() => !match.IsFrozen, 5f, "Freeze endete nicht.");

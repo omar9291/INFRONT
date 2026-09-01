@@ -6,8 +6,12 @@ namespace Infront.EditorTools
 {
     /// <summary>
     /// Stellt das URP-Asset auf sinnvolle Desktop-Werte:
-    ///  - Adaptive Performance aus (Handy-Funktion, aendert Aufloesung zur Laufzeit)
-    ///  - HDR aus (kein Tonemapping vorhanden -> ausgewaschenes Bild; spart Bandbreite)
+    ///  - Adaptive Performance aus (Handy-Funktion, aendert Aufloesung zur Laufzeit -
+    ///    war 2026-08 die Ursache der senkrechten Streifen auf dem M1)
+    ///  - HDR AN + HDR-Farbgraduierung (ab Nacht 8: es gibt jetzt ACES-Tonemapping,
+    ///    Bloom und Farbanpassung ueber PostFxController - dafuer braucht es HDR).
+    ///    Sollte der Streifen-Effekt zurueckkommen: im Menue "Bild: Schlicht"
+    ///    schaltet die volle Optik wieder ab.
     ///
     /// Headless: Unity -batchmode -quit -executeMethod Infront.EditorTools.GraphicsTune.Apply
     /// </summary>
@@ -27,7 +31,10 @@ namespace Infront.EditorTools
 
             var so = new SerializedObject(urp);
             SetBool(so, "m_UseAdaptivePerformance", false);
-            SetBool(so, "m_SupportsHDR", false);
+            SetBool(so, "m_SupportsHDR", true);
+            // 0 = LDR, 1 = HDR-Farbgraduierung (bessere Farben mit Tonemapping)
+            var grading = so.FindProperty("m_ColorGradingMode");
+            if (grading != null) grading.intValue = 1;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             EditorUtility.SetDirty(urp);

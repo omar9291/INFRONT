@@ -31,6 +31,8 @@ namespace Infront
         bool _dead;
         float _deathTime;
         float _hitFlash;
+        float _killMark;        // 1 -> 0 nach einem eigenen Abschuss
+        FirstPersonCamera _fpc;
         string _killerName;
         GUIStyle _big;
         GUIStyle _small;
@@ -47,7 +49,11 @@ namespace Infront
             _weapon = GetComponent<NetworkWeapon>();
             _lifecycle = GetComponent<PlayerLifecycle>();
             _controller = GetComponent<NetworkPlayerController>();
-            if (Camera.main != null) _camera = Camera.main.transform;
+            if (Camera.main != null)
+            {
+                _camera = Camera.main.transform;
+                _fpc = Camera.main.GetComponent<FirstPersonCamera>();
+            }
 
             _health.LocalDamageFrom += OnDamageFrom;
             _health.LocalKilledBy += OnKilledBy;
@@ -70,6 +76,8 @@ namespace Infront
 
         void OnDamageFrom(Vector3 attackerPos)
         {
+            _fpc?.Shake(0.32f, 0.35f);   // getroffen werden ruckelt kräftig
+
             if (_camera == null && Camera.main != null) _camera = Camera.main.transform;
             if (_camera == null) return;
 
@@ -92,7 +100,15 @@ namespace Infront
                 if (tm != null) _killerName = tm.DisplayName;
             }
         }
-        void OnHitConfirmed() { _hitFlash = 1f; }
+        void OnHitConfirmed(bool head, bool lethal)
+        {
+            _hitFlash = head ? 1.3f : 1f;
+            if (lethal)
+            {
+                _killMark = 1f;
+                _fpc?.AddFovKick(-4.5f, 45f);   // kurzer Zoom auf den Abschuss
+            }
+        }
 
         void Update()
         {
@@ -105,6 +121,7 @@ namespace Infront
             }
 
             if (_hitFlash > 0f) _hitFlash = Mathf.Max(0f, _hitFlash - Time.deltaTime * 3f);
+            if (_killMark > 0f) _killMark = Mathf.Max(0f, _killMark - Time.deltaTime * 1.8f);
 
             // Beim Sterben kurz schwarz blinzeln, dann wieder aufblenden
             // (damit man zuschauen kann). Beim Wiederbeleben ebenfalls klar.
@@ -141,6 +158,18 @@ namespace Infront
                 GUI.DrawTexture(new Rect(cx - 1, cy + gap, 2, len), Texture2D.whiteTexture);
                 GUI.DrawTexture(new Rect(cx - gap - len, cy - 1, len, 2), Texture2D.whiteTexture);
                 GUI.DrawTexture(new Rect(cx + gap, cy - 1, len, 2), Texture2D.whiteTexture);
+
+                // Abschuss-Haken: ein kräftiges X über dem Fadenkreuz.
+                if (_killMark > 0f)
+                {
+                    Matrix4x4 m = GUI.matrix;
+                    GUI.color = new Color(1f, 0.35f, 0.2f, Mathf.Clamp01(_killMark));
+                    GUIUtility.RotateAroundPivot(45f, new Vector2(cx, cy));
+                    float kl = 16f;
+                    GUI.DrawTexture(new Rect(cx - 1.5f, cy - kl, 3, kl * 2f), Texture2D.whiteTexture);
+                    GUI.DrawTexture(new Rect(cx - kl, cy - 1.5f, kl * 2f, 3), Texture2D.whiteTexture);
+                    GUI.matrix = m;
+                }
                 GUI.color = prev;
             }
 

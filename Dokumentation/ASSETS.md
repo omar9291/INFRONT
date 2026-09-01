@@ -17,14 +17,54 @@ Asset EULA" oder "Standard Unity Asset Store EULA" — beide erlauben die
 Nutzung im fertigen Spiel, auch kommerziell. Was NICHT geht: das Asset
 selbst weiterverkaufen oder einzeln weitergeben.
 
-## Version 1 — verwendete Pakete
+## Version 2 (2026-09-01) — erste echte CC0-Pakete
 
-Noch keine. V1 nutzt ausschliesslich Unity-Bordmittel und selbst per Code
-erzeugte Platzhalter-Geometrie (graue Boxen).
+Nacht-8-Entscheidung ("nur Code") wurde auf Wunsch des Nutzers zurueckgenommen.
+Stil-Richtung: realistisch. Alles laeuft ueber `AssetLibrary` mit Rueckfall auf
+die Code-Geometrie - fehlt eine Datei, sieht das Spiel aus wie vorher.
 
-| Paket | Version | Quelle | Lizenz | Kommerziell? | Wofuer | Eingetragen am |
-|-------|---------|--------|--------|--------------|--------|----------------|
-| (keins) | | | | | | |
+Alle folgenden Pakete: **CC0 (Public Domain), kommerzielle Nutzung erlaubt,
+keine Namensnennung noetig.** Damit sauber fuer eine spaetere Veroeffentlichung
+unter "Driftlab" auf itch.io.
+
+| Paket | Quelle | Lizenz | Wofuer | Eingetragen |
+|-------|--------|--------|--------|-------------|
+| Concrete034, Concrete016, Asphalt031, Metal046A, PavingStones128 (1K JPG) | ambientcg.com | CC0 | Wand-/Boden-/Deckungs-/Platz-Texturen (P2) | 2026-09-01 |
+| industrial_sunset_02 (2K HDRI) | polyhaven.com | CC0 | HDRI-Himmel + Umgebungslicht (P3) | 2026-09-01 |
+| Barrel_01, ammo_box, wooden_military_crate, metal_jerrycan_green, modular_industrial_pipes_01, hanging_industrial_lamp, cement_bag (1K FBX) | polyhaven.com | CC0 | Deko-Modelle statt Grundkoerper (P4) | 2026-09-01 |
+
+Ablage:
+- Roh-Downloads: `Assets/_Project/Art/Textures/`, `Art/Sky/`, `Art/Models/`
+- Erzeugte Materialien/Prefabs: `Assets/_Project/Art/Resources/Materials|Models/`
+  (das laedt `AssetLibrary` per `Resources.Load`)
+- Erzeugung: `AssetImporterTools` (Menue "Infront/Assets/...") - laeuft auch
+  automatisch in `SceneBuilder.Build`.
+
+Rueckweg: Datei unter `Art/Textures|Sky|Models` loeschen, `SceneBuilder.Build`
+neu laufen - dann ist die Code-Geometrie zurueck.
+
+### Noch offen
+- P5 Waffen: nur `service_pistol` + `bolt_action_rifle_7_62` bei Poly Haven -
+  Gewehr/MP bleiben Code.
+- P6 Sounds: "The Free Firearm Sound Library" (OpenGameArt, CC0) - liegt nur als
+  .7z vor, Entpacker fehlt auf diesem Rechner.
+- P7 Figuren: CC0-ohne-Login gibt es keine animierten Figuren. Weg: Mixamo
+  (gratis, kommerziell ok) - braucht Adobe-Login, den nur der Nutzer machen kann.
+
+### Nacht 8 (2026-09-01) — Entscheidung zu CC0-Paketen
+
+Der Nutzer hatte CC0-Direktdownloads ohne Login erlaubt. Im autonomen
+Nacht-Lauf wurde bewusst DARAUF VERZICHTET: das Einbinden externer
+3D-/Textur-Pakete headless (Download, Entpacken, Import, Material-Zuordnung)
+ist fehleranfaellig und schlecht automatisiert pruefbar. Stattdessen wurde
+die Deko komplett per Code gebaut (SceneBuilder.BuildDecoration:
+Faesser, Haengelampen, Rohre, Sandsaecke, Boden-Flecken, Masten) plus ein
+dunkler prozeduraler Himmel (Skybox/Procedural, ArenaSky.mat).
+
+Wenn spaeter echte CC0-Pakete rein sollen: hier eintragen (Name, Quelle,
+Lizenz, kommerziell ja/nein), Modelle nach Assets/_Project/Art/ legen,
+und die Deko-/Figur-Bauteile lesen sie per Resources/Pfad statt der
+Code-Geometrie.
 
 ## Unity-Pakete (Package Manager, keine Store-Assets)
 

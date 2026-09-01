@@ -19,10 +19,43 @@ namespace Infront
         float _pitch;
         bool _hasView;
         GameObject _viewModel;
+        bool _externalViewModel;   // ein echtes ViewModel-Bauteil hat uebernommen
 
         bool _spectating;
         Vector3 _specPos;
         Vector3 _specDir = Vector3.forward;
+
+        // Kamera-Wackeln (Explosion). Klingt ueber die Dauer linear ab.
+        float _shakeAmp;
+        float _shakeDecay;
+
+        // Kurzer Blickfeld-Stoss (z.B. auf einen Abschuss). Geht von selbst zurueck.
+        Camera _cam;
+        float _baseFov;
+        float _fovOffset;
+        float _fovRecover;
+
+        void Awake()
+        {
+            _cam = GetComponent<Camera>();
+            if (_cam != null) _baseFov = _cam.fieldOfView;
+        }
+
+        /// <summary>Blickfeld kurz um delta Grad verstellen (negativ = zoomt rein),
+        /// dann mit recoverPerSec Grad/Sekunde zurueck.</summary>
+        public void AddFovKick(float delta, float recoverPerSec)
+        {
+            _fovOffset += delta;
+            _fovRecover = Mathf.Max(1f, recoverPerSec);
+        }
+
+        /// <summary>Kamera kurz wackeln lassen (z.B. Bomben-Explosion).
+        /// amplitude ~0..1, duration in Sekunden.</summary>
+        public void Shake(float amplitude, float duration)
+        {
+            _shakeAmp = Mathf.Max(_shakeAmp, amplitude);
+            _shakeDecay = _shakeAmp / Mathf.Max(0.05f, duration);
+        }
 
         public void SetTarget(Transform eyeAnchor)
         {
@@ -55,9 +88,31 @@ namespace Infront
             if (_viewModel != null) _viewModel.SetActive(true);
         }
 
+        /// <summary>Schaut die Kamera gerade fremden Augen zu? (Das View Model
+        /// blendet sich dann aus.)</summary>
+        public bool IsSpectating => _spectating;
+
+        /// <summary>Nur fuer Tests: schaut die Kamera gerade fremden Augen zu?</summary>
+        public bool IsSpectatingForTests => _spectating;
+
+        /// <summary>Ein echtes <see cref="ViewModel"/>-Bauteil uebernimmt die Waffe
+        /// in der Hand - den Platzhalter-Wuerfel dann nicht bauen / wieder entfernen.</summary>
+        public void HandOffViewModel()
+        {
+            _externalViewModel = true;
+            if (_viewModel != null)
+            {
+                Destroy(_viewModel);
+                _viewModel = null;
+            }
+        }
+
+        /// <summary>Nur fuer Tests: das Ziel, dem gerade zugeschaut wird.</summary>
+        public Vector3 SpectateTargetForTests => _specPos;
+
         void EnsureViewModel()
         {
-            if (_viewModel != null) return;
+            if (_externalViewModel || _viewModel != null) return;
 
             _viewModel = GameObject.CreatePrimitive(PrimitiveType.Cube);
             _viewModel.name = "ViewModel_Weapon";
@@ -82,15 +137,39 @@ namespace Infront
                 transform.position = Vector3.Lerp(transform.position, _specPos, ts);
                 var look = Quaternion.LookRotation(_specDir, Vector3.up);
                 transform.rotation = Quaternion.Slerp(transform.rotation, look, ts * 1.5f);
-                return;
+            }
+            else if (_anchor != null)
+            {
+                float t = 1f - Mathf.Exp(-_positionSmooth * Time.deltaTime);
+                transform.position = Vector3.Lerp(transform.position, _anchor.position, t);
+                transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
             }
 
-            if (_anchor == null)
-                return;
+            ApplyShake();
+            ApplyFovKick();
+        }
 
-            float t = 1f - Mathf.Exp(-_positionSmooth * Time.deltaTime);
-            transform.position = Vector3.Lerp(transform.position, _anchor.position, t);
-            transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+        void ApplyFovKick()
+        {
+            if (_cam == null) return;
+            if (Mathf.Abs(_fovOffset) > 0.01f)
+                _fovOffset = Mathf.MoveTowards(_fovOffset, 0f, _fovRecover * Time.deltaTime);
+            else
+                _fovOffset = 0f;
+            _cam.fieldOfView = _baseFov + _fovOffset;
+        }
+
+        void ApplyShake()
+        {
+            if (_shakeAmp <= 0f) return;
+
+            _shakeAmp = Mathf.Max(0f, _shakeAmp - _shakeDecay * Time.deltaTime);
+
+            float a = _shakeAmp;
+            float px = (Mathf.PerlinNoise(Time.time * 31f, 0.7f) - 0.5f) * 8f * a;
+            float py = (Mathf.PerlinNoise(0.3f, Time.time * 29f) - 0.5f) * 8f * a;
+            float pz = (Mathf.PerlinNoise(Time.time * 23f, Time.time * 19f) - 0.5f) * 6f * a;
+            transform.rotation *= Quaternion.Euler(px, py, pz);
         }
     }
 }

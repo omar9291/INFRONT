@@ -24,6 +24,8 @@ namespace Infront
             if (Instance != null) return;
             var go = new GameObject("GameFlow");
             Instance = go.AddComponent<GameFlow>();
+            go.AddComponent<LoadingOverlay>();   // Ladebildschirm, ueberlebt Szenenwechsel
+            go.AddComponent<AudioService>();     // Ton-Ausgabe, ueberlebt Szenenwechsel
             DontDestroyOnLoad(go);
         }
 
@@ -33,12 +35,24 @@ namespace Infront
         void Go(string scene)
         {
             if (_busy) return;
+            PauseMenu.ForceResume();   // nie in Zeitlupe in einen Szenenwechsel
             StartCoroutine(Switch(scene));
         }
 
         IEnumerator Switch(string scene)
         {
             _busy = true;
+
+            var overlay = LoadingOverlay.Instance;
+            if (overlay != null)
+            {
+                string label = scene == ArenaScene
+                    ? (GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMBE" : "AUSSCHEIDEN")
+                    : "HAUPTMENUE";
+                overlay.Begin(label);
+                overlay.SetProgress(0.05f);
+            }
+            float startedAt = Time.unscaledTime;
 
             if (NetworkManager.Singleton != null)
             {
@@ -59,14 +73,39 @@ namespace Infront
                 yield return null;
             }
 
+            if (overlay != null) overlay.SetProgress(0.25f);
+
             BotBrain.GloballyFrozen = false;
             Combatants.Reset();
             SpawnService.Reset();
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            if (overlay != null) overlay.SetProgress(0.35f);
 
-            yield return SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+            var op = SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+            while (op != null && !op.isDone)
+            {
+                if (overlay != null)
+                    overlay.SetProgress(0.35f + 0.6f * Mathf.Clamp01(op.progress / 0.9f));
+                yield return null;
+            }
+            if (overlay != null) overlay.SetProgress(1f);
+
+            // Mindestanzeige, damit der Ladebildschirm nicht nur aufblitzt.
+            // Im Testlauf (batchmode) faellt das weg, damit die Ablauf-Tests
+            // ihr Timing behalten.
+            if (overlay != null && !Application.isBatchMode)
+            {
+                const float minShow = 1.5f;
+                while (Time.unscaledTime - startedAt < minShow) yield return null;
+                yield return overlay.PlayOutAndHide();
+            }
+            else if (overlay != null)
+            {
+                overlay.ForceHideForTests();
+            }
+
             _busy = false;
         }
     }

@@ -27,6 +27,15 @@ namespace Infront
             _mpb = new MaterialPropertyBlock();
         }
 
+        /// <summary>Nach dem nachtraeglichen Aufbau der Figur (<see cref="CharacterVisual"/>)
+        /// aufrufen - sammelt die neuen Renderer ein und faerbt beim naechsten
+        /// LateUpdate neu.</summary>
+        public void RefreshRenderers()
+        {
+            _renderers = GetComponentsInChildren<Renderer>(true);
+            _applied = Color.clear;
+        }
+
         void LateUpdate()
         {
             int myTeam = LocalTeam();

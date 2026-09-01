@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
   DisplayName: Maschinenpistole
   SlotKind: 0
+  ShotSound: 1
   SwitchTime: 0.4
   Damage: 12
   FireRate: 14

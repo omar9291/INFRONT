@@ -30,7 +30,14 @@ namespace Infront
         /// <summary>Wurde in diesem Frame die Nachladetaste gedrueckt?</summary>
         bool ReloadPressed { get; }
 
+        /// <summary>Haelt der Spieler die Benutzen-Taste (E)? Bombe legen / entschaerfen.</summary>
+        bool UseHeld { get; }
+
         /// <summary>Gewuenschter Waffenplatz in diesem Frame: -1 = keiner, 0 = Primaer, 1 = Pistole.</summary>
         int SwitchToSlot { get; }
+
+        /// <summary>In diesem Frame gedrueckte Faehigkeiten-Taste:
+        /// -1 = keine, 0 = Q, 1 = F, 2 = G.</summary>
+        int UseAbilitySlot { get; }
     }
 }

@@ -18,5 +18,9 @@ MonoBehaviour:
   ViewDistance: 20
   ViewAngle: 60
   MemoryTime: 4
-  ReactionTime: 0.7
+  ReactionTime: 0.75
   AimSpread: 9
+  AimTrackSpeed: 120
+  Aggression: 0.3
+  Hearing: 0.6
+  Teamwork: 0.25

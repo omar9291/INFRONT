@@ -24,6 +24,8 @@ namespace Infront.Tests
         {
             // So frueh wie moeglich, damit Bots gar nicht erst loslaufen.
             BotBrain.GloballyFrozen = true;
+            // Standard: Ausscheiden. Bomben-Tests schalten selbst um.
+            GameSettings.GameMode = GameSettings.Mode.Ausscheiden;
         }
 
         public static IEnumerator Teardown()
@@ -39,6 +41,9 @@ namespace Infront.Tests
             BotBrain.GloballyFrozen = false;
             Combatants.Reset();
             SpawnService.Reset();
+            SmokeRegistry.Reset();
+            ScanRegistry.Reset();
+            SoundEvents.Reset();
             yield return null;
         }
 

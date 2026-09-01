@@ -15,6 +15,7 @@ namespace Infront
     {
         [SerializeField] NetworkObject _botPrefab;
         [SerializeField] NetworkObject _matchManagerPrefab;
+        [SerializeField] NetworkObject _bombPrefab;
         [SerializeField] int _teamSize = 3;
         [SerializeField] float _startDelay = 0.6f;
 
@@ -92,6 +93,13 @@ namespace Infront
                     for (int i = 0; i < missing; i++)
                         SpawnBot(team);
                 }
+            }
+
+            // Bombe erzeugen (immer da, im Ausscheide-Modus bleibt sie inaktiv).
+            if (_bombPrefab != null && Bomb.Instance == null)
+            {
+                manager.SpawnManager.InstantiateAndSpawn(
+                    _bombPrefab, ownerClientId: NetworkManager.ServerClientId, destroyWithScene: true);
             }
 
             // MatchManager erzeugen (Teams stehen jetzt)

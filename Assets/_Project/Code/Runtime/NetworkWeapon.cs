@@ -64,10 +64,25 @@ namespace Infront
         public int PrimaryIndex => _primaryIdx.Value;
         int ActiveIndex => _activeSlot.Value == 0 ? _primaryIdx.Value : _secondaryIdx.Value;
 
-        public event Action<Vector3, Vector3> FireVisual;
+        /// <summary>Optik eines Schusses, auf allen Clients (Spur, Mündungsfeuer, Einschlag).</summary>
+        public event Action<ShotFx> FireVisual;
+        /// <summary>Wie <see cref="FireVisual"/>, aber EIN Abo für alle Waffen zusammen
+        /// (der Einschlag-Pool hängt sich hier ein statt an jede Waffe einzeln).</summary>
+        public static event Action<ShotFx> AnyShotFx;
         public event Action<GameObject, int> ServerHitConfirmed;
-        /// <summary>NUR beim schiessenden Client: ein eigener Schuss hat getroffen.</summary>
-        public event Action LocalHitConfirmed;
+        /// <summary>NUR beim schiessenden Client: ein eigener Schuss hat getroffen.
+        /// (Kopftreffer?, tödlich?)</summary>
+        public event Action<bool, bool> LocalHitConfirmed;
+
+        /// <summary>NUR beim Besitzer: gerade wurde ein eigener Schuss abgegeben
+        /// (fuers View Model - Rueckstoss der Waffe in der Hand).</summary>
+        public event Action LocalFired;
+        /// <summary>Nachlade-Status hat sich geaendert (true = faengt an). Fuer die
+        /// Nachlade-Bewegung des View Models.</summary>
+        public event Action<bool> ReloadingChanged;
+        /// <summary>Die gefuehrte Waffe wurde gewechselt / gezogen. Fuer das
+        /// "Ziehen"-Anspielen des View Models.</summary>
+        public event Action WeaponSwitched;
 
         double ServerNow => NetworkManager.ServerTime.Time;
 
@@ -84,11 +99,22 @@ namespace Infront
             _activeSlot.OnValueChanged += (_, __) => RefreshStats();
             _primaryIdx.OnValueChanged += (_, __) => RefreshStats();
             _secondaryIdx.OnValueChanged += (_, __) => RefreshStats();
+            _reloading.OnValueChanged += OnReloadingChanged;
 
             if (IsServer)
                 ServerSetPistolOnly();   // Jede Runde startet man mit der Pistole
 
             RefreshStats();
+        }
+
+        void OnReloadingChanged(bool wasReloading, bool nowReloading)
+        {
+            // Beginn des Nachladens -> Ton an der Figur (für alle hörbar).
+            if (!wasReloading && nowReloading && AudioService.Instance != null)
+                AudioService.Instance.PlayAt(SoundId.Nachladen, transform.position, 0.7f);
+
+            if (wasReloading != nowReloading)
+                ReloadingChanged?.Invoke(nowReloading);
         }
 
         void RefreshStats()
@@ -127,6 +153,7 @@ namespace Infront
             var prim = _catalog.Get(_primaryIdx.Value);
             _ammo.Value = prim != null ? prim.MagazineSize : 0;
             _ammoOther.Value = PistolMag;
+            SwitchEffectRpc();   // Waffe wird gezogen
         }
 
         /// <summary>Nur Server + nur Tests: die im Prefab hinterlegte Standardwaffe geben.</summary>
@@ -158,6 +185,15 @@ namespace Infront
             _reloading.Value = false;
             RefreshStats();
             _nextFireTime = ServerNow + (_stats != null ? _stats.SwitchTime : 0.5f);
+            SwitchEffectRpc();
+        }
+
+        [Rpc(SendTo.Everyone)]
+        void SwitchEffectRpc()
+        {
+            if (AudioService.Instance != null)
+                AudioService.Instance.PlayAt(SoundId.WaffeWechsel, transform.position, 0.6f);
+            WeaponSwitched?.Invoke();
         }
 
         void Update()
@@ -199,6 +235,7 @@ namespace Infront
             float up = _stats.RecoilUp;
             float side = _stats.RecoilSide * Mathf.Sin(_clientShot * 1.2f) * Mathf.Clamp01(_clientShot / 3f);
             _playerController.AddRecoil(up, side);
+            LocalFired?.Invoke();   // Waffe in der Hand zuckt zurueck
             _clientShot++;
         }
 
@@ -300,6 +337,10 @@ namespace Infront
             _nextFireTime = ServerNow + _stats.ShotInterval;
             _ammo.Value -= 1;
 
+            // Der Schuss ist laut - Gegner-Bots in Reichweite koennen ihn hoeren.
+            SoundEvents.ServerReport(_aim.AimOrigin, SoundEvents.ShotLoud,
+                _team != null ? _team.TeamId : Team.None);
+
             Vector3 rayOrigin = _aim.AimOrigin;
             float totalSpread = Mathf.Min(ServerMovementSpread() + _spread, _stats.SpreadMax);
             Vector3 direction = ApplyCone(_aim.AimDirection, totalSpread);
@@ -308,6 +349,10 @@ namespace Infront
 
             var hits = Physics.RaycastAll(rayOrigin, direction, _stats.Range, _hitMask, QueryTriggerInteraction.Ignore);
             System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            // 0 = nichts getroffen, 1 = Wand/Umgebung, 2 = Körper
+            byte impact = 0;
+            Vector3 hitNormal = -direction;
 
             foreach (var hit in hits)
             {
@@ -325,6 +370,8 @@ namespace Infront
                     continue;
 
                 endPoint = hit.point;
+                hitNormal = hit.normal;
+                impact = targetHealth != null ? (byte)2 : (byte)1;
 
                 if (targetHealth != null && targetHealth.IsAlive)
                 {
@@ -335,23 +382,33 @@ namespace Infront
                     // Kopfschuss geht an der Weste vorbei
                     targetHealth.ApplyDamage(dmg, gameObject, head);
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, dmg);
-                    HitConfirmedRpc();
+                    HitConfirmedRpc(head, !targetHealth.IsAlive);
                 }
                 break;
             }
 
             Vector3 tracerOrigin = _muzzle != null ? _muzzle.position : rayOrigin;
-            ShowFireEffectRpc(tracerOrigin, endPoint);
+            ShowFireEffectRpc(tracerOrigin, endPoint, hitNormal, impact, (int)_stats.ShotSound);
             return true;
         }
 
         [Rpc(SendTo.Owner)]
-        void HitConfirmedRpc() => LocalHitConfirmed?.Invoke();
+        void HitConfirmedRpc(bool head, bool lethal) => LocalHitConfirmed?.Invoke(head, lethal);
 
         [Rpc(SendTo.Everyone)]
-        void ShowFireEffectRpc(Vector3 origin, Vector3 endPoint)
+        void ShowFireEffectRpc(Vector3 origin, Vector3 endPoint, Vector3 normal, byte impact, int shotSound)
         {
-            FireVisual?.Invoke(origin, endPoint);
+            var fx = new ShotFx(origin, endPoint, normal, impact);
+            FireVisual?.Invoke(fx);
+            AnyShotFx?.Invoke(fx);
+
+            var audio = AudioService.Instance;
+            if (audio != null)
+            {
+                audio.PlayAt((SoundId)shotSound, origin, 1f, 0.06f);
+                if (impact == 2) audio.PlayAt(SoundId.EinschlagKoerper, endPoint, 0.9f, 0.1f);
+                else if (impact == 1) audio.PlayAt(SoundId.EinschlagWand, endPoint, 0.7f, 0.15f);
+            }
         }
     }
 }
