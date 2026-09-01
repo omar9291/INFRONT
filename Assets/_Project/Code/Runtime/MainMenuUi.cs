@@ -11,6 +11,13 @@ namespace Infront
     /// Baut den kompletten Baum per Code (kein UXML), damit nichts still
     /// beim Import kaputtgehen kann.
     ///
+    /// Aufbau der Navigation:
+    ///  - SPIELEN        nur Sachen, die du vor jeder Runde entscheidest
+    ///                   (Modus, Teamgroesse, Bot-Staerke) und der Startknopf.
+    ///  - EINSTELLUNGEN  Sachen, die du einmal einstellst: Bild, Maus, Lautstaerke.
+    ///  - STEUERUNG      reine Tastenreferenz zum Nachschlagen.
+    ///  - Beenden        abgesetzt unten, kein gleichwertiger Reiter.
+    ///
     /// Das alte IMGUI-Menue (<see cref="MainMenu"/>) bleibt als Rueckfallebene
     /// im Objektbaum: schlaegt der Aufbau hier fehl, oder drueckst du F10,
     /// erscheint wieder das alte Menue.
@@ -18,7 +25,7 @@ namespace Infront
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuUi : MonoBehaviour
     {
-        enum Page { Spielen, Steuerung, Beenden }
+        enum Page { Spielen, Einstellungen, Steuerung, Beenden }
 
         UIDocument _doc;
         VisualElement _pageHost;         // Inhalt rechts, wird pro Seite geleert
@@ -26,6 +33,7 @@ namespace Infront
         Label _sensValue;
         Slider _volSlider;
         Label _volValue;
+        Label _summary;                  // Zeile ueber dem Startknopf
         bool _built;
 
         Page _page = Page.Spielen;
@@ -154,7 +162,7 @@ namespace Infront
             brand.Add(tick);
             brand.Add(title);
 
-            var version = new Label("DRIFTLAB   ·   V0.9");
+            var version = new Label("DRIFTLAB   ·   " + VersionText());
             version.style.color = UiTheme.TextDim;
             version.style.fontSize = 12f;
             version.style.letterSpacing = 2f;
@@ -163,6 +171,15 @@ namespace Infront
             header.Add(brand);
             header.Add(version);
             return header;
+        }
+
+        /// <summary>Version aus den Projekteinstellungen, damit die Anzeige nicht
+        /// irgendwann luegt. Faellt auf "V0.9" zurueck, wenn nichts gesetzt ist.</summary>
+        static string VersionText()
+        {
+            var v = Application.version;
+            if (string.IsNullOrWhiteSpace(v)) return "V0.9";
+            return v.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? v.ToUpperInvariant() : "V" + v;
         }
 
         VisualElement BuildCareer()
@@ -174,6 +191,18 @@ namespace Infront
             box.style.backgroundColor = UiTheme.Panel;
 
             box.Add(UiTheme.Section("LAUFBAHN"));
+
+            // Neuer Spieler: vier Nullen sehen aus wie ein Fehler - stattdessen ein Hinweis.
+            if (CareerStats.Matches <= 0)
+            {
+                var hint = new Label("Noch keine Runde gespielt");
+                hint.style.color = UiTheme.TextDim;
+                hint.style.fontSize = 11f;
+                hint.style.marginTop = 2f;
+                hint.style.whiteSpace = WhiteSpace.Normal;
+                box.Add(hint);
+                return box;
+            }
 
             void Row(string label, int value)
             {
@@ -219,27 +248,45 @@ namespace Infront
             nav.style.flexShrink = 0f;
             nav.style.marginRight = 40f;
             nav.Add(NavButton("SPIELEN", Page.Spielen));
+            nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
             nav.Add(NavButton("STEUERUNG", Page.Steuerung));
-            nav.Add(NavButton("BEENDEN", Page.Beenden));
+
+            var sep = new VisualElement();
+            sep.style.height = 1f;
+            sep.style.backgroundColor = UiTheme.Line;
+            sep.style.marginTop = 6f; sep.style.marginBottom = 10f;
+            nav.Add(sep);
+
+            nav.Add(NavButton("Beenden", Page.Beenden, minor: true));
             nav.Add(BuildCareer());
             body.Add(nav);
 
             // Inhalt rechts (Kasten mit Akzent-Ecke)
             var panel = new VisualElement();
             panel.style.flexGrow = 1f;
+            panel.style.maxWidth = 780f;
             panel.style.backgroundColor = UiTheme.Panel;
             UiTheme.Border(panel, 1f, UiTheme.Line);
             UiTheme.Pad(panel, 30f);
 
-            var corner = new VisualElement();
-            corner.style.position = Position.Absolute;
-            corner.style.left = -1f; corner.style.top = -1f;
-            corner.style.width = 46f; corner.style.height = 3f;
-            corner.style.backgroundColor = UiTheme.Accent;
-            panel.Add(corner);
+            // Echte L-Ecke oben links statt eines kaum sichtbaren Strichs.
+            var cornerH = new VisualElement();
+            cornerH.style.position = Position.Absolute;
+            cornerH.style.left = -1f; cornerH.style.top = -1f;
+            cornerH.style.width = 46f; cornerH.style.height = 3f;
+            cornerH.style.backgroundColor = UiTheme.Accent;
+            panel.Add(cornerH);
+
+            var cornerV = new VisualElement();
+            cornerV.style.position = Position.Absolute;
+            cornerV.style.left = -1f; cornerV.style.top = -1f;
+            cornerV.style.width = 3f; cornerV.style.height = 46f;
+            cornerV.style.backgroundColor = UiTheme.Accent;
+            panel.Add(cornerV);
 
             _pageHost = new VisualElement();
             _pageHost.style.flexGrow = 1f;
+            _pageHost.style.maxWidth = 640f;   // Inhalt nicht ueber den halben Monitor ziehen
             panel.Add(_pageHost);
 
             body.Add(panel);
@@ -273,17 +320,17 @@ namespace Infront
         //  Navigation
         // ------------------------------------------------------------------
 
-        Button NavButton(string text, Page page)
+        Button NavButton(string text, Page page, bool minor = false)
         {
             var b = new Button(() => ShowPage(page)) { text = text };
             b.name = "nav-" + page.ToString().ToLowerInvariant();
-            b.style.height = 46f;
+            b.style.height = minor ? 38f : 46f;
             b.style.marginTop = 0f; b.style.marginBottom = 8f;
             b.style.marginLeft = 0f; b.style.marginRight = 0f;
             b.style.paddingLeft = 18f;
-            b.style.fontSize = 14f;
+            b.style.fontSize = minor ? 12f : 14f;
             b.style.letterSpacing = 3f;
-            b.style.color = UiTheme.Text;
+            b.style.color = minor ? UiTheme.TextDim : UiTheme.Text;
             b.style.backgroundColor = UiTheme.Panel;
             b.style.unityFontStyleAndWeight = FontStyle.Bold;
             b.style.unityTextAlign = TextAnchor.MiddleLeft;
@@ -314,14 +361,25 @@ namespace Infront
                 bool sel = kv.Key == page;
                 kv.Value.style.backgroundColor = sel ? UiTheme.PanelHi : UiTheme.Panel;
                 kv.Value.style.borderLeftColor = sel ? UiTheme.Accent : UiTheme.Line;
-                kv.Value.style.color = sel ? Color.white : UiTheme.Text;
+                kv.Value.style.color = sel
+                    ? Color.white
+                    : (kv.Key == Page.Beenden ? UiTheme.TextDim : UiTheme.Text);
             }
+
+            // Regler-Referenzen gehoeren zur Einstellungen-Seite; beim Verlassen ungueltig.
+            if (page != Page.Einstellungen)
+            {
+                _sensSlider = null; _sensValue = null;
+                _volSlider = null; _volValue = null;
+            }
+            _summary = null;
 
             if (_pageHost == null) return;
             _pageHost.Clear();
             switch (page)
             {
                 case Page.Spielen: BuildSpielen(_pageHost); break;
+                case Page.Einstellungen: BuildEinstellungen(_pageHost); break;
                 case Page.Steuerung: BuildSteuerung(_pageHost); break;
                 case Page.Beenden: BuildBeenden(_pageHost); break;
             }
@@ -353,48 +411,144 @@ namespace Infront
         }
 
         // ------------------------------------------------------------------
-        //  Seite: SPIELEN
+        //  Seite: SPIELEN  (nur die Runde)
         // ------------------------------------------------------------------
 
         void BuildSpielen(VisualElement host)
         {
+            // --- Spielmodus: zwei Karten mit erklaerender Zeile ---
             host.Add(UiTheme.Section("SPIELMODUS"));
-            host.Add(Segmented("seg-modus", new[] { "AUSSCHEIDEN", "BOMBE" },
-                (int)GameSettings.GameMode, i =>
-                {
-                    GameSettings.GameMode = (GameSettings.Mode)i;
-                    GameSettings.Save();
-                }));
 
+            var modeRow = new VisualElement();
+            modeRow.style.flexDirection = FlexDirection.Row;
+            modeRow.style.marginTop = 6f;
+
+            var modeCards = new List<Button>();
+            int modeCurrent = (int)GameSettings.GameMode;
+
+            void PaintModes()
+            {
+                for (int k = 0; k < modeCards.Count; k++)
+                {
+                    bool s = k == modeCurrent;
+                    var c = modeCards[k];
+                    c.style.backgroundColor = s ? UiTheme.PanelHi : UiTheme.Panel;
+                    Color bc = s ? UiTheme.Accent : UiTheme.Line;
+                    UiTheme.Border(c, 1f, bc);
+                    c.style.borderLeftWidth = 3f;
+                    c.style.borderLeftColor = s ? UiTheme.Accent : UiTheme.Line;
+                }
+            }
+
+            void PickMode(int i)
+            {
+                modeCurrent = Mathf.Clamp(i, 0, modeCards.Count - 1);
+                GameSettings.GameMode = (GameSettings.Mode)modeCurrent;
+                GameSettings.Save();
+                PaintModes();
+                RefreshSummary();
+            }
+
+            Button MakeModeCard(int idx, string title, string desc)
+            {
+                var card = new Button(() => PickMode(idx));
+                card.name = "seg-modus-" + idx;
+                card.style.flexGrow = 1f;
+                card.style.flexBasis = 0f;
+                card.style.flexDirection = FlexDirection.Column;
+                card.style.alignItems = Align.FlexStart;
+                card.style.justifyContent = Justify.FlexStart;
+                UiTheme.Pad(card, 16f);
+                UiTheme.Square(card);
+                UiTheme.Margin(card, 0f);
+                if (idx > 0) card.style.marginLeft = 12f;
+
+                var t = new Label(title);
+                t.style.color = UiTheme.Text;
+                t.style.fontSize = 15f;
+                t.style.letterSpacing = 2f;
+                t.style.unityFontStyleAndWeight = FontStyle.Bold;
+
+                var d = new Label(desc);
+                d.style.color = UiTheme.TextDim;
+                d.style.fontSize = 12f;
+                d.style.marginTop = 6f;
+                d.style.whiteSpace = WhiteSpace.Normal;
+
+                card.Add(t);
+                card.Add(d);
+                card.RegisterCallback<MouseEnterEvent>(_ =>
+                {
+                    if (idx != modeCurrent) card.style.backgroundColor = UiTheme.PanelHi;
+                });
+                card.RegisterCallback<MouseLeaveEvent>(_ =>
+                {
+                    if (idx != modeCurrent) card.style.backgroundColor = UiTheme.Panel;
+                });
+                _actions[card.name] = () => PickMode(idx);
+                modeCards.Add(card);
+                return card;
+            }
+
+            modeRow.Add(MakeModeCard(0, "AUSSCHEIDEN",
+                "Schaltet das gegnerische Team komplett aus, dann ist die Runde gewonnen."));
+            modeRow.Add(MakeModeCard(1, "BOMBE",
+                "Ein Team legt die Bombe, das andere entschärft sie oder verhindert das Legen."));
+            host.Add(modeRow);
+            PaintModes();
+
+            // --- Teamgroesse + Bot-Staerke nebeneinander (kleinere Entscheidungen) ---
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("TEAMGROESSE"));
-            host.Add(Segmented("seg-team", new[] { "2", "3", "4", "5" },
+
+            var twoCol = new VisualElement();
+            twoCol.style.flexDirection = FlexDirection.Row;
+
+            var colA = new VisualElement();
+            colA.style.flexGrow = 1f; colA.style.flexBasis = 0f;
+            colA.style.marginRight = 20f;
+            colA.Add(UiTheme.Section("TEAMGROESSE"));
+            colA.Add(Segmented("seg-team", new[] { "2", "3", "4", "5" },
                 Mathf.Clamp(GameSettings.TeamSize - 2, 0, 3), i =>
                 {
                     GameSettings.TeamSize = i + 2;
                     GameSettings.Save();
+                    RefreshSummary();
                 }));
 
-            host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("BOT-SCHWIERIGKEIT"));
-            host.Add(Segmented("seg-diff", new[] { "LEICHT", "NORMAL", "SCHWER" },
+            var colB = new VisualElement();
+            colB.style.flexGrow = 1f; colB.style.flexBasis = 0f;
+            colB.Add(UiTheme.Section("BOT-STAERKE"));
+            colB.Add(Segmented("seg-diff", new[] { "LEICHT", "NORMAL", "SCHWER" },
                 (int)GameSettings.Difficulty, i =>
                 {
                     GameSettings.Difficulty = (GameSettings.Level)i;
                     GameSettings.Save();
+                    RefreshSummary();
                 }));
 
-            host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("BILD"));
-            host.Add(Segmented("seg-grafik", new[] { "VOLL", "SCHLICHT" },
-                (int)GameSettings.GraphicsQuality, i =>
-                {
-                    GameSettings.GraphicsQuality = (GameSettings.Graphics)i;
-                    GameSettings.Save();
-                }));
+            twoCol.Add(colA);
+            twoCol.Add(colB);
+            host.Add(twoCol);
 
-            host.Add(UiTheme.Gap(40f));
+            // --- Trennlinie + Zusammenfassung: hier hoeren die Einstellungen auf ---
+            host.Add(UiTheme.Gap(28f));
 
+            var line = new VisualElement();
+            line.style.height = 1f;
+            line.style.backgroundColor = UiTheme.Line;
+            host.Add(line);
+
+            _summary = new Label();
+            _summary.style.color = UiTheme.TextDim;
+            _summary.style.fontSize = 12f;
+            _summary.style.letterSpacing = 2f;
+            _summary.style.marginTop = 12f;
+            _summary.style.marginBottom = 14f;
+            _summary.style.unityFontStyleAndWeight = FontStyle.Bold;
+            host.Add(_summary);
+            RefreshSummary();
+
+            // --- Startknopf: die einzige orange Flaeche im Menue ---
             var start = new Button(StartRound) { text = "▶   RUNDE STARTEN" };
             start.name = "btn-start";
             start.style.height = 54f;
@@ -412,6 +566,20 @@ namespace Infront
             host.Add(start);
         }
 
+        void RefreshSummary()
+        {
+            if (_summary == null) return;
+            string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMBE" : "AUSSCHEIDEN";
+            string diff = GameSettings.Difficulty switch
+            {
+                GameSettings.Level.Leicht => "LEICHT",
+                GameSettings.Level.Schwer => "SCHWER",
+                _ => "NORMAL"
+            };
+            int n = GameSettings.TeamSize;
+            _summary.text = $"{mode}   ·   {n} GEGEN {n}   ·   BOTS {diff}";
+        }
+
         void StartRound()
         {
             GameSettings.Save();
@@ -419,11 +587,28 @@ namespace Infront
         }
 
         // ------------------------------------------------------------------
-        //  Seite: STEUERUNG
+        //  Seite: EINSTELLUNGEN  (einmal einstellen, nie wieder anfassen)
         // ------------------------------------------------------------------
 
-        void BuildSteuerung(VisualElement host)
+        void BuildEinstellungen(VisualElement host)
         {
+            host.Add(UiTheme.Section("BILD"));
+            host.Add(Segmented("seg-grafik", new[] { "VOLL", "SCHLICHT" },
+                (int)GameSettings.GraphicsQuality, i =>
+                {
+                    GameSettings.GraphicsQuality = (GameSettings.Graphics)i;
+                    GameSettings.Save();
+                }));
+
+            var bildHint = new Label(
+                "Voll: mit Bloom, Vignette und Nebel. Schlicht: alles aus, falls es ruckelt oder streift.");
+            bildHint.style.color = UiTheme.TextDim;
+            bildHint.style.fontSize = 11f;
+            bildHint.style.marginTop = 6f;
+            bildHint.style.whiteSpace = WhiteSpace.Normal;
+            host.Add(bildHint);
+
+            host.Add(UiTheme.Gap(24f));
             host.Add(UiTheme.Section("MAUS-EMPFINDLICHKEIT"));
 
             var row = new VisualElement();
@@ -482,48 +667,76 @@ namespace Infront
             volRow.Add(_volSlider);
             volRow.Add(_volValue);
             host.Add(volRow);
+        }
 
-            host.Add(UiTheme.Gap(24f));
+        // ------------------------------------------------------------------
+        //  Seite: STEUERUNG  (reine Tastenreferenz)
+        // ------------------------------------------------------------------
+
+        void BuildSteuerung(VisualElement host)
+        {
             host.Add(UiTheme.Section("TASTENBELEGUNG"));
 
             var list = new VisualElement();
             list.style.marginTop = 4f;
-            AddKey(list, "Bewegen", "W  A  S  D");
+            AddKey(list, "Bewegen", "W", "A", "S", "D");
             AddKey(list, "Umsehen / Zielen", "Maus");
             AddKey(list, "Schiessen", "Linke Maustaste");
             AddKey(list, "Nachladen", "R");
             AddKey(list, "Springen", "Leertaste");
-            AddKey(list, "Sprinten", "Umschalt (halten)");
-            AddKey(list, "Waffe wechseln", "1  /  2");
-            AddKey(list, "Bombe legen / entschaerfen", "E (halten)");
-            AddKey(list, "Kaufmenue", "B");
-            AddKey(list, "Punktetabelle", "Tab (halten)");
+            AddKey(list, "Sprinten (halten)", "Umschalt");
+            AddKey(list, "Waffe wechseln", "1", "2");
+            AddKey(list, "Bombe legen / entschärfen (halten)", "E");
+            AddKey(list, "Kaufmenü", "B");
+            AddKey(list, "Punktetabelle (halten)", "Tab");
             AddKey(list, "Pause", "Esc");
-            AddKey(list, "Zuschauen wechseln (tot)", "Links- / Rechtsklick");
+            AddKey(list, "Zuschauen wechseln (tot)", "Linksklick", "Rechtsklick");
             host.Add(list);
         }
 
-        void AddKey(VisualElement list, string action, string key)
+        void AddKey(VisualElement list, string action, params string[] keys)
         {
             var r = new VisualElement();
             r.style.flexDirection = FlexDirection.Row;
             r.style.justifyContent = Justify.SpaceBetween;
-            r.style.paddingTop = 5f; r.style.paddingBottom = 5f;
+            r.style.alignItems = Align.Center;
+            r.style.paddingTop = 6f; r.style.paddingBottom = 6f;
             r.style.borderBottomWidth = 1f;
             r.style.borderBottomColor = UiTheme.Line;
 
             var a = new Label(action);
             a.style.color = UiTheme.TextDim;
             a.style.fontSize = 13f;
+            a.style.whiteSpace = WhiteSpace.Normal;
+            a.style.flexShrink = 1f;
 
-            var k = new Label(key);
-            k.style.color = UiTheme.Text;
-            k.style.fontSize = 13f;
-            k.style.unityFontStyleAndWeight = FontStyle.Bold;
+            var caps = new VisualElement();
+            caps.style.flexDirection = FlexDirection.Row;
+            caps.style.flexShrink = 0f;
+            caps.style.marginLeft = 12f;
+            foreach (var key in keys) caps.Add(KeyCap(key));
 
             r.Add(a);
-            r.Add(k);
+            r.Add(caps);
             list.Add(r);
+        }
+
+        /// <summary>Eine kleine umrandete Tastenkappe wie auf einer echten Tastatur.</summary>
+        static VisualElement KeyCap(string key)
+        {
+            var cap = new Label(key);
+            cap.style.color = UiTheme.Text;
+            cap.style.fontSize = 12f;
+            cap.style.unityFontStyleAndWeight = FontStyle.Bold;
+            cap.style.unityTextAlign = TextAnchor.MiddleCenter;
+            cap.style.minWidth = 26f;
+            cap.style.paddingLeft = 7f; cap.style.paddingRight = 7f;
+            cap.style.paddingTop = 3f; cap.style.paddingBottom = 3f;
+            cap.style.marginLeft = 6f;
+            cap.style.backgroundColor = UiTheme.PanelHi;
+            UiTheme.Border(cap, 1f, UiTheme.Line);
+            UiTheme.Square(cap);
+            return cap;
         }
 
         // ------------------------------------------------------------------
@@ -567,11 +780,12 @@ namespace Infront
             b.style.unityFontStyleAndWeight = FontStyle.Bold;
             UiTheme.Square(b);
             UiTheme.Margin(b, 0f);
-            Color fill = danger ? UiTheme.Accent : UiTheme.Panel;
-            Color fillHi = danger ? UiTheme.AccentBright : UiTheme.PanelHi;
+            // Rot fuer die zerstoererische Wahl - Orange bleibt allein dem Startknopf.
+            Color fill = danger ? UiTheme.Bad : UiTheme.Panel;
+            Color fillHi = danger ? new Color32(0xF0, 0x50, 0x42, 0xFF) : UiTheme.PanelHi;
             b.style.backgroundColor = fill;
-            b.style.color = danger ? Color.black : UiTheme.Text;
-            UiTheme.Border(b, 1f, danger ? UiTheme.Accent : UiTheme.Line);
+            b.style.color = danger ? Color.white : UiTheme.Text;
+            UiTheme.Border(b, 1f, danger ? UiTheme.Bad : UiTheme.Line);
             b.RegisterCallback<MouseEnterEvent>(_ => b.style.backgroundColor = fillHi);
             b.RegisterCallback<MouseLeaveEvent>(_ => b.style.backgroundColor = fill);
         }
@@ -601,8 +815,10 @@ namespace Infront
                 for (int k = 0; k < buttons.Count; k++)
                 {
                     bool s = k == current;
-                    buttons[k].style.backgroundColor = s ? UiTheme.Accent : UiTheme.Panel;
-                    buttons[k].style.color = s ? Color.black : UiTheme.Text;
+                    // Ausgewaehlt: heller Kasten + weisse Schrift + Akzent-Rand.
+                    // KEIN oranger Fuellblock mehr - Orange bleibt dem Startknopf.
+                    buttons[k].style.backgroundColor = s ? UiTheme.PanelHi : UiTheme.Panel;
+                    buttons[k].style.color = s ? Color.white : UiTheme.Text;
                     Color bc = s ? UiTheme.Accent : UiTheme.Line;
                     buttons[k].style.borderTopColor = bc; buttons[k].style.borderBottomColor = bc;
                     buttons[k].style.borderLeftColor = bc; buttons[k].style.borderRightColor = bc;

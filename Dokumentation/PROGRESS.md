@@ -1014,3 +1014,40 @@ Der ganze bis dahin ungesicherte Stand (HUD-Umbau + Asset-Umbau, zusammen
 ~430 geänderte Dateien) ging in zwei ehrlichen Commits hoch: erst Code/Doku/
 Einstellungen, dann die ~74 MB Asset-Dateien. Ein frischer Klon wurde
 gegengeprüft — 598 Dateien, Prüfsummen der großen Binärdateien identisch.
+
+---
+
+## HAUPTMENUE: STRUKTUR-UMBAU (2026-09-01)
+
+Rückmeldung von Freunden: sieht gut aus, aber die Struktur stimmt nicht.
+Ursache: das Menü warf drei verschiedene Arten von Sachen in denselben Topf
+(Runden-Wahl, Dauer-Einstellungen, Nachschlage-Liste) und zeigte alle gleich
+groß. `MainMenuUi.cs` neu geordnet:
+
+- **Neue Seite EINSTELLUNGEN** — BILD (von SPIELEN weg), Maus-Empfindlichkeit
+  und Lautstärke (von STEUERUNG weg). Alles, was man einmal einstellt, an
+  einem Ort.
+- **STEUERUNG** ist jetzt reine Tastenreferenz — Belegung als kleine
+  Tastenkappen statt Fließtext.
+- **SPIELEN** enthält nur noch die Runde: Spielmodus groß als zwei Karten mit
+  Erklärzeile, Teamgröße + Bot-Stärke klein nebeneinander, Trennlinie,
+  Zusammenfassungszeile ("BOMBE · 5 GEGEN 5 · BOTS NORMAL"), dann Startknopf.
+- **Beenden** rutscht unter eine Trennlinie in der Navigation, gedämpft —
+  kein gleichwertiger Reiter mehr. Die Beenden-Seite selbst unverändert.
+- **Orange nur noch für den Startknopf.** Ausgewählte Segmente: heller Kasten
+  + weiße Schrift + Akzent-Rand statt vollflächig orange. Beenden-Bestätigung
+  jetzt rot (zerstörerisch), nicht orange.
+- Inhaltsbreite auf 640 px begrenzt (vorher über den halben Monitor gezogen),
+  Panel auf 780 px. Echte L-Ecke oben links statt kaum sichtbarem Strich.
+  LAUFBAHN zeigt bei 0 Matches "Noch keine Runde gespielt" statt vier Nullen.
+  Version kommt aus `Application.version` statt fest "V0.9".
+
+Nichts gelöscht: alte IMGUI-Rückfallebene (F10), alle Element-Namen und die
+Beenden-Seite bleiben. Tests angepasst (`nav-steuerung` → `nav-einstellungen`
+für die Regler) + 1 neuer Test für die verschobene BILD-Einstellung.
+
+**Ungeprüft:** wie es aussieht (Abstände, Kartenbreiten, Tastenkappen-Ausrichtung,
+L-Ecke) — headless nicht sichtbar. Muss im Editor gegengeschaut werden.
+
+### Tests
+104 PlayMode, alle grün (war 103, +1 neuer Menü-Test).

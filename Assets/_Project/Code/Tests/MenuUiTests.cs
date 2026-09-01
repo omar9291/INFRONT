@@ -115,12 +115,31 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Steuerungsseite_setzt_die_Empfindlichkeit()
+        public IEnumerator Bild_Schalter_liegt_jetzt_auf_der_Einstellungsseite()
         {
             var ui = Ui();
             yield return WaitBuilt(ui);
 
-            ui.ClickForTests("nav-steuerung");
+            var old = GameSettings.GraphicsQuality;
+
+            ui.ClickForTests("nav-einstellungen");
+            yield return null;
+
+            Assert.IsTrue(ui.ClickForTests("seg-grafik-1"), "Bild-Schalter 'SCHLICHT' nicht gefunden.");
+            Assert.AreEqual(GameSettings.Graphics.Schlicht, GameSettings.GraphicsQuality);
+
+            ui.ClickForTests("seg-grafik-0");
+            GameSettings.GraphicsQuality = old;
+            GameSettings.Save();
+        }
+
+        [UnityTest]
+        public IEnumerator Einstellungsseite_setzt_die_Empfindlichkeit()
+        {
+            var ui = Ui();
+            yield return WaitBuilt(ui);
+
+            ui.ClickForTests("nav-einstellungen");
             yield return null;
 
             ui.SetSensitivityForTests(0.2f);
@@ -128,12 +147,12 @@ namespace Infront.Tests
         }
 
         [UnityTest]
-        public IEnumerator Steuerungsseite_setzt_die_Lautstaerke()
+        public IEnumerator Einstellungsseite_setzt_die_Lautstaerke()
         {
             var ui = Ui();
             yield return WaitBuilt(ui);
 
-            ui.ClickForTests("nav-steuerung");
+            ui.ClickForTests("nav-einstellungen");
             yield return null;
 
             ui.SetVolumeForTests(0.3f);
