@@ -989,3 +989,28 @@ UNGETESTET (FBX liegen noch nicht vor).
 ### Tests
 98 -> 105 PlayMode (+7: AssetFallbackTests) + 3 EditMode. Alle gruen.
 Download-Rohdaten: Art/ ~73 MB, Audio/ 0.2 MB. Alles CC0.
+
+---
+
+## UMZUG AUF GITHUB (2026-09-01)
+
+Das Projekt liegt jetzt auf GitHub: **https://github.com/omar9291/INFRONT**
+(öffentlich). Ab sofort wird nach jeder fertigen Arbeitseinheit committet und
+hochgeladen.
+
+Was eingerichtet wurde:
+- SSH-Schlüssel auf dem Mac (`~/.ssh/id_ed25519`), öffentlicher Teil bei
+  GitHub eingetragen. Kein Passwort mehr nötig.
+- Git-Identität für dieses Repo auf die GitHub-Schutzadresse gesetzt, damit
+  bei öffentlichen Commits keine echte Mail sichtbar ist.
+- Kein Git LFS. Die vorbereiteten LFS-Regeln in `.gitattributes` sind
+  auskommentiert (Projekt zu klein, größte Datei ~6 MB). Anleitung zum
+  späteren Anschalten steht in der Datei.
+- `.gitignore`: `scratch_*`-Dateien und die vom Testläufer erzeugten
+  `InitTestScene*`-Szenen raus.
+- README auf den echten Stand gebracht (First-Person, rundenbasiert).
+
+Der ganze bis dahin ungesicherte Stand (HUD-Umbau + Asset-Umbau, zusammen
+~430 geänderte Dateien) ging in zwei ehrlichen Commits hoch: erst Code/Doku/
+Einstellungen, dann die ~74 MB Asset-Dateien. Ein frischer Klon wurde
+gegengeprüft — 598 Dateien, Prüfsummen der großen Binärdateien identisch.
