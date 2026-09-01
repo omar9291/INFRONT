@@ -1,0 +1,17 @@
+Echte Sounddateien hier ablegen (.wav oder .ogg).
+
+Der Dateiname MUSS zum Ton passen - Kleinschreibung mit
+Unterstrichen, so wie die Einträge in SoundId.cs:
+
+  schuss_gewehr.wav      schuss_mp.wav      schuss_sniper.wav
+  schuss_pistole.wav     nachladen.wav      waffe_wechsel.wav
+  treffer_marke.wav      treffer_kopf.wav   abschuss.wav
+  eigener_tod.wav        einschlag_wand.wav einschlag_koerper.wav
+  schritt_leise.wav      schritt_normal.wav schritt_laut.wav
+  runde_start.wav        runde_sieg.wav     runde_niederlage.wav
+  kaufzeit_vorbei.wav    bombe_piep.wav     bombe_gelegt.wav
+  bombe_entschaerft.wav  bombe_explosion.wav
+
+Liegt eine Datei da, wird sie automatisch statt des
+Platzhalter-Tons benutzt. Du kannst einzeln austauschen.
+Gute Gratis-Quellen: freesound.org, kenney.nl/assets (Audio).
