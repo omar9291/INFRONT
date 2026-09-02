@@ -239,6 +239,9 @@ namespace Infront
             var body = new VisualElement();
             body.style.flexDirection = FlexDirection.Row;
             body.style.flexGrow = 1f;
+            // Kinder oben ausrichten, nicht auf volle Hoehe strecken - sonst wird
+            // das Inhalts-Panel zu einem riesigen leeren Kasten.
+            body.style.alignItems = Align.FlexStart;
             body.style.paddingLeft = 48f; body.style.paddingRight = 48f;
             body.style.paddingTop = 34f; body.style.paddingBottom = 22f;
 
@@ -458,6 +461,9 @@ namespace Infront
                 card.style.flexDirection = FlexDirection.Column;
                 card.style.alignItems = Align.FlexStart;
                 card.style.justifyContent = Justify.FlexStart;
+                // Buttons stehen per Default auf zentriertem Text und vererben das an
+                // die Kind-Labels. Hier soll alles linksbuendig sein.
+                card.style.unityTextAlign = TextAnchor.UpperLeft;
                 UiTheme.Pad(card, 16f);
                 UiTheme.Square(card);
                 UiTheme.Margin(card, 0f);
@@ -474,6 +480,8 @@ namespace Infront
                 d.style.fontSize = 12f;
                 d.style.marginTop = 6f;
                 d.style.whiteSpace = WhiteSpace.Normal;
+                d.style.width = Length.Percent(100f);
+                d.style.unityTextAlign = TextAnchor.UpperLeft;
 
                 card.Add(t);
                 card.Add(d);
