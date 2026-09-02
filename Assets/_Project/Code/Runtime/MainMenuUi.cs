@@ -7,26 +7,33 @@ using UnityEngine.UIElements;
 namespace Infront
 {
     /// <summary>
-    /// Das Hauptmenue mit Unity UI Toolkit, Stil "Dark Tactical".
-    /// Baut den kompletten Baum per Code (kein UXML), damit nichts still
-    /// beim Import kaputtgehen kann.
+    /// Das Hauptmenue mit Unity UI Toolkit im "Kino-Look".
+    ///
+    /// Die 3D-Kulisse dahinter (SceneBuilder + <see cref="MenuCameraRig"/>) wird
+    /// vom <see cref="PostFxController"/> weich verschwommen (Tiefenunschaerfe).
+    /// Davor steht die Oberflaeche klar und ruhig - wenige, gezielte Bewegungen
+    /// statt vieler kleiner Wackler:
+    ///  - der ganze Inhalt kippt leicht mit der Maus (Parallaxe, zweite Ebene
+    ///    zur Kamerafahrt), das Hintergrund-Raster kippt gegenlaeufig;
+    ///  - ein Licht-Wisch ueber dem Startknopf;
+    ///  - Seitenwechsel gleiten von rechts herein;
+    ///  - jeder Klick gibt einen kurzen Ton (ueber den <see cref="AudioService"/>).
     ///
     /// Aufbau der Navigation:
-    ///  - SPIELEN        nur Sachen, die du vor jeder Runde entscheidest
-    ///                   (Modus, Teamgroesse, Bot-Staerke) und der Startknopf.
-    ///                   Rechts daneben das BRIEFING mit Mini-Karte und Aufstellung.
-    ///  - EINSTELLUNGEN  Sachen, die du einmal einstellst: Anzeige, Bild, Maus, Ton.
-    ///  - STEUERUNG      reine Tastenreferenz zum Nachschlagen.
+    ///  - SPIELEN        alles, was du vor einer Runde entscheidest (Einsatzart,
+    ///                   Teamgroesse, Bot-Staerke), rechts die Aufstellung, unten
+    ///                   der breite Startbalken.
+    ///  - EINSTELLUNGEN  einmal einstellen: Anzeige, Bild, Maus, Ton.
+    ///  - STEUERUNG      reine Tastenreferenz.
     ///  - Beenden        abgesetzt unten, kein gleichwertiger Reiter.
     ///
-    /// Optik: Die Flaechen sind halbdurchsichtiges Glas (<see cref="UiTheme.Glass"/>),
-    /// dahinter laeuft die 3D-Kulisse mit der Kamerafahrt weiter. Orange bleibt
-    /// die Aktionsfarbe, Eisblau (<see cref="UiTheme.Ice"/>) ist der kuehle
-    /// Gegenpol fuer Zahlen und das eigene Team.
+    /// Farben: Orange ist die Aktions- und Startfarbe. Eisblau (<see cref="UiTheme.Ice"/>)
+    /// ist der kuehle Gegenpol fuer Zahlen, Messwerte und das eigene Team. Die
+    /// Flaechen sind dunkle Eck-Rahmen (<see cref="SoftPanel"/>) statt voller Kaesten.
     ///
-    /// Das alte IMGUI-Menue (<see cref="MainMenu"/>) bleibt als Rueckfallebene
-    /// im Objektbaum: schlaegt der Aufbau hier fehl, oder drueckst du F10,
-    /// erscheint wieder das alte Menue.
+    /// Das alte IMGUI-Menue (<see cref="MainMenu"/>) bleibt als Rueckfallebene im
+    /// Objektbaum: schlaegt der Aufbau hier fehl, oder drueckst du F10, erscheint
+    /// wieder das alte Menue.
     ///
     /// NICHT pruefbar: wie es aussieht (Farben, Abstaende, Hover, Animation).
     /// Pruefbar ist nur, dass der Baum steht und die Schalter in GameSettings landen.
@@ -48,22 +55,27 @@ namespace Infront
             "Nach 15 Runden werden die Seiten getauscht.",
         };
 
+        // Rufnamen fuer die Aufstellung. Platz 0 bist immer du selbst.
+        static readonly string[] TeamNames =
+            { "DU", "FALKE", "WOLF", "LUCHS", "RABE", "BÄR", "OTTER", "HECHT", "GEIER", "DACHS" };
+        static readonly string[] FoeNames =
+            { "KOBRA", "NATTER", "SKORPION", "HORNISSE", "WIDDER", "PIRANHA", "WARAN", "BUSSARD", "MARDER", "ILTIS" };
+
         UIDocument _doc;
+        VisualElement _parallax;         // ganze Oberflaeche, kippt leicht mit der Maus
+        VisualElement _grid;             // feines Raster, kippt gegenlaeufig -> Tiefe
         VisualElement _pageHost;         // Inhalt rechts, wird pro Seite geleert
-        VisualElement _pageEdge;         // Akzent-Linie, die bei jedem Seitenwechsel ueber die Panel-Oberkante faehrt
-        VisualElement _grid;             // feines Raster im Hintergrund, driftet langsam
-        VisualElement _radar;            // drehender Zeiger auf der Mini-Karte
-        VisualElement _lineup;           // Team-Punkte im Briefing (blau gegen rot)
+        VisualElement _pageEdge;         // Akzent-Linie, faehrt bei jedem Seitenwechsel ueber die Oberkante
+        VisualElement _lineup;           // Aufstellung im Briefing (dein Team gegen Gegner)
         Label _briefLine;                // Modus-/Bot-Zeile im Briefing
         Slider _sensSlider;
         Label _sensValue;
         Slider _volSlider;
         Label _volValue;
-        Label _summary;                  // Zeile ueber dem Startknopf
+        Label _summary;                  // Zeile ueber dem Startbalken
         bool _built;
 
-        float _gridT;
-        float _radarT;
+        Vector2 _look;                   // geglaettete Mausablage, Mitte = 0, Rand = ±1
 
         Page _page = Page.Spielen;
         readonly Dictionary<Page, Button> _navButtons = new();
@@ -118,17 +130,20 @@ namespace Infront
 
             if (!_built) return;
 
-            // Rein optische Bewegung: Raster driftet, Radar-Zeiger dreht.
-            float dt = Time.unscaledDeltaTime;
-            if (_grid != null)
+            // Maus-Parallaxe: der Inhalt kippt leicht entgegen der Maus, das
+            // Raster staerker und gegenlaeufig - zwei Ebenen, spuerbare Tiefe.
+            var m = Mouse.current;
+            if (m != null && Screen.width > 0 && Screen.height > 0)
             {
-                _gridT = (_gridT + dt * 5f) % 64f;
-                _grid.style.translate = new Translate(_gridT - 64f, _gridT * 0.6f - 64f, 0f);
-            }
-            if (_radar != null)
-            {
-                _radarT = (_radarT + dt * 55f) % 360f;
-                _radar.style.rotate = new Rotate(new Angle(_radarT, AngleUnit.Degree));
+                Vector2 target = new Vector2(
+                    Mathf.Clamp(m.position.x.ReadValue() / Screen.width * 2f - 1f, -1f, 1f),
+                    Mathf.Clamp(m.position.y.ReadValue() / Screen.height * 2f - 1f, -1f, 1f));
+                _look = Vector2.Lerp(_look, target, Time.unscaledDeltaTime * 4f);
+
+                if (_parallax != null)
+                    _parallax.style.translate = new Translate(-_look.x * 7f, -_look.y * 5f, 0f);
+                if (_grid != null)
+                    _grid.style.translate = new Translate(_look.x * 16f, _look.y * 11f, 0f);
             }
         }
 
@@ -169,58 +184,81 @@ namespace Infront
         {
             root.Clear();
             root.style.flexGrow = 1f;
-            // Durchsichtig lassen - dahinter läuft die 3D-Kulisse mit der Kamerafahrt.
+            // Durchsichtig lassen - dahinter laeuft die (verschwommene) 3D-Kulisse.
             root.style.backgroundColor = Color.clear;
             root.style.display = DisplayStyle.Flex;
 
-            // Feines Raster über der ganzen Kulisse - driftet in Update() langsam.
+            // Feines Raster ueber der ganzen Kulisse - kippt in Update() mit der Maus.
             root.Add(BuildGrid());
 
-            // Leichter Abdunkler über der ganzen Kulisse: nimmt der 3D-Szene
-            // etwas Kontrast, lässt die Bewegung aber klar durchscheinen.
+            // Leichter Abdunkler. Die Tiefenunschaerfe nimmt der Kulisse schon
+            // viel Unruhe; hier kommt nur noch etwas Kontrast dazu.
             var scrim = new VisualElement { name = "scrim" };
             scrim.style.position = Position.Absolute;
             scrim.style.left = 0f; scrim.style.top = 0f; scrim.style.right = 0f; scrim.style.bottom = 0f;
-            var sc = UiTheme.Bg; sc.a = 0.28f;
+            var sc = UiTheme.Bg; sc.a = 0.30f;
             scrim.style.backgroundColor = sc;
             scrim.pickingMode = PickingMode.Ignore;
             root.Add(scrim);
 
-            // Kräftigere Bänder oben und unten, wo Kopf- und Fußzeile direkt auf
-            // der Kulisse sitzen - dort muss die Schrift immer lesbar bleiben.
-            var bandTop = new VisualElement { name = "band-top" };
-            bandTop.style.position = Position.Absolute;
-            bandTop.style.left = 0f; bandTop.style.right = 0f; bandTop.style.top = 0f;
-            bandTop.style.height = 150f;
-            var bt = UiTheme.Bg; bt.a = 0.62f;
-            bandTop.style.backgroundColor = bt;
-            bandTop.pickingMode = PickingMode.Ignore;
+            // Weiche dunkle Baender oben und unten (zusaetzlich zur PostFx-Vignette),
+            // damit Kopf- und Fusszeile immer satt lesbar bleiben.
+            var bandTop = Band(fromTop: true);
+            bandTop.name = "band-top";
+            bandTop.style.top = 0f; bandTop.style.height = 190f;
             root.Add(bandTop);
 
-            var bandBottom = new VisualElement { name = "band-bottom" };
-            bandBottom.style.position = Position.Absolute;
-            bandBottom.style.left = 0f; bandBottom.style.right = 0f; bandBottom.style.bottom = 0f;
-            bandBottom.style.height = 74f;
-            bandBottom.style.backgroundColor = bt;
-            bandBottom.pickingMode = PickingMode.Ignore;
+            var bandBottom = Band(fromTop: false);
+            bandBottom.name = "band-bottom";
+            bandBottom.style.bottom = 0f; bandBottom.style.height = 92f;
             root.Add(bandBottom);
+
+            // Die ganze Oberflaeche in einer Ebene, die mit der Maus kippt.
+            _parallax = new VisualElement();
+            _parallax.style.flexGrow = 1f;
+            _parallax.style.flexDirection = FlexDirection.Column;
+            root.Add(_parallax);
 
             var header = BuildHeader();
             var hline = HLine();
             var body = BuildBody();
             var footer = BuildFooter();
-            root.Add(header);
-            root.Add(hline);
-            root.Add(body);
-            root.Add(footer);
+            _parallax.Add(header);
+            _parallax.Add(hline);
+            _parallax.Add(body);
+            _parallax.Add(footer);
 
             ShowPage(_page);
 
-            // Auftritt: Kopf, Linie, Inhalt, Fuß nacheinander von unten einblenden.
+            // Auftritt: Kopf, Linie, Inhalt, Fuss nacheinander von unten einblenden.
             FadeUp(header, 40);
-            FadeUp(hline, 100);
-            FadeUp(body, 150);
-            FadeUp(footer, 230);
+            FadeUp(hline, 110);
+            FadeUp(body, 170);
+            FadeUp(footer, 250);
+        }
+
+        /// <summary>Weiches dunkles Band aus vier Streifen mit abnehmender
+        /// Deckkraft - faket einen Verlauf, damit die Kante nicht hart abbricht.</summary>
+        static VisualElement Band(bool fromTop)
+        {
+            var wrap = new VisualElement();
+            wrap.style.position = Position.Absolute;
+            wrap.style.left = 0f; wrap.style.right = 0f;
+            wrap.style.flexDirection = FlexDirection.Column;
+            wrap.pickingMode = PickingMode.Ignore;
+
+            float[] a = fromTop
+                ? new[] { 0.70f, 0.50f, 0.28f, 0.10f }
+                : new[] { 0.10f, 0.28f, 0.50f, 0.70f };
+            for (int i = 0; i < a.Length; i++)
+            {
+                var s = new VisualElement();
+                s.style.flexGrow = 1f;
+                var c = UiTheme.Bg; c.a = a[i];
+                s.style.backgroundColor = c;
+                wrap.Add(s);
+            }
+            return wrap;
         }
 
         /// <summary>Feines Linienraster als Hintergrund-Deko. Bewegt wird es in Update().</summary>
@@ -228,38 +266,88 @@ namespace Infront
         {
             _grid = new VisualElement { name = "grid" };
             _grid.style.position = Position.Absolute;
-            _grid.style.left = 0f; _grid.style.top = 0f;
-            _grid.style.width = Length.Percent(140f);
-            _grid.style.height = Length.Percent(140f);
+            _grid.style.left = Length.Percent(-25f);
+            _grid.style.top = Length.Percent(-25f);
+            _grid.style.width = Length.Percent(150f);
+            _grid.style.height = Length.Percent(150f);
             _grid.pickingMode = PickingMode.Ignore;
 
-            var vCol = UiTheme.Ice;  vCol.a = 0.022f;
-            var hCol = UiTheme.Accent; hCol.a = 0.022f;
-            const int step = 64;
-            for (int x = 0; x < 46; x++)
+            var col = UiTheme.Ice; col.a = 0.02f;
+            const int step = 72;
+            for (int x = 0; x < 42; x++)
             {
                 var v = new VisualElement();
                 v.style.position = Position.Absolute;
                 v.style.left = x * step; v.style.top = 0f;
                 v.style.width = 1f; v.style.height = Length.Percent(100f);
-                v.style.backgroundColor = vCol;
+                v.style.backgroundColor = col;
                 _grid.Add(v);
             }
-            for (int y = 0; y < 34; y++)
+            for (int y = 0; y < 28; y++)
             {
                 var h = new VisualElement();
                 h.style.position = Position.Absolute;
                 h.style.top = y * step; h.style.left = 0f;
                 h.style.height = 1f; h.style.width = Length.Percent(100f);
-                h.style.backgroundColor = hCol;
+                h.style.backgroundColor = col;
                 _grid.Add(h);
             }
             return _grid;
         }
 
         // ------------------------------------------------------------------
-        //  Kleine Animations-Helfer (rein optisch)
+        //  Kleine Helfer
         // ------------------------------------------------------------------
+
+        /// <summary>Kurzer Klick-Ton ueber den AudioService. Still, wenn es den
+        /// Dienst nicht gibt (z.B. im Test) - dann passiert einfach nichts.</summary>
+        static void Click(SoundId id = SoundId.WaffeWechsel, float volume = 0.4f)
+        {
+            var a = AudioService.Instance;
+            if (a != null) a.Play2D(id, volume);
+        }
+
+        /// <summary>Dunkle, fast durchsichtige Flaeche mit zwei Eck-Winkeln statt
+        /// vollem Kasten - der Kino-Look fuer die Flaechen im Menue.</summary>
+        static void SoftPanel(VisualElement el, float fillAlpha, bool brackets = true)
+        {
+            UiTheme.Square(el);
+            el.style.backgroundColor = new Color(0.02f, 0.025f, 0.035f, fillAlpha);
+            if (brackets)
+            {
+                UiTheme.Border(el, 0f, UiTheme.Edge);
+                AddBracket(el, left: true, top: true);
+                AddBracket(el, left: false, top: false);
+            }
+            else
+            {
+                UiTheme.Border(el, 1f, UiTheme.Edge);
+            }
+        }
+
+        /// <summary>Ein L-foermiger Eck-Winkel in eine Flaeche.</summary>
+        static void AddBracket(VisualElement host, bool left, bool top, float len = 16f)
+        {
+            var c = UiTheme.Edge;
+
+            var h = new VisualElement();
+            h.style.position = Position.Absolute;
+            h.style.width = len; h.style.height = 2f;
+            h.style.backgroundColor = c;
+            h.pickingMode = PickingMode.Ignore;
+            if (left) h.style.left = 0f; else h.style.right = 0f;
+            if (top) h.style.top = 0f; else h.style.bottom = 0f;
+            host.Add(h);
+
+            var v = new VisualElement();
+            v.style.position = Position.Absolute;
+            v.style.width = 2f; v.style.height = len;
+            v.style.backgroundColor = c;
+            v.pickingMode = PickingMode.Ignore;
+            if (left) v.style.left = 0f; else v.style.right = 0f;
+            if (top) v.style.top = 0f; else v.style.bottom = 0f;
+            host.Add(v);
+        }
 
         /// <summary>Blendet ein Element sanft von unten ein.</summary>
         static void FadeUp(VisualElement el, int delayMs, float fromY = 16f)
@@ -277,7 +365,7 @@ namespace Infront
             }).StartingIn(delayMs);
         }
 
-        /// <summary>Zählt eine Zahl von 0 auf den Zielwert hoch.</summary>
+        /// <summary>Zaehlt eine Zahl von 0 auf den Zielwert hoch.</summary>
         static void CountUp(Label label, int target, int durationMs = 650)
         {
             if (target <= 0) { label.text = "0"; return; }
@@ -292,7 +380,7 @@ namespace Infront
             }).Every(stepMs).ForDuration(stepMs * steps + 40);
         }
 
-        /// <summary>Lässt einen dünnen Balken einmal von 0 auf volle Breite wachsen.</summary>
+        /// <summary>Laesst einen duennen Balken einmal von 0 auf volle Breite wachsen.</summary>
         static void GrowBar(VisualElement bar, int delayMs, int durationMs = 500)
         {
             bar.style.width = Length.Percent(0f);
@@ -306,98 +394,65 @@ namespace Infront
             }).StartingIn(delayMs);
         }
 
+        // ------------------------------------------------------------------
+        //  Kopfzeile
+        // ------------------------------------------------------------------
+
         VisualElement BuildHeader()
         {
             var header = new VisualElement();
             header.style.flexDirection = FlexDirection.Row;
-            header.style.alignItems = Align.Center;
+            header.style.alignItems = Align.FlexEnd;
             header.style.justifyContent = Justify.SpaceBetween;
-            header.style.paddingLeft = 48f; header.style.paddingRight = 48f;
-            header.style.paddingTop = 26f; header.style.paddingBottom = 16f;
+            header.style.paddingLeft = 72f; header.style.paddingRight = 72f;
+            header.style.paddingTop = 32f; header.style.paddingBottom = 12f;
 
             var brand = new VisualElement();
             brand.style.flexDirection = FlexDirection.Row;
-            brand.style.alignItems = Align.Center;
+            brand.style.alignItems = Align.FlexEnd;
 
             var tick = new VisualElement();
-            tick.style.width = 6f; tick.style.height = 34f;
+            tick.style.width = 8f; tick.style.height = 60f;
             tick.style.backgroundColor = UiTheme.Accent;
-            tick.style.marginRight = 14f;
+            tick.style.marginRight = 18f;
+            tick.style.marginBottom = 8f;
 
-            // Wortmarke mit zwei farbigen Geister-Bildern für den Glitch.
-            var titleWrap = new VisualElement();
-            titleWrap.style.position = Position.Relative;
+            var titleCol = new VisualElement();
 
-            Label MakeTitle(Color c)
-            {
-                var t = new Label("INFRONT");
-                t.style.color = c;
-                t.style.fontSize = 34f;
-                t.style.unityFontStyleAndWeight = FontStyle.Bold;
-                t.style.letterSpacing = 8f;
-                return t;
-            }
-
-            var ghostIce = MakeTitle(UiTheme.Ice);
-            ghostIce.style.position = Position.Absolute;
-            ghostIce.style.left = 0f; ghostIce.style.top = 0f;
-            ghostIce.style.opacity = 0f;
-            var ghostAcc = MakeTitle(UiTheme.Accent);
-            ghostAcc.style.position = Position.Absolute;
-            ghostAcc.style.left = 0f; ghostAcc.style.top = 0f;
-            ghostAcc.style.opacity = 0f;
-
-            var title = MakeTitle(UiTheme.Text);
+            var title = new Label("INFRONT");
+            title.style.color = UiTheme.Text;
+            title.style.fontSize = 60f;
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
             // Buchstaben laufen beim Auftritt von weit auf den Sollabstand zusammen.
-            title.style.letterSpacing = 22f;
+            title.style.letterSpacing = 34f;
             title.schedule.Execute(() =>
             {
                 title.style.transitionProperty = new List<StylePropertyName> { "letter-spacing" };
-                title.style.transitionDuration = new List<TimeValue> { new TimeValue(600, TimeUnit.Millisecond) };
+                title.style.transitionDuration = new List<TimeValue> { new TimeValue(650, TimeUnit.Millisecond) };
                 title.style.transitionTimingFunction =
                     new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
-                title.style.letterSpacing = 8f;
-            }).StartingIn(140);
+                title.style.letterSpacing = 14f;
+            }).StartingIn(120);
 
-            titleWrap.Add(ghostIce);
-            titleWrap.Add(ghostAcc);
-            titleWrap.Add(title);
+            var tagline = new Label("TAKTIK-SHOOTER   ·   RUNDENBASIERT   ·   HOST-MODUS");
+            tagline.style.color = UiTheme.TextDim;
+            tagline.style.fontSize = 11f;
+            tagline.style.letterSpacing = 5f;
+            tagline.style.unityFontStyleAndWeight = FontStyle.Bold;
+            tagline.style.marginTop = 4f;
+            tagline.style.marginLeft = 3f;
 
-            // Kurzer Versatz mit farbigen Geister-Bildern, alle ~9 Sekunden.
-            void RunGlitch()
-            {
-                ghostIce.style.opacity = 0.55f;
-                ghostIce.style.translate = new Translate(-4f, -1f, 0f);
-                ghostAcc.style.opacity = 0.5f;
-                ghostAcc.style.translate = new Translate(4f, 1f, 0f);
-                titleWrap.schedule.Execute(() =>
-                {
-                    ghostIce.style.opacity = 0f;
-                    ghostIce.style.translate = new Translate(0f, 0f, 0f);
-                    ghostAcc.style.opacity = 0f;
-                    ghostAcc.style.translate = new Translate(0f, 0f, 0f);
-                }).StartingIn(90);
-            }
-            titleWrap.schedule.Execute(RunGlitch).Every(9000).StartingIn(4200);
-
-            // schmaler Puls am Marken-Balken
-            bool tickBright = false;
-            tick.style.transitionProperty = new List<StylePropertyName> { "background-color" };
-            tick.style.transitionDuration = new List<TimeValue> { new TimeValue(1400, TimeUnit.Millisecond) };
-            tick.schedule.Execute(() =>
-            {
-                tickBright = !tickBright;
-                tick.style.backgroundColor = tickBright ? UiTheme.AccentBright : UiTheme.Accent;
-            }).Every(1400);
-
+            titleCol.Add(title);
+            titleCol.Add(tagline);
             brand.Add(tick);
-            brand.Add(titleWrap);
+            brand.Add(titleCol);
 
             var version = new Label("DRIFTLAB   ·   " + VersionText());
             version.style.color = UiTheme.TextDim;
             version.style.fontSize = 12f;
             version.style.letterSpacing = 2f;
             version.style.unityFontStyleAndWeight = FontStyle.Bold;
+            version.style.marginBottom = 6f;
 
             header.Add(brand);
             header.Add(version);
@@ -416,10 +471,10 @@ namespace Infront
         VisualElement BuildCareer()
         {
             var box = new VisualElement();
-            box.style.marginTop = 30f;
-            UiTheme.Border(box, 1f, UiTheme.Edge);
-            UiTheme.Pad(box, 14f);
-            box.style.backgroundColor = UiTheme.Glass;
+            box.style.marginTop = 26f;
+            box.style.paddingLeft = 14f; box.style.paddingRight = 14f;
+            box.style.paddingTop = 12f; box.style.paddingBottom = 12f;
+            SoftPanel(box, 0.30f);
 
             box.Add(UiTheme.Section("LAUFBAHN"));
 
@@ -450,7 +505,6 @@ namespace Infront
                 var b = new Label("0");
                 b.style.color = UiTheme.Ice; b.style.fontSize = 13f;
                 b.style.unityFontStyleAndWeight = FontStyle.Bold;
-                // dünner Balken unter der Zahl, wächst beim Auftritt einmal auf
                 var bar = new VisualElement();
                 bar.style.height = 2f;
                 bar.style.width = Length.Percent(0f);
@@ -474,37 +528,24 @@ namespace Infront
             return box;
         }
 
+        /// <summary>Duenne Trennlinie unter der Kopfzeile mit einem festen
+        /// orangefarbenen Anschnitt links - kein wanderndes Licht mehr.</summary>
         VisualElement HLine()
         {
-            var l = new VisualElement();
-            l.style.height = 1f;
-            l.style.backgroundColor = UiTheme.Line;
-            l.style.flexShrink = 0f;
-            l.style.overflow = Overflow.Hidden;
+            var wrap = new VisualElement();
+            wrap.style.height = 1f;
+            wrap.style.backgroundColor = UiTheme.Line;
+            wrap.style.flexShrink = 0f;
+            wrap.style.marginLeft = 72f; wrap.style.marginRight = 72f;
 
-            // Leuchtender Streifen, der langsam hin und her wandert - Farbe wechselt mit.
-            var blip = new VisualElement();
-            blip.style.position = Position.Absolute;
-            blip.style.top = 0f;
-            blip.style.height = 1f;
-            blip.style.width = 130f;
-            blip.style.backgroundColor = UiTheme.Accent;
-            blip.style.left = Length.Percent(-12f);
-            l.Add(blip);
-
-            bool toRight = false;
-            l.schedule.Execute(() =>
-            {
-                toRight = !toRight;
-                blip.style.backgroundColor = toRight ? UiTheme.Ice : UiTheme.Accent;
-                blip.style.transitionProperty = new List<StylePropertyName> { "left" };
-                blip.style.transitionDuration = new List<TimeValue> { new TimeValue(3000, TimeUnit.Millisecond) };
-                blip.style.transitionTimingFunction =
-                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseInOutSine) };
-                blip.style.left = Length.Percent(toRight ? 100f : -12f);
-            }).Every(3000).StartingIn(400);
-
-            return l;
+            var seg = new VisualElement();
+            seg.style.position = Position.Absolute;
+            seg.style.left = 0f; seg.style.top = 0f;
+            seg.style.height = 1f; seg.style.width = 72f;
+            seg.style.backgroundColor = UiTheme.Accent;
+            seg.pickingMode = PickingMode.Ignore;
+            wrap.Add(seg);
+            return wrap;
         }
 
         VisualElement BuildBody()
@@ -512,17 +553,15 @@ namespace Infront
             var body = new VisualElement();
             body.style.flexDirection = FlexDirection.Row;
             body.style.flexGrow = 1f;
-            // Navigation und Panel auf die volle Höhe strecken, damit das Menü
-            // den Bildschirm füllt statt oben links zu kleben.
             body.style.alignItems = Align.Stretch;
             body.style.paddingLeft = 72f; body.style.paddingRight = 72f;
-            body.style.paddingTop = 34f; body.style.paddingBottom = 24f;
+            body.style.paddingTop = 30f; body.style.paddingBottom = 22f;
 
-            // ---- Navigation links (füllt die ganze Spaltenhöhe) ----
+            // ---- Navigation links ----
             var nav = new VisualElement();
-            nav.style.width = 260f;
+            nav.style.width = 264f;
             nav.style.flexShrink = 0f;
-            nav.style.marginRight = 40f;
+            nav.style.marginRight = 44f;
             nav.Add(NavButton("SPIELEN", Page.Spielen));
             nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
             nav.Add(NavButton("STEUERUNG", Page.Steuerung));
@@ -536,7 +575,6 @@ namespace Infront
             nav.Add(NavButton("Beenden", Page.Beenden, minor: true));
             nav.Add(BuildCareer());
 
-            // schiebt Tipp + Status an die Unterkante
             var navSpacer = new VisualElement();
             navSpacer.style.flexGrow = 1f;
             nav.Add(navSpacer);
@@ -545,29 +583,23 @@ namespace Infront
             nav.Add(BuildStatusLine());
             body.Add(nav);
 
-            // ---- Inhalt rechts (Glas-Kasten mit Akzent-Ecke) ----
+            // ---- Inhalt rechts (Hauptflaeche) ----
             var panel = new VisualElement();
             panel.style.flexGrow = 1f;
-            panel.style.overflow = Overflow.Hidden;   // für Scan-Streifen und Kantenlinie
-            panel.style.backgroundColor = UiTheme.Glass;
-            UiTheme.Border(panel, 1f, UiTheme.Edge);
-            UiTheme.Pad(panel, 34f);
+            panel.style.overflow = Overflow.Hidden;   // fuer Kantenlinie und Auftritt
+            panel.style.paddingLeft = 36f; panel.style.paddingRight = 36f;
+            panel.style.paddingTop = 32f; panel.style.paddingBottom = 30f;
+            // Hauptflaeche: etwas deckender + ein Hauch Rand, damit die Schrift
+            // auch ueber hellen Stellen der Kulisse sicher lesbar bleibt.
+            SoftPanel(panel, 0.62f, brackets: false);
 
-            // Glanz oben auf dem Glas (fake Verlauf: heller Streifen, der oben aufliegt).
-            var sheen = new VisualElement();
-            sheen.style.position = Position.Absolute;
-            sheen.style.left = 0f; sheen.style.right = 0f; sheen.style.top = 0f;
-            sheen.style.height = 140f;
-            sheen.style.backgroundColor = UiTheme.Sheen;
-            sheen.pickingMode = PickingMode.Ignore;
-            panel.Add(sheen);
-
-            // Echte L-Ecke oben links - fährt beim Auftritt kurz aus.
+            // Grosse animierte L-Ecke oben links - ein gezielter Auftritt-Effekt.
             var cornerH = new VisualElement();
             cornerH.style.position = Position.Absolute;
             cornerH.style.left = -1f; cornerH.style.top = -1f;
             cornerH.style.width = 0f; cornerH.style.height = 3f;
             cornerH.style.backgroundColor = UiTheme.Accent;
+            cornerH.pickingMode = PickingMode.Ignore;
             panel.Add(cornerH);
 
             var cornerV = new VisualElement();
@@ -575,23 +607,24 @@ namespace Infront
             cornerV.style.left = -1f; cornerV.style.top = -1f;
             cornerV.style.width = 3f; cornerV.style.height = 0f;
             cornerV.style.backgroundColor = UiTheme.Accent;
+            cornerV.pickingMode = PickingMode.Ignore;
             panel.Add(cornerV);
 
             cornerH.schedule.Execute(() =>
             {
                 cornerH.style.transitionProperty = new List<StylePropertyName> { "width" };
-                cornerH.style.transitionDuration = new List<TimeValue> { new TimeValue(420, TimeUnit.Millisecond) };
+                cornerH.style.transitionDuration = new List<TimeValue> { new TimeValue(430, TimeUnit.Millisecond) };
                 cornerH.style.transitionTimingFunction =
                     new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
-                cornerH.style.width = 54f;
+                cornerH.style.width = 60f;
                 cornerV.style.transitionProperty = new List<StylePropertyName> { "height" };
-                cornerV.style.transitionDuration = new List<TimeValue> { new TimeValue(420, TimeUnit.Millisecond) };
+                cornerV.style.transitionDuration = new List<TimeValue> { new TimeValue(430, TimeUnit.Millisecond) };
                 cornerV.style.transitionTimingFunction =
                     new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
-                cornerV.style.height = 54f;
-            }).StartingIn(320);
+                cornerV.style.height = 60f;
+            }).StartingIn(340);
 
-            // Akzent-Linie, die bei jedem Seitenwechsel über die Oberkante fährt.
+            // Akzent-Linie, die bei jedem Seitenwechsel ueber die Oberkante faehrt.
             _pageEdge = new VisualElement();
             _pageEdge.style.position = Position.Absolute;
             _pageEdge.style.left = 0f; _pageEdge.style.top = -1f;
@@ -600,27 +633,6 @@ namespace Infront
             _pageEdge.style.backgroundColor = UiTheme.Ice;
             _pageEdge.pickingMode = PickingMode.Ignore;
             panel.Add(_pageEdge);
-
-            // Feiner Scan-Streifen, der langsam über das Panel nach unten wandert.
-            var scan = new VisualElement();
-            scan.style.position = Position.Absolute;
-            scan.style.left = 0f; scan.style.right = 0f;
-            scan.style.height = 2f;
-            scan.style.top = Length.Percent(-4f);
-            var scanCol = UiTheme.Ice; scanCol.a = 0.14f;
-            scan.style.backgroundColor = scanCol;
-            scan.pickingMode = PickingMode.Ignore;
-            panel.Add(scan);
-            bool scanDown = false;
-            panel.schedule.Execute(() =>
-            {
-                scanDown = !scanDown;
-                scan.style.transitionProperty = new List<StylePropertyName> { "top" };
-                scan.style.transitionDuration = new List<TimeValue> { new TimeValue(4200, TimeUnit.Millisecond) };
-                scan.style.transitionTimingFunction =
-                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseInOutSine) };
-                scan.style.top = Length.Percent(scanDown ? 104f : -4f);
-            }).Every(4200).StartingIn(600);
 
             _pageHost = new VisualElement();
             _pageHost.style.flexGrow = 1f;
@@ -635,8 +647,9 @@ namespace Infront
         {
             var box = new VisualElement();
             box.style.marginTop = 12f;
-            box.style.backgroundColor = UiTheme.GlassDeep;
-            UiTheme.Border(box, 1f, UiTheme.Edge);
+            box.style.backgroundColor = new Color(0.02f, 0.025f, 0.035f, 0.34f);
+            UiTheme.Square(box);
+            UiTheme.Border(box, 0f, UiTheme.Edge);
             box.style.borderLeftWidth = 3f;
             box.style.borderLeftColor = UiTheme.Ice;
             UiTheme.Pad(box, 12f);
@@ -667,12 +680,12 @@ namespace Infront
                     text.text = Tips[idx];
                     text.style.opacity = 1f;
                 }).StartingIn(300);
-            }).Every(6500).StartingIn(6500);
+            }).Every(9000).StartingIn(9000);
 
             return box;
         }
 
-        /// <summary>Status-Zeile ganz unten in der Navigation, mit blinkendem Punkt.</summary>
+        /// <summary>Status-Zeile ganz unten in der Navigation, mit ruhig blinkendem Punkt.</summary>
         VisualElement BuildStatusLine()
         {
             var row = new VisualElement();
@@ -685,9 +698,9 @@ namespace Infront
             dot.style.backgroundColor = UiTheme.Ice;
             dot.style.marginRight = 8f;
             dot.style.transitionProperty = new List<StylePropertyName> { "opacity" };
-            dot.style.transitionDuration = new List<TimeValue> { new TimeValue(700, TimeUnit.Millisecond) };
+            dot.style.transitionDuration = new List<TimeValue> { new TimeValue(900, TimeUnit.Millisecond) };
             bool on = true;
-            dot.schedule.Execute(() => { on = !on; dot.style.opacity = on ? 1f : 0.15f; }).Every(900);
+            dot.schedule.Execute(() => { on = !on; dot.style.opacity = on ? 1f : 0.3f; }).Every(1400);
 
             var label = new Label("SYSTEM BEREIT   ·   HOST");
             label.style.color = UiTheme.TextDim;
@@ -705,7 +718,7 @@ namespace Infront
             var footer = new VisualElement();
             footer.style.flexDirection = FlexDirection.Row;
             footer.style.justifyContent = Justify.SpaceBetween;
-            footer.style.paddingLeft = 48f; footer.style.paddingRight = 48f;
+            footer.style.paddingLeft = 72f; footer.style.paddingRight = 72f;
             footer.style.paddingBottom = 18f;
 
             var left = new Label("F10  –  ALTES MENUE");
@@ -729,7 +742,7 @@ namespace Infront
 
         Button NavButton(string text, Page page, bool minor = false)
         {
-            var b = new Button(() => ShowPage(page)) { text = text };
+            var b = new Button(() => { Click(); ShowPage(page); }) { text = text };
             b.name = "nav-" + page.ToString().ToLowerInvariant();
             b.style.height = minor ? 38f : 46f;
             b.style.marginTop = 0f; b.style.marginBottom = 8f;
@@ -747,7 +760,7 @@ namespace Infront
             b.style.transitionProperty = new List<StylePropertyName> { "background-color", "translate" };
             b.style.transitionDuration = new List<TimeValue> { new TimeValue(120, TimeUnit.Millisecond) };
 
-            // Akzent-Balken links, wächst beim Drüberfahren von oben nach unten rein.
+            // Akzent-Balken links, waechst beim Drueberfahren von oben herein.
             var growBar = new VisualElement();
             growBar.style.position = Position.Absolute;
             growBar.style.left = 0f; growBar.style.top = 0f;
@@ -773,9 +786,9 @@ namespace Infront
             });
             b.RegisterCallback<MouseLeaveEvent>(_ =>
             {
-                if (_page != page) growBar.style.height = Length.Percent(0f);
                 if (_page != page)
                 {
+                    growBar.style.height = Length.Percent(0f);
                     b.style.backgroundColor = UiTheme.Glass;
                     b.style.translate = new Translate(0f, 0f, 0f);
                 }
@@ -810,13 +823,12 @@ namespace Infront
             _summary = null;
             _lineup = null;
             _briefLine = null;
-            _radar = null;
 
             // Andere Seiten nicht endlos breit ziehen; SPIELEN darf die volle Breite.
             if (page == Page.Spielen) _pageHost.style.maxWidth = StyleKeyword.None;
             else _pageHost.style.maxWidth = 720f;
 
-            // Akzent-Linie einmal über die Panel-Oberkante ziehen.
+            // Akzent-Linie einmal ueber die Panel-Oberkante ziehen.
             if (_pageEdge != null)
             {
                 _pageEdge.style.transitionProperty = new List<StylePropertyName>();
@@ -846,8 +858,7 @@ namespace Infront
             StaggerIn(_pageHost);
         }
 
-        /// <summary>Blendet die Kinder eines Elements nacheinander von rechts ein -
-        /// gibt dem Menue einen weicheren Auftritt statt hartem Umschalten.</summary>
+        /// <summary>Blendet die Kinder eines Elements nacheinander von rechts ein.</summary>
         static void StaggerIn(VisualElement host)
         {
             int i = 0;
@@ -871,14 +882,15 @@ namespace Infront
         }
 
         // ------------------------------------------------------------------
-        //  Seite: SPIELEN  (Runde links, Briefing rechts)
+        //  Seite: SPIELEN  (Entscheidungen links, Aufstellung rechts, Startbalken unten)
         // ------------------------------------------------------------------
 
         void BuildSpielen(VisualElement host)
         {
             host.style.flexGrow = 1f;
+            host.style.flexDirection = FlexDirection.Column;
 
-            // Obere Zeile: links die Entscheidungen, rechts das Briefing.
+            // Obere Zeile: links die Entscheidungen, rechts die Aufstellung.
             var top = new VisualElement();
             top.style.flexDirection = FlexDirection.Row;
             top.style.flexGrow = 1f;
@@ -886,14 +898,14 @@ namespace Infront
             var left = new VisualElement();
             left.style.flexGrow = 1f;
             left.style.flexBasis = 0f;
-            left.style.marginRight = 34f;
+            left.style.marginRight = 30f;
 
-            // --- Spielmodus: zwei Karten mit erklaerender Zeile ---
-            left.Add(UiTheme.Section("SPIELMODUS"));
+            // --- Einsatzart: zwei grosse Karten ---
+            left.Add(UiTheme.Section("EINSATZART"));
 
             var modeRow = new VisualElement();
             modeRow.style.flexDirection = FlexDirection.Row;
-            modeRow.style.marginTop = 6f;
+            modeRow.style.marginTop = 8f;
 
             var modeCards = new List<Button>();
             int modeCurrent = (int)GameSettings.GameMode;
@@ -924,29 +936,31 @@ namespace Infront
 
             Button MakeModeCard(int idx, string title, string desc)
             {
-                var card = new Button(() => PickMode(idx));
+                var card = new Button(() => { Click(); PickMode(idx); });
                 card.name = "seg-modus-" + idx;
                 card.style.flexGrow = 1f;
                 card.style.flexBasis = 0f;
+                card.style.minHeight = 116f;
                 card.style.flexDirection = FlexDirection.Column;
                 card.style.alignItems = Align.FlexStart;
                 card.style.justifyContent = Justify.FlexStart;
                 card.style.unityTextAlign = TextAnchor.UpperLeft;
-                UiTheme.Pad(card, 16f);
+                card.style.paddingLeft = 18f; card.style.paddingRight = 18f;
+                card.style.paddingTop = 16f; card.style.paddingBottom = 16f;
                 UiTheme.Square(card);
                 UiTheme.Margin(card, 0f);
-                if (idx > 0) card.style.marginLeft = 12f;
+                if (idx > 0) card.style.marginLeft = 14f;
 
                 var t = new Label(title);
                 t.style.color = UiTheme.Text;
-                t.style.fontSize = 15f;
-                t.style.letterSpacing = 2f;
+                t.style.fontSize = 17f;
+                t.style.letterSpacing = 3f;
                 t.style.unityFontStyleAndWeight = FontStyle.Bold;
 
                 var d = new Label(desc);
                 d.style.color = UiTheme.TextDim;
                 d.style.fontSize = 12f;
-                d.style.marginTop = 6f;
+                d.style.marginTop = 8f;
                 d.style.whiteSpace = WhiteSpace.Normal;
                 d.style.width = Length.Percent(100f);
                 d.style.unityTextAlign = TextAnchor.UpperLeft;
@@ -967,14 +981,14 @@ namespace Infront
             }
 
             modeRow.Add(MakeModeCard(0, "AUSSCHEIDEN",
-                "Schaltet das gegnerische Team komplett aus, dann ist die Runde gewonnen."));
+                "Schalte das gegnerische Team komplett aus, dann ist die Runde gewonnen."));
             modeRow.Add(MakeModeCard(1, "BOMBE",
-                "Ein Team legt die Bombe, das andere entschärft sie oder verhindert das Legen."));
+                "Lege die Bombe und halte sie - oder verhindere das Legen und entschaerfe."));
             left.Add(modeRow);
             PaintModes();
 
             // --- Teamgroesse + Bot-Staerke nebeneinander ---
-            left.Add(UiTheme.Gap(22f));
+            left.Add(UiTheme.Gap(24f));
 
             var twoCol = new VisualElement();
             twoCol.style.flexDirection = FlexDirection.Row;
@@ -1012,8 +1026,8 @@ namespace Infront
             top.Add(BuildBriefing());
             host.Add(top);
 
-            // --- Trennlinie + Zusammenfassung: hier hoeren die Einstellungen auf ---
-            host.Add(UiTheme.Gap(20f));
+            // --- Trennlinie + Zusammenfassung ---
+            host.Add(UiTheme.Gap(18f));
 
             var line = new VisualElement();
             line.style.height = 1f;
@@ -1025,17 +1039,19 @@ namespace Infront
             _summary.style.fontSize = 12f;
             _summary.style.letterSpacing = 2f;
             _summary.style.marginTop = 12f;
-            _summary.style.marginBottom = 14f;
+            _summary.style.marginBottom = 4f;
             _summary.style.unityFontStyleAndWeight = FontStyle.Bold;
             host.Add(_summary);
             RefreshSummary();
 
-            // --- Startknopf: die einzige orange Flaeche im Menue ---
-            var start = new Button(StartRound) { text = "▶   RUNDE STARTEN" };
+            // --- Breiter Startbalken unten: die einzige orange Flaeche im Menue ---
+            var start = new Button(() => { Click(SoundId.RundeStart, 0.6f); StartRound(); })
+                { text = "▶   RUNDE STARTEN" };
             start.name = "btn-start";
-            start.style.height = 54f;
-            start.style.fontSize = 17f;
-            start.style.letterSpacing = 4f;
+            start.style.height = 62f;
+            start.style.marginTop = 14f;
+            start.style.fontSize = 18f;
+            start.style.letterSpacing = 6f;
             start.style.color = Color.black;
             start.style.backgroundColor = UiTheme.Accent;
             start.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -1043,15 +1059,16 @@ namespace Infront
             UiTheme.Square(start);
             UiTheme.Border(start, 0f, UiTheme.Accent);
             UiTheme.Margin(start, 0f);
+            start.style.marginTop = 14f;
             start.RegisterCallback<MouseEnterEvent>(_ => start.style.backgroundColor = UiTheme.AccentBright);
             start.RegisterCallback<MouseLeaveEvent>(_ => start.style.backgroundColor = UiTheme.Accent);
             _actions["btn-start"] = StartRound;
 
-            // Glanz-Streifen, der schräg über den Knopf wischt.
+            // Der eine Hero-Effekt: ein Licht-Wisch schraeg ueber den Knopf.
             var shine = new VisualElement();
             shine.style.position = Position.Absolute;
-            shine.style.top = -20f; shine.style.width = 60f; shine.style.height = 120f;
-            shine.style.backgroundColor = new Color(1f, 1f, 1f, 0.22f);
+            shine.style.top = -20f; shine.style.width = 70f; shine.style.height = 150f;
+            shine.style.backgroundColor = new Color(1f, 1f, 1f, 0.20f);
             shine.style.rotate = new Rotate(new Angle(18f, AngleUnit.Degree));
             shine.style.left = Length.Percent(-20f);
             shine.pickingMode = PickingMode.Ignore;
@@ -1063,7 +1080,7 @@ namespace Infront
                 if (shineRight)
                 {
                     shine.style.transitionProperty = new List<StylePropertyName> { "left" };
-                    shine.style.transitionDuration = new List<TimeValue> { new TimeValue(700, TimeUnit.Millisecond) };
+                    shine.style.transitionDuration = new List<TimeValue> { new TimeValue(720, TimeUnit.Millisecond) };
                     shine.style.transitionTimingFunction =
                         new List<EasingFunction> { new EasingFunction(EasingMode.EaseInOutSine) };
                     shine.style.left = Length.Percent(120f);
@@ -1073,24 +1090,9 @@ namespace Infront
                     shine.style.transitionProperty = new List<StylePropertyName>();
                     shine.style.left = Length.Percent(-20f);
                 }
-            }).Every(1600).StartingIn(1600);
+            }).Every(2600).StartingIn(2600);
 
             host.Add(start);
-
-            // Der Startknopf „atmet" ruhig - zieht das Auge ohne zu blinken.
-            start.style.transformOrigin = new TransformOrigin(Length.Percent(50f), Length.Percent(50f), 0f);
-            start.style.transitionProperty = new List<StylePropertyName> { "scale", "background-color" };
-            start.style.transitionDuration = new List<TimeValue>
-                { new TimeValue(1200, TimeUnit.Millisecond), new TimeValue(120, TimeUnit.Millisecond) };
-            start.style.transitionTimingFunction = new List<EasingFunction>
-                { new EasingFunction(EasingMode.EaseInOut), new EasingFunction(EasingMode.EaseOutCubic) };
-            bool grew = false;
-            start.schedule.Execute(() =>
-            {
-                grew = !grew;
-                float s = grew ? 1.02f : 1f;
-                start.style.scale = new Scale(new Vector3(s, s, 1f));
-            }).Every(1200);
         }
 
         // ------------------------------------------------------------------
@@ -1100,89 +1102,21 @@ namespace Infront
         VisualElement BuildBriefing()
         {
             var card = new VisualElement();
-            card.style.width = 320f;
+            card.style.width = 300f;
             card.style.flexShrink = 0f;
             card.style.flexDirection = FlexDirection.Column;
-            card.style.backgroundColor = UiTheme.GlassDeep;
-            UiTheme.Border(card, 1f, UiTheme.Edge);
-            UiTheme.Pad(card, 16f);
+            card.style.paddingLeft = 18f; card.style.paddingRight = 18f;
+            card.style.paddingTop = 16f; card.style.paddingBottom = 16f;
+            SoftPanel(card, 0.34f);
 
-            card.Add(UiTheme.Section("BRIEFING"));
-
-            // --- Mini-Karte ---
-            var map = new VisualElement();
-            map.style.height = 180f;
-            map.style.marginTop = 6f;
-            map.style.backgroundColor = new Color(0.02f, 0.03f, 0.04f, 0.9f);
-            UiTheme.Border(map, 1f, UiTheme.Edge);
-            map.style.overflow = Overflow.Hidden;
-
-            // Spielfeld-Rahmen
-            var field = new VisualElement();
-            field.style.position = Position.Absolute;
-            field.style.left = 18f; field.style.right = 18f; field.style.top = 14f; field.style.bottom = 14f;
-            var fCol = UiTheme.Ice; fCol.a = 0.25f;
-            UiTheme.Border(field, 1f, fCol);
-            map.Add(field);
-
-            // Mittellinie
-            var mid = new VisualElement();
-            mid.style.position = Position.Absolute;
-            mid.style.left = 18f; mid.style.right = 18f;
-            mid.style.top = Length.Percent(50f);
-            mid.style.height = 1f;
-            var mCol = UiTheme.Line; mCol.a = 0.8f;
-            mid.style.backgroundColor = mCol;
-            map.Add(mid);
-
-            // zwei Deckungs-Blöcke
-            AddMapBlock(map, Length.Percent(30f), Length.Percent(36f), 46f, 14f);
-            AddMapBlock(map, Length.Percent(58f), Length.Percent(52f), 34f, 16f);
-
-            // Bombenplätze A und B
-            AddSite(map, "A", Length.Percent(24f), Length.Percent(22f));
-            AddSite(map, "B", Length.Percent(66f), Length.Percent(24f));
-
-            // Radar-Zeiger, dreht in Update()
-            _radar = new VisualElement();
-            _radar.style.position = Position.Absolute;
-            _radar.style.left = Length.Percent(50f);
-            _radar.style.top = Length.Percent(50f);
-            _radar.style.width = 2f;
-            _radar.style.height = 66f;
-            _radar.style.transformOrigin = new TransformOrigin(Length.Percent(50f), 0f, 0f);
-            var rCol = UiTheme.Ice; rCol.a = 0.55f;
-            _radar.style.backgroundColor = rCol;
-            _radar.pickingMode = PickingMode.Ignore;
-            map.Add(_radar);
-
-            var center = new VisualElement();
-            center.style.position = Position.Absolute;
-            center.style.left = Length.Percent(50f); center.style.top = Length.Percent(50f);
-            center.style.width = 6f; center.style.height = 6f;
-            center.style.marginLeft = -3f; center.style.marginTop = -3f;
-            center.style.backgroundColor = UiTheme.Ice;
-            map.Add(center);
-
-            card.Add(map);
-
-            // --- Aufstellung: blaue Punkte gegen rote ---
-            card.Add(UiTheme.Gap(14f));
-            var lineHead = new Label("AUFSTELLUNG");
-            lineHead.style.color = UiTheme.TextDim;
-            lineHead.style.fontSize = 11f;
-            lineHead.style.letterSpacing = 3f;
-            lineHead.style.unityFontStyleAndWeight = FontStyle.Bold;
-            card.Add(lineHead);
+            card.Add(UiTheme.Section("AUFSTELLUNG"));
 
             _lineup = new VisualElement();
-            _lineup.style.flexDirection = FlexDirection.Row;
-            _lineup.style.alignItems = Align.Center;
+            _lineup.style.flexDirection = FlexDirection.Column;
             _lineup.style.marginTop = 8f;
             card.Add(_lineup);
 
-            // --- Modus-/Bot-Zeile ---
-            card.Add(UiTheme.Gap(14f));
+            card.Add(UiTheme.Gap(12f));
             _briefLine = new Label();
             _briefLine.style.color = UiTheme.Ice;
             _briefLine.style.fontSize = 12f;
@@ -1195,7 +1129,7 @@ namespace Infront
             spacer.style.flexGrow = 1f;
             card.Add(spacer);
 
-            // kleine "Readout"-Zeilen ganz unten - reine Deko, füllt die Höhe
+            // kleine "Readout"-Zeilen ganz unten - reine Deko, fuellt die Hoehe
             card.Add(ReadoutRow("NETCODE", "HOST-AUTHORITATIV"));
             card.Add(ReadoutRow("TICKRATE", "64"));
             card.Add(ReadoutRow("REGION", "LOKAL"));
@@ -1219,43 +1153,59 @@ namespace Infront
             return r;
         }
 
-        static void AddMapBlock(VisualElement map, Length left, Length top, float w, float h)
+        static VisualElement RosterHead(string text, Color c)
         {
-            var block = new VisualElement();
-            block.style.position = Position.Absolute;
-            block.style.left = left; block.style.top = top;
-            block.style.width = w; block.style.height = h;
-            var c = UiTheme.Ice; c.a = 0.12f;
-            block.style.backgroundColor = c;
-            var e = UiTheme.Ice; e.a = 0.3f;
-            UiTheme.Border(block, 1f, e);
-            map.Add(block);
+            var l = new Label(text);
+            l.style.color = c;
+            l.style.fontSize = 10f;
+            l.style.letterSpacing = 3f;
+            l.style.unityFontStyleAndWeight = FontStyle.Bold;
+            l.style.marginTop = 6f;
+            l.style.marginBottom = 3f;
+            l.style.opacity = 0.85f;
+            return l;
         }
 
-        static void AddSite(VisualElement map, string name, Length left, Length top)
+        static VisualElement RosterRow(string name, Color accent, int order)
         {
-            var s = new VisualElement();
-            s.style.position = Position.Absolute;
-            s.style.left = left; s.style.top = top;
-            s.style.width = 18f; s.style.height = 18f;
-            s.style.alignItems = Align.Center;
-            s.style.justifyContent = Justify.Center;
-            var fill = UiTheme.Accent; fill.a = 0.16f;
-            s.style.backgroundColor = fill;
-            UiTheme.Border(s, 1f, UiTheme.Accent);
+            var r = new VisualElement();
+            r.style.flexDirection = FlexDirection.Row;
+            r.style.alignItems = Align.Center;
+            r.style.marginTop = 3f;
+            r.style.paddingLeft = 8f;
+            r.style.paddingTop = 3f; r.style.paddingBottom = 3f;
+            r.style.backgroundColor = new Color(1f, 1f, 1f, 0.03f);
+            r.style.borderLeftWidth = 2f;
+            r.style.borderLeftColor = accent;
+
+            var tag = new VisualElement();
+            tag.style.width = 5f; tag.style.height = 5f;
+            tag.style.backgroundColor = accent;
+            tag.style.marginRight = 8f;
 
             var l = new Label(name);
-            l.style.color = UiTheme.Accent;
-            l.style.fontSize = 10f;
+            l.style.color = UiTheme.Text;
+            l.style.fontSize = 12f;
+            l.style.letterSpacing = 1f;
             l.style.unityFontStyleAndWeight = FontStyle.Bold;
-            s.Add(l);
 
-            // sanftes Pulsieren
-            s.style.transitionProperty = new List<StylePropertyName> { "opacity" };
-            s.style.transitionDuration = new List<TimeValue> { new TimeValue(1100, TimeUnit.Millisecond) };
-            bool bright = false;
-            s.schedule.Execute(() => { bright = !bright; s.style.opacity = bright ? 1f : 0.45f; }).Every(1100);
-            map.Add(s);
+            r.Add(tag);
+            r.Add(l);
+
+            // gestaffelt einblenden
+            r.style.opacity = 0f;
+            r.style.translate = new Translate(10f, 0f, 0f);
+            r.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
+            r.style.transitionDuration = new List<TimeValue> { new TimeValue(200, TimeUnit.Millisecond) };
+            r.style.transitionTimingFunction =
+                new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
+            r.schedule.Execute(() =>
+            {
+                r.style.opacity = 1f;
+                r.style.translate = new Translate(0f, 0f, 0f);
+            }).StartingIn(30 + order * 30);
+
+            return r;
         }
 
         void RefreshBriefing()
@@ -1264,17 +1214,14 @@ namespace Infront
             {
                 _lineup.Clear();
                 int n = Mathf.Clamp(GameSettings.TeamSize, 1, 10);
-                for (int i = 0; i < n; i++) _lineup.Add(TeamDot(UiTheme.Ice, i));
 
-                var vs = new Label("VS");
-                vs.style.color = UiTheme.TextDim;
-                vs.style.fontSize = 11f;
-                vs.style.letterSpacing = 2f;
-                vs.style.unityFontStyleAndWeight = FontStyle.Bold;
-                vs.style.marginLeft = 8f; vs.style.marginRight = 8f;
-                _lineup.Add(vs);
+                _lineup.Add(RosterHead("DEIN TEAM", UiTheme.Ice));
+                for (int i = 0; i < n; i++)
+                    _lineup.Add(RosterRow(TeamNames[i % TeamNames.Length], UiTheme.Ice, i));
 
-                for (int i = 0; i < n; i++) _lineup.Add(TeamDot(UiTheme.Foe, n + i));
+                _lineup.Add(RosterHead("GEGNER", UiTheme.Foe));
+                for (int i = 0; i < n; i++)
+                    _lineup.Add(RosterRow(FoeNames[i % FoeNames.Length], UiTheme.Foe, n + i));
             }
 
             if (_briefLine != null)
@@ -1286,24 +1233,8 @@ namespace Infront
                     GameSettings.Level.Schwer => "SCHWER",
                     _ => "NORMAL"
                 };
-                _briefLine.text = mode + "\nBOTS: " + diff;
+                _briefLine.text = mode + "   ·   BOTS: " + diff;
             }
-        }
-
-        static VisualElement TeamDot(Color color, int index)
-        {
-            var d = new VisualElement();
-            d.style.width = 12f; d.style.height = 12f;
-            d.style.marginRight = 5f;
-            d.style.backgroundColor = color;
-            // poppt einzeln rein
-            d.style.scale = new Scale(new Vector3(0f, 0f, 1f));
-            d.style.transitionProperty = new List<StylePropertyName> { "scale" };
-            d.style.transitionDuration = new List<TimeValue> { new TimeValue(220, TimeUnit.Millisecond) };
-            d.style.transitionTimingFunction =
-                new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
-            d.schedule.Execute(() => d.style.scale = new Scale(Vector3.one)).StartingIn(40 + index * 35);
-            return d;
         }
 
         void RefreshSummary()
@@ -1340,7 +1271,7 @@ namespace Infront
                     bool changed = next != GameSettings.DisplayMode;
                     GameSettings.DisplayMode = next;
                     GameSettings.Save();
-                    // Nur bei echter Änderung umschalten - nicht beim ersten Zeichnen.
+                    // Nur bei echter Aenderung umschalten - nicht beim ersten Zeichnen.
                     if (changed) GraphicsBootstrap.ApplyDisplayMode();
                 }));
 
@@ -1363,7 +1294,8 @@ namespace Infront
                 }));
 
             var bildHint = new Label(
-                "Voll: mit Bloom, Vignette und Nebel. Schlicht: alles aus, falls es ruckelt oder streift.");
+                "Voll: mit Tiefenunschärfe, Bloom, Vignette und Nebel. "
+                + "Schlicht: alles aus, falls es ruckelt oder streift.");
             bildHint.style.color = UiTheme.TextDim;
             bildHint.style.fontSize = 11f;
             bildHint.style.marginTop = 6f;
@@ -1597,7 +1529,7 @@ namespace Infront
             for (int i = 0; i < labels.Length; i++)
             {
                 int idx = i;
-                var b = new Button(() => Pick(idx)) { text = labels[i] };
+                var b = new Button(() => { Click(); Pick(idx); }) { text = labels[i] };
                 b.name = name + "-" + i;
                 b.style.height = 42f;
                 b.style.flexGrow = 1f;

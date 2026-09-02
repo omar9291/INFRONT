@@ -1402,7 +1402,14 @@ namespace Infront.EditorTools
             menuCamData.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
             camGo.AddComponent<AudioListener>();
             camGo.AddComponent<MenuCameraRig>();
-            new GameObject("PostFx").AddComponent<PostFxController>();
+
+            // PostFx im Kino-Look: Tiefenunschaerfe hinter dem Menue + dunklere Raender.
+            var postFxGo = new GameObject("PostFx");
+            var postFx = postFxGo.AddComponent<PostFxController>();
+            var soPost = new SerializedObject(postFx);
+            var menuLookProp = soPost.FindProperty("_menuLook");
+            if (menuLookProp != null) menuLookProp.boolValue = true;
+            soPost.ApplyModifiedPropertiesWithoutUndo();
 
             // Altes IMGUI-Menue bleibt als Rueckfallebene im Baum (F10 schaltet um).
             new GameObject("MainMenu").AddComponent<MainMenu>();
@@ -1478,6 +1485,19 @@ namespace Infront.EditorTools
             Lamp(4f, 12f, 6.4f);
             Deco("BD_Mast", PrimitiveType.Cylinder, new Vector3(-12f, 5f, 12f),
                 new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
+
+            // Vordergrund-Silhouetten dicht vor der Kamera: fast schwarz, ohne
+            // Collider. Die Tiefenunschaerfe im PostFx laesst alles dahinter weich
+            // verschwimmen - diese Rahmen bleiben die naechste, klarste Ebene und
+            // geben dem Bild echte Tiefe. Absichtlich unter bzw. ueber der
+            // schwenkenden Kamera platziert, damit sie nie hindurchfaehrt.
+            var silCol = new Color(0.013f, 0.015f, 0.020f);
+            Deco("BD_Sil_Rail",  PrimitiveType.Cube, new Vector3(0f,   0.55f, -2.4f), new Vector3(30f,  1.5f, 0.35f), silCol);
+            Deco("BD_Sil_PostA", PrimitiveType.Cube, new Vector3(-4.2f, 1.1f, -2.4f), new Vector3(0.5f, 2.6f, 0.5f),  silCol);
+            Deco("BD_Sil_PostB", PrimitiveType.Cube, new Vector3(3.6f,  1.0f, -2.3f), new Vector3(0.5f, 2.4f, 0.5f),  silCol);
+            Deco("BD_Sil_PostC", PrimitiveType.Cube, new Vector3(-9.5f, 1.2f, -2.5f), new Vector3(0.55f, 3f,  0.55f), silCol);
+            Deco("BD_Sil_Beam",  PrimitiveType.Cube, new Vector3(-1f,   8.6f, -1.6f), new Vector3(26f,  0.6f, 0.6f),  silCol);
+            Deco("BD_Sil_Hang",  PrimitiveType.Cube, new Vector3(5f,    7.4f, -1.6f), new Vector3(0.4f, 2.6f, 0.4f),  silCol);
 
             // Warmes Innenlicht + ein rotes Flackerlicht für Stimmung
             PointLightAt("BD_Warm_1", new Vector3(-2f, 4.5f, 7f), new Color(1f, 0.68f, 0.4f), 20f, 12f);

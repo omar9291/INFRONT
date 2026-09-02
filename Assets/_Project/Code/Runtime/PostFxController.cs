@@ -15,10 +15,16 @@ namespace Infront
     ///  - Filmkorn
     ///  - Nebel in der Ferne (Tiefe, macht die Karte lesbar)
     ///
+    /// Ist <see cref="_menuLook"/> gesetzt (nur in der Menue-Szene, vom
+    /// SceneBuilder), kommt der Kino-Look obendrauf: die 3D-Kulisse verschwimmt
+    /// per Tiefenunschaerfe, die Bildraender werden dunkler und die wenigen
+    /// Lichtquellen strahlen staerker. So steht die Oberflaeche klar davor,
+    /// wie das Hintergrundbild bei CS2 oder Valorant.
+    ///
     /// Die Einstellung "Bild: Schlicht" (<see cref="GameSettings.Graphics"/>)
     /// schaltet Volume UND Nebel komplett ab. Das ist die Rueckfallebene: sollte
     /// die volle Optik auf einem Rechner Streifen oder Ruckeln machen, ist man
-    /// mit einem Klick wieder beim schlichten Bild.
+    /// mit einem Klick wieder beim schlichten Bild (dann auch ohne Unschaerfe).
     ///
     /// Haengt im Menue und in der Arena (SceneBuilder).
     /// NICHT pruefbar: wie es aussieht.
@@ -27,6 +33,9 @@ namespace Infront
     {
         static readonly Color FogColor = new Color(0.05f, 0.06f, 0.08f);
         const float FogDensity = 0.010f;
+
+        [Tooltip("Nur in der Menue-Szene: Tiefenunschaerfe + staerkere Bildraender (Kino-Look).")]
+        [SerializeField] bool _menuLook;
 
         Volume _volume;
         VolumeProfile _profile;
@@ -77,14 +86,14 @@ namespace Infront
             tone.mode.Override(TonemappingMode.ACES);
 
             var bloom = _profile.Add<Bloom>(true);
-            bloom.intensity.Override(0.9f);
-            bloom.threshold.Override(1.05f);
+            bloom.intensity.Override(_menuLook ? 1.1f : 0.9f);
+            bloom.threshold.Override(_menuLook ? 0.95f : 1.05f);
             bloom.scatter.Override(0.62f);
             bloom.tint.Override(new Color(1f, 0.93f, 0.82f));
 
             var vignette = _profile.Add<Vignette>(true);
-            vignette.intensity.Override(0.30f);
-            vignette.smoothness.Override(0.42f);
+            vignette.intensity.Override(_menuLook ? 0.42f : 0.30f);
+            vignette.smoothness.Override(_menuLook ? 0.52f : 0.42f);
             vignette.color.Override(new Color(0.02f, 0.02f, 0.03f));
 
             var color = _profile.Add<ColorAdjustments>(true);
@@ -101,6 +110,19 @@ namespace Infront
             grain.type.Override(FilmGrainLookup.Medium1);
             grain.intensity.Override(0.16f);
             grain.response.Override(0.8f);
+
+            if (_menuLook)
+            {
+                // Kino-Look: die 3D-Kulisse weich verschwimmen lassen, damit die
+                // Menue-Oberflaeche klar und ruhig davor steht. Gauss ist guenstig
+                // und laeuft ueberall - Bokeh waere schoener, aber teurer.
+                var dof = _profile.Add<DepthOfField>(true);
+                dof.mode.Override(DepthOfFieldMode.Gaussian);
+                dof.gaussianStart.Override(5f);
+                dof.gaussianEnd.Override(17f);
+                dof.gaussianMaxRadius.Override(1.3f);
+                dof.highQualitySampling.Override(true);
+            }
         }
 
         void Apply(bool force)
