@@ -1497,6 +1497,36 @@ namespace Infront.EditorTools
             dustGo.AddComponent<ParticleSystem>();
             dustGo.AddComponent<MenuDust>();
 
+            // ---- Mehr Leben in der Kulisse ----
+
+            // Drehende Radar-Antenne auf dem rechten Containerstapel
+            MenuRadar("BD_Radar", new Vector3(5.5f, 2.7f, 11f));
+
+            // Rot blinkendes Signallicht oben auf dem linken Stapel
+            MenuBeacon("BD_Beacon", new Vector3(-5f, 5.3f, 9f), new Color(1f, 0.28f, 0.2f));
+
+            // Flackerndes Neon-Schild an der Rückwand (eisblau, als Gegenpol zum warmen Licht)
+            Stripe("BD_Neon", -3.5f, 5.4f, 19.2f, 6f, 0.12f, 0.25f);
+            var neonGo = _mapRoot.Find("BD_Neon");
+            if (neonGo != null)
+                neonGo.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(0.35f, 0.8f, 1f));
+            FlickerLight("BD_NeonLight", new Vector3(-3.5f, 5.2f, 18f), new Color(0.4f, 0.75f, 1f), 9f, 3.5f);
+
+            // Aufsteigender Dampf aus einer Ecke - zweites MenuDust, gröber eingestellt
+            var steamGo = new GameObject("BD_Steam");
+            steamGo.transform.SetParent(_mapRoot, true);
+            steamGo.transform.position = new Vector3(-3.2f, 0.6f, 4.5f);
+            steamGo.AddComponent<ParticleSystem>();
+            var steam = steamGo.AddComponent<MenuDust>();
+            var soSteam = new SerializedObject(steam);
+            var sBox = soSteam.FindProperty("_boxSize");
+            if (sBox != null) sBox.vector3Value = new Vector3(2.4f, 3.5f, 2.4f);
+            var sCount = soSteam.FindProperty("_count");
+            if (sCount != null) sCount.intValue = 46;
+            var sTint = soSteam.FindProperty("_tint");
+            if (sTint != null) sTint.colorValue = new Color(0.55f, 0.62f, 0.72f, 0.32f);
+            soSteam.ApplyModifiedPropertiesWithoutUndo();
+
             // Sonne + dunkler prozeduraler Himmel
             var lightGo = new GameObject("BackdropSun");
             lightGo.transform.SetParent(_mapRoot, true);
@@ -1558,6 +1588,81 @@ namespace Infront.EditorTools
             beam.spotAngle = 34f;
             beam.intensity = intensity;
             beam.shadows = LightShadows.None;
+        }
+
+        /// <summary>
+        /// Kleine drehende Radar-Antenne für die Menü-Kulisse: fester Mast,
+        /// darauf eine langsam kreisende Schüssel. Rein optisch.
+        /// </summary>
+        static void MenuRadar(string name, Vector3 basePos)
+        {
+            // Mast
+            var mast = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            mast.name = name + "_Mast";
+            mast.transform.SetParent(_mapRoot, true);
+            mast.transform.position = basePos + new Vector3(0f, 1f, 0f);
+            mast.transform.localScale = new Vector3(0.14f, 1f, 0.14f);
+            var mc = mast.GetComponent<Collider>();
+            if (mc != null) Object.DestroyImmediate(mc);
+            mast.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.12f, 0.13f, 0.15f));
+
+            // Dreh-Knoten auf der Mastspitze
+            var spinGo = new GameObject(name + "_Spin");
+            spinGo.transform.SetParent(_mapRoot, true);
+            spinGo.transform.position = basePos + new Vector3(0f, 2.05f, 0f);
+            var spin = spinGo.AddComponent<SlowSpin>();
+            var soSpin = new SerializedObject(spin);
+            var dps = soSpin.FindProperty("_degreesPerSecond");
+            if (dps != null) dps.floatValue = 26f;
+            soSpin.ApplyModifiedPropertiesWithoutUndo();
+
+            // Schüssel: leicht gekippte flache Platte
+            var dish = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            dish.name = name + "_Dish";
+            dish.transform.SetParent(spinGo.transform, false);
+            dish.transform.localPosition = new Vector3(0.5f, 0f, 0f);
+            dish.transform.localRotation = Quaternion.Euler(0f, 0f, 62f);
+            dish.transform.localScale = new Vector3(1.3f, 0.12f, 0.9f);
+            var dc = dish.GetComponent<Collider>();
+            if (dc != null) Object.DestroyImmediate(dc);
+            dish.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.18f, 0.19f, 0.22f));
+
+            // kleiner leuchtender Sender vorn an der Schüssel
+            var tip = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tip.name = name + "_Tip";
+            tip.transform.SetParent(spinGo.transform, false);
+            tip.transform.localPosition = new Vector3(1.15f, 0f, 0f);
+            tip.transform.localScale = new Vector3(0.14f, 0.14f, 0.14f);
+            var tc = tip.GetComponent<Collider>();
+            if (tc != null) Object.DestroyImmediate(tc);
+            tip.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(0.4f, 0.8f, 1f));
+        }
+
+        /// <summary>
+        /// Blinkendes Signallicht: leuchtender Würfel auf kurzem Pfosten plus ein
+        /// flackerndes Punktlicht. Rein optisch.
+        /// </summary>
+        static void MenuBeacon(string name, Vector3 pos, Color color)
+        {
+            var post = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            post.name = name + "_Post";
+            post.transform.SetParent(_mapRoot, true);
+            post.transform.position = pos + new Vector3(0f, -0.35f, 0f);
+            post.transform.localScale = new Vector3(0.12f, 0.7f, 0.12f);
+            var pc = post.GetComponent<Collider>();
+            if (pc != null) Object.DestroyImmediate(pc);
+            post.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.12f, 0.13f, 0.15f));
+
+            var bulb = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bulb.name = name + "_Bulb";
+            bulb.transform.SetParent(_mapRoot, true);
+            bulb.transform.position = pos;
+            bulb.transform.localScale = new Vector3(0.28f, 0.28f, 0.28f);
+            var bc = bulb.GetComponent<Collider>();
+            if (bc != null) Object.DestroyImmediate(bc);
+            bulb.GetComponent<Renderer>().sharedMaterial = GlowMat(color);
+
+            FlickerLight(name + "_Light", pos, color, 10f, 5f);
         }
 
         /// <summary>

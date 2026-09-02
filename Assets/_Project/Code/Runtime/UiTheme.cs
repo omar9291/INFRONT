@@ -12,6 +12,13 @@ namespace Infront
     ///
     /// Willst du auf Giftgruen wechseln: nur <see cref="Accent"/> und
     /// <see cref="AccentBright"/> aendern.
+    ///
+    /// Warm gegen kalt: Orange (<see cref="Accent"/>) ist die Marken- und
+    /// Aktionsfarbe (Startknopf, "das hast du gewaehlt"). Eisblau
+    /// (<see cref="Ice"/>) ist der kuehle Gegenpol fuer Zahlen, Messwerte,
+    /// Scan-Linien und das eigene Team. Die Menue-Flaechen sind jetzt
+    /// halbdurchsichtiges Glas (<see cref="Glass"/>), damit die 3D-Kulisse
+    /// dahinter durchschimmert.
     /// </summary>
     public static class UiTheme
     {
@@ -23,6 +30,17 @@ namespace Infront
         public static readonly Color TextDim     = new Color32(0x76, 0x7E, 0x86, 0xFF);   // Nebeninfos
         public static readonly Color Accent      = new Color32(0xFF, 0x6A, 0x1A, 0xFF);   // Akzent
         public static readonly Color AccentBright = new Color32(0xFF, 0x88, 0x3A, 0xFF);  // Akzent hell
+
+        // --- Menue: kuehler Gegen-Akzent + Glas ----------------------------
+        public static readonly Color Ice     = new Color32(0x5A, 0xC8, 0xF5, 0xFF);   // Zahlen, Messwerte, eigenes Team
+        public static readonly Color IceDim  = new Color32(0x35, 0x74, 0x92, 0xFF);   // Eisblau gedaempft
+        public static readonly Color Foe     = new Color32(0xFF, 0x6B, 0x5E, 0xFF);   // Gegner im Briefing
+        // Halbdurchsichtige Flaechen fuers Menue - die Kulisse schimmert durch.
+        public static readonly Color Glass   = new Color(0.055f, 0.066f, 0.086f, 0.76f);
+        public static readonly Color GlassHi = new Color(0.11f,  0.13f,  0.16f,  0.85f);
+        public static readonly Color GlassDeep = new Color(0.03f, 0.037f, 0.05f, 0.82f);  // vertiefte Kaesten (Mini-Karte)
+        public static readonly Color Edge    = new Color32(0x3C, 0x46, 0x54, 0xFF);   // hellerer Glasrand fuers Menue
+        public static readonly Color Sheen   = new Color(1f, 1f, 1f, 0.035f);         // Glanz oben auf dem Glas
 
         // --- HUD im Spiel ---------------------------------------------------
         // Halbdurchsichtiger Kasten, damit das Spielbild durchscheint.
