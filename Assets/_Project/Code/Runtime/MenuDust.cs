@@ -61,7 +61,9 @@ namespace Infront
             col.color = grad;
 
             var renderer = GetComponent<ParticleSystemRenderer>();
-            var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            // Denselben Shader wie MuzzleFlash nehmen - der ist erwiesenermaßen
+            // im Build enthalten. Particles/Unlit kann wegoptimiert werden.
+            var shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Sprites/Default");
             var mat = new Material(shader) { name = "MenuDustMat" };
             if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1f);   // transparent
