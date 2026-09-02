@@ -76,7 +76,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _roundsToWin: 16
   _roundsPerHalf: 15
-  _roundDuration: 120
+  _roundDuration: 135
   _restDuration: 5
   _matchEndRest: 8
   _freezeDuration: 10

@@ -285,14 +285,15 @@ namespace Infront.EditorTools
         {
             // Leicht/Normal/Schwer stellen jetzt Reaktion, Zielguete, Nachziehen,
             // Aggressivitaet, Hoervermoegen und Teamwork ein - nicht nur das Tempo.
+            // Sichtweiten an die grosse Karte "Werk" angepasst (lange Bahnen).
             var normal = LoadOrCreateBotStats(BotStatsPath,
-                spread: 5f, reaction: 0.35f, view: 28f,
+                spread: 5f, reaction: 0.35f, view: 34f,
                 track: 220f, aggr: 0.5f, hearing: 1f, teamwork: 0.5f);
             LoadOrCreateBotStats(BotStatsEasyPath,
-                spread: 9f, reaction: 0.75f, view: 20f,
+                spread: 9f, reaction: 0.75f, view: 25f,
                 track: 120f, aggr: 0.3f, hearing: 0.6f, teamwork: 0.25f);
             LoadOrCreateBotStats(BotStatsHardPath,
-                spread: 2.3f, reaction: 0.16f, view: 34f,
+                spread: 2.3f, reaction: 0.16f, view: 42f,
                 track: 340f, aggr: 0.8f, hearing: 1.3f, teamwork: 0.8f);
             return normal;
         }
@@ -821,7 +822,13 @@ namespace Infront.EditorTools
                 new Vector3(0.14f, 4f, 0.14f), new Color(0.12f, 0.13f, 0.14f));
         }
 
-        static void BuildMap()
+        /// <summary>
+        /// Alte kleine Karte (60x60 m, drei gerade Bahnen). Bleibt als
+        /// Rückfallebene erhalten - <see cref="BuildMap"/> ruft jetzt die grosse
+        /// Karte "Werk". Zum Zurückschalten in <see cref="BuildArenaScene"/>
+        /// einfach wieder BuildMapKlein() aufrufen.
+        /// </summary>
+        static void BuildMapKlein()
         {
             _mats.Clear();
             _glowMats.Clear();
@@ -886,6 +893,339 @@ namespace Infront.EditorTools
             PointLightAt("SiteLight_B", new Vector3(19f, 4.5f, 0f), new Color(0.6f, 0.8f, 1f), 20f, 8f);
 
             BuildDecoration();
+        }
+
+        // ==================================================================
+        //  Karte "Werk" - grosse Karte (~90x90 m), fünf Wege je Seite,
+        //  Balkone als Hochpunkte. Spiegelsymmetrisch in Z:
+        //  Alpha-Spawn bei -Z, Bravo-Spawn bei +Z, beide Bombenplätze auf
+        //  z=0 (A links bei x=-20, B rechts bei x=+20) - gleiche Logik wie
+        //  die kleine Karte, damit Rundenablauf, Bots und Bomben
+        //  unverändert funktionieren.
+        //
+        //  Wege je Seite:
+        //    Halle  (x~0)      hohe Wände, Container, umkämpftes Mittelpodest
+        //    Tunnel L/R (x~15) eng, dunkel, rotes Notlicht, viele Deckungen
+        //    Lange  L/R (x~36) offener Aussenweg, endet als Balkon über dem Platz
+        // ==================================================================
+
+        const float WerkHalf = 45f;   // Aussenwand bei +/- 45
+
+        // ---- Deckung in drei Klassen (fy = Fussboden-Höhe, meist 0) ----
+        //   Hoch   (~1.9 m): komplett gedeckt, blockt Sicht
+        //   Mittel (~1.2 m): im Hocken gedeckt, im Stehen rauslehnen
+        //   Niedrig(~0.7 m): nur Beinschutz, drüber schiessen
+        static void CoverHigh(string n, float x, float fy, float z, float sx, float sz)
+            => Crate(n, x, fy + 0.95f, z, sx, 1.9f, sz);
+        static void CoverMid(string n, float x, float fy, float z, float sx, float sz)
+            => Crate(n, x, fy + 0.60f, z, sx, 1.2f, sz);
+        static void CoverLow(string n, float x, float fy, float z, float sx, float sz)
+            => Crate(n, x, fy + 0.35f, z, sx, 0.7f, sz);
+
+        static void CoverHighM(string n, float x, float z, float sx, float sz)
+        { CoverHigh(n + "_B", x, 0f, z, sx, sz); CoverHigh(n + "_A", x, 0f, -z, sx, sz); }
+        static void CoverMidM(string n, float x, float z, float sx, float sz)
+        { CoverMid(n + "_B", x, 0f, z, sx, sz); CoverMid(n + "_A", x, 0f, -z, sx, sz); }
+        static void CoverLowM(string n, float x, float z, float sx, float sz)
+        { CoverLow(n + "_B", x, 0f, z, sx, sz); CoverLow(n + "_A", x, 0f, -z, sx, sz); }
+
+        /// <summary>Begehbare erhöhte Fläche (Balkon / Podest). top = Oberkante.</summary>
+        static void Platform(string n, float x, float top, float z, float sx, float sz)
+            => Surfaced(n, x, top - 0.25f, z, sx, 0.5f, sz, "platte",
+                        new Vector2(0.35f, 0.35f), new Color(0.18f, 0.2f, 0.26f));
+
+        /// <summary>Hüfthohe Brüstung MIT Collider - hält Spieler und Bots oben
+        /// auf dem Balkon, man schiesst aber darüber hinweg nach unten.</summary>
+        static void Rail(string n, float x, float y, float z, float sx, float sz)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            b.name = n;
+            b.transform.SetParent(_mapRoot, true);
+            b.transform.position = new Vector3(x, y + 0.55f, z);
+            b.transform.localScale = new Vector3(sx, 1.1f, sz);
+            b.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.09f, 0.10f, 0.12f));
+        }
+
+        /// <summary>Rampe entlang Z. dir=+1 steigt Richtung +Z, dir=-1 Richtung -Z.
+        /// Steigung bleibt flach (unter 15°) damit das NavMesh sie sicher mitnimmt.</summary>
+        static void SlopeZ(string n, float x, float zLow, float fy, float run, float rise, float width, int dir)
+        {
+            var r = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            r.name = n;
+            r.transform.SetParent(_mapRoot, true);
+            float ang = Mathf.Atan2(rise, run) * Mathf.Rad2Deg;
+            r.transform.rotation = Quaternion.Euler(-ang * dir, 0f, 0f);
+            r.transform.position = new Vector3(x, fy + rise * 0.5f, zLow + dir * run * 0.5f);
+            r.transform.localScale = new Vector3(width, 0.3f, Mathf.Sqrt(run * run + rise * rise));
+            r.GetComponent<Renderer>().sharedMaterial =
+                RoleMat("platte", new Vector2(0.4f, 0.4f), new Color(0.16f, 0.18f, 0.24f));
+        }
+
+        /// <summary>Punktlicht das flackert (Notlicht-Stimmung).</summary>
+        static void FlickerLight(string name, Vector3 pos, Color c, float range, float intensity)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_mapRoot, true);
+            go.transform.position = pos;
+            var l = go.AddComponent<Light>();
+            l.type = LightType.Point;
+            l.color = c;
+            l.range = range;
+            l.intensity = intensity;
+            l.shadows = LightShadows.None;
+            var f = go.AddComponent<LampFlicker>();
+            var so = new SerializedObject(f);
+            so.FindProperty("_baseIntensity").floatValue = intensity;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static void BuildMap()
+        {
+            _mats.Clear();
+            _glowMats.Clear();
+            _texMats.Clear();
+            _mapRoot = new GameObject("Map").transform;
+            const float H = WerkHalf;
+
+            // ---- Aussenschale (hohe Wände, oben offen wie bei der kleinen Karte) ----
+            Block("Wall_N", 0f, 3.5f, H, H * 2f, 7f, 2f);
+            Block("Wall_S", 0f, 3.5f, -H, H * 2f, 7f, 2f);
+            Block("Wall_E", H, 3.5f, 0f, 2f, 7f, H * 2f);
+            Block("Wall_W", -H, 3.5f, 0f, 2f, 7f, H * 2f);
+
+            BuildWerkSpawns();
+            BuildWerkHalle();
+            BuildWerkTunnels();
+            BuildWerkLanes();
+            BuildWerkSites();
+            BuildWerkConnectors();
+            BuildWerkLights();
+            BuildDecorationWerk();
+        }
+
+        static void BuildWerkSpawns()
+        {
+            for (int s = -1; s <= 1; s += 2)
+            {
+                float z = 40f * s;
+                // Rückwand-Riegel mit Lücken vor den fünf Wegen
+                Block($"Screen_mid_{s}", 0f, 1.9f, z, 10f, 3.8f, 1.2f);
+                Block($"Screen_tunL_{s}", -15f, 1.9f, z, 8f, 3.8f, 1.2f);
+                Block($"Screen_tunR_{s}", 15f, 1.9f, z, 8f, 3.8f, 1.2f);
+                Block($"Screen_lngL_{s}", -36f, 1.9f, z, 10f, 3.8f, 1.2f);
+                Block($"Screen_lngR_{s}", 36f, 1.9f, z, 10f, 3.8f, 1.2f);
+                // Team-Kante (leuchtet)
+                Stripe($"SpawnEdge_{s}", 0f, 3.9f, z, 10f, 0.16f, 1.3f);
+                // etwas Deckung direkt vor dem Spawn
+                CoverMid($"SpawnCov_a_{s}", -8f, 0f, z - 5f * s, 2f, 2f);
+                CoverMid($"SpawnCov_b_{s}", 8f, 0f, z - 5f * s, 2f, 2f);
+                CoverHigh($"SpawnCov_c_{s}", 0f, 0f, z - 4f * s, 3f, 1.4f);
+            }
+        }
+
+        static void BuildWerkHalle()
+        {
+            // Trennwände Halle <-> Tunnel bei x = +/- 9, mit Durchgängen
+            foreach (float cz in new[] { 9f, 25f })
+            {
+                BlockM("HalleWall_L", -9f, 3.5f, cz, 1.4f, 7f, 12f);
+                BlockM("HalleWall_R", 9f, 3.5f, cz, 1.4f, 7f, 12f);
+                StripeM("HalleWallGlow_L", -9f, 7.1f, cz, 1.5f, 0.12f, 12f);
+                StripeM("HalleWallGlow_R", 9f, 7.1f, cz, 1.5f, 0.12f, 12f);
+            }
+
+            // Container-Stapel als hohe Deckung
+            CoverHighM("HalleCont_1", -4f, 20f, 3f, 6f);
+            CoverHighM("HalleCont_2", 4f, 28f, 5f, 2.4f);
+            CoverHighM("HalleCont_3", -3f, 34f, 2.4f, 2.4f);
+            CoverMidM("HalleCrate_1", 5f, 15f, 2f, 2f);
+            CoverMidM("HalleCrate_2", -6f, 11f, 2f, 2f);
+            CoverLowM("HalleLow_1", 0f, 18f, 3f, 1.2f);
+
+            // Säulen
+            BlockM("HallePil_A", -5f, 4f, 33f, 1.6f, 8f, 1.6f);
+            BlockM("HallePil_B", 5f, 4f, 33f, 1.6f, 8f, 1.6f);
+
+            // Mittelpodest auf z=0 - hohes High Ground, von beiden Seiten per Rampe
+            Platform("MidDais", 0f, 1.2f, 0f, 14f, 10f);
+            SlopeZ("MidRamp_B", 0f, 13f, 0f, 8f, 1.2f, 6f, -1);
+            SlopeZ("MidRamp_A", 0f, -13f, 0f, 8f, 1.2f, 6f, +1);
+            CoverHigh("MidTop_1", -3.5f, 1.2f, 2f, 1.8f, 1.8f);
+            CoverHigh("MidTop_2", 3.5f, 1.2f, -2f, 1.8f, 1.8f);
+            CoverLow("MidTop_3", 0f, 1.2f, 0f, 2.4f, 1f);
+            Stripe("MidEdge_B", 0f, 1.35f, 5f, 14f, 0.06f, 0.4f);
+            Stripe("MidEdge_A", 0f, 1.35f, -5f, 14f, 0.06f, 0.4f);
+            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.6f, 0.3f), 26f, 13f);
+        }
+
+        static void BuildWerkTunnels()
+        {
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                string side = sgn < 0 ? "L" : "R";
+                float cx = 15.5f * sgn;
+
+                // Aussenwand des Tunnels (Richtung Lange), Loch am Platz (z~0)
+                foreach (float cz in new[] { 9f, 25f })
+                    BlockM($"TunWall_{side}", 22f * sgn, 3.5f, cz, 1.2f, 7f, 12f);
+
+                // Deckungen dicht an dicht (spiegelt sich über die _b-Einträge in Z)
+                CoverHigh($"TunH1_{side}", cx - 2f, 0f, 30f, 2f, 2f);
+                CoverHigh($"TunH1b_{side}", cx - 2f, 0f, -30f, 2f, 2f);
+                CoverMid($"TunM1_{side}", cx + 3f, 0f, 20f, 2f, 3f);
+                CoverMid($"TunM1b_{side}", cx + 3f, 0f, -20f, 2f, 3f);
+                CoverMid($"TunM2_{side}", cx - 3f, 0f, 12f, 2.4f, 2f);
+                CoverMid($"TunM2b_{side}", cx - 3f, 0f, -12f, 2.4f, 2f);
+                CoverLow($"TunL1_{side}", cx, 0f, 16f, 3f, 1f);
+                CoverLow($"TunL1b_{side}", cx, 0f, -16f, 3f, 1f);
+
+                // rotes Notlicht - flackert
+                FlickerLight($"TunLight_a_{side}", new Vector3(cx, 3.2f, 18f), new Color(1f, 0.35f, 0.2f), 13f, 6f);
+                FlickerLight($"TunLight_b_{side}", new Vector3(cx, 3.2f, -18f), new Color(1f, 0.35f, 0.2f), 13f, 6f);
+                PointLightAt($"TunLight_c_{side}", new Vector3(cx, 3.2f, 0f), new Color(1f, 0.5f, 0.3f), 15f, 7f);
+            }
+        }
+
+        static void BuildWerkLanes()
+        {
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                string side = sgn < 0 ? "L" : "R";
+                float cx = 36f * sgn;
+
+                // offener Aussenweg, lange Sichtachse, lockere Deckung
+                CoverHigh($"LngH1_{side}", cx, 0f, 30f, 2.4f, 2.4f);
+                CoverHigh($"LngH1b_{side}", cx, 0f, -30f, 2.4f, 2.4f);
+                CoverHigh($"LngH2_{side}", cx - 5f * sgn, 0f, 18f, 2f, 4f);
+                CoverHigh($"LngH2b_{side}", cx - 5f * sgn, 0f, -18f, 2f, 4f);
+                CoverMid($"LngM1_{side}", cx + 4f * sgn, 0f, 24f, 3f, 2f);
+                CoverMid($"LngM1b_{side}", cx + 4f * sgn, 0f, -24f, 3f, 2f);
+                CoverLow($"LngL1_{side}", cx, 0f, 12f, 2f, 3f);
+                CoverLow($"LngL1b_{side}", cx, 0f, -12f, 2f, 3f);
+
+                // kaltes Aussenlicht (Kontrast zum warmen Innenlicht)
+                PointLightAt($"LngSun_a_{side}", new Vector3(cx, 6f, 20f), new Color(0.55f, 0.72f, 1f), 22f, 6f);
+                PointLightAt($"LngSun_b_{side}", new Vector3(cx, 6f, -20f), new Color(0.55f, 0.72f, 1f), 22f, 6f);
+
+                // Balkon über dem Platz: Plattform bei y=2.6, Rampe von beiden Seiten hoch
+                float bx = 30f * sgn;
+                Platform($"Balc_{side}", bx, 2.6f, 0f, 10f, 12f);
+                Rail($"BalcRail_out_{side}", bx + 5f * sgn, 2.6f, 0f, 0.4f, 12f);
+                Rail($"BalcRail_fB_{side}", bx, 2.6f, 6f, 6f, 0.4f);
+                Rail($"BalcRail_fA_{side}", bx, 2.6f, -6f, 6f, 0.4f);
+                SlopeZ($"BalcRamp_B_{side}", bx, 14f, 0f, 12f, 2.6f, 5f, -1);
+                SlopeZ($"BalcRamp_A_{side}", bx, -14f, 0f, 12f, 2.6f, 5f, +1);
+                CoverMid($"BalcCov_{side}", bx, 2.6f, 0f, 2f, 2f);
+                Stripe($"BalcEdge_{side}", bx - 5f * sgn, 2.7f, 0f, 0.3f, 0.1f, 12f);
+            }
+        }
+
+        static void BuildWerkSites()
+        {
+            MakeBombSite("BombZone_A", 0, -20f);
+            MakeBombSite("BombZone_B", 1, 20f);
+            SiteLetter(-20f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
+            SiteLetter(20f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
+            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.72f, 0.35f), 24f, 12f);
+            PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 24f, 12f);
+
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                string side = sgn < 0 ? "A" : "B";
+                float cx = 20f * sgn;
+                CoverHigh($"SiteH1_{side}", cx - 3f * sgn, 0f, 4f, 2f, 2f);
+                CoverHigh($"SiteH1b_{side}", cx - 3f * sgn, 0f, -4f, 2f, 2f);
+                CoverMid($"SiteM1_{side}", cx + 3f * sgn, 0f, 0f, 2.5f, 2.5f);
+                CoverLow($"SiteL1_{side}", cx, 0f, 5f, 3f, 1f);
+                CoverLow($"SiteL1b_{side}", cx, 0f, -5f, 3f, 1f);
+                Stripe($"SiteFrame_{side}", cx, 4.4f, 0f, 8f, 0.14f, 8f);
+            }
+        }
+
+        static void BuildWerkConnectors()
+        {
+            // Quergänge auf z ~ +/- 17 (durch die Wand-Lücken) mit Deckung
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float z = 17f * sgn;
+                CoverMid($"Conn_iL_{sgn}", -12f, 0f, z, 3f, 2f);
+                CoverMid($"Conn_iR_{sgn}", 12f, 0f, z, 3f, 2f);
+                CoverHigh($"Conn_oL_{sgn}", -25f, 0f, z, 2f, 2f);
+                CoverHigh($"Conn_oR_{sgn}", 25f, 0f, z, 2f, 2f);
+            }
+        }
+
+        static void BuildWerkLights()
+        {
+            // warme Akzentlichter an den Knotenpunkten der Halle
+            PointLightAt("HalleLight_1", new Vector3(0f, 6f, 20f), new Color(1f, 0.7f, 0.42f), 20f, 10f);
+            PointLightAt("HalleLight_2", new Vector3(0f, 6f, -20f), new Color(1f, 0.7f, 0.42f), 20f, 10f);
+            PointLightAt("HalleLight_3", new Vector3(0f, 7f, 34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
+            PointLightAt("HalleLight_4", new Vector3(0f, 7f, -34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
+        }
+
+        static void BuildDecorationWerk()
+        {
+            _decoRoot = new GameObject("Deko").transform;
+            _decoRoot.SetParent(_mapRoot, true);
+
+            float[,] barrels =
+            {
+                { -40f, -40f }, { 40f, -40f }, { -40f, 40f }, { 40f, 40f },
+                { -15f, 22f }, { 16f, -22f }, { -30f, 8f }, { 30f, -8f },
+                { -9f, -14f }, { 9f, 14f }, { -22f, 30f }, { 22f, -30f },
+                { 0f, 37f }, { 0f, -37f }, { -37f, 0f }, { 37f, 0f },
+            };
+            for (int i = 0; i < barrels.GetLength(0); i++)
+                Barrel(barrels[i, 0], barrels[i, 1]);
+
+            // Hängelampen entlang Halle und Tunneln
+            for (int zi = -2; zi <= 2; zi++)
+            {
+                Lamp(0f, zi * 15f, 6.5f);
+                Lamp(-15.5f, zi * 15f, 4.6f);
+                Lamp(15.5f, zi * 15f, 4.6f);
+            }
+
+            // Rohre an den Aussenwänden
+            Pipe("Rohr_W", new Vector3(-44f, 4.2f, 0f), Quaternion.Euler(90f, 0f, 0f), Quaternion.identity);
+            Pipe("Rohr_E", new Vector3(44f, 4.2f, 0f), Quaternion.Euler(90f, 0f, 0f), Quaternion.identity);
+            Pipe("Rohr_N", new Vector3(0f, 5f, 44f), Quaternion.Euler(0f, 0f, 90f), Quaternion.Euler(0f, 90f, 0f));
+            Pipe("Rohr_S", new Vector3(0f, 5f, -44f), Quaternion.Euler(0f, 0f, 90f), Quaternion.Euler(0f, 90f, 0f));
+
+            // Sandsack-Reihen vor beiden Spawns
+            for (int s = -1; s <= 1; s += 2)
+            for (int i = -3; i <= 3; i++)
+            {
+                var p = new Vector3(i * 0.8f, 0f, s * 38f);
+                if (DecoModel("sandsack", p, RandomYaw())) continue;
+                Deco("Sandsack", PrimitiveType.Cube,
+                    new Vector3(i * 0.8f, 0.3f, s * 38f), new Vector3(0.7f, 0.5f, 0.5f),
+                    new Color(0.32f, 0.3f, 0.24f));
+            }
+
+            // dunkle Boden-Flecken (Grunge)
+            var rnd = new System.Random(1234);
+            for (int i = 0; i < 26; i++)
+            {
+                float gx = (float)(rnd.NextDouble() * 84f - 42f);
+                float gz = (float)(rnd.NextDouble() * 84f - 42f);
+                Deco("Fleck", PrimitiveType.Quad, new Vector3(gx, 0.02f, gz),
+                    new Vector3(3f + (float)rnd.NextDouble() * 5f, 3f + (float)rnd.NextDouble() * 5f, 1f),
+                    new Color(0.05f, 0.055f, 0.065f), Quaternion.Euler(90f, 0f, 0f));
+            }
+
+            // Muni-/Holzkisten als Deko-Deckung (nur wenn Modelle vorhanden)
+            DecoModel("muni_kiste", new Vector3(-15f, 0f, -6f), RandomYaw());
+            DecoModel("muni_kiste", new Vector3(15f, 0f, 6f), RandomYaw());
+            DecoModel("holz_kiste", new Vector3(-30f, 0f, -18f), RandomYaw());
+            DecoModel("holz_kiste", new Vector3(30f, 0f, 18f), RandomYaw());
+
+            // Masten in zwei Ecken
+            Deco("Mast_A", PrimitiveType.Cylinder, new Vector3(-42f, 5f, -42f),
+                new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
+            Deco("Mast_B", PrimitiveType.Cylinder, new Vector3(42f, 5f, 42f),
+                new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
         }
 
         static void MakeBombSite(string name, int siteId, float x)
@@ -1120,8 +1460,14 @@ namespace Infront.EditorTools
         {
             var root = new GameObject("MatchManager");
             root.AddComponent<NetworkObject>();
-            root.AddComponent<MatchManager>();
+            var match = root.AddComponent<MatchManager>();
             root.AddComponent<HighlightTracker>();   // erkennt Doppelkill / Ace / Clutch
+
+            // Grössere Karte "Werk" -> etwas mehr Rundenzeit für die Rotationen.
+            var soMatch = new SerializedObject(match);
+            var roundDur = soMatch.FindProperty("_roundDuration");
+            if (roundDur != null) roundDur.floatValue = 135f;
+            soMatch.ApplyModifiedPropertiesWithoutUndo();
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, MatchManagerPrefabPath, out bool ok);
             Object.DestroyImmediate(root);
@@ -1222,7 +1568,7 @@ namespace Infront.EditorTools
 
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground";
-            ground.transform.localScale = new Vector3(6f, 1f, 6f);
+            ground.transform.localScale = new Vector3(10f, 1f, 10f);   // 100x100 m (Karte "Werk")
             // Boden: echter Asphalt, sonst dunkler kuehler Farbton (wie bisher).
             {
                 var real = Infront.AssetLibrary.Surface("boden");
@@ -1258,12 +1604,12 @@ namespace Infront.EditorTools
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;
             var spawns = new System.Collections.Generic.List<(Vector3 pos, int team)>();
-            // 6 pro Team, auf die drei Bahnen verteilt, hinter dem Sichtschutz
-            float[] laneX = { -20f, -18f, -1f, 1f, 19f, 21f };
+            // 6 pro Team, auf die fünf Wege der Karte "Werk" verteilt, im Spawn-Raum
+            float[] laneX = { -34f, -32f, -8f, 8f, 32f, 34f };
             foreach (float sx in laneX)
             {
-                spawns.Add((new Vector3(sx, 1f, -25f), Team.Alpha));
-                spawns.Add((new Vector3(sx, 1f, 25f), Team.Bravo));
+                spawns.Add((new Vector3(sx, 1f, -42f), Team.Alpha));
+                spawns.Add((new Vector3(sx, 1f, 42f), Team.Bravo));
             }
             foreach (var (pos, team) in spawns)
             {

@@ -15,7 +15,7 @@ MonoBehaviour:
   MoveSpeed: 4.5
   PatrolRadius: 12
   CombatRange: 9
-  ViewDistance: 28
+  ViewDistance: 34
   ViewAngle: 60
   MemoryTime: 4
   ReactionTime: 0.35
