@@ -1484,21 +1484,18 @@ namespace Infront.EditorTools
             PointLightAt("BD_Warm_2", new Vector3(5f, 4.8f, 12f), new Color(1f, 0.6f, 0.34f), 18f, 9f);
             FlickerLight("BD_Red", new Vector3(-6f, 2.2f, 8f), new Color(1f, 0.32f, 0.2f), 12f, 6f);
 
-            // Kreisender Suchscheinwerfer hoch oben
-            var spinGo = new GameObject("BD_Searchlight");
-            spinGo.transform.SetParent(_mapRoot, true);
-            spinGo.transform.position = new Vector3(1f, 8.5f, 10f);
-            spinGo.AddComponent<SlowSpin>();
-            var slGo = new GameObject("BD_Searchlight_Beam");
-            slGo.transform.SetParent(spinGo.transform, false);
-            slGo.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
-            var sl = slGo.AddComponent<Light>();
-            sl.type = LightType.Spot;
-            sl.color = new Color(0.8f, 0.86f, 1f);
-            sl.range = 26f;
-            sl.spotAngle = 34f;
-            sl.intensity = 14f;
-            sl.shadows = LightShadows.None;
+            // Zwei kreisende Suchscheinwerfer hoch oben, gegenläufig
+            MenuSearchlight("BD_Searchlight_1", new Vector3(1f, 8.5f, 10f),
+                new Color(0.8f, 0.86f, 1f), 12f, 12f);
+            MenuSearchlight("BD_Searchlight_2", new Vector3(-6f, 8.8f, 14f),
+                new Color(1f, 0.72f, 0.45f), -9f, 10f);
+
+            // Treibender Staub im Lichtkegel - baut sein Partikelsystem selbst.
+            var dustGo = new GameObject("BD_Dust");
+            dustGo.transform.SetParent(_mapRoot, true);
+            dustGo.transform.position = new Vector3(0f, 4.5f, 8f);
+            dustGo.AddComponent<ParticleSystem>();
+            dustGo.AddComponent<MenuDust>();
 
             // Sonne + dunkler prozeduraler Himmel
             var lightGo = new GameObject("BackdropSun");
@@ -1534,6 +1531,33 @@ namespace Infront.EditorTools
                 RenderSettings.ambientEquatorColor = new Color(0.07f, 0.08f, 0.10f);
                 RenderSettings.ambientGroundColor = new Color(0.03f, 0.03f, 0.04f);
             }
+        }
+
+        /// <summary>
+        /// Ein langsam kreisender Suchscheinwerfer für die Menü-Kulisse.
+        /// Negatives <paramref name="degPerSec"/> dreht andersherum.
+        /// </summary>
+        static void MenuSearchlight(string name, Vector3 pos, Color color, float degPerSec, float intensity)
+        {
+            var spinGo = new GameObject(name);
+            spinGo.transform.SetParent(_mapRoot, true);
+            spinGo.transform.position = pos;
+            var spin = spinGo.AddComponent<SlowSpin>();
+            var soSpin = new SerializedObject(spin);
+            var dps = soSpin.FindProperty("_degreesPerSecond");
+            if (dps != null) dps.floatValue = degPerSec;
+            soSpin.ApplyModifiedPropertiesWithoutUndo();
+
+            var beamGo = new GameObject(name + "_Beam");
+            beamGo.transform.SetParent(spinGo.transform, false);
+            beamGo.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
+            var beam = beamGo.AddComponent<Light>();
+            beam.type = LightType.Spot;
+            beam.color = color;
+            beam.range = 26f;
+            beam.spotAngle = 34f;
+            beam.intensity = intensity;
+            beam.shadows = LightShadows.None;
         }
 
         /// <summary>

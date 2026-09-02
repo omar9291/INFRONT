@@ -128,14 +128,34 @@ namespace Infront
             root.style.backgroundColor = Color.clear;
             root.style.display = DisplayStyle.Flex;
 
-            // Abdunkler über der Kulisse: hält Schrift lesbar, lässt die
-            // Bewegung aber durchscheinen.
+            // Leichter Abdunkler über der ganzen Kulisse: nimmt der 3D-Szene
+            // etwas Kontrast, lässt die Bewegung aber klar durchscheinen.
             var scrim = new VisualElement { name = "scrim" };
             scrim.style.position = Position.Absolute;
             scrim.style.left = 0f; scrim.style.top = 0f; scrim.style.right = 0f; scrim.style.bottom = 0f;
-            var sc = UiTheme.Bg; sc.a = 0.58f;
+            var sc = UiTheme.Bg; sc.a = 0.30f;
             scrim.style.backgroundColor = sc;
+            scrim.pickingMode = PickingMode.Ignore;
             root.Add(scrim);
+
+            // Kräftigere Bänder oben und unten, wo Kopf- und Fußzeile direkt auf
+            // der Kulisse sitzen - dort muss die Schrift immer lesbar bleiben.
+            var bandTop = new VisualElement { name = "band-top" };
+            bandTop.style.position = Position.Absolute;
+            bandTop.style.left = 0f; bandTop.style.right = 0f; bandTop.style.top = 0f;
+            bandTop.style.height = 150f;
+            var bt = UiTheme.Bg; bt.a = 0.62f;
+            bandTop.style.backgroundColor = bt;
+            bandTop.pickingMode = PickingMode.Ignore;
+            root.Add(bandTop);
+
+            var bandBottom = new VisualElement { name = "band-bottom" };
+            bandBottom.style.position = Position.Absolute;
+            bandBottom.style.left = 0f; bandBottom.style.right = 0f; bandBottom.style.bottom = 0f;
+            bandBottom.style.height = 74f;
+            bandBottom.style.backgroundColor = bt;
+            bandBottom.pickingMode = PickingMode.Ignore;
+            root.Add(bandBottom);
 
             var header = BuildHeader();
             var hline = HLine();
@@ -337,17 +357,18 @@ namespace Infront
             var body = new VisualElement();
             body.style.flexDirection = FlexDirection.Row;
             body.style.flexGrow = 1f;
-            // Kinder oben ausrichten, nicht auf volle Hoehe strecken - sonst wird
-            // das Inhalts-Panel zu einem riesigen leeren Kasten.
-            body.style.alignItems = Align.FlexStart;
-            body.style.paddingLeft = 48f; body.style.paddingRight = 48f;
-            body.style.paddingTop = 34f; body.style.paddingBottom = 22f;
+            // Navigation und Panel auf die volle Höhe strecken, damit das Menü
+            // den Bildschirm füllt statt oben links zu kleben. Rechts bleibt ein
+            // Streifen für die 3D-Kulisse frei.
+            body.style.alignItems = Align.Stretch;
+            body.style.paddingLeft = 72f; body.style.paddingRight = 72f;
+            body.style.paddingTop = 40f; body.style.paddingBottom = 26f;
 
             // Navigation links
             var nav = new VisualElement();
-            nav.style.width = 240f;
+            nav.style.width = 260f;
             nav.style.flexShrink = 0f;
-            nav.style.marginRight = 40f;
+            nav.style.marginRight = 44f;
             nav.Add(NavButton("SPIELEN", Page.Spielen));
             nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
             nav.Add(NavButton("STEUERUNG", Page.Steuerung));
@@ -365,29 +386,65 @@ namespace Infront
             // Inhalt rechts (Kasten mit Akzent-Ecke)
             var panel = new VisualElement();
             panel.style.flexGrow = 1f;
-            panel.style.maxWidth = 780f;
+            panel.style.maxWidth = 1180f;
+            panel.style.overflow = Overflow.Hidden;   // für den Scan-Streifen
             panel.style.backgroundColor = UiTheme.Panel;
             UiTheme.Border(panel, 1f, UiTheme.Line);
-            UiTheme.Pad(panel, 30f);
+            UiTheme.Pad(panel, 34f);
 
-            // Echte L-Ecke oben links statt eines kaum sichtbaren Strichs.
+            // Echte L-Ecke oben links - fährt beim Auftritt kurz aus.
             var cornerH = new VisualElement();
             cornerH.style.position = Position.Absolute;
             cornerH.style.left = -1f; cornerH.style.top = -1f;
-            cornerH.style.width = 46f; cornerH.style.height = 3f;
+            cornerH.style.width = 0f; cornerH.style.height = 3f;
             cornerH.style.backgroundColor = UiTheme.Accent;
             panel.Add(cornerH);
 
             var cornerV = new VisualElement();
             cornerV.style.position = Position.Absolute;
             cornerV.style.left = -1f; cornerV.style.top = -1f;
-            cornerV.style.width = 3f; cornerV.style.height = 46f;
+            cornerV.style.width = 3f; cornerV.style.height = 0f;
             cornerV.style.backgroundColor = UiTheme.Accent;
             panel.Add(cornerV);
 
+            cornerH.schedule.Execute(() =>
+            {
+                cornerH.style.transitionProperty = new List<StylePropertyName> { "width" };
+                cornerH.style.transitionDuration = new List<TimeValue> { new TimeValue(420, TimeUnit.Millisecond) };
+                cornerH.style.transitionTimingFunction =
+                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
+                cornerH.style.width = 54f;
+                cornerV.style.transitionProperty = new List<StylePropertyName> { "height" };
+                cornerV.style.transitionDuration = new List<TimeValue> { new TimeValue(420, TimeUnit.Millisecond) };
+                cornerV.style.transitionTimingFunction =
+                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
+                cornerV.style.height = 54f;
+            }).StartingIn(320);
+
+            // Feiner Scan-Streifen, der langsam über das Panel nach unten wandert.
+            var scan = new VisualElement();
+            scan.style.position = Position.Absolute;
+            scan.style.left = 0f; scan.style.right = 0f;
+            scan.style.height = 2f;
+            scan.style.top = Length.Percent(-4f);
+            var scanCol = UiTheme.Accent; scanCol.a = 0.16f;
+            scan.style.backgroundColor = scanCol;
+            scan.pickingMode = PickingMode.Ignore;
+            panel.Add(scan);
+            bool scanDown = false;
+            panel.schedule.Execute(() =>
+            {
+                scanDown = !scanDown;
+                scan.style.transitionProperty = new List<StylePropertyName> { "top" };
+                scan.style.transitionDuration = new List<TimeValue> { new TimeValue(4200, TimeUnit.Millisecond) };
+                scan.style.transitionTimingFunction =
+                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseInOutSine) };
+                scan.style.top = Length.Percent(scanDown ? 104f : -4f);
+            }).Every(4200).StartingIn(600);
+
             _pageHost = new VisualElement();
             _pageHost.style.flexGrow = 1f;
-            _pageHost.style.maxWidth = 640f;   // Inhalt nicht ueber den halben Monitor ziehen
+            _pageHost.style.maxWidth = 980f;   // Inhalt nicht endlos breit ziehen
             panel.Add(_pageHost);
 
             body.Add(panel);
@@ -726,6 +783,28 @@ namespace Infront
 
         void BuildEinstellungen(VisualElement host)
         {
+            host.Add(UiTheme.Section("ANZEIGE"));
+            host.Add(Segmented("seg-anzeige", new[] { "VOLLBILD", "FENSTER" },
+                (int)GameSettings.DisplayMode, i =>
+                {
+                    var next = (GameSettings.Anzeige)i;
+                    bool changed = next != GameSettings.DisplayMode;
+                    GameSettings.DisplayMode = next;
+                    GameSettings.Save();
+                    // Nur bei echter Änderung umschalten - nicht beim ersten Zeichnen.
+                    if (changed) GraphicsBootstrap.ApplyDisplayMode();
+                }));
+
+            var anzeigeHint = new Label(
+                "Vollbild: randloses Fenster in Bildschirmgröße. Fenster: 1280×720, "
+                + "falls du schnell auf den Schreibtisch wechseln willst.");
+            anzeigeHint.style.color = UiTheme.TextDim;
+            anzeigeHint.style.fontSize = 11f;
+            anzeigeHint.style.marginTop = 6f;
+            anzeigeHint.style.whiteSpace = WhiteSpace.Normal;
+            host.Add(anzeigeHint);
+
+            host.Add(UiTheme.Gap(24f));
             host.Add(UiTheme.Section("BILD"));
             host.Add(Segmented("seg-grafik", new[] { "VOLL", "SCHLICHT" },
                 (int)GameSettings.GraphicsQuality, i =>

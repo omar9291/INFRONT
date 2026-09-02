@@ -78,16 +78,19 @@ namespace Infront.EditorTools
             // Mono statt IL2CPP: schneller gebaut, reicht zum Testen
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
 
-            // Fenster statt Vollbild, damit man rauswechseln kann
-            PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
-            PlayerSettings.defaultScreenWidth = 1280;
-            PlayerSettings.defaultScreenHeight = 720;
+            // Start im Vollbild (randloses Fenster in Bildschirmgroesse). Cmd+Tab
+            // geht weiterhin, und im Menue kann man auf Fenster (1280x720)
+            // zurueckschalten - GraphicsBootstrap.ApplyDisplayMode setzt das beim
+            // Start aus den GameSettings.
+            PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
+            PlayerSettings.defaultScreenWidth = 1920;
+            PlayerSettings.defaultScreenHeight = 1080;
             PlayerSettings.resizableWindow = true;
             PlayerSettings.runInBackground = true;
             PlayerSettings.productName = "INFRONT";
 
-            // Kein Retina: sonst rendert ein 1280x720-Fenster in 2560x1440+
-            // und die Bildrate bricht auf dem Basis-M1 ein.
+            // Kein Retina: sonst rendert das Vollbild auf einem Retina-Panel in
+            // 2x Aufloesung und die Bildrate bricht auf dem Basis-M1 ein.
             PlayerSettings.macRetinaSupport = false;
 
             // VSync fix an (gegen zerrissenes Bild)
