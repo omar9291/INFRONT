@@ -1110,9 +1110,10 @@ namespace Infront.EditorTools
                 // Balkon über dem Platz: Plattform bei y=2.6, Rampe von beiden Seiten hoch
                 float bx = 30f * sgn;
                 Platform($"Balc_{side}", bx, 2.6f, 0f, 10f, 12f);
+                // Brüstung nur an der Aussenkante (Richtung Zaun). Die Innenkante
+                // bleibt offen - von dort schiesst man auf den Platz hinunter.
+                // Die Stirnseiten bleiben frei, dort münden die Rampen.
                 Rail($"BalcRail_out_{side}", bx + 5f * sgn, 2.6f, 0f, 0.4f, 12f);
-                Rail($"BalcRail_fB_{side}", bx, 2.6f, 6f, 6f, 0.4f);
-                Rail($"BalcRail_fA_{side}", bx, 2.6f, -6f, 6f, 0.4f);
                 SlopeZ($"BalcRamp_B_{side}", bx, 14f, 0f, 12f, 2.6f, 5f, -1);
                 SlopeZ($"BalcRamp_A_{side}", bx, -14f, 0f, 12f, 2.6f, 5f, +1);
                 CoverMid($"BalcCov_{side}", bx, 2.6f, 0f, 2f, 2f);
@@ -1384,15 +1385,23 @@ namespace Infront.EditorTools
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+            // ---- 3D-Kulisse hinter dem Menü + langsame Kamerafahrt ----
+            BuildMenuBackdrop();
+
             var camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             var cam = camGo.AddComponent<Camera>();
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.043f, 0.051f, 0.059f);   // wie UiTheme.Bg
+            cam.clearFlags = CameraClearFlags.Skybox;
+            cam.backgroundColor = new Color(0.043f, 0.051f, 0.059f);
             cam.allowHDR = true;
+            cam.fieldOfView = 48f;
+            camGo.transform.position = new Vector3(0f, 3.6f, -7f);
+            camGo.transform.rotation = Quaternion.Euler(10f, 0f, 0f);
             var menuCamData = camGo.AddComponent<UniversalAdditionalCameraData>();
             menuCamData.renderPostProcessing = true;
+            menuCamData.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
             camGo.AddComponent<AudioListener>();
+            camGo.AddComponent<MenuCameraRig>();
             new GameObject("PostFx").AddComponent<PostFxController>();
 
             // Altes IMGUI-Menue bleibt als Rueckfallebene im Baum (F10 schaltet um).
@@ -1413,6 +1422,118 @@ namespace Infront.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             bool saved = EditorSceneManager.SaveScene(scene, MenuScenePath);
             Debug.Log($"[Infront] Menue-Szene gespeichert: {saved} -> {MenuScenePath}");
+        }
+
+        /// <summary>
+        /// Kleine atmosphärische 3D-Kulisse hinter dem Menü: ein Stück Halle mit
+        /// Containern, Fässern, Hängelampen, warmem Licht, kreisendem Scheinwerfer
+        /// und Nebel. Die Kamera (<see cref="MenuCameraRig"/>) schwenkt langsam
+        /// darüber. Benutzt dieselben Bausteine wie die Karte.
+        /// </summary>
+        static void BuildMenuBackdrop()
+        {
+            _mats.Clear();
+            _glowMats.Clear();
+            _texMats.Clear();
+            _mapRoot = new GameObject("Backdrop").transform;
+
+            // Dunkler Boden
+            {
+                var g = GameObject.CreatePrimitive(PrimitiveType.Plane);
+                g.name = "BackdropGround";
+                g.transform.SetParent(_mapRoot, true);
+                g.transform.localScale = new Vector3(6f, 1f, 6f);
+                var gm = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "BackdropGround" };
+                var gc = new Color(0.06f, 0.065f, 0.08f);
+                gm.color = gc;
+                if (gm.HasProperty("_BaseColor")) gm.SetColor("_BaseColor", gc);
+                if (gm.HasProperty("_Smoothness")) gm.SetFloat("_Smoothness", 0.2f);
+                g.GetComponent<Renderer>().sharedMaterial = gm;
+            }
+
+            // Rückwand + Säulen als Silhouette
+            Block("BD_Wall", 0f, 4f, 20f, 40f, 8f, 2f);
+            Block("BD_Pillar_L", -9f, 4f, 16f, 1.8f, 8f, 1.8f);
+            Block("BD_Pillar_R", 9f, 4f, 15f, 1.8f, 8f, 1.8f);
+            Stripe("BD_WallGlow", 0f, 7.4f, 19.2f, 40f, 0.14f, 0.3f);
+
+            // Container-Stapel, versetzt in der Tiefe
+            Crate("BD_Cont_1", -5f, 1.3f, 9f, 5.5f, 2.6f, 2.6f);
+            Crate("BD_Cont_1b", -5f, 3.7f, 9f, 4.6f, 2.4f, 2.4f);
+            Crate("BD_Cont_2", 5.5f, 1.3f, 11f, 2.6f, 2.6f, 6f);
+            Crate("BD_Cont_3", 2f, 1.1f, 5f, 2.2f, 2.2f, 2.2f);
+            Crate("BD_Cont_4", -8.5f, 1.1f, 4f, 2.2f, 2.2f, 3f);
+
+            // Vordergrund-Rahmen (seitlich, damit die Mitte frei bleibt)
+            Crate("BD_Fg_L", -7.5f, 0.7f, -2f, 2.4f, 1.4f, 2.4f);
+            Crate("BD_Fg_R", 7.5f, 0.9f, -1f, 2.2f, 1.8f, 2.2f);
+
+            _decoRoot = new GameObject("BackdropDeko").transform;
+            _decoRoot.SetParent(_mapRoot, true);
+            Barrel(-3.4f, 1.5f);
+            Barrel(-2.6f, 1.9f);
+            Barrel(6.5f, 3.5f);
+            Barrel(-9f, -1f);
+            Lamp(-3f, 8f, 6.2f);
+            Lamp(4f, 12f, 6.4f);
+            Deco("BD_Mast", PrimitiveType.Cylinder, new Vector3(-12f, 5f, 12f),
+                new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
+
+            // Warmes Innenlicht + ein rotes Flackerlicht für Stimmung
+            PointLightAt("BD_Warm_1", new Vector3(-2f, 4.5f, 7f), new Color(1f, 0.68f, 0.4f), 20f, 12f);
+            PointLightAt("BD_Warm_2", new Vector3(5f, 4.8f, 12f), new Color(1f, 0.6f, 0.34f), 18f, 9f);
+            FlickerLight("BD_Red", new Vector3(-6f, 2.2f, 8f), new Color(1f, 0.32f, 0.2f), 12f, 6f);
+
+            // Kreisender Suchscheinwerfer hoch oben
+            var spinGo = new GameObject("BD_Searchlight");
+            spinGo.transform.SetParent(_mapRoot, true);
+            spinGo.transform.position = new Vector3(1f, 8.5f, 10f);
+            spinGo.AddComponent<SlowSpin>();
+            var slGo = new GameObject("BD_Searchlight_Beam");
+            slGo.transform.SetParent(spinGo.transform, false);
+            slGo.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
+            var sl = slGo.AddComponent<Light>();
+            sl.type = LightType.Spot;
+            sl.color = new Color(0.8f, 0.86f, 1f);
+            sl.range = 26f;
+            sl.spotAngle = 34f;
+            sl.intensity = 14f;
+            sl.shadows = LightShadows.None;
+
+            // Sonne + dunkler prozeduraler Himmel
+            var lightGo = new GameObject("BackdropSun");
+            lightGo.transform.SetParent(_mapRoot, true);
+            var sun = lightGo.AddComponent<Light>();
+            sun.type = LightType.Directional;
+            sun.intensity = 0.5f;
+            sun.color = new Color(0.7f, 0.78f, 0.95f);
+            sun.shadows = LightShadows.Soft;
+            lightGo.transform.rotation = Quaternion.Euler(38f, 150f, 0f);
+
+            string skyPath = SettingsDir + "/ArenaSky.mat";
+            var sky = AssetDatabase.LoadAssetAtPath<Material>(skyPath);
+            if (sky == null)
+            {
+                var sh = Shader.Find("Skybox/Procedural");
+                if (sh != null)
+                {
+                    sky = new Material(sh) { name = "ArenaSky" };
+                    if (sky.HasProperty("_AtmosphereThickness")) sky.SetFloat("_AtmosphereThickness", 0.4f);
+                    if (sky.HasProperty("_Exposure")) sky.SetFloat("_Exposure", 0.35f);
+                    if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", new Color(0.18f, 0.22f, 0.3f));
+                    if (sky.HasProperty("_GroundColor")) sky.SetColor("_GroundColor", new Color(0.05f, 0.05f, 0.06f));
+                    AssetDatabase.CreateAsset(sky, skyPath);
+                    AssetDatabase.SaveAssets();
+                }
+            }
+            if (sky != null)
+            {
+                RenderSettings.skybox = sky;
+                RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+                RenderSettings.ambientSkyColor = new Color(0.10f, 0.12f, 0.16f);
+                RenderSettings.ambientEquatorColor = new Color(0.07f, 0.08f, 0.10f);
+                RenderSettings.ambientGroundColor = new Color(0.03f, 0.03f, 0.04f);
+            }
         }
 
         /// <summary>

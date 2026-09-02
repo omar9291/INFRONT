@@ -124,15 +124,70 @@ namespace Infront
         {
             root.Clear();
             root.style.flexGrow = 1f;
-            root.style.backgroundColor = UiTheme.Bg;
+            // Durchsichtig lassen - dahinter läuft die 3D-Kulisse mit der Kamerafahrt.
+            root.style.backgroundColor = Color.clear;
             root.style.display = DisplayStyle.Flex;
 
-            root.Add(BuildHeader());
-            root.Add(HLine());
-            root.Add(BuildBody());
-            root.Add(BuildFooter());
+            // Abdunkler über der Kulisse: hält Schrift lesbar, lässt die
+            // Bewegung aber durchscheinen.
+            var scrim = new VisualElement { name = "scrim" };
+            scrim.style.position = Position.Absolute;
+            scrim.style.left = 0f; scrim.style.top = 0f; scrim.style.right = 0f; scrim.style.bottom = 0f;
+            var sc = UiTheme.Bg; sc.a = 0.58f;
+            scrim.style.backgroundColor = sc;
+            root.Add(scrim);
+
+            var header = BuildHeader();
+            var hline = HLine();
+            var body = BuildBody();
+            var footer = BuildFooter();
+            root.Add(header);
+            root.Add(hline);
+            root.Add(body);
+            root.Add(footer);
 
             ShowPage(_page);
+
+            // Auftritt: Kopf, Linie, Inhalt, Fuß nacheinander von unten einblenden.
+            FadeUp(header, 40);
+            FadeUp(hline, 100);
+            FadeUp(body, 150);
+            FadeUp(footer, 230);
+        }
+
+        // ------------------------------------------------------------------
+        //  Kleine Animations-Helfer (rein optisch)
+        // ------------------------------------------------------------------
+
+        /// <summary>Blendet ein Element sanft von unten ein.</summary>
+        static void FadeUp(VisualElement el, int delayMs, float fromY = 16f)
+        {
+            el.style.opacity = 0f;
+            el.style.translate = new Translate(0f, fromY, 0f);
+            el.schedule.Execute(() =>
+            {
+                el.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
+                el.style.transitionDuration = new List<TimeValue> { new TimeValue(260, TimeUnit.Millisecond) };
+                el.style.transitionTimingFunction =
+                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
+                el.style.opacity = 1f;
+                el.style.translate = new Translate(0f, 0f, 0f);
+            }).StartingIn(delayMs);
+        }
+
+        /// <summary>Zählt eine Zahl von 0 auf den Zielwert hoch.</summary>
+        static void CountUp(Label label, int target, int durationMs = 650)
+        {
+            if (target <= 0) { label.text = "0"; return; }
+            int steps = Mathf.Clamp(target, 1, 24);
+            int stepMs = Mathf.Max(16, durationMs / steps);
+            int i = 0;
+            label.text = "0";
+            label.schedule.Execute(() =>
+            {
+                i++;
+                label.text = Mathf.RoundToInt(Mathf.Lerp(0f, target, i / (float)steps)).ToString();
+            }).Every(stepMs).ForDuration(stepMs * steps + 40);
         }
 
         VisualElement BuildHeader()
@@ -157,7 +212,26 @@ namespace Infront
             title.style.color = UiTheme.Text;
             title.style.fontSize = 34f;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.letterSpacing = 8f;
+            // Buchstaben laufen beim Auftritt von weit auf den Sollabstand zusammen.
+            title.style.letterSpacing = 22f;
+            title.schedule.Execute(() =>
+            {
+                title.style.transitionProperty = new List<StylePropertyName> { "letter-spacing" };
+                title.style.transitionDuration = new List<TimeValue> { new TimeValue(600, TimeUnit.Millisecond) };
+                title.style.transitionTimingFunction =
+                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseOutCubic) };
+                title.style.letterSpacing = 8f;
+            }).StartingIn(140);
+
+            // schmaler Puls am Marken-Balken
+            bool tickBright = false;
+            tick.style.transitionProperty = new List<StylePropertyName> { "background-color" };
+            tick.style.transitionDuration = new List<TimeValue> { new TimeValue(1400, TimeUnit.Millisecond) };
+            tick.schedule.Execute(() =>
+            {
+                tickBright = !tickBright;
+                tick.style.backgroundColor = tickBright ? UiTheme.AccentBright : UiTheme.Accent;
+            }).Every(1400);
 
             brand.Add(tick);
             brand.Add(title);
@@ -211,11 +285,12 @@ namespace Infront
                 r.style.justifyContent = Justify.SpaceBetween;
                 r.style.marginTop = 4f;
                 var a = new Label(label); a.style.color = UiTheme.TextDim; a.style.fontSize = 12f;
-                var b = new Label(value.ToString());
+                var b = new Label("0");
                 b.style.color = UiTheme.Text; b.style.fontSize = 12f;
                 b.style.unityFontStyleAndWeight = FontStyle.Bold;
                 r.Add(a); r.Add(b);
                 box.Add(r);
+                CountUp(b, value);
             }
 
             Row("Matches", CareerStats.Matches);
@@ -231,6 +306,29 @@ namespace Infront
             l.style.height = 1f;
             l.style.backgroundColor = UiTheme.Line;
             l.style.flexShrink = 0f;
+            l.style.overflow = Overflow.Hidden;
+
+            // Leuchtender Streifen, der langsam hin und her wandert.
+            var blip = new VisualElement();
+            blip.style.position = Position.Absolute;
+            blip.style.top = 0f;
+            blip.style.height = 1f;
+            blip.style.width = 130f;
+            blip.style.backgroundColor = UiTheme.Accent;
+            blip.style.left = Length.Percent(-12f);
+            l.Add(blip);
+
+            bool toRight = false;
+            l.schedule.Execute(() =>
+            {
+                toRight = !toRight;
+                blip.style.transitionProperty = new List<StylePropertyName> { "left" };
+                blip.style.transitionDuration = new List<TimeValue> { new TimeValue(3000, TimeUnit.Millisecond) };
+                blip.style.transitionTimingFunction =
+                    new List<EasingFunction> { new EasingFunction(EasingMode.EaseInOutSine) };
+                blip.style.left = Length.Percent(toRight ? 100f : -12f);
+            }).Every(3000).StartingIn(400);
+
             return l;
         }
 
@@ -341,14 +439,24 @@ namespace Infront
             UiTheme.Border(b, 1f, UiTheme.Line);
             b.style.borderLeftWidth = 3f;
             b.style.borderLeftColor = UiTheme.Line;
+            b.style.transitionProperty = new List<StylePropertyName> { "background-color", "translate" };
+            b.style.transitionDuration = new List<TimeValue> { new TimeValue(120, TimeUnit.Millisecond) };
 
             b.RegisterCallback<MouseEnterEvent>(_ =>
             {
-                if (_page != page) b.style.backgroundColor = UiTheme.PanelHi;
+                if (_page != page)
+                {
+                    b.style.backgroundColor = UiTheme.PanelHi;
+                    b.style.translate = new Translate(6f, 0f, 0f);
+                }
             });
             b.RegisterCallback<MouseLeaveEvent>(_ =>
             {
-                if (_page != page) b.style.backgroundColor = UiTheme.Panel;
+                if (_page != page)
+                {
+                    b.style.backgroundColor = UiTheme.Panel;
+                    b.style.translate = new Translate(0f, 0f, 0f);
+                }
             });
 
             _navButtons[page] = b;
@@ -364,6 +472,7 @@ namespace Infront
                 bool sel = kv.Key == page;
                 kv.Value.style.backgroundColor = sel ? UiTheme.PanelHi : UiTheme.Panel;
                 kv.Value.style.borderLeftColor = sel ? UiTheme.Accent : UiTheme.Line;
+                kv.Value.style.translate = new Translate(sel ? 4f : 0f, 0f, 0f);
                 kv.Value.style.color = sel
                     ? Color.white
                     : (kv.Key == Page.Beenden ? UiTheme.TextDim : UiTheme.Text);
@@ -397,7 +506,7 @@ namespace Infront
             foreach (var child in host.Children())
             {
                 child.style.opacity = 0f;
-                child.style.translate = new Translate(0f, 14f, 0f);
+                child.style.translate = new Translate(22f, 8f, 0f);
                 int delay = 30 + i * 45;
                 var c = child;
                 host.schedule.Execute(() =>
@@ -405,7 +514,9 @@ namespace Infront
                     c.style.transitionProperty = new System.Collections.Generic.List<StylePropertyName>
                         { "opacity", "translate" };
                     c.style.transitionDuration = new System.Collections.Generic.List<TimeValue>
-                        { new TimeValue(180, TimeUnit.Millisecond) };
+                        { new TimeValue(200, TimeUnit.Millisecond) };
+                    c.style.transitionTimingFunction = new System.Collections.Generic.List<EasingFunction>
+                        { new EasingFunction(EasingMode.EaseOutCubic) };
                     c.style.opacity = 1f;
                     c.style.translate = new Translate(0f, 0f, 0f);
                 }).StartingIn(delay);
@@ -572,6 +683,21 @@ namespace Infront
             start.RegisterCallback<MouseLeaveEvent>(_ => start.style.backgroundColor = UiTheme.Accent);
             _actions["btn-start"] = StartRound;
             host.Add(start);
+
+            // Der Startknopf „atmet" ruhig - zieht das Auge ohne zu blinken.
+            start.style.transformOrigin = new TransformOrigin(Length.Percent(50f), Length.Percent(50f), 0f);
+            start.style.transitionProperty = new List<StylePropertyName> { "scale", "background-color" };
+            start.style.transitionDuration = new List<TimeValue>
+                { new TimeValue(1200, TimeUnit.Millisecond), new TimeValue(120, TimeUnit.Millisecond) };
+            start.style.transitionTimingFunction = new List<EasingFunction>
+                { new EasingFunction(EasingMode.EaseInOut), new EasingFunction(EasingMode.EaseOutCubic) };
+            bool grew = false;
+            start.schedule.Execute(() =>
+            {
+                grew = !grew;
+                float s = grew ? 1.02f : 1f;
+                start.style.scale = new Scale(new Vector3(s, s, 1f));
+            }).Every(1200);
         }
 
         void RefreshSummary()
