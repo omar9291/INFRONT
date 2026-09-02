@@ -37,6 +37,13 @@ namespace Infront
         [Tooltip("Sekunden zwischen zwei Schuessen.")]
         public float ShotInterval => FireRate > 0f ? 1f / FireRate : 0.1f;
 
+        [Header("Zielen (rechte Maustaste)")]
+        [Tooltip("Streuungs-Faktor beim Zielen ueber Kimme/Korn. 1 = kein Vorteil, 0.3 = deutlich praeziser.")]
+        [Range(0f, 1f)] public float AdsSpreadMul = 0.35f;
+        [Tooltip("Zoom-Faktor eines echten Zielfernrohrs. 0 oder 1 = kein Fernrohr (nur Kimme/Korn), " +
+                 "4 = vierfache Vergroesserung mit schwarzem Fernrohr-Bild.")]
+        public float ScopeZoom = 0f;
+
         [Header("Kopfschuss")]
         [Tooltip("Schadensfaktor bei Kopftreffer. 999 = sofort tot.")]
         public float HeadshotMultiplier = 999f;

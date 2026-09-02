@@ -1374,11 +1374,15 @@ namespace Infront
             var list = new VisualElement();
             list.style.marginTop = 4f;
             AddKey(list, "Bewegen", "W", "A", "S", "D");
-            AddKey(list, "Umsehen / Zielen", "Maus");
+            AddKey(list, "Umsehen", "Maus");
             AddKey(list, "Schiessen", "Linke Maustaste");
+            AddKey(list, "Zielen (halten)", "Rechte Maustaste");
+            AddKey(list, "Ducken (halten)", "Strg");
+            AddKey(list, "Schleichen (halten)", "Alt");
             AddKey(list, "Nachladen", "R");
             AddKey(list, "Springen", "Leertaste");
             AddKey(list, "Sprinten (halten)", "Umschalt");
+            AddKey(list, "Luft anhalten (im Zielfernrohr)", "Umschalt");
             AddKey(list, "Waffe wechseln", "1", "2");
             AddKey(list, "Bombe legen / entschärfen (halten)", "E");
             AddKey(list, "Kaufmenü", "B");

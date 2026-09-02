@@ -136,6 +136,7 @@ namespace Infront.EditorTools
                 w.Damage = 18; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
                 w.RecoilUp = 0.85f; w.RecoilSide = 0.3f; w.SwitchTime = 0.5f;
                 w.SpreadStand = 0.15f; w.SpreadWalk = 1.4f; w.SpreadSprint = 3.2f;
+                w.AdsSpreadMul = 0.4f; w.ScopeZoom = 0f;
             });
             var mp = MakeWeapon("Maschinenpistole", w =>
             {
@@ -144,6 +145,7 @@ namespace Infront.EditorTools
                 w.Damage = 12; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
                 w.RecoilUp = 0.5f; w.RecoilSide = 0.25f; w.SwitchTime = 0.4f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 1.2f; w.SpreadSprint = 2.5f;
+                w.AdsSpreadMul = 0.55f; w.ScopeZoom = 0f;
             });
             var sniper = MakeWeapon("Scharfschuetzengewehr", w =>
             {
@@ -151,7 +153,9 @@ namespace Infront.EditorTools
                 w.ShotSound = SoundId.SchussSniper;
                 w.Damage = 120; w.FireRate = 1.1f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
                 w.RecoilUp = 4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
-                w.SpreadStand = 0.02f; w.SpreadWalk = 4f; w.SpreadSprint = 9f; w.SpreadAir = 12f;
+                // Ohne Fernrohr streut die Waffe stark, im Fernrohr trifft sie punktgenau.
+                w.SpreadStand = 1.6f; w.SpreadWalk = 5f; w.SpreadSprint = 10f; w.SpreadAir = 14f;
+                w.AdsSpreadMul = 0.05f; w.ScopeZoom = 4f;
                 w.HeadshotMultiplier = 2f;
             });
             var pistole = MakeWeapon("Pistole", w =>
@@ -161,6 +165,7 @@ namespace Infront.EditorTools
                 w.Damage = 14; w.FireRate = 5f; w.MagazineSize = 14; w.ReloadTime = 1.5f; w.Range = 90f;
                 w.RecoilUp = 1.2f; w.RecoilSide = 0.4f; w.SwitchTime = 0.3f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 1.5f; w.SpreadSprint = 3f;
+                w.AdsSpreadMul = 0.5f; w.ScopeZoom = 0f;
             });
             var botRifle = MakeWeapon("Bot_Sturmgewehr", w =>
             {
@@ -377,6 +382,7 @@ namespace Infront.EditorTools
             root.AddComponent<ShellEjector>();     // fliegende Patronenhuelsen
             root.AddComponent<DamageFeedback>();
             root.AddComponent<ViewModel>();        // sichtbare Waffe in der Hand (nur Besitzer)
+            root.AddComponent<ScopeOverlay>();     // schwarzes Zielfernrohr-Bild (nur Besitzer)
             root.AddComponent<CombatAudio>();      // Treffer-/Abschuss-/Tod-Ton (nur Besitzer)
             root.AddComponent<FootstepSounds>();   // Schritt-Geraeusche nach Tempo
             root.AddComponent<Wallet>();

@@ -21,6 +21,18 @@ namespace Infront
         /// <summary>Haelt der Spieler die Sprint-Taste?</summary>
         bool Sprint { get; }
 
+        /// <summary>Haelt der Spieler die Ziel-Taste (rechte Maustaste)? Kimme/Korn
+        /// bzw. Zielfernrohr - langsamer, genauer, engeres Blickfeld.</summary>
+        bool AimHeld { get; }
+
+        /// <summary>Haelt der Spieler die Duck-Taste (Strg)? Kleiner, langsamer,
+        /// leiser, ruhigeres Zielen.</summary>
+        bool CrouchHeld { get; }
+
+        /// <summary>Haelt der Spieler die Schleich-Taste (Alt)? Sehr langsam,
+        /// dafuer fuer Gegner-Bots nicht hoerbar.</summary>
+        bool WalkHeld { get; }
+
         /// <summary>Wurde in diesem Frame die Sprungtaste gedrueckt?</summary>
         bool JumpPressed { get; }
 

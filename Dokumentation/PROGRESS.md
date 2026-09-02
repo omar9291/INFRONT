@@ -3,7 +3,50 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-01 (Nacht 8 laeuft autonom - siehe Dokumentation/NACHTPLAN.md)
+Letzte Aktualisierung: 2026-09-02
+
+## GAMEPLAY-UEBERARBEITUNG - Etappe 1 "Der Koerper" (2026-09-02)
+
+Rueckmeldung eines Freundes: Menue gut, aber das Gameplay wirke wie ein
+"totes Roblox-Spiel". Ziel des Nutzers: das Spiel soll sich echt nach Krieg
+anfuehlen - realistische Waffen mit Zielfernrohr, buecken, intensiver Kampf,
+gelegentlich Nebel, Menue ernster, Figuren wie echte Menschen. Grosser
+Auftrag in 5 Etappen (siehe unten). Mixamo-Konto legt der Nutzer gerade an,
+danach lade ich die Figuren.
+
+Etappe 1 fertig (109 PlayMode-Tests gruen, +5 neu; Mac-Build neu):
+- **Zielen ueber Kimme/Korn (rechte Maustaste)**: Bild zoomt leicht, Waffe
+  vor die Blickmitte, Streuung stark reduziert (`WeaponStats.AdsSpreadMul`),
+  langsameres Umsehen (`KeyboardMouseInputSource.SensitivityScale`),
+  langsameres Gehen. Beim Sprinten zaehlt Zielen nicht (Exploit-Schutz).
+- **Echtes Zielfernrohr** beim Scharfschuetzengewehr (`WeaponStats.ScopeZoom`
+  = 4): schwarzes Rohr-Bild ueber dem ganzen Schirm (aus Code erzeugte
+  Textur, kein Asset), 4x Zoom, Atem-Schwanken, Umschalt haelt die Luft an
+  (begrenzt). Ohne Rohr streut die Waffe jetzt stark - das Rohr ist ein
+  echter Vorteil. Neu: `ScopeOverlay.cs` (nur Besitzer, IMGUI).
+- **Ducken (Strg)**: Kapsel + Augenhoehe + Trefferzonen sinken, langsamer,
+  Schritte seltener, aufstehen nur mit Platz nach oben. Duck-Grad als
+  NetworkVariable, Figur staucht sich (echte Duck-Animation kommt mit den
+  Mixamo-Figuren in Etappe 4).
+- **Schleichen (Alt)**: sehr langsam, dafuer fuer Gegner-Bots komplett
+  unhoerbar (kein SoundEvents-Schritt).
+- **Gewicht in der Bewegung**: man laeuft an und bremst ab
+  (`_groundAccel/_groundDecel/_airAccel`) statt sofort auf Tempo zu sein;
+  kurzer Blick-Ruck + Blickfeld-Stoss bei hartem Aufkommen.
+- Menue: Steuerungs-Seite zeigt die neuen Tasten.
+
+### Die 5 Etappen (Reihenfolge mit dem Nutzer abgestimmt)
+1. **Der Koerper** - FERTIG (Zielen, Scope, Ducken, Schleichen, Gewicht).
+2. **Wucht** - Schuss-Sound tiefer + Nachhall, staerkerer Kamera-Kick,
+   Geschosse zischen am Kopf vorbei, Explosions-Taubheit.
+3. **Die Welt lebt** - ernste Beleuchtung mit Schatten, Dunst/Nebel pro
+   Runde zufaellig, Staub, Umgebungston (Wind, fernes Gefecht, Artillerie),
+   Karte entklotzen. Dafuer lade ich CC0-Assets (Nutzer bekommt Liste).
+4. **Menschen** - Mixamo-Figuren mit Ausruestung + Lauf-/Duck-/Ziel-/Sterbe-
+   Animation. Nutzer laedt die FBX (Adobe-Login), ich binde sie an.
+   Anbindung steht schon (`CharacterVisual`).
+5. **Waffen** - Sturmgewehr + MP als echte CC0-Modelle statt Wuerfel.
+   Menue nebenbei ernster (gedeckte Militaerfarben, weniger Leuchten).
 
 ## NACHT 8 (autonom, 2026-08-31 -> 2026-09-01)
 

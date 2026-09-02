@@ -342,7 +342,10 @@ namespace Infront
                 _team != null ? _team.TeamId : Team.None);
 
             Vector3 rayOrigin = _aim.AimOrigin;
-            float totalSpread = Mathf.Min(ServerMovementSpread() + _spread, _stats.SpreadMax);
+            // Zielt der Spieler ueber Kimme/Korn? Dann wird die Streuung gestaucht.
+            float adsMul = _playerController != null && _playerController.ServerAimHeld
+                ? _stats.AdsSpreadMul : 1f;
+            float totalSpread = Mathf.Min((ServerMovementSpread() + _spread) * adsMul, _stats.SpreadMax);
             Vector3 direction = ApplyCone(_aim.AimDirection, totalSpread);
             _spread = Mathf.Min(_spread + _stats.SpreadPerShot, _stats.SpreadMax);
             Vector3 endPoint = rayOrigin + direction * _stats.Range;

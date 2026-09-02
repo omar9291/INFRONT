@@ -28,6 +28,7 @@ namespace Infront
 
         Health _health;
         IAimSource _aim;
+        NetworkPlayerController _npc;   // nur am Spieler - fuer die geduckte Haltung
         Renderer _capsuleRenderer;
 
         Transform _figure;
@@ -61,6 +62,7 @@ namespace Infront
         {
             _health = GetComponent<Health>();
             _aim = GetComponent<IAimSource>();
+            _npc = GetComponent<NetworkPlayerController>();
 
             var body = transform.Find("Body");
             if (body != null)
@@ -132,6 +134,7 @@ namespace Infront
             {
                 _figure.localRotation = Quaternion.identity;
                 _figure.localPosition = Vector3.zero;
+                _figure.localScale = Vector3.one;
                 if (!_hiddenForOwner) _figure.gameObject.SetActive(true);
             }
         }
@@ -286,6 +289,10 @@ namespace Infront
                         + Mathf.Sin(Time.time * 1.5f) * 0.01f;
             _figure.localPosition = new Vector3(0f, bob, 0f);
             _figure.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
+            // Ducken: die Figur staucht sich zusammen (echtes Modell spaeter mit Animation).
+            float crouch = _npc != null ? _npc.Crouch01 : 0f;
+            _figure.localScale = new Vector3(1f, Mathf.Lerp(1f, 0.72f, crouch), 1f);
 
             // Kopf neigt sich in die Zielrichtung
             if (_head != null && _aim != null)

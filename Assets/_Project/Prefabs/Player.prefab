@@ -162,6 +162,7 @@ GameObject:
   - component: {fileID: 7244697222415344807}
   - component: {fileID: 4823488442558896910}
   - component: {fileID: 3919728122106998277}
+  - component: {fileID: 4305847294707415203}
   - component: {fileID: 5075100187506989848}
   - component: {fileID: 6589646185563555093}
   - component: {fileID: 4222759956829425713}
@@ -311,9 +312,15 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _walkSpeed: 6
   _sprintSpeed: 10
+  _crouchSpeed: 2.6
+  _sneakSpeed: 2.1
+  _adsSpeed: 3.4
   _jumpHeight: 1.5
   _gravity: 20
   _turnLerp: 20
+  _groundAccel: 55
+  _groundDecel: 42
+  _airAccel: 14
   _aimPivot: {fileID: 7107910297437154381}
   _maxPitch: 80
   _hideForOwner:
@@ -476,6 +483,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3a157d2f4e1b4c24aa215cbafd6019e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.ViewModel
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &4305847294707415203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4533054041791499376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cffeaa2c5d2d04377b770b0b48cc772d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.ScopeOverlay
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &5075100187506989848
 MonoBehaviour:

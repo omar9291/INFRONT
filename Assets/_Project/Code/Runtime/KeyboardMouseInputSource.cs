@@ -7,7 +7,8 @@ namespace Infront
     /// Echte Eingabequelle: liest Tastatur und Maus ueber das Input System.
     /// Phase 2 nutzt weiterhin direkte Geraeteabfragen, noch kein .inputactions-Asset.
     /// WASD = Bewegung, Umschalt = Sprint, Leertaste = Springen,
-    /// Maus X/Y = Zielen, linke Maustaste = Feuern, R = Nachladen.
+    /// Maus X/Y = Zielen, linke Maustaste = Feuern, R = Nachladen,
+    /// rechte Maustaste = ueber Kimme/Korn zielen, Strg = ducken, Alt = schleichen.
     /// </summary>
     public sealed class KeyboardMouseInputSource : IPlayerInputSource
     {
@@ -15,6 +16,10 @@ namespace Infront
         readonly float _maxPitch;
         float _yaw;
         float _pitch;
+
+        /// <summary>Wird beim Zielen heruntergesetzt (langsameres Umsehen ueber
+        /// dem Visier / im Zielfernrohr). 1 = normal. Setzt der Charakter jeden Frame.</summary>
+        public float SensitivityScale { get; set; } = 1f;
 
         public KeyboardMouseInputSource(float startYaw, float sensitivity = 0.1f, float maxPitch = 80f)
         {
@@ -41,7 +46,7 @@ namespace Infront
             {
                 var m = Mouse.current;
                 if (m != null)
-                    _yaw += m.delta.ReadValue().x * _sensitivity;
+                    _yaw += m.delta.ReadValue().x * _sensitivity * SensitivityScale;
                 return _yaw;
             }
         }
@@ -52,7 +57,7 @@ namespace Infront
             {
                 var m = Mouse.current;
                 if (m != null)
-                    _pitch = Mathf.Clamp(_pitch - m.delta.ReadValue().y * _sensitivity, -_maxPitch, _maxPitch);
+                    _pitch = Mathf.Clamp(_pitch - m.delta.ReadValue().y * _sensitivity * SensitivityScale, -_maxPitch, _maxPitch);
                 return _pitch;
             }
         }
@@ -60,6 +65,21 @@ namespace Infront
         public bool Sprint
         {
             get { var k = Keyboard.current; return k != null && k.leftShiftKey.isPressed; }
+        }
+
+        public bool AimHeld
+        {
+            get { var m = Mouse.current; return m != null && m.rightButton.isPressed; }
+        }
+
+        public bool CrouchHeld
+        {
+            get { var k = Keyboard.current; return k != null && (k.leftCtrlKey.isPressed || k.rightCtrlKey.isPressed); }
+        }
+
+        public bool WalkHeld
+        {
+            get { var k = Keyboard.current; return k != null && (k.leftAltKey.isPressed || k.rightAltKey.isPressed); }
         }
 
         public bool JumpPressed

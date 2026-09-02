@@ -21,6 +21,8 @@ MonoBehaviour:
   MagazineSize: 30
   ReloadTime: 1.8
   Range: 120
+  AdsSpreadMul: 0.55
+  ScopeZoom: 0
   HeadshotMultiplier: 999
   RecoilUp: 0.5
   RecoilSide: 0.25

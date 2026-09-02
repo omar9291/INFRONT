@@ -11,6 +11,9 @@ namespace Infront.Tests
         public float LookYaw { get; set; }
         public float LookPitch { get; set; }
         public bool Sprint { get; set; }
+        public bool AimHeld { get; set; }
+        public bool CrouchHeld { get; set; }
+        public bool WalkHeld { get; set; }
         public bool FireHeld { get; set; }
         public bool UseHeld { get; set; }
 

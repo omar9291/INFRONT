@@ -346,8 +346,10 @@ namespace Infront
             if (_rig == null || _cam == null) return;
 
             // Zuschauen blendet die Waffe aus (Tod ueber das Health-Ereignis).
+            // Im voll aufgezogenen Zielfernrohr ebenfalls - man schaut durchs Rohr.
             bool spectating = _fpc != null && _fpc.IsSpectating;
-            bool wantHidden = spectating || (_health != null && !_health.IsAlive);
+            bool scoped = _npc != null && _npc.ScopeAmount01 > 0.85f;
+            bool wantHidden = spectating || scoped || (_health != null && !_health.IsAlive);
             if (wantHidden != _hidden) SetHidden(wantHidden);
             if (_hidden) return;
 
@@ -439,6 +441,17 @@ namespace Infront
                           + new Vector3(_recoilRot.x + reloadRot.x - drawRot + sprintRot.x,
                                         _recoilRot.y + reloadRot.y + sprintRot.y,
                                         _recoilRot.z + reloadRot.z + sprintRot.z));
+
+            // --- Zielen ueber Kimme/Korn: Waffe vor die Blickmitte ziehen ---
+            float adsT = _npc != null ? _npc.Aim01 : 0f;
+            if (adsT > 0.001f)
+            {
+                Vector3 adsPos = BasePos + new Vector3(-BasePos.x + 0.005f, 0.02f, -0.05f);
+                Quaternion adsRot = Quaternion.Euler(BaseEuler + new Vector3(0f, 4f, 0f));
+                float k = Mathf.SmoothStep(0f, 1f, adsT) * 0.9f;
+                pos = Vector3.Lerp(pos, adsPos, k);
+                rot = Quaternion.Slerp(rot, adsRot, k);
+            }
 
             _rig.localPosition = Vector3.Lerp(_rig.localPosition, pos, 1f - Mathf.Exp(-25f * dt));
             _rig.localRotation = Quaternion.Slerp(_rig.localRotation, rot, 1f - Mathf.Exp(-25f * dt));

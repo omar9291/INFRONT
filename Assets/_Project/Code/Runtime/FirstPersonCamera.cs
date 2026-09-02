@@ -35,10 +35,28 @@ namespace Infront
         float _fovOffset;
         float _fovRecover;
 
+        // Ziel-Blickfeld: 0 = normal, sonst der Wert beim Zielen ueber Kimme/Korn
+        // bzw. im Zielfernrohr. Wird weich angefahren.
+        float _zoomTargetFov;
+        float _zoomFov;
+        float _zoomLerp = 12f;
+
         void Awake()
         {
             _cam = GetComponent<Camera>();
             if (_cam != null) _baseFov = _cam.fieldOfView;
+            _zoomFov = _baseFov;
+        }
+
+        /// <summary>Das normale (ungezoomte) Blickfeld dieser Kamera.</summary>
+        public float BaseFov => _baseFov;
+
+        /// <summary>Ziel-Blickfeld beim Zielen setzen. 0 = wieder normal.
+        /// lerp = wie schnell es angefahren wird (groesser = schneller).</summary>
+        public void SetAimZoom(float targetFov, float lerp)
+        {
+            _zoomTargetFov = targetFov;
+            _zoomLerp = Mathf.Max(1f, lerp);
         }
 
         /// <summary>Blickfeld kurz um delta Grad verstellen (negativ = zoomt rein),
@@ -156,7 +174,11 @@ namespace Infront
                 _fovOffset = Mathf.MoveTowards(_fovOffset, 0f, _fovRecover * Time.deltaTime);
             else
                 _fovOffset = 0f;
-            _cam.fieldOfView = _baseFov + _fovOffset;
+
+            float baseTarget = _zoomTargetFov > 0.01f ? _zoomTargetFov : _baseFov;
+            _zoomFov = Mathf.Lerp(_zoomFov, baseTarget, 1f - Mathf.Exp(-_zoomLerp * Time.deltaTime));
+
+            _cam.fieldOfView = _zoomFov + _fovOffset;
         }
 
         void ApplyShake()

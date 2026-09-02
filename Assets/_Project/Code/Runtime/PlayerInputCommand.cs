@@ -15,6 +15,9 @@ namespace Infront
         public float Pitch;
         public bool Sprint;
         public bool Jump;
+        public bool Aim;      // rechte Maustaste: ueber Kimme/Korn zielen
+        public bool Crouch;   // Strg: ducken
+        public bool Walk;     // Alt: schleichen
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -23,6 +26,9 @@ namespace Infront
             serializer.SerializeValue(ref Pitch);
             serializer.SerializeValue(ref Sprint);
             serializer.SerializeValue(ref Jump);
+            serializer.SerializeValue(ref Aim);
+            serializer.SerializeValue(ref Crouch);
+            serializer.SerializeValue(ref Walk);
         }
     }
 }
