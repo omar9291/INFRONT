@@ -1,7 +1,14 @@
-# INFRONT veröffentlichen — für Freunde zum Mittesten
+# INFRONT veröffentlichen
 
-Ziel: nach jeder Arbeitseinheit die neuste spielbare Version online, **nur über einen
-Link erreichbar** (nicht öffentlich gelistet), damit Freunde sie direkt testen können.
+Ziel: nach jeder Arbeitseinheit die neuste spielbare Version auf **itch.io**, öffentlich
+und über die Suche auffindbar, damit Freunde und andere sie testen können.
+
+Der Haupt-Kanal ist itch.io (dort suchen Leute nach Spielen). Zusätzlich liegen die
+gleichen ZIPs als GitHub-Release unter `github.com/omar9291/INFRONT/releases` — für
+Leute, die über den Code kommen.
+
+Hinweis Alter: Auf itch.io veröffentlichen setzt Zustimmung der Eltern voraus (wie schon
+bei Snake und Platformer — der Driftlab-Account ist mit ihrem Einverständnis angelegt).
 
 ## Zielplattform
 
@@ -30,18 +37,23 @@ Ohne dieses Modul kann nur die Mac-Version gebaut werden.
 3. Ausfüllen:
    - **Title:** `INFRONT`
    - **Project URL:** `infront` → wird zu `https://driftlab.itch.io/infront`
+   - **Short description:** `Rundenbasierter First-Person-Team-Shooter. Ein Spieler gegen Bots.`
    - **Classification:** Game
    - **Kind of project:** Downloadable
+   - **Release status:** `In development`
    - **Pricing:** `No payments` (kostenlos)
-4. Ganz unten **Visibility & access:** auf **Draft** lassen.
-   - Oben auf der Seite steht dann ein geheimer Link:
-     *„Anyone with this link can view the page"*
-   - **Diesen Link** kopieren und den Freunden schicken. Nur wer den Link hat, kommt rein.
-   - Solange die Seite auf *Draft* steht, findet sie niemand über die Suche.
-5. **Save**
+   - **Uploads:** die `INFRONT-mac-v1.0.zip` hochladen, Häkchen **macOS**
+     (Windows-ZIP kommt dazu, sobald das Modul installiert ist)
+   - **Genre:** `Shooter`; **Tags:** `fps`, `shooter`, `multiplayer`, `unity`, `singleplayer`
+   - **Screenshots:** 2–3 Bilder vom Menü und aus dem Spiel (macht die Seite in der Suche
+     klickbarer — itch.io zeigt sie in den Ergebnissen)
+4. Ganz unten **Visibility & access:**
+   - Zum **Selber-Prüfen zuerst:** auf `Draft` lassen, oben steht ein geheimer Link zum Anschauen.
+   - Wenn alles passt: auf **`Public`** stellen → **Save**. Ab dann steht die Seite in der
+     itch.io-Suche und wird mit der Zeit auch von Google indexiert.
+5. **Save & view page**
 
-Später, wenn INFRONT wirklich fertig ist und öffentlich soll: Visibility auf **Public**
-stellen. (Bis dahin bleibt alles privat.)
+**Der Link für alle:** `https://driftlab.itch.io/infront`
 
 ## Nach jeder Arbeitseinheit — neue Version hochladen
 
@@ -71,7 +83,7 @@ Unity → *Edit → Project Settings → Player → Version*.)
    - `INFRONT-windows-...zip` → **Windows** ✔
 5. **Save**
 
-Der geheime Link bleibt gleich — die Freunde müssen ihn nur einmal bekommen.
+Der Link `https://driftlab.itch.io/infront` bleibt bei jeder neuen Version gleich.
 
 ## Was die Freunde wissen müssen
 
