@@ -29,6 +29,10 @@ namespace Infront
         float _screenFlash;      // 0..1, klingt ab
         Texture2D _flashTex;
 
+        // "Kurz taub" nach einer nahen Explosion: Tiefpass auf dem Ohr + Klingeln.
+        AudioLowPassFilter _earFilter;
+        float _deafen;           // 1 -> 0
+
         void Awake()
         {
             // Feuerkugel
@@ -86,6 +90,9 @@ namespace Infront
         {
             if (_material != null) Destroy(_material);
             if (_sphere != null) Destroy(_sphere);
+            // Filter nicht mit rausnehmen (koennte woanders gebraucht werden) -
+            // aber sicher abschalten, damit nach Szenenwechsel nichts dumpf bleibt.
+            if (_earFilter != null) { _earFilter.cutoffFrequency = 22000f; _earFilter.enabled = false; }
         }
 
         /// <summary>Explosion an dieser Weltposition zeigen (auf allen Clients).</summary>
@@ -119,13 +126,41 @@ namespace Infront
                 var fpc = cam.GetComponent<FirstPersonCamera>();
                 if (fpc != null && near > 0.01f)
                     fpc.Shake(Mathf.Lerp(0.15f, 1.1f, near), 0.5f);
+
+                // War die Explosion nah? Kurz "taub": alles dumpf + Ohren-Klingeln.
+                if (near > 0.12f)
+                {
+                    _deafen = Mathf.Max(_deafen, near);
+                    AudioService.Instance?.Play2D(SoundId.OhrenPfeifen, near * 0.8f);
+                    EnsureEarFilter(cam);
+                }
             }
+        }
+
+        void EnsureEarFilter(Camera cam)
+        {
+            if (_earFilter != null || cam == null) return;
+            _earFilter = cam.GetComponent<AudioLowPassFilter>();
+            if (_earFilter == null) _earFilter = cam.gameObject.AddComponent<AudioLowPassFilter>();
+            _earFilter.lowpassResonanceQ = 1f;
         }
 
         void Update()
         {
             if (_screenFlash > 0f)
                 _screenFlash = Mathf.Max(0f, _screenFlash - Time.deltaTime * 2.2f);
+
+            // Taubheit klingt ueber ~3 s ab.
+            if (_deafen > 0f)
+            {
+                _deafen = Mathf.Max(0f, _deafen - Time.deltaTime * 0.32f);
+                if (_earFilter != null)
+                {
+                    float muffle = Mathf.SmoothStep(0f, 1f, _deafen);
+                    _earFilter.enabled = _deafen > 0.01f;
+                    _earFilter.cutoffFrequency = Mathf.Lerp(22000f, 480f, muffle);
+                }
+            }
 
             if (_t < 0f) return;
 

@@ -25,6 +25,8 @@ namespace Infront
                 case SoundId.SchussMp:          return Shot("sfx_schuss_mp",      0.11f, 260f, 0.7f, 1.15f);
                 case SoundId.SchussSniper:      return Shot("sfx_schuss_sniper",  0.34f, 140f, 1.0f, 0.8f);
                 case SoundId.SchussPistole:     return Shot("sfx_schuss_pistole", 0.13f, 300f, 0.65f, 1.1f);
+                case SoundId.SchussFern:        return DistantBoom("sfx_schuss_fern");
+                case SoundId.Zischen:           return Whiz("sfx_zischen");
 
                 case SoundId.Nachladen:         return Clicks("sfx_nachladen", 2, 0.09f, 1300f);
                 case SoundId.WaffeWechsel:      return Clicks("sfx_wechsel", 1, 0f, 900f);
@@ -33,6 +35,7 @@ namespace Infront
                 case SoundId.TrefferKopf:       return TwoTone("sfx_kopf", 1800f, 2500f, 0.09f, 0.55f);
                 case SoundId.Abschuss:          return TwoTone("sfx_abschuss", 880f, 520f, 0.22f, 0.6f);
                 case SoundId.EigenerTod:        return Sweep("sfx_tod", 400f, 90f, 0.7f, 0.7f);
+                case SoundId.OhrenPfeifen:      return Ringing("sfx_ohren_pfeifen");
 
                 case SoundId.EinschlagWand:     return Noise("sfx_einschlag_wand", 0.07f, 3000f, 0.5f);
                 case SoundId.EinschlagKoerper:  return Noise("sfx_einschlag_koerper", 0.09f, 700f, 0.55f);
@@ -183,6 +186,71 @@ namespace Infront
                     float env = Mathf.Sin(Mathf.PI * k) * Mathf.Exp(-k * 2f);
                     data[s * step + i] = Mathf.Sin(2f * Mathf.PI * notes[s] * (i / (float)SampleRate)) * env * vol;
                 }
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Ferner Schuss: kein scharfer Knall mehr, sondern ein tiefes,
+        /// langsam anschwellendes und wieder abrollendes Grollen - so klingt ein
+        /// Schuss, der weit weg faellt und dessen Hall von den Waenden kommt.</summary>
+        static AudioClip DistantBoom(string name)
+        {
+            int n = Len(0.7f);
+            var data = new float[n];
+            float lp = 0f;
+            System.Random rng = new(name.GetHashCode());
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float k = i / (float)n;
+                // weicher Ein- und Ausklang (kein Attack-Transient)
+                float env = Mathf.Sin(Mathf.PI * Mathf.Clamp01(k)) * Mathf.Exp(-k * 1.6f);
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                lp += (noise - lp) * 0.012f;                 // sehr dunkles Rauschen
+                float rumble = Mathf.Sin(2f * Mathf.PI * 70f * t) * 0.5f
+                             + Mathf.Sin(2f * Mathf.PI * 38f * t) * 0.5f;
+                data[i] = Mathf.Clamp((lp * 1.6f + rumble * 0.5f) * env * 0.7f, -1f, 1f);
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Kugel-Zischen: ein sehr kurzer, hoher, nach unten gleitender
+        /// Rausch-"Fffft" - die Druckwelle einer dicht vorbeifliegenden Kugel.</summary>
+        static AudioClip Whiz(string name)
+        {
+            int n = Len(0.09f);
+            var data = new float[n];
+            float hp = 0f, prev = 0f;
+            System.Random rng = new(name.GetHashCode());
+            for (int i = 0; i < n; i++)
+            {
+                float k = i / (float)n;
+                float env = Mathf.Sin(Mathf.PI * k);
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                // Hochpass -> zischt; Doppler-artiges Absenken ueber die Zeit
+                float a = Mathf.Lerp(0.9f, 0.45f, k);
+                hp = a * (hp + noise - prev);
+                prev = noise;
+                data[i] = Mathf.Clamp(hp * env * 0.5f, -1f, 1f);
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Ohren-Klingeln nach einer nahen Explosion: ein hoher Sinus, der
+        /// langsam ausklingt. Zusammen mit dem Tiefpassfilter auf dem Ohr klingt
+        /// das nach "kurz taub".</summary>
+        static AudioClip Ringing(string name)
+        {
+            int n = Len(3.2f);
+            var data = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float k = i / (float)n;
+                float env = Mathf.Exp(-k * 2.2f) * Mathf.Min(1f, k * 40f);  // schneller Anschlag, langer Ausklang
+                float tone = Mathf.Sin(2f * Mathf.PI * 4300f * t) * 0.6f
+                           + Mathf.Sin(2f * Mathf.PI * 6400f * t) * 0.25f;
+                data[i] = tone * env * 0.5f;
             }
             return FromData(name, data);
         }

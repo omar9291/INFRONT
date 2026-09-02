@@ -103,8 +103,10 @@ namespace Infront
             return clip;
         }
 
-        /// <summary>Ton an einer Weltposition (3D, mit Entfernung und Richtung).</summary>
-        public void PlayAt(SoundId id, Vector3 position, float volume = 1f, float pitchJitter = 0f)
+        /// <summary>Ton an einer Weltposition (3D, mit Entfernung und Richtung).
+        /// <paramref name="delay"/> in Sekunden: der Ton startet erst spaeter -
+        /// so rollt der Nachhall eines fernen Schusses verzoegert an.</summary>
+        public void PlayAt(SoundId id, Vector3 position, float volume = 1f, float pitchJitter = 0f, float delay = 0f)
         {
             float v = Mathf.Clamp01(volume * Master);
             LastPlayedForTests = id;
@@ -122,7 +124,8 @@ namespace Infront
             src.clip = Clip(id);
             src.volume = v;
             src.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
-            src.Play();
+            if (delay > 0.0001f) src.PlayDelayed(delay);
+            else src.Play();
         }
 
         /// <summary>Ton direkt am Ohr (2D), z.B. Trefferbestätigung, Rundenmeldung.</summary>

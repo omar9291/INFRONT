@@ -390,9 +390,35 @@ namespace Infront
                 break;
             }
 
+            // Fliegt der Schuss dicht an einem gegnerischen Spieler vorbei (ohne
+            // zu treffen)? Dann zischt es dem an den Ohren.
+            ReportBulletWhiz(rayOrigin, direction, endPoint);
+
             Vector3 tracerOrigin = _muzzle != null ? _muzzle.position : rayOrigin;
             ShowFireEffectRpc(tracerOrigin, endPoint, hitNormal, impact, (int)_stats.ShotSound);
             return true;
+        }
+
+        /// <summary>Nur Server: gegnerische Spieler, an denen die Kugel dicht
+        /// vorbeifliegt, hoeren ein Zischen.</summary>
+        void ReportBulletWhiz(Vector3 origin, Vector3 dir, Vector3 endPoint)
+        {
+            float segLen = Vector3.Distance(origin, endPoint);
+            var all = Combatants.Everyone;
+            for (int i = 0; i < all.Count; i++)
+            {
+                var tm = all[i];
+                if (tm == null || tm.Health == null || !tm.Health.IsAlive) continue;
+                if (_team != null && Team.AreFriendly(_team.TeamId, tm.TeamId)) continue;
+                if (tm.NetworkObject == NetworkObject) continue;   // nicht der Schuetze selbst
+
+                var whiz = tm.GetComponent<BulletWhiz>();
+                if (whiz == null) continue;                        // nur Spieler haben das Bauteil
+
+                Vector3 head = tm.transform.position + Vector3.up * 1.55f;
+                if (BulletWhiz.PassesNear(origin, dir, segLen, head, 1.7f, 6f, out float side))
+                    whiz.ServerReport(side);
+            }
         }
 
         [Rpc(SendTo.Owner)]
@@ -411,6 +437,17 @@ namespace Infront
                 audio.PlayAt((SoundId)shotSound, origin, 1f, 0.06f);
                 if (impact == 2) audio.PlayAt(SoundId.EinschlagKoerper, endPoint, 0.9f, 0.1f);
                 else if (impact == 1) audio.PlayAt(SoundId.EinschlagWand, endPoint, 0.7f, 0.15f);
+
+                // Weit entfernter Schuss: der tiefe Hall rollt verzoegert an
+                // (Schallgeschwindigkeit ~340 m/s) - klingt nach Gefecht in der Ferne.
+                var cam = Camera.main;
+                if (cam != null)
+                {
+                    float d = Vector3.Distance(cam.transform.position, origin);
+                    if (d > 22f)
+                        audio.PlayAt(SoundId.SchussFern, origin,
+                            Mathf.Clamp01(0.35f + d / 120f), 0.05f, Mathf.Min(d / 340f, 0.9f));
+                }
             }
         }
     }

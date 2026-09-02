@@ -393,7 +393,12 @@ namespace Infront
             _recoilYaw += side * ads;
             _recoilHold = 0.16f;
             _fireBloom = Mathf.Min(1f, _fireBloom + 0.18f);
-            _camera?.Shake(0.05f, 0.12f);   // leichtes Zucken pro Schuss
+
+            // Kraeftigerer Kick: Kamera-Zucken und ein kurzer Blickfeld-Stoss,
+            // beides nach der Wucht der Waffe. Beim Zielen deutlich gedaempft.
+            float kick = Mathf.Clamp(up, 0.4f, 4f);
+            _camera?.Shake(Mathf.Clamp(0.04f + kick * 0.03f, 0.04f, 0.2f), 0.13f);
+            _camera?.AddFovKick(Mathf.Min(0.5f + kick * 0.35f, 2.6f) * Mathf.Lerp(1f, 0.35f, _aimT), 26f);
         }
 
         /// <summary>Wie weit das Fadenkreuz aufgehen soll (0..1). Nur Anzeige.</summary>

@@ -17,6 +17,8 @@ namespace Infront
         SchussMp,
         SchussSniper,
         SchussPistole,
+        SchussFern,        // tiefer, rollender Nachhall eines weit entfernten Schusses
+        Zischen,           // eine Kugel fliegt dicht am Kopf vorbei
         Nachladen,
         WaffeWechsel,
 
@@ -25,6 +27,7 @@ namespace Infront
         TrefferKopf,       // heller Ton bei Kopftreffer
         Abschuss,          // eigener Gegner ausgeschaltet
         EigenerTod,        // man selbst wurde ausgeschaltet
+        OhrenPfeifen,      // hoher Ton nach einer nahen Explosion (Ohren klingeln)
 
         // --- Einschläge (3D am Auftreffpunkt, für alle hörbar) ---
         EinschlagWand,

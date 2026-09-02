@@ -383,6 +383,7 @@ namespace Infront.EditorTools
             root.AddComponent<DamageFeedback>();
             root.AddComponent<ViewModel>();        // sichtbare Waffe in der Hand (nur Besitzer)
             root.AddComponent<ScopeOverlay>();     // schwarzes Zielfernrohr-Bild (nur Besitzer)
+            root.AddComponent<BulletWhiz>();       // Zischen bei dicht vorbeifliegenden Kugeln
             root.AddComponent<CombatAudio>();      // Treffer-/Abschuss-/Tod-Ton (nur Besitzer)
             root.AddComponent<FootstepSounds>();   // Schritt-Geraeusche nach Tempo
             root.AddComponent<Wallet>();

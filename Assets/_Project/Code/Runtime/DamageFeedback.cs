@@ -76,7 +76,7 @@ namespace Infront
 
         void OnDamageFrom(Vector3 attackerPos)
         {
-            _fpc?.Shake(0.32f, 0.35f);   // getroffen werden ruckelt kräftig
+            _fpc?.Shake(0.45f, 0.4f);   // getroffen werden reiszt die Sicht kräftig herum
 
             if (_camera == null && Camera.main != null) _camera = Camera.main.transform;
             if (_camera == null) return;

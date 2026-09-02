@@ -3,7 +3,46 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-02
+Letzte Aktualisierung: 2026-09-03
+
+## GAMEPLAY-UEBERARBEITUNG - Etappe 2 "Wucht" (2026-09-03)
+
+112 PlayMode-Tests gruen (+3 neu: WuchtTests). Mac-Build neu.
+
+- **Geschoss-Zischen (`BulletWhiz.cs`, nur Spieler-Prefab)**: Der Server
+  prueft bei jedem GEGNERISCHEN Schuss, ob die Kugel dicht (< 1,7 m) und
+  weiter als 6 m vom Schuetzen am Spielerkopf vorbeifliegt, ohne zu treffen.
+  Wenn ja: kurzes Zischen (2D) + Kamera-Zucken, per SendTo.Owner-RPC.
+  Geometrie in `BulletWhiz.PassesNear` (getestet). Bots haben das Bauteil
+  nicht - man hoert nur Kugeln, die an EINEM selbst vorbeigehen.
+- **Ferner Schuss-Hall (`SoundId.SchussFern`)**: In `ShowFireEffectRpc` -
+  ist der Schuss > 22 m von der Kamera weg, rollt zusaetzlich ein tiefes
+  Grollen an, verzoegert um Entfernung/340 (Schallgeschwindigkeit). Neuer
+  Parameter `AudioService.PlayAt(..., delay)`.
+- **Staerkerer Kamera-Kick**: `NetworkPlayerController.AddRecoil` zittert
+  jetzt nach Waffenwucht (`RecoilUp`) + kurzer Blickfeld-Stoss pro Schuss,
+  beim Zielen deutlich gedaempft. Getroffen werden: Shake 0.32 -> 0.45.
+- **Explosions-Taubheit (`BombExplosionFx`)**: nahe Explosion (`near > 0.12`)
+  legt einen `AudioLowPassFilter` auf die Kamera (Cutoff 22 kHz -> 480 Hz)
+  und spielt ein Ohren-Klingeln (`SoundId.OhrenPfeifen`). Erholt sich ueber
+  ~3 s. Filter wird bei Szenenwechsel sicher zurueckgesetzt.
+- Neue Platzhalter-Toene in `ProceduralSfx`: DistantBoom, Whiz, Ringing.
+  Echte Dateien spaeter unter Audio/Resources/ eintauschbar
+  (schuss_fern.wav, zischen.wav, ohren_pfeifen.wav).
+
+### Die 5 Etappen
+1. **Der Koerper** - FERTIG (Zielen, Scope, Ducken, Schleichen, Gewicht).
+2. **Wucht** - FERTIG (Zischen, ferner Hall, Kamera-Kick, Taubheit).
+3. **Die Welt lebt** - OFFEN. Ernste Beleuchtung mit Schatten, Dunst/Nebel
+   pro Runde zufaellig, Staub, Umgebungston (Wind, fernes Gefecht,
+   Artillerie), Karte entklotzen. Dafuer lade ich CC0-Assets (Liste an den
+   Nutzer).
+4. **Menschen** - OFFEN, auf Nutzer blockiert (Mixamo-FBX, Adobe-Login).
+   Anbindung steht (`CharacterVisual`). Konto ist von keinem Browser hier
+   erreichbar -> der Nutzer laedt die 5 FBX selbst herunter, ich hole sie
+   aus dem Download-Ordner.
+5. **Waffen** - OFFEN. Sturmgewehr + MP als echte CC0-Modelle.
+   Menue nebenbei ernster.
 
 ## GAMEPLAY-UEBERARBEITUNG - Etappe 1 "Der Koerper" (2026-09-02)
 

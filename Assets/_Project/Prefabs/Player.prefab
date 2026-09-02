@@ -163,6 +163,7 @@ GameObject:
   - component: {fileID: 4823488442558896910}
   - component: {fileID: 3919728122106998277}
   - component: {fileID: 4305847294707415203}
+  - component: {fileID: 9114072232689901045}
   - component: {fileID: 5075100187506989848}
   - component: {fileID: 6589646185563555093}
   - component: {fileID: 4222759956829425713}
@@ -496,6 +497,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cffeaa2c5d2d04377b770b0b48cc772d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.ScopeOverlay
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &9114072232689901045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4533054041791499376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83b51710d3ee147baa8c6d7634fe1e36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.BulletWhiz
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &5075100187506989848
 MonoBehaviour:
