@@ -40,6 +40,11 @@ namespace Infront
                 case SoundId.EinschlagWand:     return Noise("sfx_einschlag_wand", 0.07f, 3000f, 0.5f);
                 case SoundId.EinschlagKoerper:  return Noise("sfx_einschlag_koerper", 0.09f, 700f, 0.55f);
 
+                case SoundId.AtemEin:           return Breath("sfx_atem_ein",       0.55f, 620f, 0.30f, true);
+                case SoundId.AtemAus:           return Breath("sfx_atem_aus",       0.75f, 430f, 0.26f, false);
+                case SoundId.AtemKeuchen:       return Breath("sfx_atem_keuchen",   0.42f, 900f, 0.42f, true);
+                case SoundId.AtemSchnappen:     return Breath("sfx_atem_schnappen", 0.35f, 1150f, 0.5f, true);
+
                 case SoundId.SchrittLeise:      return Noise("sfx_schritt_leise", 0.05f, 500f, 0.16f);
                 case SoundId.SchrittNormal:     return Noise("sfx_schritt_normal", 0.06f, 800f, 0.32f);
                 case SoundId.SchrittLaut:       return Noise("sfx_schritt_laut", 0.07f, 1100f, 0.5f);
@@ -161,6 +166,37 @@ namespace Infront
         }
 
         /// <summary>Gefiltertes Rauschen mit schnellem Abfall (Einschlag, Schritt).</summary>
+        /// <summary>
+        /// Atemzug: gefiltertes Rauschen mit einer weichen Huellkurve.
+        /// <paramref name="rising"/> = Einatmen (Huellkurve steigt langsam an
+        /// und bricht ab), sonst Ausatmen (schneller Anstieg, langes Abklingen).
+        /// Klingt nicht wie eine echte Aufnahme - aber Rhythmus und Lautstaerke
+        /// stimmen, und darum geht es hier.
+        /// </summary>
+        static AudioClip Breath(string name, float seconds, float cutoff, float vol, bool rising)
+        {
+            int n = Len(seconds);
+            var data = new float[n];
+            float lp = 0f, hp = 0f, prev = 0f;
+            float a = Mathf.Clamp01(cutoff / SampleRate * 6f);
+            System.Random rng = new(name.GetHashCode());
+            for (int i = 0; i < n; i++)
+            {
+                float k = i / (float)n;
+                // Huellkurve: Einatmen zieht an und bricht ab, Ausatmen
+                // beginnt kraeftig und laeuft aus.
+                float env = rising
+                    ? Mathf.Pow(k, 1.6f) * Mathf.Exp(-Mathf.Pow(k, 6f) * 5f)
+                    : Mathf.Exp(-k * 2.6f) * Mathf.Min(1f, k * 14f);
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                lp += (noise - lp) * a;                 // Tiefpass: dumpfer
+                hp = 0.94f * (hp + lp - prev);          // Hochpass: kein Dröhnen
+                prev = lp;
+                data[i] = hp * env * vol;
+            }
+            return FromData(name, data);
+        }
+
         static AudioClip Noise(string name, float seconds, float cutoff, float vol)
         {
             int n = Len(seconds);

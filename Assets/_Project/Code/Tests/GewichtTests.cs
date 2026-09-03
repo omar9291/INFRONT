@@ -136,9 +136,19 @@ namespace Infront.Tests
             Assert.IsTrue(gesehen,
                 "Nach dem Aufkommen aus 6 m gab es keinen Kontrollverlust.");
 
-            yield return Fixed(40);
-            Assert.AreEqual(0f, player.LandStunLeftForTests, 0.001f,
-                "Der Kontrollverlust nach der Landung hoert nie auf.");
+            // Nicht auf eine feste Bildzahl warten: der Server zaehlt die
+            // Restzeit beim Verarbeiten der Eingabe herunter, und unter voller
+            // Testlast kommen weniger Eingaben an als bei einem Einzellauf.
+            // Deshalb auf das Ereignis warten, mit grosszuegiger Obergrenze.
+            bool vorbei = false;
+            for (int i = 0; i < 400 && !vorbei; i++)
+            {
+                yield return new WaitForFixedUpdate();
+                if (player.LandStunLeftForTests <= 0.001f) vorbei = true;
+            }
+            Assert.IsTrue(vorbei,
+                $"Der Kontrollverlust nach der Landung hoert nie auf " +
+                $"(Rest={player.LandStunLeftForTests:F3} s).");
         }
     }
 }

@@ -33,6 +33,12 @@ namespace Infront
         EinschlagWand,
         EinschlagKoerper,
 
+        // --- Atmung (nur beim eigenen Spieler, direkt am Ohr) ---
+        AtemEin,           // Einatmen - kurzes Ziehen
+        AtemAus,           // Ausatmen - weicher, etwas länger
+        AtemKeuchen,       // schweres Keuchen bei Erschöpfung
+        AtemSchnappen,     // scharfes Luftholen nach dem Anhalten
+
         // --- Schritte (3D an der Figur, Lautstärke nach Tempo) ---
         SchrittLeise,
         SchrittNormal,

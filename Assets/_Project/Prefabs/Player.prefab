@@ -311,17 +311,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.NetworkPlayerController
   ShowTopMostFoldoutHeaderGroup: 1
-  _walkSpeed: 6
-  _sprintSpeed: 10
-  _crouchSpeed: 2.6
-  _sneakSpeed: 2.1
-  _adsSpeed: 3.4
-  _jumpHeight: 1.5
+  _walkSpeed: 4.6
+  _sprintSpeed: 7.2
+  _crouchSpeed: 1.9
+  _sneakSpeed: 1.4
+  _adsSpeed: 2.6
+  _jumpHeight: 0.85
   _gravity: 20
   _turnLerp: 20
-  _groundAccel: 55
-  _groundDecel: 42
-  _airAccel: 14
+  _groundAccel: 14
+  _groundDecel: 18
+  _airAccel: 4
+  _sprintRampUp: 1.1
+  _sprintRampDown: 0.5
+  _landStunTime: 0.35
+  _landStunAccelMul: 0.3
   _aimPivot: {fileID: 7107910297437154381}
   _maxPitch: 80
   _hideForOwner:

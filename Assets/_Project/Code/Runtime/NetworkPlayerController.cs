@@ -115,6 +115,7 @@ namespace Infront
         float _landKick;      // kurze Blick-Senkung nach hartem Aufkommen
         bool _prevGrounded = true;
         float _lastFallSpeed;
+        Breathing _breathing;     // Schritt 3: Atmung (nur oertlich, nur beim Besitzer)
         float _sprintRamp;        // 0 = Gehen, 1 = voller Sprint
         float _landStunLeft;      // Restzeit des Kontrollverlusts nach der Landung
         bool _serverPrevGrounded = true;
@@ -143,6 +144,9 @@ namespace Infront
             NetworkVariableWritePermission.Server);
 
         public float VerticalVelocity => _verticalVelocity;
+
+        /// <summary>Die Atmung des Spielers. Nur fuer Tests.</summary>
+        public Breathing BreathingForTests => _breathing;
 
         /// <summary>Sprint-Anlauf 0..1. Nur fuer Tests.</summary>
         public float SprintRampForTests => _sprintRamp;
@@ -190,6 +194,10 @@ namespace Infront
         void Awake()
         {
             _controller = GetComponent<CharacterController>();
+            // Atmung: rein oertlich, deshalb einfach hier dazu statt ueber den
+            // SceneBuilder. Fehlt sie, laeuft alles weiter wie vorher.
+            _breathing = GetComponent<Breathing>();
+            if (_breathing == null) _breathing = gameObject.AddComponent<Breathing>();
             _health = GetComponent<Health>();
             _teamMember = GetComponent<TeamMember>();
             _weapon = GetComponent<NetworkWeapon>();
@@ -306,9 +314,27 @@ namespace Infront
                 if (!paused && _input.JumpPressed)
                     _jumpLatched = true;
 
+                // --- Schritt 3: Atmung ---------------------------------------
+                // Die Atmung bekommt ihren Zustand von hier und liefert einen
+                // kleinen Versatz zurueck, der auf den Blick gelegt wird.
+                Vector2 atem = Vector2.zero;
+                if (_breathing != null)
+                {
+                    _breathing.Sprinting = _pending.Sprint && _sprintRamp > 0.3f;
+                    _breathing.Aiming = _aimT > 0.5f;
+                    // Luft anhalten liegt auf derselben Taste wie im Fernrohr,
+                    // damit man sich nichts Neues merken muss.
+                    _breathing.WantHold = _input != null && _input.Sprint;
+                    _breathing.Health01 = _health != null && _health.Max > 0
+                        ? Mathf.Clamp01(_health.Current / (float)_health.Max)
+                        : 1f;
+                    _breathing.Suspended = paused || dead;
+                    atem = _breathing.Offset;
+                }
+
                 // Kamera SOFORT lokal fuehren - kein Netzwerk, keine Verzoegerung
                 if (_camera != null)
-                    _camera.SetView(finalYaw, finalPitch);
+                    _camera.SetView(finalYaw + atem.x, finalPitch + atem.y);
             }
 
             // Nicht-Server-Instanzen: Ziel-Drehpunkt aus der NetworkVariable neigen

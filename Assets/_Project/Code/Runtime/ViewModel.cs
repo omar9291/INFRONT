@@ -67,6 +67,7 @@ namespace Infront
         // Umsehen-Nachschwingen
         Vector3 _prevCamEuler;
         Vector2 _sway;
+        Breathing _breathing;   // Schritt 3: Atmung, falls vorhanden
 
         // Rueckstoss (klingt weich ab)
         Vector3 _recoilPos;
@@ -412,6 +413,12 @@ namespace Infront
 
         void LateUpdate()
         {
+            // Die Atmung haengt am Spieler, nicht an der Waffe - einmal suchen
+            // und merken. Fehlt sie, bleibt alles wie vorher.
+            if (_breathing == null)
+                _breathing = GetComponentInParent<Breathing>()
+                             ?? Object.FindAnyObjectByType<Breathing>();
+
             if (_rig == null || _cam == null) return;
 
             // Zuschauen blendet die Waffe aus (Tod ueber das Health-Ereignis).
@@ -497,9 +504,21 @@ namespace Infront
             _landDip = Mathf.MoveTowards(_landDip, 0f, dt * 4f);
             float landOffset = Mathf.Sin(Mathf.Clamp01(_landDip) * Mathf.PI) * 0.05f;
 
+            // Schritt 3: die Waffe folgt dem Atem der Kamera verzoegert. Der
+            // Versatz wird in Grad geliefert und hier auf einen kleinen
+            // Weg-Versatz umgerechnet - dadurch wirkt die Waffe schwer und
+            // haengt dem Blick hinterher, statt starr daran zu kleben.
+            Vector3 atemPos = Vector3.zero;
+            if (_breathing != null)
+            {
+                Vector2 b = _breathing.WeaponOffset;
+                atemPos = new Vector3(b.x * -0.012f, b.y * -0.014f, 0f);
+            }
+
             // --- alles zusammensetzen --------------------------------
             Vector3 pos = BasePos
                           + new Vector3(_sway.x, _sway.y, 0f)
+                          + atemPos
                           + bob
                           + _recoilPos
                           + reloadPos
