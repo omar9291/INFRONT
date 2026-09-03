@@ -364,6 +364,9 @@ namespace Infront.EditorTools
             root.AddComponent<TeamTint>();
             root.AddComponent<CharacterVisual>();   // stilisierte Figur statt Kapsel
             root.AddComponent<FriendlyNameplates>();
+            // Schritt 5: Blutungen und Zonenfolgen liegen neben der Health,
+            // die selbst unveraendert bleibt.
+            root.AddComponent<Bleeding>();
             AddHitboxes(root, health);
 
             // Sichtbarer Koerper (nur Optik, keine Collider)
@@ -1650,18 +1653,47 @@ namespace Infront.EditorTools
 
         static void AddHitboxes(GameObject root, Health owner)
         {
+            // Schritt 5: vier Zonen statt nur Kopf und Koerper.
+            //
+            // Der Torso wird schmaler als vorher (0.35 -> 0.26), weil Arme und
+            // Beine jetzt eigene Flaechen daneben haben. Die aeussere Silhouette
+            // bleibt dadurch ungefaehr gleich gross - wer vorher getroffen hat,
+            // trifft weiter, nur zaehlt es jetzt je nach Stelle anders.
+
             var body = new GameObject("Hitbox_Body") { layer = 6 };
             body.transform.SetParent(root.transform, false);
-            body.transform.localPosition = new Vector3(0f, 0.95f, 0f);
+            body.transform.localPosition = new Vector3(0f, 1.15f, 0f);
             var bc = body.AddComponent<CapsuleCollider>();
-            bc.radius = 0.35f; bc.height = 1.3f; bc.direction = 1;
-            body.AddComponent<Hitbox>().Configure(false, owner);
+            bc.radius = 0.26f; bc.height = 0.95f; bc.direction = 1;
+            body.AddComponent<Hitbox>().Configure(KoerperZone.Torso, owner);
 
             var head = new GameObject("Hitbox_Head") { layer = 6 };
             head.transform.SetParent(root.transform, false);
             head.transform.localPosition = new Vector3(0f, 1.75f, 0f);
             head.AddComponent<SphereCollider>().radius = 0.22f;
-            head.AddComponent<Hitbox>().Configure(true, owner);
+            head.AddComponent<Hitbox>().Configure(KoerperZone.Kopf, owner);
+
+            // Arme: links und rechts neben dem Torso.
+            foreach (int seite in new[] { -1, 1 })
+            {
+                var arm = new GameObject(seite < 0 ? "Hitbox_ArmL" : "Hitbox_ArmR") { layer = 6 };
+                arm.transform.SetParent(root.transform, false);
+                arm.transform.localPosition = new Vector3(seite * 0.31f, 1.25f, 0f);
+                var ac = arm.AddComponent<CapsuleCollider>();
+                ac.radius = 0.11f; ac.height = 0.75f; ac.direction = 1;
+                arm.AddComponent<Hitbox>().Configure(KoerperZone.Arm, owner);
+            }
+
+            // Beine: unterhalb des Torsos.
+            foreach (int seite in new[] { -1, 1 })
+            {
+                var bein = new GameObject(seite < 0 ? "Hitbox_BeinL" : "Hitbox_BeinR") { layer = 6 };
+                bein.transform.SetParent(root.transform, false);
+                bein.transform.localPosition = new Vector3(seite * 0.13f, 0.42f, 0f);
+                var lc = bein.AddComponent<CapsuleCollider>();
+                lc.radius = 0.13f; lc.height = 0.85f; lc.direction = 1;
+                bein.AddComponent<Hitbox>().Configure(KoerperZone.Bein, owner);
+            }
         }
 
         static GameObject BuildBotPrefab(WeaponCatalog catalog, AbilityCatalog abilityCatalog, BotStats botStats)
@@ -1742,6 +1774,9 @@ namespace Infront.EditorTools
             soBrain.FindProperty("_sightBlockers").intValue = 1 << 0;
             soBrain.ApplyModifiedPropertiesWithoutUndo();
 
+            // Schritt 5: Blutungen und Zonenfolgen liegen neben der Health,
+            // die selbst unveraendert bleibt.
+            root.AddComponent<Bleeding>();
             AddHitboxes(root, health);
 
             var soHealth = new SerializedObject(health);

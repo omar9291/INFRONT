@@ -116,6 +116,7 @@ namespace Infront
         bool _prevGrounded = true;
         float _lastFallSpeed;
         Breathing _breathing;     // Schritt 3: Atmung (nur oertlich, nur beim Besitzer)
+        Bleeding _bleeding;       // Schritt 5: Blutung und Zonenfolgen
         float _sprintRamp;        // 0 = Gehen, 1 = voller Sprint
         float _landStunLeft;      // Restzeit des Kontrollverlusts nach der Landung
         bool _serverPrevGrounded = true;
@@ -199,6 +200,7 @@ namespace Infront
             _breathing = GetComponent<Breathing>();
             if (_breathing == null) _breathing = gameObject.AddComponent<Breathing>();
             _health = GetComponent<Health>();
+            _bleeding = GetComponent<Bleeding>();
             _teamMember = GetComponent<TeamMember>();
             _weapon = GetComponent<NetworkWeapon>();
 
@@ -575,6 +577,9 @@ namespace Infront
                 speed = _sneakSpeed;
             if (aiming)
                 speed = Mathf.Min(speed, _adsSpeed);
+
+            // Schritt 5: Beinschaden bremst. Voll ausgefallen bleiben 55 %.
+            if (_bleeding != null) speed *= _bleeding.TempoFaktor;
 
             // Landungs-Kontrollverlust (Server, damit er wirklich die Bewegung
             // betrifft und nicht nur den Blick). Der Blick-Ruck in LateUpdate

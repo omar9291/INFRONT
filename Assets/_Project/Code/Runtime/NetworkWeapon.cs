@@ -353,7 +353,11 @@ namespace Infront
             // Zielt der Spieler ueber Kimme/Korn? Dann wird die Streuung gestaucht.
             float adsMul = _playerController != null && _playerController.ServerAimHeld
                 ? _stats.AdsSpreadMul : 1f;
-            float totalSpread = Mathf.Min((ServerMovementSpread() + _spread) * adsMul, _stats.SpreadMax);
+            // Schritt 5: Armschaden macht die Waffenfuehrung unruhiger.
+            var eigenesBluten = GetComponent<Bleeding>();
+            float armAufschlag = eigenesBluten != null ? eigenesBluten.ZusatzStreuung : 0f;
+            float totalSpread = Mathf.Min(
+                (ServerMovementSpread() + _spread) * adsMul + armAufschlag, _stats.SpreadMax);
             Vector3 direction = ApplyCone(_aim.AimDirection, totalSpread);
             _spread = Mathf.Min(_spread + _stats.SpreadPerShot, _stats.SpreadMax);
             Vector3 endPoint = rayOrigin + direction * _stats.Range;
@@ -386,12 +390,21 @@ namespace Infront
 
                 if (targetHealth != null && targetHealth.IsAlive)
                 {
-                    bool head = box != null && box.IsHead;
+                    // Schritt 5: der Schaden haengt jetzt an der Zone.
+                    // Kopf bleibt wie bisher (ueber HeadshotMultiplier), Arme
+                    // und Beine schlucken einen Teil - dafuer haben sie Folgen.
+                    KoerperZone zone = box != null ? box.Zone : KoerperZone.Torso;
+                    bool head = zone == KoerperZone.Kopf;
                     int dmg = head
                         ? Mathf.RoundToInt(_stats.Damage * _stats.HeadshotMultiplier)
-                        : _stats.Damage;
+                        : Mathf.Max(1, Mathf.RoundToInt(_stats.Damage * Hitbox.SchadenFaktor(zone)));
                     // Kopfschuss geht an der Weste vorbei
                     targetHealth.ApplyDamage(dmg, gameObject, head);
+
+                    // Folgen: Blutung, langsameres Laufen, unruhigere Waffe.
+                    var bleeding = targetHealth.GetComponent<Bleeding>();
+                    bleeding?.ServerTreffer(zone);
+
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, dmg);
                     HitConfirmedRpc(head, !targetHealth.IsAlive);
                 }
