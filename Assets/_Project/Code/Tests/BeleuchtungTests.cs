@@ -48,6 +48,23 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Arena_hat_Lichtschaechte_und_treibenden_Staub()
+        {
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+            for (int i = 0; i < 5; i++) yield return null;
+
+            int shafts = 0;
+            foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+                if (l.type == LightType.Spot && l.name.StartsWith("Shaft_")) shafts++;
+            Assert.GreaterOrEqual(shafts, 4, "Zu wenige Lichtschächte in der Arena.");
+
+            var dust = Object.FindObjectsByType<AtmosphereDust>(FindObjectsSortMode.None);
+            Assert.GreaterOrEqual(dust.Length, 3, "Zu wenige Staub-Volumen.");
+            foreach (var d in dust)
+                Assert.IsTrue(d.RunningForTests, "Ein Staub-Volumen läuft nicht.");
+        }
+
+        [UnityTest]
         public IEnumerator Umgebungslicht_ist_heruntergefahren()
         {
             yield return MatchTestHarness.LoadReady((p, m) => { });

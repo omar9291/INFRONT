@@ -1027,6 +1027,44 @@ namespace Infront.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        /// <summary>Schraeg von oben einfallender Lichtkegel (Spot). Der
+        /// treibende Staub (<see cref="AtmosphereDust"/>) faengt ihn ein - so
+        /// entsteht der sichtbare Lichtschacht ganz ohne Zusatz-Geometrie.
+        /// Wirft keine Schatten (Kosten).</summary>
+        static void ShaftLight(string name, Vector3 pos, Vector3 dirEuler, float range,
+                               float angle, Color c, float intensity)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_mapRoot, true);
+            go.transform.position = pos;
+            go.transform.rotation = Quaternion.Euler(dirEuler);
+            var l = go.AddComponent<Light>();
+            l.type = LightType.Spot;
+            l.color = c;
+            l.range = range;
+            l.spotAngle = angle;
+            l.innerSpotAngle = angle * 0.55f;
+            l.intensity = intensity;
+            l.shadows = LightShadows.None;
+        }
+
+        /// <summary>Sechs Lichtschaechte: zwei quer durch die Halle (wie durch
+        /// hohe Fenster), einer je Bombenplatz, einer je Aussenweg.</summary>
+        static void BuildLightShafts()
+        {
+            var warm = new Color(1f, 0.86f, 0.62f);
+            var cool = new Color(0.72f, 0.82f, 1f);
+            // Halle: von schraeg oben-seitlich herein
+            ShaftLight("Shaft_Halle_1", new Vector3(-7f, 8.5f, 14f), new Vector3(58f, 62f, 0f), 20f, 34f, warm, 5.5f);
+            ShaftLight("Shaft_Halle_2", new Vector3(7f, 8.5f, 30f), new Vector3(58f, -62f, 0f), 20f, 34f, warm, 5.5f);
+            // Bombenplaetze
+            ShaftLight("Shaft_SiteA", new Vector3(-20f, 8f, -3f), new Vector3(64f, 20f, 0f), 18f, 40f, warm, 5f);
+            ShaftLight("Shaft_SiteB", new Vector3(20f, 8f, 3f), new Vector3(64f, -20f, 0f), 18f, 40f, cool, 5f);
+            // Aussenwege
+            ShaftLight("Shaft_LaneL", new Vector3(-36f, 9f, 8f), new Vector3(60f, 30f, 0f), 22f, 38f, cool, 4.5f);
+            ShaftLight("Shaft_LaneR", new Vector3(36f, 9f, -8f), new Vector3(60f, -30f, 0f), 22f, 38f, cool, 4.5f);
+        }
+
         static void BuildMap()
         {
             _mats.Clear();
@@ -1048,6 +1086,7 @@ namespace Infront.EditorTools
             BuildWerkSites();
             BuildWerkConnectors();
             BuildWerkLights();
+            BuildLightShafts();
             BuildDecorationWerk();
         }
 
@@ -2028,6 +2067,7 @@ namespace Infront.EditorTools
             hudGo.AddComponent<HighlightBanner>();   // Doppelkill/Ace/Clutch-Banner + Laufbahn
             hudGo.AddComponent<CinematicMoments>();  // Zeitlupe bei Ace/Clutch/Matchgewinn
             hudGo.AddComponent<MatchAudio>();   // Runden-/Bomben-Toene
+            hudGo.AddComponent<AmbientWar>();   // Wind + fernes Gefecht/Artillerie/Hubschrauber
             hudGo.AddComponent<ImpactPool>();   // Einschlagfunken + bleibende Loecher
 
             EditorUtility.SetDirty(nm);

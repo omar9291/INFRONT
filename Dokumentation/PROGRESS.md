@@ -40,7 +40,24 @@ Nebel = **nur Optik, Sichtweite bleibt gleich**. Waffen = aus Code detailliert b
   riskant fuer einen blinden Nachtlauf - siehe NACHTPLAN-9 Abschnitt 4).
 - Neue Tests: `BeleuchtungTests` (3).
 
-### P3-P8: siehe NACHTPLAN-9.md (noch offen)
+### P3 - Staub + Lichtschaechte (FERTIG, 124 Tests gruen)
+
+- Staub kam mit P1 (`AtmosphereDust`). Dazu 6 `ShaftLight`-Spots (2 Halle,
+  je 1 Site, je 1 Aussenweg) - der additive Staub faengt den Kegel ein =
+  sichtbarer Lichtschacht ohne Zusatz-Geometrie.
+
+### P4 - Umgebungston (FERTIG, 124 Tests gruen)
+
+- **`AmbientWar.cs`** (Arena, am HUD-Objekt): dauerhaftes Windbett (eigene
+  Schleifen-AudioSource) + unregelmaessige ferne 3D-Ereignisse: Dauerfeuer,
+  Artillerie (mit Schall-Verzoegerung), Hubschrauber, Metall-Knarzen. Kaufzeit
+  leiser. Wind folgt dem Wetter. Ereignisse pausieren bei `SuspendedForTests`.
+- 5 neue `SoundId` + `ProceduralSfx`-Platzhalter (Wind, FernesFeuergefecht,
+  Artillerie, Hubschrauber, MetallKnarzen). `AudioService.Resolve(id)` neu.
+- Rein Stimmung: `SoundEvents` (Bot-Hoeren) wird NICHT gefuettert, keine Balance.
+- Neue Tests: `AmbientTests` (4).
+
+### P5-P8: siehe NACHTPLAN-9.md (noch offen)
 
 ## GAMEPLAY-UEBERARBEITUNG - Etappe 2 "Wucht" (2026-09-03)
 

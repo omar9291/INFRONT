@@ -49,5 +49,12 @@ namespace Infront
         BombeGelegt,
         BombeEntschaerft,
         BombeExplosion,
+
+        // --- Umgebung / Krieg drumherum (AmbientWar, reine Stimmung) ---
+        Wind,                 // dauerhaftes leises Windbett
+        FernesFeuergefecht,   // weit entferntes Dauerfeuer
+        Artillerie,           // ferner Einschlag mit Pfeif-Anflug
+        Hubschrauber,         // vorbeiziehender Rotor
+        MetallKnarzen,        // knarzendes Metall in der Naehe
     }
 }

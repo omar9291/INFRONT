@@ -43,6 +43,11 @@ namespace Infront
         }
         public bool IsCachedForTests(SoundId id) => _clips.ContainsKey(id);
 
+        /// <summary>Den fertigen Clip zu einer SoundId holen (echte Datei oder
+        /// Platzhalter). Fuer Systeme, die eine eigene, dauerhaft laufende
+        /// AudioSource brauchen - z.B. das Windbett in <see cref="AmbientWar"/>.</summary>
+        public AudioClip Resolve(SoundId id) => Clip(id);
+
         /// <summary>Sorgt dafür, dass es den Dienst gibt (für Tests, die keine
         /// Szene laden - normal erledigt das GameFlow.Bootstrap).</summary>
         public static AudioService EnsureForTests()

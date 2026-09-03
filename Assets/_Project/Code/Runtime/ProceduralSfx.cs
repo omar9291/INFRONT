@@ -53,6 +53,12 @@ namespace Infront
                 case SoundId.BombeGelegt:       return Clicks("sfx_bombe_gelegt", 3, 0.07f, 500f);
                 case SoundId.BombeEntschaerft:  return Sweep("sfx_bombe_entschaerft", 900f, 300f, 0.4f, 0.5f);
                 case SoundId.BombeExplosion:    return Explosion("sfx_bombe_explosion");
+
+                case SoundId.Wind:               return Wind("sfx_wind");
+                case SoundId.FernesFeuergefecht: return DistantFirefight("sfx_fernes_feuergefecht");
+                case SoundId.Artillerie:         return Artillery("sfx_artillerie");
+                case SoundId.Hubschrauber:       return Helicopter("sfx_hubschrauber");
+                case SoundId.MetallKnarzen:      return MetalCreak("sfx_metall_knarzen");
             }
             return Blip("sfx_unbekannt", 500f, 0.1f, 0.4f);
         }
@@ -271,6 +277,138 @@ namespace Infront
                 lp += (noise - lp) * 0.08f;
                 float rumble = Mathf.Sin(2f * Mathf.PI * 45f * t) * Mathf.Exp(-k * 3f);
                 data[i] = Mathf.Clamp((lp * 0.9f + rumble * 0.7f) * env, -1f, 1f);
+            }
+            return FromData(name, data);
+        }
+
+        // ---- Umgebung / Krieg drumherum -----------------------------------
+
+        /// <summary>Windbett: tiefpassgefiltertes Rauschen, dessen Lautstaerke
+        /// langsam von zwei Schwingungen (Boeen) moduliert wird. 4 s, laeuft in
+        /// Schleife (Anfang und Ende blenden ineinander).</summary>
+        static AudioClip Wind(string name)
+        {
+            int n = Len(4f);
+            var data = new float[n];
+            float lp = 0f, lp2 = 0f;
+            System.Random rng = new(name.GetHashCode());
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                lp += (noise - lp) * 0.04f;      // erste Filterstufe
+                lp2 += (lp - lp2) * 0.20f;       // zweite -> weiches Rauschen
+                float gust = 0.5f + 0.3f * Mathf.Sin(2f * Mathf.PI * 0.13f * t)
+                                  + 0.2f * Mathf.Sin(2f * Mathf.PI * 0.37f * t + 1.3f);
+                // Nahtlose Schleife: Rand mit einer halben Kosinuswelle andicken.
+                float k = i / (float)n;
+                float edge = 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * k);
+                data[i] = Mathf.Clamp(lp2 * gust * (0.6f + 0.4f * edge) * 0.9f, -1f, 1f);
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Fernes Dauerfeuer: unregelmaessige, gedaempfte Knack-Bursts
+        /// (kurze tiefpassgefilterte Rausch-Pops) ueber 2,6 s.</summary>
+        static AudioClip DistantFirefight(string name)
+        {
+            int n = Len(2.6f);
+            var data = new float[n];
+            System.Random rng = new(name.GetHashCode());
+            int i = 0;
+            while (i < n)
+            {
+                i += Len((float)(0.03 + rng.NextDouble() * 0.22));   // Pause bis zum naechsten Schuss
+                int pop = Len((float)(0.02 + rng.NextDouble() * 0.03));
+                float lp = 0f;
+                float vol = (float)(0.2 + rng.NextDouble() * 0.5);
+                for (int j = 0; j < pop && i + j < n; j++)
+                {
+                    float k = j / (float)pop;
+                    float env = Mathf.Exp(-k * 16f);
+                    float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                    lp += (noise - lp) * 0.06f;   // dunkel = weit weg
+                    data[i + j] += Mathf.Clamp(lp * env * vol, -1f, 1f);
+                }
+                i += pop;
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Artillerie: kurzer fallender Pfeif-Anflug, dann ein tiefer,
+        /// dumpfer Einschlag mit langem Abrollen. 1,6 s.</summary>
+        static AudioClip Artillery(string name)
+        {
+            int n = Len(1.6f);
+            var data = new float[n];
+            int whistleN = Len(0.55f);
+            float phase = 0f;
+            for (int i = 0; i < whistleN; i++)
+            {
+                float k = i / (float)whistleN;
+                float freq = Mathf.Lerp(1600f, 380f, k * k);
+                phase += 2f * Mathf.PI * freq / SampleRate;
+                float env = Mathf.Sin(Mathf.PI * k) * 0.18f;
+                data[i] += Mathf.Sin(phase) * env;
+            }
+            float lp = 0f;
+            System.Random rng = new(name.GetHashCode());
+            for (int i = whistleN; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float k = (i - whistleN) / (float)(n - whistleN);
+                float env = Mathf.Exp(-k * 3.2f);
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                lp += (noise - lp) * 0.03f;
+                float rumble = Mathf.Sin(2f * Mathf.PI * 42f * t) * 0.5f
+                             + Mathf.Sin(2f * Mathf.PI * 27f * t) * 0.5f;
+                data[i] += Mathf.Clamp((lp * 1.4f + rumble * 0.5f) * env, -1f, 1f);
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Hubschrauber: rhythmischer Rotor-Schlag (Pulsrate ~11 Hz) plus
+        /// ein Turbinen-Sinus. 3,5 s, gleichmaessige Huellkurve.</summary>
+        static AudioClip Helicopter(string name)
+        {
+            int n = Len(3.5f);
+            var data = new float[n];
+            float lp = 0f;
+            System.Random rng = new(name.GetHashCode());
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float k = i / (float)n;
+                float edge = 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * k);   // rein/raus
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                lp += (noise - lp) * 0.12f;
+                // Rotorschlag: geschaerfte Pulswelle
+                float beat = Mathf.Pow(Mathf.Max(0f, Mathf.Sin(2f * Mathf.PI * 11f * t)), 6f);
+                float turbine = Mathf.Sin(2f * Mathf.PI * 240f * t) * 0.12f;
+                data[i] = Mathf.Clamp((lp * beat * 0.9f + turbine) * edge * 0.8f, -1f, 1f);
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>Metall-Knarzen: tiefer Sinus, dessen Tonhoehe zittert (FM),
+        /// mit ein wenig Rausch-Reibung. 0,8 s.</summary>
+        static AudioClip MetalCreak(string name)
+        {
+            int n = Len(0.8f);
+            var data = new float[n];
+            float phase = 0f, lp = 0f;
+            System.Random rng = new(name.GetHashCode());
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float k = i / (float)n;
+                float env = Mathf.Sin(Mathf.PI * k) * Mathf.Exp(-k * 1.5f);
+                float wobble = Mathf.Sin(2f * Mathf.PI * 7f * t) * 14f
+                             + Mathf.Sin(2f * Mathf.PI * 23f * t) * 5f;
+                phase += 2f * Mathf.PI * (85f + wobble) / SampleRate;
+                float noise = (float)(rng.NextDouble() * 2.0 - 1.0);
+                lp += (noise - lp) * 0.02f;
+                data[i] = Mathf.Clamp((Mathf.Sin(phase) * 0.7f + lp * 0.4f) * env * 0.6f, -1f, 1f);
             }
             return FromData(name, data);
         }

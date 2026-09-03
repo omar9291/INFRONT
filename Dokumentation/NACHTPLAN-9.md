@@ -128,7 +128,12 @@ schattenlos (Kosten + sie flackern).
 Tests (`BeleuchtungTests`): SSAO ist im Renderer; mindestens N Lichter werfen
 Schatten; bei „Schlicht" sind die teuren Sachen aus.
 
-### [ ] P3 — Staub und Lichtschächte
+### [x] P3 — Staub und Lichtschächte — FERTIG, 124 Tests grün, committet
+
+Staub kam schon mit P1 (`AtmosphereDust`, 4 Volumen: ganze Karte, Halle, beide
+Sites). Dazu jetzt: 6 `ShaftLight`-Spots (2 Halle, je 1 Site, je 1 Aussenweg) -
+der additive Staub fängt den Kegel ein, das ergibt den sichtbaren Lichtschacht
+ganz ohne Zusatz-Geometrie. Neuer Test in `BeleuchtungTests`.
 
 - `AtmosphereDust` (aus `MenuDust` abgeleitet, das Original bleibt unangetastet)
   an mehreren Stellen der Arena, Dichte und Farbe folgen dem Wetter.
@@ -137,7 +142,16 @@ Schatten; bei „Schlicht" sind die teuren Sachen aus.
 
 Tests: Partikelsysteme existieren und laufen; bei „Schlicht" aus.
 
-### [ ] P4 — Umgebungston (Krieg drumherum)
+### [x] P4 — Umgebungston (Krieg drumherum) — FERTIG, 124 Tests grün, committet
+
+`AmbientWar.cs` (am HUD-Objekt der Arena): dauerhaftes Windbett (eigene
+Schleifen-AudioSource), dazu in unregelmässigen Abständen ferne 3D-Ereignisse -
+Dauerfeuer (45 %), Artillerie mit Schall-Verzögerung (20 %), Hubschrauber
+(17 %), knarzendes Metall (18 %). In der Kaufzeit leiser + längere Abstände.
+Wind folgt dem Wetter (Staubwind lauter). Ferne Ereignisse pausieren, solange
+der MatchManager für Tests ausgesetzt ist. 5 neue `SoundId` + Platzhalter in
+`ProceduralSfx`, echte Dateien später eintauschbar. Neuer Test-Zugang
+`AudioService.Resolve(id)`. Neue Tests: `AmbientTests` (4).
 
 Neu: `AmbientWar` (Runtime, in der Arena). Das ist der größte Einzelposten
 gegen „tot".
