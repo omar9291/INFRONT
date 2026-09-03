@@ -1,0 +1,68 @@
+using System.Collections;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.TestTools;
+
+namespace Infront.Tests
+{
+    /// <summary>
+    /// "Die Welt lebt" - P2: ernste Beleuchtung mit echten Schatten.
+    ///
+    /// NICHT prüfbar: wie es aussieht. Geprüft wird:
+    ///  - das URP-Asset erlaubt Zusatzlicht- und weiche Schatten, mit
+    ///    ausreichender Schattenweite für die grosse Karte,
+    ///  - in der Arena werfen genug Lichter echte Schatten (Sonne + Ankerlichter),
+    ///  - das Umgebungslicht ist heruntergefahren (sonst sieht man die Schatten nicht).
+    /// </summary>
+    public sealed class BeleuchtungTests
+    {
+        [UnityTearDown]
+        public IEnumerator TearDown() => MatchTestHarness.Teardown();
+
+        [Test]
+        public void URP_Asset_erlaubt_echte_Schatten()
+        {
+            var urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            Assert.IsNotNull(urp, "Kein URP-Asset aktiv.");
+
+            Assert.IsTrue(urp.supportsAdditionalLightShadows,
+                "Zusatzlichter dürfen keine Schatten werfen - Objekte schweben dann.");
+            Assert.IsTrue(urp.supportsSoftShadows, "Weiche Schatten sind aus.");
+            Assert.GreaterOrEqual(urp.shadowDistance, 60f,
+                "Die Schattenweite ist zu kurz für die 100-m-Karte.");
+        }
+
+        [UnityTest]
+        public IEnumerator Arena_hat_genug_schattenwerfende_Lichter()
+        {
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+
+            int casters = 0;
+            foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+                if (l.shadows != LightShadows.None) casters++;
+
+            Assert.GreaterOrEqual(casters, 5,
+                $"Nur {casters} Lichter werfen Schatten - zu wenig Kontrast/Tiefe.");
+        }
+
+        [UnityTest]
+        public IEnumerator Umgebungslicht_ist_heruntergefahren()
+        {
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+            for (int i = 0; i < 3; i++) yield return null;
+
+            if (RenderSettings.ambientMode == AmbientMode.Skybox)
+            {
+                Assert.LessOrEqual(RenderSettings.ambientIntensity, 0.45f,
+                    "Das Umgebungslicht (Skybox) ist zu hell - die Schatten verschwinden.");
+            }
+            else
+            {
+                Assert.Less(RenderSettings.ambientSkyColor.maxColorComponent, 0.15f,
+                    "Das Umgebungslicht (Trilight) ist zu hell.");
+            }
+        }
+    }
+}

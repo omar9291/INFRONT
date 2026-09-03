@@ -105,7 +105,17 @@ Tests (`WetterTests`): Wetter wechselt zwischen Runden; jede Lage bleibt unter
 der Dichte-Obergrenze; bei „Bild: Schlicht" ist alles aus; Bot-Sichtweite ist
 in allen Lagen identisch.
 
-### [ ] P2 — Ernste Beleuchtung, echte Schatten
+### [x] P2 — Ernste Beleuchtung, echte Schatten — FERTIG, 119 Tests grün, committet
+
+**Gebaut:** URP-Asset (GraphicsTune): Zusatzlicht-Schatten AN, weiche Schatten
+AN, Schattenweite 70, 4 Kaskaden. Sonne: shadowStrength 0.85. Fünf grosse
+Ankerlichter (MidGlow, SiteLight_A/B, HalleLight_1/2) werfen jetzt echte weiche
+Schatten (ForcePixel, damit sie nie wegoptimiert werden). Umgebungslicht hart
+runter (ambientIntensity 0.6 → 0.4 bzw. Trilight-Farben halbiert), damit die
+Schatten und die Kanten-Abdunklung überhaupt lesen. Tunnel-Notlichter bleiben
+schattenlos (Kosten + sie flackern).
+
+**SSAO: heute Nacht NICHT gemacht** — siehe Abschnitt 4.
 
 - **SSAO** in den URP-Renderer (Editor-Code, `UrpSetup`). Das ist der Effekt,
   der Ecken abdunkelt und Objekte auf den Boden „stellt".
@@ -191,3 +201,11 @@ das morgens.)
 - **P1: Nebeldichte hart auf 0.013 gedeckelt.** Die stärkste Lage ("Rauch")
   läge sonst bei 0.012 — schon spürbar. Der Deckel ist die Garantie für
   "Sichtweite bleibt gleich". Ein Test bewacht ihn.
+- **P2: SSAO (Umgebungsverdeckung) heute Nacht nicht gemacht.** Grund: SSAO
+  ist in URP ein "Renderer Feature", das man nur über einen fragilen
+  SerializedObject-Eingriff ins Renderer-Asset einhängt — und die dafür
+  nötige `GetInstanceID()`-API ist in Unity 6 als veraltet markiert, was
+  hier Build-Fehler gibt (schon einmal passiert). Ein blinder nächtlicher
+  Versuch ist zu riskant. Stattdessen: echte Schatten von 5 Ankerlichtern
+  + Umgebungslicht runter — das "stellt" die Objekte auch auf den Boden.
+  SSAO bleibt als sauberer nächster Schritt (manuell, mit Sicht aufs Bild).

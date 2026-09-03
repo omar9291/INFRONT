@@ -623,8 +623,11 @@ namespace Infront.EditorTools
         }
 
         /// <summary>Punktlicht an einer Engstelle - Gegner zeichnen sich als
-        /// Silhouette ab.</summary>
-        static void PointLightAt(string name, Vector3 pos, Color c, float range, float intensity)
+        /// Silhouette ab. Mit <paramref name="shadows"/> wirft es echte weiche
+        /// Schatten (nur fuer die wenigen grossen Ankerlichter - Schatten von
+        /// Punktlichtern kosten).</summary>
+        static void PointLightAt(string name, Vector3 pos, Color c, float range, float intensity,
+                                 bool shadows = false)
         {
             var go = new GameObject(name);
             go.transform.SetParent(_mapRoot, true);
@@ -634,7 +637,18 @@ namespace Infront.EditorTools
             l.color = c;
             l.range = range;
             l.intensity = intensity;
-            l.shadows = LightShadows.None;
+            if (shadows)
+            {
+                l.shadows = LightShadows.Soft;
+                l.shadowStrength = 0.72f;
+                l.shadowBias = 0.15f;
+                l.shadowNormalBias = 0.6f;
+                l.renderMode = LightRenderMode.ForcePixel;   // nie wegoptimieren
+            }
+            else
+            {
+                l.shadows = LightShadows.None;
+            }
         }
 
         /// <summary>Treibender Staub in der Arena (mehrere Volumen). Dichte und
@@ -1089,7 +1103,7 @@ namespace Infront.EditorTools
             CoverLow("MidTop_3", 0f, 1.2f, 0f, 2.4f, 1f);
             Stripe("MidEdge_B", 0f, 1.35f, 5f, 14f, 0.06f, 0.4f);
             Stripe("MidEdge_A", 0f, 1.35f, -5f, 14f, 0.06f, 0.4f);
-            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.6f, 0.3f), 26f, 13f);
+            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.6f, 0.3f), 26f, 13f, shadows: true);
         }
 
         static void BuildWerkTunnels()
@@ -1161,8 +1175,8 @@ namespace Infront.EditorTools
             MakeBombSite("BombZone_B", 1, 20f);
             SiteLetter(-20f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
             SiteLetter(20f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
-            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.72f, 0.35f), 24f, 12f);
-            PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 24f, 12f);
+            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.72f, 0.35f), 24f, 12f, shadows: true);
+            PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 24f, 12f, shadows: true);
 
             foreach (int sgn in new[] { -1, 1 })
             {
@@ -1193,8 +1207,8 @@ namespace Infront.EditorTools
         static void BuildWerkLights()
         {
             // warme Akzentlichter an den Knotenpunkten der Halle
-            PointLightAt("HalleLight_1", new Vector3(0f, 6f, 20f), new Color(1f, 0.7f, 0.42f), 20f, 10f);
-            PointLightAt("HalleLight_2", new Vector3(0f, 6f, -20f), new Color(1f, 0.7f, 0.42f), 20f, 10f);
+            PointLightAt("HalleLight_1", new Vector3(0f, 6f, 20f), new Color(1f, 0.7f, 0.42f), 20f, 10f, shadows: true);
+            PointLightAt("HalleLight_2", new Vector3(0f, 6f, -20f), new Color(1f, 0.7f, 0.42f), 20f, 10f, shadows: true);
             PointLightAt("HalleLight_3", new Vector3(0f, 7f, 34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
             PointLightAt("HalleLight_4", new Vector3(0f, 7f, -34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
         }
@@ -1824,6 +1838,7 @@ namespace Infront.EditorTools
             light.intensity = 1.0f;   // leicht gedimmt - das Post-Processing hebt wieder an
             light.color = new Color(1f, 0.95f, 0.88f);
             light.shadows = LightShadows.Soft;
+            light.shadowStrength = 0.85f;   // P2: Schatten deutlich lesbar
             lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
 
             // P3: echter HDRI-Himmel, sonst der dunkle prozedurale Himmel (wie bisher).
@@ -1837,7 +1852,10 @@ namespace Infront.EditorTools
                     RenderSettings.skybox = hdriSky;
                     // Licht kommt jetzt aus der HDRI - Umgebungslicht vom Himmel nehmen.
                     RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox;
-                    RenderSettings.ambientIntensity = 0.6f;   // gedaempft zum dunklen Look
+                    // P2: Umgebungslicht deutlich runter, damit die neuen Schatten
+                    // und die Kanten-Abdunklung ueberhaupt zu sehen sind. Die
+                    // vielen Punktlichter der Karte tragen den Rest.
+                    RenderSettings.ambientIntensity = 0.4f;
                     light.intensity = 0.75f;                  // Sonne etwas zuruecknehmen
                     DynamicGI.UpdateEnvironment();
                 }
@@ -1863,9 +1881,10 @@ namespace Infront.EditorTools
                         EditorUtility.SetDirty(sky);
                         RenderSettings.skybox = sky;
                         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-                        RenderSettings.ambientSkyColor = new Color(0.12f, 0.14f, 0.18f);
-                        RenderSettings.ambientEquatorColor = new Color(0.08f, 0.09f, 0.1f);
-                        RenderSettings.ambientGroundColor = new Color(0.03f, 0.03f, 0.035f);
+                        // P2: dunkler, damit Schatten und Kanten lesen.
+                        RenderSettings.ambientSkyColor = new Color(0.08f, 0.09f, 0.12f);
+                        RenderSettings.ambientEquatorColor = new Color(0.05f, 0.06f, 0.07f);
+                        RenderSettings.ambientGroundColor = new Color(0.02f, 0.02f, 0.025f);
                     }
                 }
             }

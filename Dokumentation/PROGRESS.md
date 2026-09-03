@@ -28,7 +28,19 @@ Nebel = **nur Optik, Sichtweite bleibt gleich**. Waffen = aus Code detailliert b
 - Alle drei: bei "Bild: Schlicht" komplett aus (eigene Rueckfall-Pruefung,
   auch ohne WeatherDirector). Neue Tests: `WetterTests` (4).
 
-### P2-P8: siehe NACHTPLAN-9.md (noch offen)
+### P2 - Ernste Beleuchtung, echte Schatten (FERTIG, 119 Tests gruen)
+
+- **`GraphicsTune.cs`**: URP-Asset - Zusatzlicht-Schatten AN, weiche Schatten AN,
+  Schattenweite 70, 4 Kaskaden.
+- **`SceneBuilder.cs`**: 5 grosse Ankerlichter (MidGlow, SiteLight_A/B,
+  HalleLight_1/2) werfen echte weiche Schatten (`ForcePixel`). Sonne
+  shadowStrength 0.85. Umgebungslicht runter (ambientIntensity 0.4), damit
+  Schatten und Kanten lesen. Tunnel-Notlichter bleiben schattenlos.
+- **SSAO verschoben** (URP-Renderer-Feature + veraltete GetInstanceID-API zu
+  riskant fuer einen blinden Nachtlauf - siehe NACHTPLAN-9 Abschnitt 4).
+- Neue Tests: `BeleuchtungTests` (3).
+
+### P3-P8: siehe NACHTPLAN-9.md (noch offen)
 
 ## GAMEPLAY-UEBERARBEITUNG - Etappe 2 "Wucht" (2026-09-03)
 

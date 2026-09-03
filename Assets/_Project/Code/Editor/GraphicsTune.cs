@@ -35,18 +35,48 @@ namespace Infront.EditorTools
             // 0 = LDR, 1 = HDR-Farbgraduierung (bessere Farben mit Tonemapping)
             var grading = so.FindProperty("m_ColorGradingMode");
             if (grading != null) grading.intValue = 1;
+
+            // Nacht 9 / P2: ernste Beleuchtung mit echten Schatten.
+            //  - Zusatzlichter (Punktlichter) duerfen jetzt Schatten werfen -
+            //    damit dunkeln Waende, Saeulen und Kisten sich gegenseitig ab
+            //    und die Objekte "stehen" auf dem Boden statt zu schweben.
+            //  - Weiche Schattenkanten.
+            //  - Schattenweite und Kaskaden auf die grosse Karte.
+            SetBool(so, "m_AdditionalLightShadowsSupported", true);
+            SetBool(so, "m_SoftShadowsSupported", true);
+            SetFloat(so, "m_ShadowDistance", 70f);
+            SetInt(so, "m_ShadowCascadeCount", 4);
+            SetFloat(so, "m_ShadowDepthBias", 1.2f);
+            SetFloat(so, "m_ShadowNormalBias", 1.4f);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             EditorUtility.SetDirty(urp);
             AssetDatabase.SaveAssets();
 
-            Debug.Log($"GRAPHICS_TUNE_OK hdr={urp.supportsHDR} adaptivePerf={FindBool(urp, "m_UseAdaptivePerformance")}");
+            Debug.Log($"GRAPHICS_TUNE_OK hdr={urp.supportsHDR} " +
+                      $"addLightShadows={urp.supportsAdditionalLightShadows} " +
+                      $"softShadows={urp.supportsSoftShadows} shadowDist={urp.shadowDistance} " +
+                      $"adaptivePerf={FindBool(urp, "m_UseAdaptivePerformance")}");
         }
 
         static void SetBool(SerializedObject so, string prop, bool value)
         {
             var p = so.FindProperty(prop);
             if (p != null) p.boolValue = value;
+            else Debug.LogWarning($"[Infront] Property fehlt: {prop}");
+        }
+
+        static void SetFloat(SerializedObject so, string prop, float value)
+        {
+            var p = so.FindProperty(prop);
+            if (p != null) p.floatValue = value;
+            else Debug.LogWarning($"[Infront] Property fehlt: {prop}");
+        }
+
+        static void SetInt(SerializedObject so, string prop, int value)
+        {
+            var p = so.FindProperty(prop);
+            if (p != null) p.intValue = value;
             else Debug.LogWarning($"[Infront] Property fehlt: {prop}");
         }
 
