@@ -2037,11 +2037,12 @@ namespace Infront.EditorTools
                     RenderSettings.skybox = hdriSky;
                     // Licht kommt jetzt aus der HDRI - Umgebungslicht vom Himmel nehmen.
                     RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox;
-                    // P2: Umgebungslicht deutlich runter, damit die neuen Schatten
-                    // und die Kanten-Abdunklung ueberhaupt zu sehen sind. Die
-                    // vielen Punktlichter der Karte tragen den Rest.
-                    RenderSettings.ambientIntensity = 0.4f;
-                    light.intensity = 0.75f;                  // Sonne etwas zuruecknehmen
+                    // P2: Umgebungslicht etwas runter, damit die neuen Schatten
+                    // lesbar sind - aber NICHT so weit, dass Schattenseiten
+                    // schwarz absaufen (Screenshot-Test 2026-09-04: 0.4 war zu
+                    // dunkel). 0.62 haelt Kontrast und laesst die Ecken sehen.
+                    RenderSettings.ambientIntensity = 0.62f;
+                    light.intensity = 0.85f;                  // Sonne wieder etwas hoeher
                     DynamicGI.UpdateEnvironment();
                 }
                 else
@@ -2066,10 +2067,11 @@ namespace Infront.EditorTools
                         EditorUtility.SetDirty(sky);
                         RenderSettings.skybox = sky;
                         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-                        // P2: dunkler, damit Schatten und Kanten lesen.
-                        RenderSettings.ambientSkyColor = new Color(0.08f, 0.09f, 0.12f);
-                        RenderSettings.ambientEquatorColor = new Color(0.05f, 0.06f, 0.07f);
-                        RenderSettings.ambientGroundColor = new Color(0.02f, 0.02f, 0.025f);
+                        // P2: etwas dunkler fuer Schatten-Kontrast, aber nicht schwarz
+                        // (Screenshot-Test 2026-09-04).
+                        RenderSettings.ambientSkyColor = new Color(0.13f, 0.15f, 0.19f);
+                        RenderSettings.ambientEquatorColor = new Color(0.09f, 0.10f, 0.12f);
+                        RenderSettings.ambientGroundColor = new Color(0.035f, 0.035f, 0.04f);
                     }
                 }
             }
