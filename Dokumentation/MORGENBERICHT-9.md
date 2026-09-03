@@ -78,5 +78,6 @@ Optik und Klang beurteilst du.
 
 - PlayMode-Tests: **126/126 grün** (Start der Nacht: 112 - dazu 14 neue:
   4 WetterTests, 4 BeleuchtungTests, 4 AmbientTests, 2 ViewModelTests).
-- Commits: P1 `32e98fa`, P2 `865944a`, P3+P4 `b60d763`, P5+P6+P7 (+ Version 1.1).
-- Mac-Build neu gebaut (Version **1.1**) und gestartet.
+- Commits: P1 `32e98fa`, P2 `865944a`, P3+P4 `b60d763`, P5+P6+P7 `5b86f8c` (+ Version 1.1).
+- Mac-Build neu gebaut (Version **1.1**, ~158 MB) und gestartet.
+- Alles auf `omar9291/INFRONT` (main) gepusht.
