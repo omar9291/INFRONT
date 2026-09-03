@@ -26,20 +26,43 @@ namespace Infront
     [RequireComponent(typeof(CharacterController))]
     public sealed class NetworkPlayerController : NetworkBehaviour, IAimSource
     {
+        // Realismus-Etappe Schritt 2: die Werte sind bewusst niedriger als
+        // vorher. Vorher war 6 m/s Gehen und 10 m/s Sprinten - 10 m/s ist
+        // Weltrekord-Tempo, und das ohne Ausruestung. Jetzt: zuegiges Gehen
+        // mit Weste und Gewehr, und ein Sprint, den ein Mensch schafft.
         [Header("Bewegung")]
-        [SerializeField] float _walkSpeed = 6f;
-        [SerializeField] float _sprintSpeed = 10f;
-        [SerializeField] float _crouchSpeed = 2.6f;
-        [SerializeField] float _sneakSpeed = 2.1f;
-        [SerializeField] float _adsSpeed = 3.4f;
-        [SerializeField] float _jumpHeight = 1.5f;
+        [SerializeField] float _walkSpeed = 4.6f;
+        [SerializeField] float _sprintSpeed = 7.2f;
+        // Muessen mitgezogen werden: bei 4,6 m/s Gehen waere Ducken mit 2,6
+        // fast so schnell wie Gehen. Geduckt kommt man wirklich kaum voran.
+        [SerializeField] float _crouchSpeed = 1.9f;
+        [SerializeField] float _sneakSpeed = 1.4f;
+        // Im Anschlag geht man, man laeuft nicht.
+        [SerializeField] float _adsSpeed = 2.6f;
+        // 1,5 m waere Hochsprung aus dem Stand. 0,85 m ist ein Hindernis
+        // uebersteigen - mehr kann niemand mit Ausruestung.
+        [SerializeField] float _jumpHeight = 0.85f;
         [SerializeField] float _gravity = 20f;
         [SerializeField] float _turnLerp = 20f;
 
+        // Bei _groundAccel 55 war die Zielgeschwindigkeit nach 0,11 s erreicht -
+        // also praktisch sofort. Mit 14 dauert es rund 0,43 s: der Koerper muss
+        // erst anschieben. _groundDecel 18 laesst einen beim Stehenbleiben noch
+        // ein Stueck weiterrutschen, _airAccel 4 beendet das Umsteuern im Sprung.
         [Header("Traegheit (Gewicht der Bewegung)")]
-        [SerializeField] float _groundAccel = 55f;
-        [SerializeField] float _groundDecel = 42f;
-        [SerializeField] float _airAccel = 14f;
+        [SerializeField] float _groundAccel = 14f;
+        [SerializeField] float _groundDecel = 18f;
+        [SerializeField] float _airAccel = 4f;
+
+        // Sprinten setzt nicht sofort ein und endet nicht abrupt. _sprintRamp
+        // laeuft von 0 (Gehen) bis 1 (voller Sprint).
+        [Header("Gewicht")]
+        [SerializeField] float _sprintRampUp = 1.1f;
+        [SerializeField] float _sprintRampDown = 0.5f;
+        // Hartes Aufkommen kostet kurz Kontrolle: in dieser Zeit faellt die
+        // Beschleunigung auf _landStunAccelMul. Danach geht es normal weiter.
+        [SerializeField] float _landStunTime = 0.35f;
+        [SerializeField, Range(0f, 1f)] float _landStunAccelMul = 0.3f;
 
         [Header("Zielen")]
         [SerializeField] Transform _aimPivot;
@@ -92,6 +115,10 @@ namespace Infront
         float _landKick;      // kurze Blick-Senkung nach hartem Aufkommen
         bool _prevGrounded = true;
         float _lastFallSpeed;
+        float _sprintRamp;        // 0 = Gehen, 1 = voller Sprint
+        float _landStunLeft;      // Restzeit des Kontrollverlusts nach der Landung
+        bool _serverPrevGrounded = true;
+        float _serverFallSpeed;
 
         // Nur Client-Besitzer
         PlayerInputCommand _pending;
@@ -116,6 +143,15 @@ namespace Infront
             NetworkVariableWritePermission.Server);
 
         public float VerticalVelocity => _verticalVelocity;
+
+        /// <summary>Sprint-Anlauf 0..1. Nur fuer Tests.</summary>
+        public float SprintRampForTests => _sprintRamp;
+
+        /// <summary>Restzeit des Landungs-Kontrollverlusts. Nur fuer Tests.</summary>
+        public float LandStunLeftForTests => _landStunLeft;
+
+        /// <summary>Waagrechte Geschwindigkeit des Servers. Nur fuer Tests.</summary>
+        public Vector3 HorizontalVelocityForTests => _horizVel;
         public float AimPitch => _aimPitchNet.Value;
         public float RecoilPitch => _recoilPitch;
 
@@ -478,6 +514,8 @@ namespace Infront
             {
                 // Startsperre / Tod: sofort stehen, nur Schwerkraft.
                 _horizVel = Vector3.zero;
+                _sprintRamp = 0f;
+                _landStunLeft = 0f;
                 _verticalVelocity = _controller.isGrounded ? -2f : _verticalVelocity - _gravity * dt;
                 _controller.Move(Vector3.up * _verticalVelocity * dt);
                 return;
@@ -489,9 +527,18 @@ namespace Infront
             float c = _crouchNet.Value;
             bool aiming = command.Aim && !command.Sprint;
 
+            // Sprint-Anlauf: die Rampe faehrt hoch, solange gesprintet werden
+            // darf, und wieder herunter, sobald nicht. Dadurch setzt der Sprint
+            // nicht schlagartig ein und endet nicht abrupt.
+            bool willSprint = command.Sprint && c < 0.2f && !aiming;
+            float rampRate = willSprint
+                ? (_sprintRampUp > 0f ? dt / _sprintRampUp : 1f)
+                : (_sprintRampDown > 0f ? dt / _sprintRampDown : 1f);
+            _sprintRamp = Mathf.MoveTowards(_sprintRamp, willSprint ? 1f : 0f, rampRate);
+
             float speed = _walkSpeed;
-            if (command.Sprint && c < 0.2f && !aiming)
-                speed = _sprintSpeed;
+            if (_sprintRamp > 0.001f && c < 0.2f && !aiming)
+                speed = Mathf.Lerp(_walkSpeed, _sprintSpeed, _sprintRamp);
             else if (c > 0.05f)
                 speed = Mathf.Lerp(_walkSpeed, _crouchSpeed, c);
             else if (command.Walk)
@@ -499,7 +546,17 @@ namespace Infront
             if (aiming)
                 speed = Mathf.Min(speed, _adsSpeed);
 
-            if (_controller.isGrounded)
+            // Landungs-Kontrollverlust (Server, damit er wirklich die Bewegung
+            // betrifft und nicht nur den Blick). Der Blick-Ruck in LateUpdate
+            // bleibt daneben bestehen.
+            bool groundedNow = _controller.isGrounded;
+            if (groundedNow && !_serverPrevGrounded && _serverFallSpeed < -6f)
+                _landStunLeft = _landStunTime;
+            if (!groundedNow) _serverFallSpeed = _verticalVelocity;
+            _serverPrevGrounded = groundedNow;
+            if (_landStunLeft > 0f) _landStunLeft = Mathf.Max(0f, _landStunLeft - dt);
+
+            if (groundedNow)
             {
                 _verticalVelocity = -2f;
                 if (command.Jump && c < 0.2f)
@@ -513,9 +570,10 @@ namespace Infront
             // Traegheit: die waagrechte Geschwindigkeit faehrt zum Wunsch, statt
             // sofort dort zu sein. Das gibt der Bewegung Gewicht.
             Vector3 wishVel = wishDir * speed;
-            float rate = !_controller.isGrounded
+            float rate = !groundedNow
                 ? _airAccel
                 : (wishVel.sqrMagnitude > 0.04f ? _groundAccel : _groundDecel);
+            if (_landStunLeft > 0f) rate *= _landStunAccelMul;
             _horizVel = Vector3.MoveTowards(_horizVel, wishVel, rate * dt);
 
             _controller.Move((_horizVel + Vector3.up * _verticalVelocity) * dt);
