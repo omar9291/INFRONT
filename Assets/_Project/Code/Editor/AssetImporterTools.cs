@@ -671,7 +671,10 @@ namespace Infront.EditorTools
             }
 
             // 2) Animations-FBX auf dasselbe Rig ziehen und den Clip holen.
-            AnimationClip Clip(params string[] hints)
+            // loop=false fuer einmalige Bewegungen. Ohne das lief auch das
+            // Sterben in einer Schleife: die Leiche waere endlos wieder
+            // aufgestanden und umgefallen.
+            AnimationClip Clip(bool loop, params string[] hints)
             {
                 string fbx = FindFbx(FiguresDir, hints);
                 if (fbx == null) return null;
@@ -682,22 +685,31 @@ namespace Infront.EditorTools
                 imp.sourceAvatar = avatar;
                 imp.importAnimation = true;
                 imp.SaveAndReimport();
+
+                // Die Schleife MUSS ueber clipAnimations gesetzt werden.
+                // AnimationUtility.SetAnimationClipSettings aendert nur die
+                // geladene Kopie im Speicher - beim naechsten Import ist die
+                // Einstellung wieder weg. Genau daran ist es zuerst
+                // gescheitert: danach lief keine einzige Animation mehr in
+                // einer Schleife, die Figur stand also still statt zu gehen.
+                var defs = imp.defaultClipAnimations;
+                if (defs != null && defs.Length > 0)
+                {
+                    for (int i = 0; i < defs.Length; i++) defs[i].loopTime = loop;
+                    imp.clipAnimations = defs;
+                    imp.SaveAndReimport();
+                }
+
                 var clip = AssetDatabase.LoadAllAssetsAtPath(fbx)
                     .OfType<AnimationClip>()
                     .FirstOrDefault(c => !c.name.StartsWith("__preview"));
-                if (clip != null)
-                {
-                    var s = AnimationUtility.GetAnimationClipSettings(clip);
-                    s.loopTime = true;
-                    AnimationUtility.SetAnimationClipSettings(clip, s);
-                }
                 return clip;
             }
 
-            var idle = Clip("idle", "stand");
-            var walk = Clip("walk", "geh");
-            var run = Clip("run", "lauf", "sprint");
-            var death = Clip("death", "tod", "die", "sterb");
+            var idle = Clip(true, "idle", "stand");
+            var walk = Clip(true, "walk", "geh");
+            var run = Clip(true, "run", "lauf", "sprint");
+            var death = Clip(false, "death", "tod", "die", "sterb");
 
             if (idle == null && walk == null && run == null)
             {

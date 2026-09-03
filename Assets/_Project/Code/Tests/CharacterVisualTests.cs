@@ -31,6 +31,72 @@ namespace Infront.Tests
             return null;
         }
 
+        /// <summary>
+        /// Schritt 1 der Realismus-Etappe: die echte Mixamo-Figur wird benutzt,
+        /// nicht mehr der Wuerfel-Rueckfall. Zusaetzlich wird geprueft, dass der
+        /// Animator wirklich haengt und die vier Zustaende kennt.
+        ///
+        /// NICHT pruefbar: ob die Bewegungen glaubwuerdig aussehen.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Echte_Mixamo_Figur_wird_benutzt()
+        {
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+            for (int i = 0; i < 10; i++) yield return null;
+
+            var cv = FirstBotVisual();
+            Assert.IsNotNull(cv, "Kein Bot mit CharacterVisual.");
+            Assert.IsTrue(cv.UsingRealModelForTests,
+                "Der Wuerfel-Rueckfall laeuft noch - figur.prefab fehlt oder ist kaputt.");
+
+            var anim = cv.GetComponentInChildren<Animator>();
+            Assert.IsNotNull(anim, "Die Figur hat keinen Animator.");
+            Assert.IsNotNull(anim.runtimeAnimatorController, "Kein Animator-Controller gesetzt.");
+
+            bool hatSpeed = false, hatDead = false;
+            foreach (var par in anim.parameters)
+            {
+                if (par.name == "Speed") hatSpeed = true;
+                if (par.name == "Dead") hatDead = true;
+            }
+            Assert.IsTrue(hatSpeed, "Der Animator kennt den Wert 'Speed' nicht.");
+            Assert.IsTrue(hatDead, "Der Animator kennt den Wert 'Dead' nicht.");
+        }
+
+        /// <summary>
+        /// Die Sterbe-Animation darf nicht in einer Schleife laufen - sonst
+        /// steht die Leiche endlos wieder auf und faellt erneut um.
+        /// </summary>
+        [Test]
+        public void Sterbe_Animation_laeuft_nicht_in_Schleife()
+        {
+            var figur = Resources.Load<GameObject>("Models/figur");
+            if (figur == null) Assert.Ignore("Keine echte Figur vorhanden - nichts zu pruefen.");
+
+            var anim = figur.GetComponentInChildren<Animator>();
+            Assert.IsNotNull(anim, "Die Figur hat keinen Animator.");
+            var ctrl = anim.runtimeAnimatorController;
+            Assert.IsNotNull(ctrl, "Kein Animator-Controller gesetzt.");
+
+            // Mixamo nennt jeden Clip "mixamo.com" - ueber den Namen ist die
+            // Sterbe-Animation also nicht zu finden. Stattdessen wird die
+            // Eigenschaft selbst geprueft: idle, walk und run laufen in einer
+            // Schleife, das Sterben genau nicht. Also darf von vier Clips
+            // genau einer nicht schleifen.
+            var clips = ctrl.animationClips;
+            if (clips.Length < 4)
+                Assert.Ignore($"Nur {clips.Length} Animationen vorhanden - nichts zu pruefen.");
+
+            int ohneSchleife = 0;
+            foreach (var c in clips)
+                if (!c.isLooping) ohneSchleife++;
+
+            Assert.AreEqual(1, ohneSchleife,
+                $"Von {clips.Length} Animationen laufen {clips.Length - ohneSchleife} in einer " +
+                "Schleife. Erwartet: idle, walk und run schleifen, das Sterben nicht. " +
+                "Sonst steht die Leiche endlos wieder auf.");
+        }
+
         [UnityTest]
         public IEnumerator Figur_wird_gebaut_und_Kapsel_ausgeblendet()
         {
