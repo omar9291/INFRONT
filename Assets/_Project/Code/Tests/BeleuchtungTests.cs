@@ -91,13 +91,19 @@ namespace Infront.Tests
 
             if (RenderSettings.ambientMode == AmbientMode.Skybox)
             {
-                Assert.LessOrEqual(RenderSettings.ambientIntensity, 0.45f,
+                // Heruntergefahren (Default ist 1.0), aber NICHT so weit, dass
+                // Schattenseiten schwarz absaufen (Screenshot-Test 2026-09-04).
+                Assert.LessOrEqual(RenderSettings.ambientIntensity, 0.75f,
                     "Das Umgebungslicht (Skybox) ist zu hell - die Schatten verschwinden.");
+                Assert.GreaterOrEqual(RenderSettings.ambientIntensity, 0.45f,
+                    "Das Umgebungslicht (Skybox) ist zu dunkel - man sieht nichts im Schatten.");
             }
             else
             {
-                Assert.Less(RenderSettings.ambientSkyColor.maxColorComponent, 0.15f,
+                Assert.Less(RenderSettings.ambientSkyColor.maxColorComponent, 0.25f,
                     "Das Umgebungslicht (Trilight) ist zu hell.");
+                Assert.Greater(RenderSettings.ambientSkyColor.maxColorComponent, 0.08f,
+                    "Das Umgebungslicht (Trilight) ist zu dunkel.");
             }
         }
     }
