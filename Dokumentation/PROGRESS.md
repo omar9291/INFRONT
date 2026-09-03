@@ -5,6 +5,20 @@ Sitzung ZUERST gelesen.
 
 Letzte Aktualisierung: 2026-09-04
 
+## Leistungsanzeige (2026-09-04, nach Nacht 9)
+
+- **`PerfOverlay.cs`** (am GameFlow-Objekt, ueberlebt Szenenwechsel): **F3**
+  blendet FPS (aktuell/geglaettet/min/max/1%-Tiefpunkt), Frame-Zeit in ms, RAM
+  (belegt/reserviert), aktive Tonquellen, Aufloesung/GPU/VSync und einen
+  ~2-Sekunden-Verlaufsbalken ein. Standardmaessig AUS, reines Entwickler-Tool.
+- Alles per Code (OnGUI), kein Fremdpaket. Nutzer hatte nach "Graphy" gefragt;
+  Entscheidung: eigenes Overlay, weil headless pruefbar, im INFRONT-Stil und
+  ohne Paket-/Lizenz-Abhaengigkeit. Graphy laesst sich spaeter nachruesten.
+- Zweck: der Entwickler kann das Spiel auf diesem Rechner nicht ansehen - jetzt
+  kann der Nutzer echte Zahlen ablesen und zurueckmelden (z.B. "Rauch-Wetter
+  -> FPS faellt in der Halle").
+- Neue Tests: `PerfOverlayTests` (2).
+
 ## NACHT 9 - Etappe 3 "Die Welt lebt" (2026-09-03 auf 2026-09-04)
 
 Autonome Nachtrunde. Arbeitsanweisung: `Dokumentation/NACHTPLAN-9.md`.

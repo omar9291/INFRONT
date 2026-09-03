@@ -46,6 +46,9 @@ In Entwicklung. Aktueller Fortschritt: siehe [`Dokumentation/PROGRESS.md`](Dokum
   Mac + Windows und packt fertige ZIPs nach `Builds/dist/`.
 - **Netzwerk:** server-autoritativ über Netcode for GameObjects, vorerst nur
   Host-Modus.
+- **Leistungsanzeige:** im laufenden Spiel **F3** — blendet FPS (inkl. Minimum,
+  Maximum, 1%-Tiefpunkt), Frame-Zeit, RAM, aktive Tonquellen und einen kurzen
+  Verlaufsbalken ein. Standardmäßig aus, reines Entwickler-Hilfsmittel.
 
 ## Dokumentation
 

@@ -26,6 +26,7 @@ namespace Infront
             Instance = go.AddComponent<GameFlow>();
             go.AddComponent<LoadingOverlay>();   // Ladebildschirm, ueberlebt Szenenwechsel
             go.AddComponent<AudioService>();     // Ton-Ausgabe, ueberlebt Szenenwechsel
+            go.AddComponent<PerfOverlay>();      // Leistungsanzeige (F3), standardmaessig aus
             DontDestroyOnLoad(go);
         }
 
