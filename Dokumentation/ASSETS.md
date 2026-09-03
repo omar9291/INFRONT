@@ -32,6 +32,7 @@ unter "Driftlab" auf itch.io.
 | Concrete034, Concrete016, Asphalt031, Metal046A, PavingStones128 (1K JPG) | ambientcg.com | CC0 | Wand-/Boden-/Deckungs-/Platz-Texturen (P2) | 2026-09-01 |
 | industrial_sunset_02 (2K HDRI) | polyhaven.com | CC0 | HDRI-Himmel + Umgebungslicht (P3) | 2026-09-01 |
 | Barrel_01, ammo_box, wooden_military_crate, metal_jerrycan_green, modular_industrial_pipes_01, hanging_industrial_lamp, cement_bag (1K FBX) | polyhaven.com | CC0 | Deko-Modelle statt Grundkoerper (P4) | 2026-09-01 |
+| concrete_road_barrier, concrete_road_barrier_02, metal_trash_can, old_tyre, hand_truck, industrial_storage_cart (1K FBX + diff/nor) | polyhaven.com | CC0 | Betonbarrieren als echte Deckung + Deko, "realistischer Look" | 2026-09-04 |
 
 Ablage:
 - Roh-Downloads: `Assets/_Project/Art/Textures/`, `Art/Sky/`, `Art/Models/`

@@ -592,6 +592,14 @@ namespace Infront.EditorTools
                 if (inst.HasProperty("_BumpMap")) inst.SetTextureScale("_BumpMap", scale);
                 if (metallic >= 0f && inst.HasProperty("_Metallic")) inst.SetFloat("_Metallic", metallic);
                 if (smoothness >= 0f && inst.HasProperty("_Smoothness")) inst.SetFloat("_Smoothness", smoothness);
+                // Leichtes Abtoenen der texturierten Flaeche gegen Ausbrennen
+                // unter Punktlicht - nur ein Hauch, nie Richtung Schwarz.
+                if (fallbackTint.maxColorComponent < 0.8f)
+                {
+                    var t = new Color(0.72f, 0.72f, 0.74f);
+                    if (inst.HasProperty("_BaseColor")) inst.SetColor("_BaseColor", t);
+                    inst.color = t;
+                }
                 r.sharedMaterial = inst;
             }
             else
@@ -629,12 +637,13 @@ namespace Infront.EditorTools
             b.name = name;
             b.transform.SetParent(_mapRoot, true);
             b.transform.position = new Vector3(x, y, z);
-            b.transform.localScale = new Vector3(sx, sy * 0.5f, sz);
+            b.transform.localScale = new Vector3(sx, sy * 0.4f, sz);
             var col = b.GetComponent<Collider>();
             if (col != null) Object.DestroyImmediate(col);   // Deko, nicht beschussrelevant
-            // Screenshot-Test 2: die Streifen wirkten immer noch wie Landebahn-
-            // Markierungen. Jetzt ein gedaempftes Warm-Glimmen statt Neon.
-            b.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(0.7f, 0.42f, 0.22f), 0.5f);
+            // Screenshot-Test 4: die orangen "Landebahn"-Streifen weg. Jetzt eine
+            // dunkle Metall-Kantenleiste, die in der Geometrie fast verschwindet.
+            // Zurueck auf leuchtendes Orange ist eine Zeile, falls doch gewuenscht.
+            b.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.11f, 0.11f, 0.12f));
         }
 
         static void StripeM(string name, float x, float y, float z, float sx, float sy, float sz)
@@ -986,10 +995,40 @@ namespace Infront.EditorTools
         //   Niedrig(~0.7 m): nur Beinschutz, drüber schiessen
         static void CoverHigh(string n, float x, float fy, float z, float sx, float sz)
             => Crate(n, x, fy + 0.95f, z, sx, 1.9f, sz);
+
+        /// <summary>Mittlere Deckung. Wenn es die CC0-Betonbarrieren gibt, steht
+        /// hier ein echtes Modell (verwitterte Jersey-Barriere) - der Kollider
+        /// darunter bleibt in Deckungsgroesse, Balance und NavMesh unveraendert.
+        /// Ohne die Modelle: der texturierte Wuerfel wie bisher.</summary>
         static void CoverMid(string n, float x, float fy, float z, float sx, float sz)
-            => Crate(n, x, fy + 0.60f, z, sx, 1.2f, sz);
+        {
+            string key = (Mathf.Abs(n.GetHashCode()) % 2) == 0
+                ? "concrete_road_barrier" : "concrete_road_barrier_02";
+            var prefab = Infront.AssetLibrary.Model(key);
+            if (prefab == null) { Crate(n, x, fy + 0.60f, z, sx, 1.2f, sz); return; }
+
+            // Unsichtbarer Deckungs-Kollider (Spiel-Logik).
+            var col = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            col.name = n;
+            col.transform.SetParent(_mapRoot, true);
+            col.transform.position = new Vector3(x, fy + 0.55f, z);
+            col.transform.localScale = new Vector3(Mathf.Max(sx, 1.8f), 1.1f, Mathf.Max(sz, 0.9f));
+            col.GetComponent<Renderer>().enabled = false;
+
+            // Sichtbares Modell davor. Lange Achse an die groessere Kante drehen.
+            bool alongX = sx >= sz;
+            var yaw = alongX ? 0f : 90f;
+            var m = Infront.AssetLibrary.SpawnModel(key, _mapRoot,
+                new Vector3(x, fy, z), Quaternion.Euler(0f, yaw + RandomYawSmall(n), 0f), BarrierScale);
+            if (m != null) m.name = n + "_modell";
+        }
+
         static void CoverLow(string n, float x, float fy, float z, float sx, float sz)
             => Crate(n, x, fy + 0.35f, z, sx, 0.7f, sz);
+
+        const float BarrierScale = 1.35f;   // Screenshot-Test: bei 1.0 wirkten die Barrieren zu klein
+        static float RandomYawSmall(string seed)
+            => (Mathf.Abs(seed.GetHashCode()) % 13 - 6);   // +/- 6 Grad, damit nicht alles exakt gleich steht
 
         static void CoverHighM(string n, float x, float z, float sx, float sz)
         { CoverHigh(n + "_B", x, 0f, z, sx, sz); CoverHigh(n + "_A", x, 0f, -z, sx, sz); }

@@ -5,6 +5,30 @@ Sitzung ZUERST gelesen.
 
 Letzte Aktualisierung: 2026-09-04
 
+## Realistischer Look - Runde 1 (2026-09-04)
+
+Nutzer: "richtig realistisch, nicht roblox-artig, krasse Deckungen". Ehrlicher
+Rahmen: Foto-Realismus solo/gratis geht nicht, aber der Sprung von "Roblox" zu
+"ernster Indie-Shooter" schon.
+
+- **`-autoshot`-Foto-Modus** (`AutoShot.cs`): das Spiel fotografiert sich selbst
+  (OS-Screenshots sind gesperrt). Startet ein Match, fliegt eine freie Kamera an
+  feste Punkte, macht Bilder mit F3-Anzeige. So kann der Entwickler die Optik
+  endlich selbst pruefen und iterieren.
+- **6 CC0-Modelle von Poly Haven** (ASSETS.md): `concrete_road_barrier` +
+  `_02` (Jersey-Barrieren als echte Deckung), `metal_trash_can`, `old_tyre`,
+  `hand_truck`, `industrial_storage_cart`. ~65 MB neu im Repo.
+- **`CoverMid` = echte Betonbarriere** wenn das Modell da ist: unsichtbarer
+  Kollider in Deckungsgroesse (Spiel-Logik unveraendert) + sichtbares Modell
+  davor. Ohne Modell: texturierter Wuerfel wie bisher. NavMesh/Balance gleich.
+- **Nach ~7 Screenshot-Iterationen:** die Neon-"Landebahn"-Streifen sind weg
+  (jetzt dunkle Kantenleiste), Deckungswuerfel haben abwechselnd Metall/Beton,
+  Bombenplatz ist ein roter Rahmen statt Teppich, Bloom + SiteLights deutlich
+  runter, P5-Deko heller.
+- **Offen / Ceiling:** die Partikel-Nebelbaenke sehen aus schraeger Perspektive
+  klotzig aus; die Karte ist immer noch Grundkoerper-Geometrie; die Bots sind
+  Kloetze (Etappe 4 / Mixamo, auf Nutzer blockiert).
+
 ## Leistungsanzeige (2026-09-04, nach Nacht 9)
 
 - **`PerfOverlay.cs`** (am GameFlow-Objekt, ueberlebt Szenenwechsel): **F3**
