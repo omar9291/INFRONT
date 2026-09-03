@@ -3,31 +3,76 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-04
+Letzte Aktualisierung: 2026-09-03
 
-## OFFEN / gerade in Arbeit (Stand 2026-09-04, nach Commit 6e9119f)
+## OFFEN / gerade in Arbeit (Stand 2026-09-03, nach Commit 74f7ef2)
 
-**Realistischer Look - Runde 2 angefangen, NICHT fertig.**
+**Etappe 1 "Realistisches Spielgefuehl" ist KOMPLETT.** Alle sieben Schritte
+gebaut, 164/164 Tests gruen. Einzelheiten im MORGENBERICHT-10.md.
 
-Der Nutzer hat "Zweite Modell-Runde (Rolltore, Kran, Gitter-Treppen, echte
-Lampen)" gewaehlt. Heruntergeladen, aber **noch nicht importiert, nicht
-eingebaut, nicht committet** (liegen nur unter `Assets/_Project/Art/Models/`):
+**Richtungswechsel, der ab jetzt gilt:** Das Spiel war ein Valorant-Klon. Der
+Nutzer will jetzt ausdruecklich richtigen Realismus - eher Escape from Tarkov,
+Insurgency, Squad. Woertlich: "es soll aber nicht valorant basierend sein. das
+war fuer den anfang, jetzt moechte ich es richtig realistisch, alles."
 
-- `caged_hanging_light`   -> soll die Code-Wuerfel-Lampen in `Lamp()` ersetzen
-- `security_light`        -> Wandleuchten an Engstellen
-- `mounted_fluorescent_lights` -> Deckenleuchten Halle
-- `rollershutter_door`    -> Rolltore an die Hallenwaende (nur Optik)
-- `overhead_crane`        -> Hallenkran als Mittelpunkt (nur Optik)
+**Naechste Etappe (2): die Optik.** Der Nutzer hat sie beim Start von Etappe 1
+ausdruecklich zurueckgestellt. Bekannte Probleme, nach Wichtigkeit:
 
-Alle Poly Haven, CC0, je 1k FBX + `_diff` jpg + `_nor_gl` png in
-`<key>/textures/`. `Art/Models` ist damit 117 MB. Noch NICHT in ASSETS.md.
+1. **Erhoehte Podeste rendern komplett schwarz.** Echter Fehler, kein Geschmack.
+   Vermutlich Material-Toenung plus zu wenig Umgebungslicht auf nach oben
+   zeigenden Flaechen. Vorgeschichte: eine fruehere Toenung machte sie erst
+   weiss ausgebrannt, dann pechschwarz; der Kompromiss (0.72 Grauwert) hat es
+   nicht geloest.
+2. **Die Halle hat kein Dach.** Die Karte ist eine oben offene Kiste. Deshalb
+   schwebte der Hallenkran erst frei im Himmel. Es gibt faktisch keine
+   Innenraeume - dabei lebt das Genre davon. Groesster Hebel gegen den
+   "Roblox"-Eindruck.
+3. **Partikelnebel sieht aus wie Pappkarton** - grosse flache Vierecke, von
+   oben einzeln erkennbar.
+4. **Graue Kistensammlung**: gleichfoermige Waende, keine Hoehenunterschiede,
+   keine Fenster, alles rechtwinklig.
+5. **Arcade-Markierungen**: rote Rahmen und gelbe Bodenlinien an den
+   Bombenplaetzen.
+6. Harte Schatten, kein SSAO.
+7. **Unaufgeklaert:** auf `Screenshots/auto/02_podest.png` liegen lange helle
+   Balken mit aufgerollter Trommel quer ueber dem Boden. Die Szenendatei zeigt
+   alle neuen Modelle exakt an ihren Sollpositionen - die Balken kommen also
+   woanders her. Nicht zugeordnet, nicht geraten.
 
-Naechster Schritt: `SceneBuilder.Build` laufen lassen (importiert + baut die
-Prefabs ueber `BuildDecoModel`), Prefabs/Massstab pruefen, dann in
-`SceneBuilder` einbauen, `-autoshot` fotografieren, Tests, Commit.
+**Weitere offene Punkte:**
 
-Rueckweg falls unerwuenscht: die fuenf Ordner unter `Art/Models/` loeschen -
-das Projekt ist dann exakt auf `6e9119f`.
+- **Die Bots ziehen beim Spielgefuehl nicht mit.** Sie benutzen NavMesh-Bewegung,
+  nicht den NetworkPlayerController. Der Spieler ist seit Schritt 2 schwer und
+  langsam, die Bots sind es nicht. Gehoert gerade gezogen.
+- **4K-Aufloesungsoption im Menue** mit ehrlicher Leistungswarnung fuer den M1.
+  Vom Nutzer gewuenscht, noch nicht gebaut.
+- **Echte Schussaufnahmen** von freesound.org (CC0). Der groesste verbleibende
+  Sprung im Ton, und der Nutzer kann ihn ohne Hilfe machen - Dateinamen und
+  Format stehen im MORGENBERICHT-10.md.
+- **Sketchfab** wurde vom Nutzer als naechste Asset-Quelle gewaehlt ("beide
+  nacheinander"), Mixamo ist erledigt. Anmeldung besteht bereits.
+
+## Etappe 1 - Realistisches Spielgefuehl (2026-09-03, abgeschlossen)
+
+Sieben Schritte, jeder mit eigenem Commit und eigenen Tests. Tests von 128 auf
+164 gewachsen.
+
+| Commit | Schritt |
+|---|---|
+| `5423400` | 1: Mixamo-Figur verdrahtet (Hoehe 1.90 m, vier Animationen) |
+| `77df76f` | 2: Gewicht und Traegheit (Gehen 4.6, Sprint 7.2, Sprung 0.85) |
+| `6216325` | 3: Atmung (Rhythmus, Anstrengung, Luft anhalten, hoerbar) |
+| `750e4f5` | 4: Waffenmasse (Anlegezeit je Waffe, Rueckstoss streut) |
+| `c5e4620` | 5: Trefferzonen und Bluten (vier Zonen, Blutungen, Verband) |
+| `b08aec0` | 6: Ausruestung statt Faehigkeiten (Verbandspaket, Scan-Puls raus) |
+| `74f7ef2` | 7: Ton (Entfernung faerbt, Ohrenklingeln daempft, Untergrund) |
+
+**Wichtige Erkenntnis fuer kuenftige Arbeit:** Geaenderte Standardwerte von
+`[SerializeField]`-Feldern wirken erst nach einem neuen `SceneBuilder.Build` -
+die Szene speichert die alten. Erkennungszeichen: ein Test liefert bei mehreren
+verschiedenen Codeaenderungen exakt denselben Zahlenwert. Das heisst nie "mein
+Code ist falsch", sondern "mein Code laeuft gar nicht". Hat fuenf Testlaeufe
+gekostet.
 
 ## Realistischer Look - Runde 1 (2026-09-04)
 
