@@ -3,7 +3,32 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-03
+Letzte Aktualisierung: 2026-09-04
+
+## NACHT 9 - Etappe 3 "Die Welt lebt" (2026-09-03 auf 2026-09-04)
+
+Autonome Nachtrunde. Arbeitsanweisung: `Dokumentation/NACHTPLAN-9.md`.
+Nutzer-Entscheidungen: Umfang = Etappe 3 komplett, dann Etappe 5.
+Nebel = **nur Optik, Sichtweite bleibt gleich**. Waffen = aus Code detailliert bauen.
+
+### P1 - Wetter pro Runde (FERTIG, 116 Tests gruen)
+
+- **`WeatherDirector.cs`** (Arena, MonoBehaviour, kein Netcode - Host-V1 hat nur
+  einen echten Spieler): waehlt pro Rundenstart eine von 5 Lagen (Klar, Dunst,
+  Staubwind, Bodennebel, Rauch), blendet ~2 s weich um. Steuert Nebelfarbe,
+  Nebeldichte, Sonnenstaerke, Staub und die flache Nebelbank.
+- **HARTE GRENZE (Nutzer-Ansage): die Sichtweite aendert sich NICHT.**
+  Distanz-Nebeldichte ist auf `MaxSafeFogDensity = 0.013` gedeckelt (auf 60 m
+  kommen noch ~50 % Kontrast an). Bot-Sicht wird nirgends angefasst. Die
+  "Nebel"-Wirkung kommt aus der Bodennebel-Bank UNTER Huefthoehe.
+- **`GroundFog.cs`**: flache Partikel-Nebelbank knapp ueber dem Boden, verdeckt
+  keinen stehenden Gegner. Staerke/Farbe vom WeatherDirector.
+- **`AtmosphereDust.cs`**: treibender Staub (mehrere Volumen: ganze Karte,
+  Halle, beide Sites), Dichte/Farbe vom WeatherDirector.
+- Alle drei: bei "Bild: Schlicht" komplett aus (eigene Rueckfall-Pruefung,
+  auch ohne WeatherDirector). Neue Tests: `WetterTests` (4).
+
+### P2-P8: siehe NACHTPLAN-9.md (noch offen)
 
 ## GAMEPLAY-UEBERARBEITUNG - Etappe 2 "Wucht" (2026-09-03)
 

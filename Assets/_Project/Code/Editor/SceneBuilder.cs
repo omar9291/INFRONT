@@ -637,6 +637,33 @@ namespace Infront.EditorTools
             l.shadows = LightShadows.None;
         }
 
+        /// <summary>Treibender Staub in der Arena (mehrere Volumen). Dichte und
+        /// Farbe steuert der <see cref="WeatherDirector"/> zur Laufzeit. Nicht an
+        /// die Karte gehaengt, damit Sicht-Tests (ClearArena) ihn nicht mit
+        /// ausblenden.</summary>
+        static void BuildAtmosphereDust()
+        {
+            void Vol(string name, Vector3 pos, Vector3 box)
+            {
+                var go = new GameObject(name);
+                go.transform.position = pos;
+                go.AddComponent<ParticleSystem>();
+                var d = go.AddComponent<AtmosphereDust>();
+                var so = new SerializedObject(d);
+                var b = so.FindProperty("_boxSize");
+                if (b != null) b.vector3Value = box;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            // grosses, flaches Bett ueber der ganzen Karte
+            Vol("Dust_Arena", new Vector3(0f, 3.5f, 0f), new Vector3(90f, 6f, 90f));
+            // dichter in der Halle und an den beiden Bombenplaetzen (dort stehen
+            // in P3 die Lichtschaechte, in denen der Staub aufblitzt)
+            Vol("Dust_Halle", new Vector3(0f, 4f, 24f), new Vector3(20f, 7f, 34f));
+            Vol("Dust_SiteA", new Vector3(-20f, 3.5f, 0f), new Vector3(16f, 6f, 16f));
+            Vol("Dust_SiteB", new Vector3(20f, 3.5f, 0f), new Vector3(16f, 6f, 16f));
+        }
+
         /// <summary>Farbige Bodenmarkierung fuer einen Bombenplatz mit grossem
         /// Buchstaben (A / B), aus flachen leuchtenden Balken.</summary>
         static void SiteLetter(float x, float z, char letter, Color c)
@@ -1915,6 +1942,13 @@ namespace Infront.EditorTools
 
             // Bild-Aufwertung: baut zur Laufzeit das globale Post-Processing-Volume.
             new GameObject("PostFx").AddComponent<PostFxController>();
+
+            // Wetter pro Runde (rein optisch): Nebelfarbe, Sonnenstärke, flache
+            // Nebelbank und treibender Staub. Die Sichtweite ändert sich NICHT.
+            new GameObject("Weather").AddComponent<WeatherDirector>();
+            var groundFogGo = new GameObject("GroundFog");
+            groundFogGo.AddComponent<GroundFog>();
+            BuildAtmosphereDust();
 
             var nmGo = new GameObject("NetworkManager");
             var nm = nmGo.AddComponent<NetworkManager>();
