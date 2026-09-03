@@ -36,7 +36,7 @@ namespace Infront
             (new Vector3(-13f, 7f, -7f), new Vector3(-22f, 1.5f, 2f), "site_a"),
             (new Vector3(15f, 7f, 7f),   new Vector3(24f, 1.5f, -2f), "site_b"),
             (new Vector3(-30f, 8f, 15f), new Vector3(-40f, 1.5f, -12f), "lane"),
-            (new Vector3(0f, 22f, 0f),   new Vector3(0f, 0f, 0.01f), "vogelperspektive"),
+            (new Vector3(0f, 19f, -13f), new Vector3(0f, 0.5f, 6f),   "vogelperspektive"),
         };
 
         Camera _cam;
@@ -118,6 +118,10 @@ namespace Infront
             var perf = Object.FindAnyObjectByType<PerfOverlay>();
             if (perf != null && !perf.VisibleForTests) perf.Toggle();
 
+            // Bot-Faehigkeiten aus - sonst fliegen staendig Granaten durchs Bild.
+            foreach (var ah in Object.FindObjectsByType<AbilityHolder>(FindObjectsSortMode.None))
+                ah.enabled = false;
+
             // Optional Wetter erzwingen.
             if (weather >= 0)
             {
@@ -132,9 +136,14 @@ namespace Infront
             {
                 var p = Stops[i];
                 _flyPos = p.pos;
-                _flyRot = Quaternion.LookRotation((p.look - p.pos).normalized, Vector3.up);
+                Vector3 dir = (p.look - p.pos).normalized;
+                // Kein Roll: bei steilem Blick nach unten einen anderen Hoch-Hinweis nehmen.
+                Vector3 up = Mathf.Abs(dir.y) > 0.92f ? Vector3.forward : Vector3.up;
+                _flyRot = Quaternion.LookRotation(dir, up);
                 _flying = true;
 
+                // Sofort hinsetzen, dann ruhig halten - keine schiefen Zwischenbilder.
+                if (_cam != null) _cam.transform.SetPositionAndRotation(_flyPos, _flyRot);
                 yield return new WaitForSecondsRealtime(2.6f);   // Kampf-Geschehen abwarten
                 Capture(outDir, $"{tag}{i + 1:00}_{p.name}");
             }
@@ -147,11 +156,7 @@ namespace Infront
         void LateUpdate()
         {
             if (_flying && _cam != null)
-            {
-                // Weich hinfliegen.
-                _cam.transform.position = Vector3.Lerp(_cam.transform.position, _flyPos, 0.12f);
-                _cam.transform.rotation = Quaternion.Slerp(_cam.transform.rotation, _flyRot, 0.12f);
-            }
+                _cam.transform.SetPositionAndRotation(_flyPos, _flyRot);   // hart halten
         }
 
         static void Capture(string dir, string name)

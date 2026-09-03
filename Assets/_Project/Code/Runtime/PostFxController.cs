@@ -88,8 +88,10 @@ namespace Infront
             // P6: das Menue soll ernster wirken - weniger Leuchten, gedeckter,
             // ruhiger. Das Spiel selbst bleibt wie es ist.
             var bloom = _profile.Add<Bloom>(true);
-            bloom.intensity.Override(_menuLook ? 0.7f : 0.9f);
-            bloom.threshold.Override(_menuLook ? 1.15f : 1.05f);
+            // Screenshot-Test 2026-09-04: 0.9 liess Leuchtstreifen und
+            // Bombenplatz-Markierungen zu Weiss ausbrennen. Deutlich runter.
+            bloom.intensity.Override(_menuLook ? 0.6f : 0.45f);
+            bloom.threshold.Override(_menuLook ? 1.2f : 1.15f);
             bloom.scatter.Override(0.62f);
             bloom.tint.Override(new Color(1f, 0.93f, 0.82f));
 
@@ -102,7 +104,7 @@ namespace Infront
             color.contrast.Override(_menuLook ? 16f : 12f);
             color.saturation.Override(_menuLook ? -10f : 4f);   // Menue entsaettigt = ernster
             color.colorFilter.Override(_menuLook ? new Color(0.92f, 0.93f, 0.96f) : new Color(1f, 0.96f, 0.90f));
-            color.postExposure.Override(_menuLook ? -0.04f : 0.08f);
+            color.postExposure.Override(_menuLook ? -0.04f : 0f);   // im Spiel keine Extra-Belichtung (Screenshot-Test 2)
 
             var white = _profile.Add<WhiteBalance>(true);
             white.temperature.Override(8f);   // leicht waermer

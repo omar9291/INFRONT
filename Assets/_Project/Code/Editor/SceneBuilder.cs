@@ -501,9 +501,19 @@ namespace Infront.EditorTools
             => Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(0.5f, 0.5f),
                         new Color(0.12f, 0.14f, 0.22f));   // Wand: Beton, sonst fast schwarz
 
+        /// <summary>Deckungsklotz. Nicht alles gleich grau: nach Namens-Hash
+        /// abwechselnd Metallplatte oder Beton, enger gekachelt (mehr Detail),
+        /// leicht unterschiedlich getoent. Metall bekommt echten Metallglanz.</summary>
         static void Crate(string name, float x, float y, float z, float sx, float sy, float sz)
-            => Surfaced(name, x, y, z, sx, sy, sz, "deckung_metall", new Vector2(0.7f, 0.7f),
-                        new Color(0.85f, 0.45f, 0.15f));   // Deckung: Metall, sonst orange
+        {
+            bool metal = (Mathf.Abs(name.GetHashCode()) % 5) < 3;   // ~60% Metall, ~40% Beton
+            if (metal)
+                Surfaced(name, x, y, z, sx, sy, sz, "deckung_metall", new Vector2(1.5f, 1.5f),
+                         new Color(0.34f, 0.36f, 0.40f), metallic: 0.75f, smoothness: 0.42f);
+            else
+                Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(1.2f, 1.2f),
+                         new Color(0.42f, 0.42f, 0.44f), metallic: 0f, smoothness: 0.15f);
+        }
 
         static readonly System.Collections.Generic.Dictionary<Color, Material> _mats = new();
 
@@ -560,7 +570,8 @@ namespace Infront.EditorTools
         /// <summary>Wie <see cref="Tinted"/>, aber mit Textur-Material (Rolle
         /// <paramref name="key"/>) und pro-Objekt richtig eingestellter Kachelung.</summary>
         static void Surfaced(string name, float x, float y, float z, float sx, float sy, float sz,
-                             string key, Vector2 tilePerUnit, Color fallbackTint)
+                             string key, Vector2 tilePerUnit, Color fallbackTint,
+                             float metallic = -1f, float smoothness = -1f)
         {
             var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
             b.name = name;
@@ -579,6 +590,8 @@ namespace Infront.EditorTools
                 Vector2 scale = new Vector2(Mathf.Max(sx, sz) * tilePerUnit.x, sy * tilePerUnit.y);
                 inst.SetTextureScale("_BaseMap", scale);
                 if (inst.HasProperty("_BumpMap")) inst.SetTextureScale("_BumpMap", scale);
+                if (metallic >= 0f && inst.HasProperty("_Metallic")) inst.SetFloat("_Metallic", metallic);
+                if (smoothness >= 0f && inst.HasProperty("_Smoothness")) inst.SetFloat("_Smoothness", smoothness);
                 r.sharedMaterial = inst;
             }
             else
@@ -587,33 +600,41 @@ namespace Infront.EditorTools
             }
         }
 
-        static readonly System.Collections.Generic.Dictionary<Color, Material> _glowMats = new();
+        static readonly System.Collections.Generic.Dictionary<(Color, float), Material> _glowMats = new();
 
-        static Material GlowMat(Color c)
+        static Material GlowMat(Color c) => GlowMat(c, 3.2f);
+
+        /// <summary><paramref name="emission"/> steuert die Leuchtkraft - klein
+        /// (~1.2) fuer dezente Akzente, gross (~3) fuer echte Lampen.</summary>
+        static Material GlowMat(Color c, float emission)
         {
-            if (_glowMats.TryGetValue(c, out var m)) return m;
+            var key = (c, emission);
+            if (_glowMats.TryGetValue(key, out var m)) return m;
             m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "GlowMat" };
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
             m.color = c;
             m.EnableKeyword("_EMISSION");
             m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
-            if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", c * 3.2f);
-            _glowMats[c] = m;
+            if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", c * emission);
+            _glowMats[key] = m;
             return m;
         }
 
-        /// <summary>Leuchtender Akzentstreifen (Bloom laesst ihn strahlen) - fuehrt
-        /// das Auge an Kanten und Durchgaengen.</summary>
+        /// <summary>Leuchtender Akzentstreifen - fuehrt das Auge an Kanten und
+        /// Durchgaengen. Bewusst dezent (Screenshot-Test 2026-09-04: die
+        /// Streifen waren viel zu grell und dick).</summary>
         static void Stripe(string name, float x, float y, float z, float sx, float sy, float sz)
         {
             var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
             b.name = name;
             b.transform.SetParent(_mapRoot, true);
             b.transform.position = new Vector3(x, y, z);
-            b.transform.localScale = new Vector3(sx, sy, sz);
+            b.transform.localScale = new Vector3(sx, sy * 0.5f, sz);
             var col = b.GetComponent<Collider>();
             if (col != null) Object.DestroyImmediate(col);   // Deko, nicht beschussrelevant
-            b.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(1f, 0.42f, 0.10f));
+            // Screenshot-Test 2: die Streifen wirkten immer noch wie Landebahn-
+            // Markierungen. Jetzt ein gedaempftes Warm-Glimmen statt Neon.
+            b.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(0.7f, 0.42f, 0.22f), 0.5f);
         }
 
         static void StripeM(string name, float x, float y, float z, float sx, float sy, float sz)
@@ -682,7 +703,7 @@ namespace Infront.EditorTools
         /// Buchstaben (A / B), aus flachen leuchtenden Balken.</summary>
         static void SiteLetter(float x, float z, char letter, Color c)
         {
-            var mat = GlowMat(c);
+            var mat = GlowMat(c, 1.2f);   // deutlich dezenter (war viel zu grell)
             void Bar(float bx, float bz, float bw, float bd)
             {
                 var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -977,10 +998,13 @@ namespace Infront.EditorTools
         static void CoverLowM(string n, float x, float z, float sx, float sz)
         { CoverLow(n + "_B", x, 0f, z, sx, sz); CoverLow(n + "_A", x, 0f, -z, sx, sz); }
 
-        /// <summary>Begehbare erhöhte Fläche (Balkon / Podest). top = Oberkante.</summary>
+        /// <summary>Begehbare erhöhte Fläche (Balkon / Podest). top = Oberkante.
+        /// Matt und dunkel gehalten (Screenshot-Test: helle glaenzende Podeste
+        /// unter dem Platzlicht sind komplett ausgebrannt).</summary>
         static void Platform(string n, float x, float top, float z, float sx, float sz)
             => Surfaced(n, x, top - 0.25f, z, sx, 0.5f, sz, "platte",
-                        new Vector2(0.35f, 0.35f), new Color(0.18f, 0.2f, 0.26f));
+                        new Vector2(0.35f, 0.35f), new Color(0.14f, 0.15f, 0.18f),
+                        metallic: 0f, smoothness: 0.05f);
 
         /// <summary>Hüfthohe Brüstung MIT Collider - hält Spieler und Bots oben
         /// auf dem Balkon, man schiesst aber darüber hinweg nach unten.</summary>
@@ -1143,7 +1167,7 @@ namespace Infront.EditorTools
             CoverLow("MidTop_3", 0f, 1.2f, 0f, 2.4f, 1f);
             Stripe("MidEdge_B", 0f, 1.35f, 5f, 14f, 0.06f, 0.4f);
             Stripe("MidEdge_A", 0f, 1.35f, -5f, 14f, 0.06f, 0.4f);
-            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.6f, 0.3f), 26f, 13f, shadows: true);
+            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.6f, 0.3f), 26f, 8f, shadows: true);
         }
 
         static void BuildWerkTunnels()
@@ -1215,8 +1239,8 @@ namespace Infront.EditorTools
             MakeBombSite("BombZone_B", 1, 20f);
             SiteLetter(-20f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
             SiteLetter(20f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
-            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.72f, 0.35f), 24f, 12f, shadows: true);
-            PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 24f, 12f, shadows: true);
+            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.72f, 0.35f), 15f, 4.5f, shadows: true);
+            PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 15f, 4.5f, shadows: true);
 
             foreach (int sgn in new[] { -1, 1 })
             {
@@ -1301,7 +1325,9 @@ namespace Infront.EditorTools
                 float gz = (float)(rnd.NextDouble() * 84f - 42f);
                 Deco("Fleck", PrimitiveType.Quad, new Vector3(gx, 0.02f, gz),
                     new Vector3(3f + (float)rnd.NextDouble() * 5f, 3f + (float)rnd.NextDouble() * 5f, 1f),
-                    new Color(0.05f, 0.055f, 0.065f), Quaternion.Euler(90f, 0f, 0f));
+                    // Screenshot-Test: 0.05 war fast schwarz und sah aus wie Loecher.
+                    // Jetzt dezenter Schmutz statt Abgrund.
+                    new Color(0.22f, 0.22f, 0.23f), Quaternion.Euler(90f, 0f, 0f));
             }
 
             // Muni-/Holzkisten als Deko-Deckung (nur wenn Modelle vorhanden)
@@ -1319,8 +1345,11 @@ namespace Infront.EditorTools
 
         // ---- P5: Karte entklotzen (nur Deko, keine Collider) ----
 
-        static readonly Color _steel = new Color(0.09f, 0.10f, 0.12f);
-        static readonly Color _concrete = new Color(0.17f, 0.17f, 0.18f);
+        // Screenshot-Test 2026-09-04: die P5-Deko war fast schwarz und damit
+        // unsichtbar. Deutlich heller, damit Fensterrahmen, Gelaender, Saeulen-
+        // koepfe usw. wirklich zu sehen sind.
+        static readonly Color _steel = new Color(0.20f, 0.21f, 0.23f);
+        static readonly Color _concrete = new Color(0.40f, 0.40f, 0.42f);
 
         /// <summary>Fensterrahmen aus vier duennen Balken (+ Kreuzsprosse) an
         /// einer Wand. <paramref name="faceZ"/> ist die Wandnormale (+1/-1 = Z,
@@ -1472,15 +1501,21 @@ namespace Infront.EditorTools
             so.FindProperty("_halfExtents").vector3Value = new Vector3(6f, 2.5f, 7f);
             so.ApplyModifiedPropertiesWithoutUndo();
 
-            // sichtbare Markierung auf dem Platzboden
-            Tinted(name + "_Mark", x, 1.28f, 0f, 9f, 0.06f, 10f, new Color(0.85f, 0.2f, 0.2f));
+            // sichtbare Markierung auf dem Platzboden: nur ein Rahmen (kein
+            // roter Teppich - Screenshot-Test: das dominierte alles).
+            var edge = new Color(0.5f, 0.13f, 0.13f);
+            Tinted(name + "_MarkN", x, 1.28f, 4.8f, 9f, 0.05f, 0.4f, edge);
+            Tinted(name + "_MarkS", x, 1.28f, -4.8f, 9f, 0.05f, 0.4f, edge);
+            Tinted(name + "_MarkE", x + 4.3f, 1.28f, 0f, 0.4f, 0.05f, 10f, edge);
+            Tinted(name + "_MarkW", x - 4.3f, 1.28f, 0f, 0.4f, 0.05f, 10f, edge);
         }
 
         static void BuildSite(string name, float x)
         {
             float y = 1.2f;
             Surfaced(name + "_Platform", x, y * 0.5f, 0f, 11f, y, 12f, "platte",
-                     new Vector2(0.4f, 0.4f), new Color(0.2f, 0.7f, 0.7f));
+                     new Vector2(0.4f, 0.4f), new Color(0.15f, 0.16f, 0.19f),
+                     metallic: 0f, smoothness: 0.05f);
 
             // Rampe von beiden Seiten (Alpha- und Bravo-Zugang)
             Ramp(name + "_RampB", x, 8f, 3f, y, 4f);
