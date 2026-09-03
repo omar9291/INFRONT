@@ -92,10 +92,46 @@ namespace Infront
             src.minDistance = 3f;
             src.maxDistance = 65f;
             src.dopplerLevel = 0f;
+
+            // Schritt 7: jede 3D-Quelle bekommt einen Tiefpass. Luft schluckt
+            // hohe Frequenzen mit der Entfernung - deshalb klingt ein Schuss
+            // von weit weg dumpf und rollend, nicht nur leiser.
+            if (spatial)
+            {
+                var lp = go.AddComponent<AudioLowPassFilter>();
+                lp.cutoffFrequency = 22000f;   // aus, bis PlayAt es setzt
+                _poolFilter[label] = lp;
+            }
             return src;
         }
 
-        float Master => Mathf.Clamp01(GameSettings.SfxVolume);
+        readonly System.Collections.Generic.Dictionary<string, AudioLowPassFilter> _poolFilter = new();
+
+        /// <summary>
+        /// Schritt 7: Grenzfrequenz aus der Entfernung. Nah bleibt alles
+        /// scharf, ab rund 25 m wird es hoerbar dumpfer, ganz weit weg bleibt
+        /// nur noch ein Grollen.
+        /// </summary>
+        public static float CutoffFuerEntfernung(float meter)
+        {
+            if (meter <= 12f) return 22000f;
+            float k = Mathf.InverseLerp(12f, 90f, meter);
+            // Wurzel statt Quadrat: die Hoehen gehen schon auf mittlerer
+            // Entfernung deutlich zurueck. Mit k*k blieben auf 85 m noch
+            // 3.3 kHz uebrig - das klang nicht nach Entfernung, sondern nur
+            // nach leiser.
+            return Mathf.Lerp(22000f, 500f, Mathf.Sqrt(k));
+        }
+
+        /// <summary>
+        /// Schritt 7: Daempfung durch klingelnde Ohren. 0 = normal, 1 = fast
+        /// taub. Wird von <see cref="EarRinging"/> gesetzt und wirkt auf jeden
+        /// Ton, der ueber diesen Dienst laeuft.
+        /// </summary>
+        public float Deafness { get; set; }
+
+        float Master => Mathf.Clamp01(GameSettings.SfxVolume)
+                        * Mathf.Lerp(1f, 0.18f, Mathf.Clamp01(Deafness));
 
         AudioClip Clip(SoundId id)
         {
@@ -129,6 +165,16 @@ namespace Infront
             src.clip = Clip(id);
             src.volume = v;
             src.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
+
+            // Schritt 7: Klangfarbe nach Entfernung zum Hoerer.
+            if (_poolFilter.TryGetValue(src.gameObject.name, out var lp) && lp != null)
+            {
+                var listener = Object.FindAnyObjectByType<AudioListener>();
+                float meter = listener != null
+                    ? Vector3.Distance(listener.transform.position, position)
+                    : 0f;
+                lp.cutoffFrequency = CutoffFuerEntfernung(meter);
+            }
             if (delay > 0.0001f) src.PlayDelayed(delay);
             else src.Play();
         }

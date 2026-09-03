@@ -130,9 +130,25 @@ namespace Infront
                 // War die Explosion nah? Kurz "taub": alles dumpf + Ohren-Klingeln.
                 if (near > 0.12f)
                 {
-                    _deafen = Mathf.Max(_deafen, near);
                     AudioService.Instance?.Play2D(SoundId.OhrenPfeifen, near * 0.8f);
-                    EnsureEarFilter(cam);
+
+                    // Schritt 7: gibt es das allgemeine Ohrenklingeln, macht
+                    // das die Daempfung - sonst wuerden sich zwei Tiefpaesse
+                    // auf derselben Kamera gegenseitig ueberschreiben.
+                    // Ohne EarRinging bleibt der alte Weg als Rueckfall.
+                    if (EarRinging.Vorhanden)
+                    {
+                        // WICHTIG: center, nicht transform.position. Das
+                        // FX-Objekt selbst bleibt im Ursprung stehen - mit
+                        // transform.position lag die Explosion immer bei (0,0,0)
+                        // und damit fast nie in Ohrenreichweite.
+                        EarRinging.ExplosionAt(center);
+                    }
+                    else
+                    {
+                        _deafen = Mathf.Max(_deafen, near);
+                        EnsureEarFilter(cam);
+                    }
                 }
             }
         }

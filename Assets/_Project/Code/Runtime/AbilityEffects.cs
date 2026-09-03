@@ -335,6 +335,10 @@ namespace Infront
             var fx = new GameObject("Splitter_FX");
             fx.transform.position = pos;
             fx.AddComponent<BlastFlash>();
+
+            // Schritt 7: eine Granate direkt daneben laesst die Ohren klingeln
+            // und daempft alles andere. Weiter weg als 14 m passiert nichts.
+            EarRinging.ExplosionAt(pos);
             if (AudioService.Instance != null)
                 AudioService.Instance.PlayAt(SoundId.BombeExplosion, pos, 1f);
 

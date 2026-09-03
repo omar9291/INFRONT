@@ -1843,6 +1843,9 @@ namespace Infront.EditorTools
             menuCamData.renderPostProcessing = true;
             menuCamData.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
             camGo.AddComponent<AudioListener>();
+            // Schritt 7: Ohrenklingeln haengt am Hoerer und daempft alles,
+            // was nach einer nahen Explosion noch zu hoeren ist.
+            camGo.AddComponent<EarRinging>();
             camGo.AddComponent<MenuCameraRig>();
 
             // PostFx im Kino-Look: Tiefenunschaerfe hinter dem Menue + dunklere Raender.
@@ -2350,6 +2353,9 @@ namespace Infront.EditorTools
             cam.fieldOfView = 85f;
             cam.allowHDR = true;
             camGo.AddComponent<AudioListener>();
+            // Schritt 7: Ohrenklingeln haengt am Hoerer und daempft alles,
+            // was nach einer nahen Explosion noch zu hoeren ist.
+            camGo.AddComponent<EarRinging>();
             camGo.AddComponent<FirstPersonCamera>();
             var camData = camGo.AddComponent<UniversalAdditionalCameraData>();
             camData.renderPostProcessing = true;   // Bild-Aufwertung (PostFxController)
