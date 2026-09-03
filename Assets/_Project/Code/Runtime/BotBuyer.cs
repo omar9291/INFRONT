@@ -95,6 +95,9 @@ namespace Infront
                 {
                     int i = (start + n) % abilities.Abilities.Length;
                     var a = abilities.Abilities[i];
+                    // Schritt 6: was der Spieler nicht kaufen kann, kaufen die
+                    // Bots auch nicht - sonst haetten sie den Scan-Puls exklusiv.
+                    if (a != null && !a.Angeboten) continue;
                     if (a != null && _wallet.Money >= a.Price + 300)
                     {
                         _agent.ServerBuyAbility(i);

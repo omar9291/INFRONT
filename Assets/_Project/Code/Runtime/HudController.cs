@@ -823,7 +823,7 @@ namespace Infront
             sig = sig * 31 + (bm.OwnsArmor ? 1 : 0);
             sig = sig * 31 + (bm.KitOffered ? (bm.OwnsKit ? 2 : 1) : 0);
             var acat = bm.AbilityCatalog;
-            int aCount = acat != null ? Mathf.Min(acat.Abilities.Length, 6) : 0;
+            int aCount = acat != null ? Mathf.Min(acat.Abilities.Length, 8) : 0;
             for (int i = 0; i < aCount; i++)
             {
                 var a = acat.Abilities[i];
@@ -868,6 +868,10 @@ namespace Infront
             {
                 var a = acat.Abilities[i];
                 if (a == null) continue;
+                // Schritt 6: nicht angebotene Ausruestung taucht im Kaufmenue
+                // nicht auf. Sie bleibt aber im Katalog, damit sich die
+                // Netz-Indizes dahinter nicht verschieben.
+                if (!a.Angeboten) continue;
                 bool have = bm.OwnsAbility(a.Kind);
                 string slot = a.Slot == AbilitySlot.Q ? "Q" : a.Slot == AbilitySlot.F ? "F" : "G";
                 string key = i < 5 ? ((i + 6) % 10).ToString() : "";

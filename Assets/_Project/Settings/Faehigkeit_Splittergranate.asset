@@ -21,3 +21,5 @@ MonoBehaviour:
   Duration: 0
   Radius: 5.5
   ThrowRange: 16
+  Angeboten: 1
+  AmBenutzer: 0

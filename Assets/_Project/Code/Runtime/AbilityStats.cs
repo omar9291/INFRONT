@@ -31,5 +31,18 @@ namespace Infront
 
         [Tooltip("Wie weit vor dem Werfer der Effekt entsteht.")]
         public float ThrowRange = 16f;
+
+        /// <summary>
+        /// Steht diese Ausruestung im Kaufmenue? Schritt 6: der Scan-Puls
+        /// bleibt vollstaendig im Spiel, wird aber nicht mehr angeboten - er
+        /// zeigt Gegner durch Waende und passt nicht zum Realismus.
+        /// Auf true stellen und er ist sofort wieder da. Nichts geloescht.
+        /// </summary>
+        public bool Angeboten = true;
+
+        /// <summary>
+        /// Wirkt sofort beim Benutzer statt geworfen zu werden (Verbandspaket).
+        /// </summary>
+        public bool AmBenutzer = false;
     }
 }

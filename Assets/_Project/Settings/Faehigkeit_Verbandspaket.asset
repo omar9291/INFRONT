@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 475ff63a103d74d7188ae00fb98f0dc7, type: 3}
-  m_Name: Faehigkeit_Blendgranate
+  m_Name: Faehigkeit_Verbandspaket
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
-  Kind: 2
-  DisplayName: Blendgranate
-  Slot: 2
-  Price: 250
-  Charges: 2
+  Kind: 7
+  DisplayName: Verbandspaket
+  Slot: 1
+  Price: 200
+  Charges: 1
   Cooldown: 0
-  Duration: 2
-  Radius: 10
-  ThrowRange: 14
+  Duration: 0
+  Radius: 25
+  ThrowRange: 0
   Angeboten: 1
-  AmBenutzer: 0
+  AmBenutzer: 1

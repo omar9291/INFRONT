@@ -273,12 +273,27 @@ namespace Infront.EditorTools
                 a.Kind = AbilityKind.ScanPuls; a.DisplayName = "Scan-Puls"; a.Slot = AbilitySlot.F;
                 a.Price = 250; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 3f; a.Radius = 16f; a.ThrowRange = 2f;
+                // Schritt 6: bleibt vollstaendig im Spiel, wird aber nicht mehr
+                // angeboten - Gegner durch Waende zu sehen passt nicht zum
+                // Realismus. Auf true stellen und er ist sofort wieder da.
+                a.Angeboten = false;
             });
             var brand = MakeAbility("Faehigkeit_Brandwand", a =>
             {
                 a.Kind = AbilityKind.Brandwand; a.DisplayName = "Brandwand"; a.Slot = AbilitySlot.Q;
                 a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 8f; a.Radius = 4f; a.ThrowRange = 14f;
+            });
+            var verband = MakeAbility("Faehigkeit_Verbandspaket", a =>
+            {
+                a.Kind = AbilityKind.Verbandspaket; a.DisplayName = "Verbandspaket";
+                a.Slot = AbilitySlot.F;
+                a.Price = 200; a.Charges = 1; a.Cooldown = 0f;
+                a.Duration = 0f;
+                // Radius wird hier als Heilmenge benutzt: 25 Leben zurueck.
+                // Bewusst wenig - der Verband stoppt vor allem das Bluten.
+                a.Radius = 25f; a.ThrowRange = 0f;
+                a.AmBenutzer = true;
             });
             var draht = MakeAbility("Faehigkeit_Stolperdraht", a =>
             {
@@ -294,7 +309,11 @@ namespace Infront.EditorTools
                 AssetDatabase.CreateAsset(cat, AbilityCatalogPath);
             }
             // Reihenfolge = Netz-Index. Neue Faehigkeiten hinten anhaengen.
-            cat.Abilities = new[] { rauch, blend, splitter, scan, brand, draht };
+            // Reihenfolge = Netz-Index und steht in Kaufdaten. Der Scan-Puls
+            // bleibt deshalb an seiner Stelle stehen, obwohl er nicht mehr
+            // angeboten wird - wuerde man ihn herausnehmen, verschoeben sich
+            // alle Eintraege dahinter.
+            cat.Abilities = new[] { rauch, blend, splitter, scan, brand, draht, verband };
 
             EditorUtility.SetDirty(cat);
             AssetDatabase.SaveAssets();

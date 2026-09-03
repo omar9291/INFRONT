@@ -190,7 +190,10 @@ namespace Infront
             int teamId = _team != null ? _team.TeamId : Team.None;
 
             var spawned = AbilitySpawner.ServerSpawn(stats, gameObject, origin, dir, teamId);
-            if (spawned == null) return false;
+            // Schritt 6: Ausruestung, die am Benutzer wirkt (Verbandspaket),
+            // erzeugt kein Objekt in der Welt. Ohne diese Ausnahme wuerde sie
+            // nie verbraucht - man koennte sich unbegrenzt oft verbinden.
+            if (spawned == null && !stats.AmBenutzer) return false;
 
             SetCharge(slot, ChargeOf(slot) - 1);
             _cooldownEnd[slot] = ServerNow + Mathf.Max(0f, stats.Cooldown);

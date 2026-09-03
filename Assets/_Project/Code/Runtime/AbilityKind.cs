@@ -13,6 +13,11 @@ namespace Infront
         ScanPuls = 4,
         Brandwand = 5,
         Stolperdraht = 6,
+
+        // Realismus-Etappe Schritt 6: Ausruestung statt Faehigkeiten.
+        // Die Zahlen der alten Eintraege bleiben unveraendert - sie sind der
+        // Netz-Index und stehen in Kaufdaten. Neues wird nur angehaengt.
+        Verbandspaket = 7,  // stoppt Blutungen, heilt nur wenig
     }
 
     /// <summary>Auf welche Taste die Faehigkeit gelegt wird: Q, F oder G.</summary>

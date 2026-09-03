@@ -47,6 +47,25 @@ namespace Infront
                     go.AddComponent<FragGrenade>().Init(stats.Radius, user, team);
                     return go;
                 }
+                case AbilityKind.Verbandspaket:
+                {
+                    // Schritt 6: wirkt sofort am Benutzer, wird nicht geworfen.
+                    // Stoppt alle Blutungen und gibt ein wenig Leben zurueck -
+                    // bewusst wenig, ein Verband ist keine Heilung.
+                    var bluten = user != null ? user.GetComponent<Bleeding>() : null;
+                    bluten?.ServerVerbinden();
+
+                    var hp = user != null ? user.GetComponent<Health>() : null;
+                    if (hp != null && hp.IsAlive)
+                    {
+                        int zurueck = Mathf.RoundToInt(stats.Radius);   // Radius = Heilmenge
+                        if (zurueck > 0) hp.ServerHeal(zurueck);
+                    }
+
+                    if (AudioService.Instance != null && user != null)
+                        AudioService.Instance.PlayAt(SoundId.Nachladen, user.transform.position, 0.7f);
+                    return null;
+                }
                 case AbilityKind.ScanPuls:
                 {
                     var go = new GameObject("ScanPuls");

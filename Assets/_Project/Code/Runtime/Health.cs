@@ -123,6 +123,23 @@ namespace Infront
             _alive.Value = true;
         }
 
+        /// <summary>
+        /// Nur Server: eine begrenzte Menge Leben zurueckgeben, hoechstens bis
+        /// zum vollen Wert. Fuer das Verbandspaket aus Schritt 6 - dieses heilt
+        /// bewusst nur wenig, ein Verband ist keine Genesung.
+        /// Tote werden dadurch nicht wiederbelebt.
+        /// </summary>
+        public void ServerHeal(int amount)
+        {
+            if (!IsServer || amount <= 0 || !_alive.Value) return;
+
+            int neu = Mathf.Min(_maxHealth, _current.Value + amount);
+            if (neu == _current.Value) return;
+
+            _current.Value = neu;
+            HealthChanged?.Invoke(_current.Value, _maxHealth);
+        }
+
         /// <summary>Nur Server: Weste geben (Kaufmenue).</summary>
         public void ServerGiveArmor(int amount)
         {
