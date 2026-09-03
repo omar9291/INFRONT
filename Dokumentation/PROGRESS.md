@@ -5,6 +5,30 @@ Sitzung ZUERST gelesen.
 
 Letzte Aktualisierung: 2026-09-04
 
+## OFFEN / gerade in Arbeit (Stand 2026-09-04, nach Commit 6e9119f)
+
+**Realistischer Look - Runde 2 angefangen, NICHT fertig.**
+
+Der Nutzer hat "Zweite Modell-Runde (Rolltore, Kran, Gitter-Treppen, echte
+Lampen)" gewaehlt. Heruntergeladen, aber **noch nicht importiert, nicht
+eingebaut, nicht committet** (liegen nur unter `Assets/_Project/Art/Models/`):
+
+- `caged_hanging_light`   -> soll die Code-Wuerfel-Lampen in `Lamp()` ersetzen
+- `security_light`        -> Wandleuchten an Engstellen
+- `mounted_fluorescent_lights` -> Deckenleuchten Halle
+- `rollershutter_door`    -> Rolltore an die Hallenwaende (nur Optik)
+- `overhead_crane`        -> Hallenkran als Mittelpunkt (nur Optik)
+
+Alle Poly Haven, CC0, je 1k FBX + `_diff` jpg + `_nor_gl` png in
+`<key>/textures/`. `Art/Models` ist damit 117 MB. Noch NICHT in ASSETS.md.
+
+Naechster Schritt: `SceneBuilder.Build` laufen lassen (importiert + baut die
+Prefabs ueber `BuildDecoModel`), Prefabs/Massstab pruefen, dann in
+`SceneBuilder` einbauen, `-autoshot` fotografieren, Tests, Commit.
+
+Rueckweg falls unerwuenscht: die fuenf Ordner unter `Art/Models/` loeschen -
+das Projekt ist dann exakt auf `6e9119f`.
+
 ## Realistischer Look - Runde 1 (2026-09-04)
 
 Nutzer: "richtig realistisch, nicht roblox-artig, krasse Deckungen". Ehrlicher
