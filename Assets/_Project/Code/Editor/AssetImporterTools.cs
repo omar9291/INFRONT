@@ -759,6 +759,46 @@ namespace Infront.EditorTools
             else Debug.LogWarning("[Assets] Figur-Prefab fehlgeschlagen.");
         }
 
+        /// <summary>
+        /// Listet fuer jedes fertige Deko-Prefab die Masze in Metern auf.
+        /// Rein informativ - aendert nichts. Gedacht zum Einbauen neuer Modelle:
+        /// ohne die echten Masze wird der Maszstab im SceneBuilder geraten.
+        ///
+        /// Aufruf headless:
+        ///   Unity -batchmode -quit -projectPath ... \
+        ///     -executeMethod Infront.EditorTools.AssetImporterTools.ReportDecoBounds
+        /// </summary>
+        public static void ReportDecoBounds()
+        {
+            if (!Directory.Exists(ModelsDir))
+            {
+                Debug.LogWarning($"[Assets] {ModelsDir} gibt es nicht.");
+                return;
+            }
+
+            var paths = Directory.GetFiles(ModelsDir, "*.prefab")
+                .Select(p => p.Replace('\\', '/'))
+                .OrderBy(p => p)
+                .ToArray();
+
+            foreach (var path in paths)
+            {
+                var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (go == null)
+                {
+                    Debug.LogWarning($"[Bounds] {path} laedt nicht.");
+                    continue;
+                }
+
+                var b = ModelBounds(go);
+                Debug.Log($"BOUNDS {Path.GetFileNameWithoutExtension(path)} " +
+                          $"breite={b.size.x:0.##} hoehe={b.size.y:0.##} tiefe={b.size.z:0.##} " +
+                          $"mitte=({b.center.x:0.##},{b.center.y:0.##},{b.center.z:0.##})");
+            }
+
+            Debug.Log($"BOUNDS_REPORT_OK {paths.Length}");
+        }
+
         static string FindFbx(string dir, params string[] hints)
         {
             var fbxs = Directory.GetFiles(dir)

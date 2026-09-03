@@ -812,7 +812,14 @@ namespace Infront.EditorTools
         {
             // Echte Haengelampe (Pivot oben an der Decke): am Modell haengt kein
             // Licht - das leuchtende Kaestchen darunter bleibt fuer den Bloom.
-            bool real = DecoModel("haengelampe", new Vector3(x, y + 0.5f, z), Quaternion.identity);
+            //
+            // Erste Wahl ist die Kaefiglampe (0,75 m hoch, Pivot oben, haengt
+            // also von selbst nach unten). Pivot auf y+0.65 gesetzt, damit die
+            // Unterkante bei rund y-0.10 sitzt - genau dort, wo das leuchtende
+            // Kaestchen steht. Faellt sie aus, bleibt die alte Haengelampe,
+            // und danach die beiden Wuerfel wie bisher.
+            bool real = DecoModel("caged_hanging_light", new Vector3(x, y + 0.65f, z), RandomYaw())
+                     || DecoModel("haengelampe", new Vector3(x, y + 0.5f, z), Quaternion.identity);
 
             if (!real)
             {
@@ -1316,6 +1323,64 @@ namespace Infront.EditorTools
             PointLightAt("HalleLight_4", new Vector3(0f, 7f, -34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
         }
 
+        /// <summary>
+        /// Grosse Industrie-Modelle im Werk: Hallenkran, Rolltore, Wand- und
+        /// Deckenleuchten. Alles **rein optisch** - kein Collider, kein Licht,
+        /// keine NavMesh-Aenderung. Damit bleiben Sichtlinien, Wege und Balance
+        /// exakt so, wie sie vorher waren.
+        ///
+        /// Fehlt ein Modell, passiert schlicht nichts: die Karte ist ohne diese
+        /// Deko vollstaendig spielbar, deshalb gibt es hier keinen Wuerfel-Ersatz.
+        ///
+        /// Die Masze stammen aus AssetImporterTools.ReportDecoBounds:
+        ///   overhead_crane              12.49 x 5.13 x 4.00, Mitte y -1.35 (Pivot oben)
+        ///   rollershutter_door           3.08 x 2.40 x 0.30, Mitte x -1.00 (Pivot rechts)
+        ///   security_light               0.32 x 0.53 x 0.42, Mitte z +0.18 (Pivot an der Wand)
+        ///   mounted_fluorescent_lights   0.91 x 0.04 x 0.65, flach (Pivot in der Platte)
+        /// </summary>
+        static void BuildWerkModelle()
+        {
+            // Hallenkran quer ueber die Mittelachse.
+            //
+            // Screenshot-Test 2026-09-03: bei y 10.4 schwebte er frei im Himmel
+            // und sah aus wie ein UFO - die Karte ist oben offen, es gibt keine
+            // Decke, an der er haengen koennte. Ein echter Hallenkran liegt auf
+            // den Wandkronen auf. Der Pivot sitzt oben, der Koerper reicht 3,9 m
+            // nach unten; bei y 9.4 sitzt die Unterkante also auf rund 5,5 m -
+            // genau auf Hoehe der Wandkronen.
+            //
+            // Nur EINER, in der Mitte. Der zweite bei z 30 stand ueber dem
+            // offenen Spawn-Bereich und hatte gar nichts, worauf er liegen kann.
+            DecoModel("overhead_crane", new Vector3(0f, 9.4f, 0f), Quaternion.identity);
+
+            // Rolltore an den Innenseiten der Nord- und Suedwand (Wand bei z +/-44).
+            // Der Pivot liegt am rechten Rand, deshalb der Versatz von +1.5 in x.
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float z = 43.4f * sgn;
+                float yaw = sgn > 0 ? 180f : 0f;       // Front zeigt zur Kartenmitte
+                DecoModel("rollershutter_door", new Vector3(-10f + 1.5f, 0f, z), Quaternion.Euler(0f, yaw, 0f));
+                DecoModel("rollershutter_door", new Vector3(10f + 1.5f, 0f, z), Quaternion.Euler(0f, yaw, 0f));
+            }
+
+            // Wandleuchten an den Engstellen der beiden Aussenbahnen.
+            // Pivot sitzt an der Wand, der Koerper steht in +z - der Gierwinkel
+            // dreht ihn also von der Wand weg in den Raum.
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float x = 15.5f * sgn;
+                float yaw = sgn > 0 ? 90f : 270f;
+                for (int zi = -1; zi <= 1; zi++)
+                    DecoModel("security_light", new Vector3(x, 3.8f, zi * 22f), Quaternion.Euler(0f, yaw, 0f));
+            }
+
+            // Flache Deckenleuchten laengs durch die Halle, versetzt zu den
+            // Haengelampen (die stehen auf Vielfachen von 15).
+            for (int zi = -2; zi <= 2; zi++)
+                DecoModel("mounted_fluorescent_lights", new Vector3(0f, 6.3f, zi * 15f + 7.5f),
+                    Quaternion.Euler(0f, 90f, 0f), 1.6f);
+        }
+
         static void BuildDecorationWerk()
         {
             _decoRoot = new GameObject("Deko").transform;
@@ -1380,6 +1445,9 @@ namespace Infront.EditorTools
                 new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
             Deco("Mast_B", PrimitiveType.Cylinder, new Vector3(42f, 5f, 42f),
                 new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
+
+            // Grosse Industrie-Modelle (Kran, Rolltore, Leuchten) - nur Optik.
+            BuildWerkModelle();
         }
 
         // ---- P5: Karte entklotzen (nur Deko, keine Collider) ----
