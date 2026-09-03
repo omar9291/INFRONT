@@ -1088,6 +1088,7 @@ namespace Infront.EditorTools
             BuildWerkLights();
             BuildLightShafts();
             BuildDecorationWerk();
+            BuildDetailWerk();
         }
 
         static void BuildWerkSpawns()
@@ -1314,6 +1315,149 @@ namespace Infront.EditorTools
                 new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
             Deco("Mast_B", PrimitiveType.Cylinder, new Vector3(42f, 5f, 42f),
                 new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
+        }
+
+        // ---- P5: Karte entklotzen (nur Deko, keine Collider) ----
+
+        static readonly Color _steel = new Color(0.09f, 0.10f, 0.12f);
+        static readonly Color _concrete = new Color(0.17f, 0.17f, 0.18f);
+
+        /// <summary>Fensterrahmen aus vier duennen Balken (+ Kreuzsprosse) an
+        /// einer Wand. <paramref name="faceZ"/> ist die Wandnormale (+1/-1 = Z,
+        /// sonst X).</summary>
+        static void WindowFrame(string name, Vector3 center, float w, float h, bool alongZ)
+        {
+            float t = 0.08f;
+            Vector3 sx = alongZ ? new Vector3(w, t, t) : new Vector3(t, t, w);
+            Vector3 sy = new Vector3(t, h, t);
+            Deco(name + "_top", PrimitiveType.Cube, center + Vector3.up * h * 0.5f, sx, _steel);
+            Deco(name + "_bot", PrimitiveType.Cube, center - Vector3.up * h * 0.5f, sx, _steel);
+            Vector3 side = alongZ ? new Vector3(0f, 0f, w * 0.5f) : new Vector3(w * 0.5f, 0f, 0f);
+            Deco(name + "_l", PrimitiveType.Cube, center - side, sy, _steel);
+            Deco(name + "_r", PrimitiveType.Cube, center + side, sy, _steel);
+            Deco(name + "_bar", PrimitiveType.Cube, center, sx * 0.98f, _steel);
+        }
+
+        /// <summary>Truemmerhaufen: ein paar kleine gekippte Broecken.</summary>
+        static void RubblePile(string name, Vector3 at, int seed)
+        {
+            var r = new System.Random(seed);
+            int n = 4 + r.Next(4);
+            for (int i = 0; i < n; i++)
+            {
+                float s = 0.25f + (float)r.NextDouble() * 0.7f;
+                var p = at + new Vector3((float)(r.NextDouble() - 0.5) * 1.6f, s * 0.4f,
+                                         (float)(r.NextDouble() - 0.5) * 1.6f);
+                var rot = Quaternion.Euler((float)r.NextDouble() * 40f, (float)r.NextDouble() * 360f,
+                                           (float)r.NextDouble() * 40f);
+                Deco(name + i, PrimitiveType.Cube, p, new Vector3(s, s * 0.7f, s * 1.1f), _concrete, rot);
+            }
+        }
+
+        /// <summary>Deko-Gelaender (kein Collider) an einer Kante entlang X oder Z.</summary>
+        static void DecoRail(string name, Vector3 center, float length, bool alongX)
+        {
+            Vector3 barS = alongX ? new Vector3(length, 0.05f, 0.05f) : new Vector3(0.05f, 0.05f, length);
+            Deco(name + "_top", PrimitiveType.Cube, center + Vector3.up * 0.55f, barS, _steel);
+            Deco(name + "_mid", PrimitiveType.Cube, center + Vector3.up * 0.30f, barS, _steel);
+            int posts = Mathf.Max(2, Mathf.RoundToInt(length / 1.5f));
+            for (int i = 0; i <= posts; i++)
+            {
+                float f = (i / (float)posts - 0.5f) * length;
+                Vector3 p = center + (alongX ? new Vector3(f, 0.3f, 0f) : new Vector3(0f, 0.3f, f));
+                Deco(name + "_p" + i, PrimitiveType.Cube, p, new Vector3(0.06f, 0.6f, 0.06f), _steel);
+            }
+        }
+
+        static void SandbagStack(string name, Vector3 at, int seed)
+        {
+            var r = new System.Random(seed);
+            for (int row = 0; row < 3; row++)
+            for (int c = -1; c <= 1; c++)
+            {
+                var p = at + new Vector3(c * 0.42f + (row % 2) * 0.2f, 0.18f + row * 0.28f, 0f);
+                if (DecoModel("sandsack", p, RandomYaw())) continue;
+                Deco(name + row + "_" + c, PrimitiveType.Cube, p,
+                    new Vector3(0.55f, 0.28f, 0.42f), new Color(0.30f, 0.28f, 0.22f),
+                    Quaternion.Euler(0f, (float)r.NextDouble() * 20f - 10f, 0f));
+            }
+        }
+
+        static void BuildDetailWerk()
+        {
+            // Fensterrahmen hoch in den Hallen-Trennwaenden (x = +-9), dort wo
+            // die Lichtschaechte hereinfallen.
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float x = 9f * sgn;
+                WindowFrame($"Fensterrahmen_H{sgn}_a", new Vector3(x, 5.4f, 12f), 2.6f, 2.2f, false);
+                WindowFrame($"Fensterrahmen_H{sgn}_b", new Vector3(x, 5.4f, 28f), 2.6f, 2.2f, false);
+            }
+            // Fensterrahmen in den Aussenwaenden N/S
+            for (int i = -1; i <= 1; i++)
+            {
+                WindowFrame($"Fensterrahmen_N{i}", new Vector3(i * 20f, 5.5f, 44.5f), 3f, 2.4f, true);
+                WindowFrame($"Fensterrahmen_S{i}", new Vector3(i * 20f, 5.5f, -44.5f), 3f, 2.4f, true);
+            }
+
+            // Saeulenkoepfe und -sockel auf die vorhandenen Hallen-Saeulen
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float x = 5f * sgn;
+                Deco($"SaeuleKopf_{sgn}", PrimitiveType.Cube, new Vector3(x, 7.9f, 33f),
+                    new Vector3(2.1f, 0.4f, 2.1f), _concrete);
+                Deco($"SaeuleSockel_{sgn}", PrimitiveType.Cube, new Vector3(x, 0.25f, 33f),
+                    new Vector3(2.2f, 0.5f, 2.2f), _concrete);
+            }
+
+            // Deko-Gelaender an der Mittelpodest-Kante und den Balkon-Innenkanten
+            DecoRail("MidRail_B", new Vector3(0f, 1.35f, 5f), 13f, true);
+            DecoRail("MidRail_A", new Vector3(0f, 1.35f, -5f), 13f, true);
+            foreach (int sgn in new[] { -1, 1 })
+                DecoRail($"BalcRailDeko_{sgn}", new Vector3(25f * sgn, 2.75f, 0f), 11f, false);
+
+            // Truemmerhaufen an Wandfuessen und in den Ecken
+            RubblePile("Truemmer_a", new Vector3(-42f, 0f, 20f), 11);
+            RubblePile("Truemmer_b", new Vector3(42f, 0f, -20f), 22);
+            RubblePile("Truemmer_c", new Vector3(-8f, 0f, -43f), 33);
+            RubblePile("Truemmer_d", new Vector3(10f, 0f, 43f), 44);
+            RubblePile("Truemmer_e", new Vector3(-20f, 0f, 8f), 55);
+            RubblePile("Truemmer_f", new Vector3(20f, 0f, -8f), 66);
+
+            // Extra Sandsackstellungen an beiden Bombenplaetzen
+            SandbagStack("SackSite_A1", new Vector3(-17f, 0f, 6f), 101);
+            SandbagStack("SackSite_A2", new Vector3(-23f, 0f, -6f), 102);
+            SandbagStack("SackSite_B1", new Vector3(17f, 0f, -6f), 103);
+            SandbagStack("SackSite_B2", new Vector3(23f, 0f, 6f), 104);
+
+            // Kabelstraenge an den Wandoberkanten (leichter Durchhang: 2 Segmente)
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float z = 43.5f * sgn;
+                Deco($"Kabel_N{sgn}_a", PrimitiveType.Cube, new Vector3(-12f, 6.2f, z),
+                    new Vector3(24f, 0.05f, 0.05f), _steel, Quaternion.Euler(0f, 0f, 3f));
+                Deco($"Kabel_N{sgn}_b", PrimitiveType.Cube, new Vector3(12f, 6.2f, z),
+                    new Vector3(24f, 0.05f, 0.05f), _steel, Quaternion.Euler(0f, 0f, -3f));
+            }
+
+            // Wandkaesten (Elektrik) an den Hallenwaenden
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float x = 8.6f * sgn;
+                Deco($"Wandkasten_{sgn}_a", PrimitiveType.Cube, new Vector3(x, 1.6f, 6f),
+                    new Vector3(0.15f, 0.5f, 0.35f), _steel);
+                Deco($"Wandkasten_{sgn}_b", PrimitiveType.Cube, new Vector3(x, 1.4f, 22f),
+                    new Vector3(0.15f, 0.4f, 0.3f), _steel);
+            }
+
+            // Dachlatten quer ueber den Aussenwegen - brechen das einfallende Licht
+            foreach (int sgn in new[] { -1, 1 })
+            {
+                float x = 36f * sgn;
+                for (int i = -4; i <= 4; i++)
+                    Deco($"Dachlatte_{sgn}_{i}", PrimitiveType.Cube, new Vector3(x, 7.6f, i * 4f),
+                        new Vector3(8f, 0.12f, 0.18f), _steel);
+            }
         }
 
         static void MakeBombSite(string name, int siteId, float x)
@@ -1591,11 +1735,12 @@ namespace Infront.EditorTools
             PointLightAt("BD_Warm_2", new Vector3(5f, 4.8f, 12f), new Color(1f, 0.6f, 0.34f), 18f, 9f);
             FlickerLight("BD_Red", new Vector3(-6f, 2.2f, 8f), new Color(1f, 0.32f, 0.2f), 12f, 6f);
 
-            // Zwei kreisende Suchscheinwerfer hoch oben, gegenläufig
+            // Zwei kreisende Suchscheinwerfer hoch oben, gegenläufig.
+            // P6: langsamer und schwächer - ruhiger, ernster.
             MenuSearchlight("BD_Searchlight_1", new Vector3(1f, 8.5f, 10f),
-                new Color(0.8f, 0.86f, 1f), 12f, 12f);
+                new Color(0.78f, 0.82f, 0.9f), 7f, 8f);
             MenuSearchlight("BD_Searchlight_2", new Vector3(-6f, 8.8f, 14f),
-                new Color(1f, 0.72f, 0.45f), -9f, 10f);
+                new Color(0.95f, 0.78f, 0.6f), -5f, 7f);
 
             // Treibender Staub im Lichtkegel - baut sein Partikelsystem selbst.
             var dustGo = new GameObject("BD_Dust");
@@ -1612,12 +1757,13 @@ namespace Infront.EditorTools
             // Rot blinkendes Signallicht oben auf dem linken Stapel
             MenuBeacon("BD_Beacon", new Vector3(-5f, 5.3f, 9f), new Color(1f, 0.28f, 0.2f));
 
-            // Flackerndes Neon-Schild an der Rückwand (eisblau, als Gegenpol zum warmen Licht)
+            // Neon-Schild an der Rückwand. P6: viel gedeckter, kaum noch Leuchten -
+            // ein müder Rest-Schimmer statt eines poppigen Eisblau.
             Stripe("BD_Neon", -3.5f, 5.4f, 19.2f, 6f, 0.12f, 0.25f);
             var neonGo = _mapRoot.Find("BD_Neon");
             if (neonGo != null)
-                neonGo.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(0.35f, 0.8f, 1f));
-            FlickerLight("BD_NeonLight", new Vector3(-3.5f, 5.2f, 18f), new Color(0.4f, 0.75f, 1f), 9f, 3.5f);
+                neonGo.GetComponent<Renderer>().sharedMaterial = GlowMat(new Color(0.26f, 0.4f, 0.5f));
+            FlickerLight("BD_NeonLight", new Vector3(-3.5f, 5.2f, 18f), new Color(0.32f, 0.44f, 0.55f), 7f, 1.6f);
 
             // Aufsteigender Dampf aus einer Ecke - zweites MenuDust, gröber eingestellt
             var steamGo = new GameObject("BD_Steam");

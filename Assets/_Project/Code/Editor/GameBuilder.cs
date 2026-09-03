@@ -88,6 +88,9 @@ namespace Infront.EditorTools
             PlayerSettings.resizableWindow = true;
             PlayerSettings.runInBackground = true;
             PlayerSettings.productName = "INFRONT";
+            // Version hochziehen, damit Freunde die Builds auseinanderhalten
+            // koennen (Nacht 9: Etappe 3 "Die Welt lebt" + Etappe 5 Waffen).
+            PlayerSettings.bundleVersion = "1.1";
 
             // Kein Retina: sonst rendert das Vollbild auf einem Retina-Panel in
             // 2x Aufloesung und die Bildrate bricht auf dem Basis-M1 ein.

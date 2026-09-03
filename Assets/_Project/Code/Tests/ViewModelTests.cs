@@ -42,6 +42,26 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Sturmgewehr_und_MP_sind_mehrteilige_Modelle()
+        {
+            NetworkPlayerController player = null;
+            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+
+            var vm = player.GetComponent<ViewModel>();
+            var weapon = player.GetComponent<NetworkWeapon>();
+            for (int i = 0; i < 10; i++) yield return null;
+
+            // Standard aus dem Prefab = Sturmgewehr (Index 0).
+            Assert.Greater(vm.PartCountForTests, 12,
+                $"Das Sturmgewehr hat nur {vm.PartCountForTests} Teile - zu grob.");
+
+            weapon.ServerSetPrimary(1);   // Maschinenpistole
+            for (int i = 0; i < 20; i++) yield return null;
+            Assert.Greater(vm.PartCountForTests, 10,
+                $"Die MP hat nur {vm.PartCountForTests} Teile - zu grob.");
+        }
+
+        [UnityTest]
         public IEnumerator Schuss_stoesst_die_Waffe_zurueck_und_sie_kehrt_zurueck()
         {
             NetworkPlayerController player = null;

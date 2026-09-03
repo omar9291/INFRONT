@@ -65,6 +65,25 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Karte_hat_mehr_Detail_bekommen()
+        {
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+
+            var deko = GameObject.Find("Map")?.transform.Find("Deko");
+            Assert.IsNotNull(deko, "Kein Deko-Objekt.");
+
+            int frames = 0, rubble = 0;
+            foreach (Transform t in deko.GetComponentsInChildren<Transform>())
+            {
+                if (t.name.StartsWith("Fensterrahmen")) frames++;
+                if (t.name.StartsWith("Truemmer")) rubble++;
+            }
+            Assert.Greater(frames, 8, "Zu wenige Fensterrahmen in den Wänden.");
+            Assert.Greater(rubble, 12, "Zu wenig Trümmer auf der Karte.");
+            Assert.Greater(deko.childCount, 120, "Die Karte ist noch zu leer (Deko-Kinder).");
+        }
+
+        [UnityTest]
         public IEnumerator Umgebungslicht_ist_heruntergefahren()
         {
             yield return MatchTestHarness.LoadReady((p, m) => { });

@@ -1,7 +1,8 @@
 # NACHTPLAN — Sitzung 9 (Nacht vom 2026-09-03 auf 2026-09-04)
 
-> **STATUS: OFFEN.** Beim Weiterarbeiten immer zuerst hier hereinschauen und
-> beim nächsten Paket ohne Haken weitermachen.
+> **STATUS: ABGESCHLOSSEN.** P1–P8 alle fertig, 126/126 Tests grün, Mac-Build
+> neu (Version 1.1) und gestartet. Ergebnis: `Dokumentation/MORGENBERICHT-9.md`.
+> Falls der Wecker noch feuert: nichts mehr zu tun - nur den Stand melden.
 
 **Diese Datei ist die Arbeitsanweisung für die Nacht.** Nach jedem Komprimieren
 des Gesprächs zuerst wieder hier lesen.
@@ -168,7 +169,14 @@ gegen „tot".
 Tests (`AmbientTests`): Wind läuft; ferne Ereignisse feuern innerhalb eines
 Zeitfensters; in der Kaufzeit leiser; Töne fallen auf Platzhalter zurück.
 
-### [ ] P5 — Karte entklotzen (nur ergänzen)
+### [x] P5 — Karte entklotzen (nur ergänzen) — FERTIG
+
+`BuildDetailWerk()` (nur Deko, keine Collider - NavMesh unberührt): Fensterrahmen
+in Hallen- und Aussenwänden (dort wo die Lichtschächte einfallen), Säulenköpfe
+und -sockel, Deko-Geländer an Podest- und Balkonkanten, sechs Trümmerhaufen,
+vier zusätzliche Sandsackstellungen an den Bombenplätzen, Kabelstränge an den
+Wandoberkanten, Wandkästen, Dachlatten quer über den Aussenwegen (brechen das
+Licht). Neuer Test in `BeleuchtungTests`.
 
 Ausschließlich zusätzliche Geometrie, nichts Bestehendes verschieben:
 Fensterrahmen in den Hallenwänden, mehr Geländer an Podest und Balkonen,
@@ -179,26 +187,39 @@ werfen die Lichtschächte aus P3).
 Test: NavMesh bäckt weiter, Bots erreichen beide Bombenplätze (vorhandene
 Bot-Tests müssen grün bleiben).
 
-### [ ] P6 — Menü ernster
+### [x] P6 — Menü ernster — FERTIG (zurückhaltend)
+
+Der Freund findet das Menü gut, deshalb nur eine Stimmungs-Korrektur, kein
+Umbau: im Kino-Look weniger Bloom, etwas mehr Vignette, mehr Kontrast, das
+Menü-Bild klar entsättigt (ColorAdjustments nur bei `_menuLook`). Backdrop:
+Suchscheinwerfer langsamer/schwächer, Eisblau-Neon fast ausgeschaltet.
+`UiTheme.Ice` gedeckter (betrifft auch HUD-Zahlen - im Sinne des ernsteren
+Tons, einzeilig zurückdrehbar), `Sheen` dezenter. Struktur unverändert,
+`MenuUiTests` bleiben grün.
 
 Gedämpfte Militärfarben statt Eisblau-Leuchten, weniger Bloom und Glas-Glanz,
 ruhigere Animation, härtere Kanten. Die Struktur des Menüs bleibt.
 
 Test: `MenuUiTests` bleiben grün.
 
-### [ ] P7 — Waffen aus Code, richtig detailliert
+### [x] P7 — Waffen aus Code, richtig detailliert — FERTIG
 
-Sturmgewehr und MP als mehrteilige Code-Modelle: Gehäuse, Handschutz mit
-Schiene, Magazin, Schaft, Pistolengriff, Kimme/Korn, Mündungsbremse.
-Pistole und Sniper haben bereits echte Modelle — die bleiben.
+`ViewModel.RefreshShape` teilt jetzt in drei Zweige: Pistole / Maschinenpistole /
+Sturmgewehr (Sniper + Pistole haben schon echte CC0-Modelle - die bleiben).
+- Sturmgewehr: ~26 Teile - Gehäuse, Oberschiene mit Picatinny-Zähnen,
+  Handschutz mit Lüftungsschlitzen, langer Lauf, dreiteilige Mündungsbremse,
+  Ladehebel, verstellbarer Schaft mit Wange, Pistolengriff, Abzugsbügel,
+  gebogenes Magazin, getrennte Kimme/Korn.
+- Maschinenpistole: ~15 Teile - kompakt, Vordergriff, Klappschaft (zwei
+  Streben + Platte), langes steiles Magazin, kurze Schiene.
+Neuer Test in `ViewModelTests` (`PartCountForTests`).
 
-Test: `ViewModelTests` bleiben grün; das Modell hat mehr als einen Teil.
+### [x] P8 — Abschluss — FERTIG
 
-### [ ] P8 — Abschluss
-
-Voller Testlauf, `SceneBuilder.Build`, `GameBuilder.BuildMac`, App neu starten,
-`MORGENBERICHT-9.md` schreiben, `PROGRESS.md` und `ASSETS.md` fortschreiben,
-alles committen und pushen.
+126/126 Tests grün. Szene neu gebaut, Mac-App neu (Version 1.1) + gestartet.
+`MORGENBERICHT-9.md` geschrieben, `PROGRESS.md` fortgeschrieben. Alles
+committet und gepusht. (ASSETS.md: keine Änderung - alle neuen Töne sind
+Code-Platzhalter, keine heruntergeladenen Pakete.)
 
 ---
 
@@ -223,3 +244,17 @@ das morgens.)
   Versuch ist zu riskant. Stattdessen: echte Schatten von 5 Ankerlichtern
   + Umgebungslicht runter — das "stellt" die Objekte auch auf den Boden.
   SSAO bleibt als sauberer nächster Schritt (manuell, mit Sicht aufs Bild).
+- **P5: Karte nur ergänzt, nichts verschoben.** Alle neuen Teile sind Deko
+  ohne Collider — Wege, Deckungen, NavMesh und damit die Balance sind
+  garantiert unverändert.
+- **P6: sehr zurückhaltend.** Der Freund findet das Menü gut, also nur eine
+  Stimmungs-Korrektur (weniger Leuchten, entsättigt), kein Umbau. `UiTheme.Ice`
+  betrifft dabei auch die HUD-Zahlen im Spiel — bewusst so gelassen, weil es
+  zum ernsteren Ton passt; eine Zeile in `UiTheme.cs` dreht es zurück.
+- **P7: Waffen aus Code, nicht heruntergeladen.** War deine Entscheidung.
+  Sturmgewehr/MP kommen bei Poly Haven nicht als CC0 vor; die Code-Modelle
+  sind jetzt so detailliert wie Würfel es zulassen. Ein echtes Modell wäre
+  noch besser — falls du mal eine gute CC0-Quelle findest, ist der Weg
+  (`AssetLibrary.Model` + `ViewModel.PoseFor`) schon da.
+- **`Application.version` auf 1.1 gezogen** (stand als offener Punkt an), damit
+  Freunde die Builds auseinanderhalten können.

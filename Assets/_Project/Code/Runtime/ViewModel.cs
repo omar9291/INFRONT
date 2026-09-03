@@ -88,6 +88,7 @@ namespace Infront
         bool _built;
 
         public bool HasModelForTests => _built && _rig != null && _rig.childCount > 0;
+        public int PartCountForTests => _rig != null ? _rig.childCount : 0;
         public Vector3 ModelLocalPosForTests => _rig != null ? _rig.localPosition : Vector3.zero;
         public bool HiddenForTests => _hidden;
 
@@ -220,36 +221,104 @@ namespace Infront
                 return;
             }
 
-            bool pistol = _weapon != null && _weapon.Stats != null
-                          && _weapon.Stats.SlotKind == WeaponStats.Slot.Pistole;
+            var slot = _weapon != null && _weapon.Stats != null
+                ? _weapon.Stats.SlotKind : WeaponStats.Slot.Primaer;
 
-            if (pistol)
+            if (slot == WeaponStats.Slot.Pistole)
             {
-                Part("Schlitten",  new Vector3(0f, 0f, 0.02f),  new Vector3(0.05f, 0.06f, 0.20f), _metalMat);
-                Part("Lauf",       new Vector3(0f, 0.005f, 0.14f), new Vector3(0.025f, 0.025f, 0.10f), _metalMat);
-                Part("Griff",      new Vector3(0f, -0.09f, -0.05f), new Vector3(0.045f, 0.13f, 0.06f), _metalMat,
-                                   Quaternion.Euler(18f, 0f, 0f));
-                _magazine = Part("Magazin", new Vector3(0f, -0.13f, -0.05f), new Vector3(0.04f, 0.06f, 0.05f), _metalMat,
-                                 Quaternion.Euler(18f, 0f, 0f));
-                Part("Kimme",      new Vector3(0f, 0.045f, -0.06f), new Vector3(0.05f, 0.012f, 0.02f), _metalMat);
-                Part("Streifen",   new Vector3(0f, 0.032f, 0.02f), new Vector3(0.052f, 0.006f, 0.14f), _accentMat);
+                BuildPistol();
+            }
+            else if (IsSubmachineGun())
+            {
+                BuildSubmachineGun();
             }
             else
             {
-                Part("Gehaeuse",   new Vector3(0f, 0f, 0f),        new Vector3(0.06f, 0.09f, 0.34f), _metalMat);
-                Part("Lauf",       new Vector3(0f, 0.01f, 0.30f),  new Vector3(0.03f, 0.03f, 0.30f), _metalMat);
-                Part("Handschutz", new Vector3(0f, 0.005f, 0.20f), new Vector3(0.055f, 0.06f, 0.20f), _metalMat);
-                Part("Schaft",     new Vector3(0f, -0.01f, -0.26f), new Vector3(0.05f, 0.08f, 0.16f), _metalMat);
-                Part("Griff",      new Vector3(0f, -0.10f, -0.10f), new Vector3(0.05f, 0.12f, 0.06f), _metalMat,
-                                   Quaternion.Euler(16f, 0f, 0f));
-                _magazine = Part("Magazin", new Vector3(0f, -0.14f, 0.01f), new Vector3(0.05f, 0.14f, 0.08f), _metalMat,
-                                 Quaternion.Euler(-8f, 0f, 0f));
-                Part("Visier",     new Vector3(0f, 0.075f, 0.02f), new Vector3(0.02f, 0.04f, 0.10f), _metalMat);
-                Part("Streifen",   new Vector3(0f, 0.048f, 0.03f), new Vector3(0.062f, 0.008f, 0.26f), _accentMat);
+                BuildRifle();
             }
 
             _built = true;
             SetVisible(!_hidden);
+        }
+
+        /// <summary>Ist die aktive Waffe die Maschinenpistole? (Das Sturmgewehr
+        /// baut sonst denselben Zweig - die MP soll kompakter aussehen.)</summary>
+        bool IsSubmachineGun()
+        {
+            var s = _weapon != null ? _weapon.Stats : null;
+            return s != null && !string.IsNullOrEmpty(s.DisplayName)
+                   && s.DisplayName.IndexOf("aschinenpistole", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        // ----- Pistole -----------------------------------------------------
+        void BuildPistol()
+        {
+            Part("Schlitten",   new Vector3(0f, 0f, 0.02f),      new Vector3(0.05f, 0.06f, 0.20f), _metalMat);
+            Part("Lauf",        new Vector3(0f, 0.005f, 0.14f),  new Vector3(0.022f, 0.022f, 0.10f), _metalMat);
+            Part("Griff",       new Vector3(0f, -0.09f, -0.05f), new Vector3(0.045f, 0.13f, 0.06f), _metalMat,
+                                Quaternion.Euler(18f, 0f, 0f));
+            Part("Abzugsbuegel", new Vector3(0f, -0.04f, -0.01f), new Vector3(0.03f, 0.035f, 0.05f), _metalMat);
+            _magazine = Part("Magazin", new Vector3(0f, -0.13f, -0.05f), new Vector3(0.038f, 0.06f, 0.045f), _metalMat,
+                             Quaternion.Euler(18f, 0f, 0f));
+            Part("Korn",        new Vector3(0f, 0.05f, 0.12f),   new Vector3(0.006f, 0.014f, 0.01f), _metalMat);
+            Part("Kimme",       new Vector3(0f, 0.048f, -0.06f), new Vector3(0.05f, 0.012f, 0.02f), _metalMat);
+            Part("Streifen",    new Vector3(0f, 0.03f, 0.02f),   new Vector3(0.052f, 0.005f, 0.12f), _accentMat);
+        }
+
+        // ----- Sturmgewehr -----------------------------------------------
+        void BuildRifle()
+        {
+            Part("Gehaeuse",    new Vector3(0f, 0f, 0f),         new Vector3(0.06f, 0.085f, 0.30f), _metalMat);
+            Part("Oberschiene", new Vector3(0f, 0.052f, 0.0f),   new Vector3(0.03f, 0.014f, 0.32f), _metalMat);
+            // Picatinny-Zaehne
+            for (int i = 0; i < 6; i++)
+                Part($"Zahn{i}", new Vector3(0f, 0.062f, -0.11f + i * 0.045f), new Vector3(0.032f, 0.01f, 0.014f), _metalMat);
+
+            Part("Handschutz",  new Vector3(0f, 0.004f, 0.21f),  new Vector3(0.05f, 0.055f, 0.22f), _metalMat);
+            Part("Schlitz_L",   new Vector3(-0.026f, 0.004f, 0.21f), new Vector3(0.006f, 0.03f, 0.16f), _accentMat);
+            Part("Schlitz_R",   new Vector3(0.026f, 0.004f, 0.21f),  new Vector3(0.006f, 0.03f, 0.16f), _accentMat);
+            Part("Lauf",        new Vector3(0f, 0.008f, 0.36f),  new Vector3(0.022f, 0.022f, 0.20f), _metalMat);
+            // Muendungsbremse: drei Ringe
+            for (int i = 0; i < 3; i++)
+                Part($"Bremse{i}", new Vector3(0f, 0.008f, 0.45f + i * 0.03f), new Vector3(0.036f, 0.036f, 0.014f), _metalMat);
+
+            Part("Ladehebel",   new Vector3(0.035f, 0.02f, -0.05f), new Vector3(0.02f, 0.02f, 0.06f), _metalMat);
+            Part("Schaft_Rohr", new Vector3(0f, 0.0f, -0.20f),   new Vector3(0.02f, 0.02f, 0.12f), _metalMat);
+            Part("Schaft",      new Vector3(0f, -0.008f, -0.30f), new Vector3(0.045f, 0.075f, 0.14f), _metalMat);
+            Part("Wange",       new Vector3(0f, 0.03f, -0.28f),  new Vector3(0.03f, 0.02f, 0.12f), _metalMat);
+            Part("Griff",       new Vector3(0f, -0.10f, -0.09f), new Vector3(0.045f, 0.12f, 0.055f), _metalMat,
+                                Quaternion.Euler(15f, 0f, 0f));
+            Part("Abzugsbuegel", new Vector3(0f, -0.045f, -0.03f), new Vector3(0.03f, 0.04f, 0.06f), _metalMat);
+            _magazine = Part("Magazin", new Vector3(0f, -0.135f, 0.02f), new Vector3(0.045f, 0.14f, 0.07f), _metalMat,
+                             Quaternion.Euler(-10f, 0f, 0f));
+            Part("Magazin_Bogen", new Vector3(0f, -0.20f, 0.055f), new Vector3(0.043f, 0.06f, 0.06f), _metalMat,
+                             Quaternion.Euler(-24f, 0f, 0f));
+            Part("Korn",        new Vector3(0f, 0.085f, 0.30f),  new Vector3(0.008f, 0.03f, 0.012f), _metalMat);
+            Part("Kimme",       new Vector3(0f, 0.08f, -0.08f),  new Vector3(0.03f, 0.022f, 0.02f), _metalMat);
+            Part("Streifen",    new Vector3(0f, 0.045f, 0.03f),  new Vector3(0.055f, 0.006f, 0.22f), _accentMat);
+        }
+
+        // ----- Maschinenpistole ----------------------------------------
+        void BuildSubmachineGun()
+        {
+            Part("Gehaeuse",    new Vector3(0f, 0f, 0f),         new Vector3(0.055f, 0.08f, 0.22f), _metalMat);
+            Part("Oberschiene", new Vector3(0f, 0.048f, 0.02f),  new Vector3(0.028f, 0.012f, 0.18f), _metalMat);
+            Part("Lauf",        new Vector3(0f, 0.006f, 0.18f),  new Vector3(0.02f, 0.02f, 0.12f), _metalMat);
+            Part("Muendung",    new Vector3(0f, 0.006f, 0.25f),  new Vector3(0.03f, 0.03f, 0.03f), _metalMat);
+            Part("Vordergriff", new Vector3(0f, -0.075f, 0.12f), new Vector3(0.03f, 0.09f, 0.035f), _metalMat,
+                                Quaternion.Euler(-6f, 0f, 0f));
+            Part("Griff",       new Vector3(0f, -0.095f, -0.05f), new Vector3(0.042f, 0.11f, 0.05f), _metalMat,
+                                Quaternion.Euler(14f, 0f, 0f));
+            Part("Abzugsbuegel", new Vector3(0f, -0.04f, -0.0f),  new Vector3(0.028f, 0.038f, 0.055f), _metalMat);
+            _magazine = Part("Magazin", new Vector3(0f, -0.16f, -0.03f), new Vector3(0.04f, 0.18f, 0.055f), _metalMat,
+                             Quaternion.Euler(6f, 0f, 0f));
+            // Klappschaft: zwei duenne Buegel-Streben nach hinten
+            Part("Schaft_L",    new Vector3(-0.02f, 0.0f, -0.20f), new Vector3(0.012f, 0.012f, 0.20f), _metalMat);
+            Part("Schaft_R",    new Vector3(0.02f, 0.0f, -0.20f),  new Vector3(0.012f, 0.012f, 0.20f), _metalMat);
+            Part("Schaft_Platte", new Vector3(0f, 0.0f, -0.30f),  new Vector3(0.05f, 0.06f, 0.02f), _metalMat);
+            Part("Korn",        new Vector3(0f, 0.07f, 0.16f),   new Vector3(0.007f, 0.024f, 0.01f), _metalMat);
+            Part("Kimme",       new Vector3(0f, 0.062f, -0.06f), new Vector3(0.026f, 0.018f, 0.018f), _metalMat);
+            Part("Streifen",    new Vector3(0f, 0.04f, 0.03f),   new Vector3(0.05f, 0.005f, 0.16f), _accentMat);
         }
 
         /// <summary>

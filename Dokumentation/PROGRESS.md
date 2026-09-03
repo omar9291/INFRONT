@@ -57,7 +57,35 @@ Nebel = **nur Optik, Sichtweite bleibt gleich**. Waffen = aus Code detailliert b
 - Rein Stimmung: `SoundEvents` (Bot-Hoeren) wird NICHT gefuettert, keine Balance.
 - Neue Tests: `AmbientTests` (4).
 
-### P5-P8: siehe NACHTPLAN-9.md (noch offen)
+### P5 - Karte entklotzen (FERTIG)
+
+- `SceneBuilder.BuildDetailWerk()` - NUR Deko (keine Collider, NavMesh unberuehrt):
+  Fensterrahmen in Hallen-/Aussenwaenden (an den Lichtschaechten), Saeulenkoepfe
+  und -sockel, Deko-Gelaender, 6 Truemmerhaufen, 4 extra Sandsackstellungen an
+  den Sites, Kabelstraenge an Wandoberkanten, Wandkaesten, Dachlatten ueber den
+  Aussenwegen. Test in `BeleuchtungTests`.
+
+### P6 - Menue ernster (FERTIG, zurueckhaltend)
+
+- Der Freund findet das Menue gut -> nur Stimmungs-Korrektur: `_menuLook` weniger
+  Bloom, mehr Vignette/Kontrast, Bild entsaettigt. Backdrop: Scheinwerfer
+  langsamer/schwaecher, Eisblau-Neon fast aus. `UiTheme.Ice` gedeckter (auch
+  HUD-Zahlen), `Sheen` dezenter. `MenuUiTests` bleiben gruen.
+
+### P7 - Waffen aus Code detailliert (FERTIG)
+
+- `ViewModel.RefreshShape` -> 3 Zweige: Pistole / MP / Sturmgewehr. Sniper +
+  Pistole haben schon echte CC0-Modelle. Sturmgewehr ~26 Teile (Schiene mit
+  Picatinny-Zaehnen, Handschutz mit Schlitzen, Muendungsbremse, verstellbarer
+  Schaft, gebogenes Magazin, getrennte Visierung), MP ~15 Teile (Vordergriff,
+  Klappschaft, langes Magazin). Test in `ViewModelTests`.
+
+### Offen nach Nacht 9
+
+- Etappe 4 "Menschen" - auf Nutzer blockiert (Mixamo/Adobe).
+- SSAO verschoben (siehe NACHTPLAN-9 Abschnitt 4).
+- Platzhalter-Toene (wind, artillerie, hubschrauber, ...) noch Code.
+- Balance-Feintuning Wetter/Ton/Schatten nach Auge+Ohr des Nutzers.
 
 ## GAMEPLAY-UEBERARBEITUNG - Etappe 2 "Wucht" (2026-09-03)
 

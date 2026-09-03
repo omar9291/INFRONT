@@ -85,22 +85,24 @@ namespace Infront
             var tone = _profile.Add<Tonemapping>(true);
             tone.mode.Override(TonemappingMode.ACES);
 
+            // P6: das Menue soll ernster wirken - weniger Leuchten, gedeckter,
+            // ruhiger. Das Spiel selbst bleibt wie es ist.
             var bloom = _profile.Add<Bloom>(true);
-            bloom.intensity.Override(_menuLook ? 1.1f : 0.9f);
-            bloom.threshold.Override(_menuLook ? 0.95f : 1.05f);
+            bloom.intensity.Override(_menuLook ? 0.7f : 0.9f);
+            bloom.threshold.Override(_menuLook ? 1.15f : 1.05f);
             bloom.scatter.Override(0.62f);
             bloom.tint.Override(new Color(1f, 0.93f, 0.82f));
 
             var vignette = _profile.Add<Vignette>(true);
-            vignette.intensity.Override(_menuLook ? 0.42f : 0.30f);
-            vignette.smoothness.Override(_menuLook ? 0.52f : 0.42f);
+            vignette.intensity.Override(_menuLook ? 0.46f : 0.30f);
+            vignette.smoothness.Override(_menuLook ? 0.5f : 0.42f);
             vignette.color.Override(new Color(0.02f, 0.02f, 0.03f));
 
             var color = _profile.Add<ColorAdjustments>(true);
-            color.contrast.Override(12f);
-            color.saturation.Override(4f);
-            color.colorFilter.Override(new Color(1f, 0.96f, 0.90f));
-            color.postExposure.Override(0.08f);
+            color.contrast.Override(_menuLook ? 16f : 12f);
+            color.saturation.Override(_menuLook ? -10f : 4f);   // Menue entsaettigt = ernster
+            color.colorFilter.Override(_menuLook ? new Color(0.92f, 0.93f, 0.96f) : new Color(1f, 0.96f, 0.90f));
+            color.postExposure.Override(_menuLook ? -0.04f : 0.08f);
 
             var white = _profile.Add<WhiteBalance>(true);
             white.temperature.Override(8f);   // leicht waermer

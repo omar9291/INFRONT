@@ -32,15 +32,15 @@ namespace Infront
         public static readonly Color AccentBright = new Color32(0xFF, 0x88, 0x3A, 0xFF);  // Akzent hell
 
         // --- Menue: kuehler Gegen-Akzent + Glas ----------------------------
-        public static readonly Color Ice     = new Color32(0x5A, 0xC8, 0xF5, 0xFF);   // Zahlen, Messwerte, eigenes Team
-        public static readonly Color IceDim  = new Color32(0x35, 0x74, 0x92, 0xFF);   // Eisblau gedaempft
+        public static readonly Color Ice     = new Color32(0x69, 0xA6, 0xC2, 0xFF);   // Zahlen, Messwerte, eigenes Team (P6: gedeckter, ernster)
+        public static readonly Color IceDim  = new Color32(0x33, 0x5C, 0x6E, 0xFF);   // Eisblau gedaempft
         public static readonly Color Foe     = new Color32(0xFF, 0x6B, 0x5E, 0xFF);   // Gegner im Briefing
         // Halbdurchsichtige Flaechen fuers Menue - die Kulisse schimmert durch.
         public static readonly Color Glass   = new Color(0.055f, 0.066f, 0.086f, 0.76f);
         public static readonly Color GlassHi = new Color(0.11f,  0.13f,  0.16f,  0.85f);
         public static readonly Color GlassDeep = new Color(0.03f, 0.037f, 0.05f, 0.82f);  // vertiefte Kaesten (Mini-Karte)
         public static readonly Color Edge    = new Color32(0x3C, 0x46, 0x54, 0xFF);   // hellerer Glasrand fuers Menue
-        public static readonly Color Sheen   = new Color(1f, 1f, 1f, 0.035f);         // Glanz oben auf dem Glas
+        public static readonly Color Sheen   = new Color(1f, 1f, 1f, 0.02f);          // Glanz oben auf dem Glas (P6: dezenter)
 
         // --- HUD im Spiel ---------------------------------------------------
         // Halbdurchsichtiger Kasten, damit das Spielbild durchscheint.
