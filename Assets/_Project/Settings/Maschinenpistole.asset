@@ -27,6 +27,10 @@ MonoBehaviour:
   RecoilUp: 0.5
   RecoilSide: 0.25
   RecoilRecovery: 14
+  RecoilRandomUp: 0.35
+  RecoilRandomSide: 0.8
+  AdsTime: 0.22
+  SwayScale: 0.7
   SpreadStand: 0.4
   SpreadWalk: 1.2
   SpreadSprint: 2.5

@@ -232,8 +232,16 @@ namespace Infront
             if (ServerNow - _lastClientShot > 0.3) _clientShot = 0;
             _lastClientShot = ServerNow;
 
+            // Schritt 4: Der Rueckstoss bleibt in seiner Form erkennbar (nach
+            // oben, seitlich wachsend), bekommt aber einen Zufallsanteil.
+            // Vorher war er exakt auswendig lernbar - ein Muster, kein Rueckstoss.
             float up = _stats.RecoilUp;
             float side = _stats.RecoilSide * Mathf.Sin(_clientShot * 1.2f) * Mathf.Clamp01(_clientShot / 3f);
+
+            up *= 1f + UnityEngine.Random.Range(-_stats.RecoilRandomUp, _stats.RecoilRandomUp);
+            side += _stats.RecoilSide
+                    * UnityEngine.Random.Range(-_stats.RecoilRandomSide, _stats.RecoilRandomSide);
+
             _playerController.AddRecoil(up, side);
             LocalFired?.Invoke();   // Waffe in der Hand zuckt zurueck
             _clientShot++;

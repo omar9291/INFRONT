@@ -354,7 +354,11 @@ namespace Infront
             float scopeZoom = s != null ? s.ScopeZoom : 0f;
 
             bool wantAim = !paused && !dead && _input.AimHeld && !_input.Sprint;
-            _aimT = Mathf.MoveTowards(_aimT, wantAim ? 1f : 0f, Time.deltaTime * 9f);
+            // Schritt 4: Anlegezeit je Waffe statt fuer alle gleich. Vorher
+            // war der Faktor fest 9, also rund 0.11 s - praktisch sofort
+            // schussbereit. Jetzt bestimmt AdsTime, wie lange es dauert.
+            float adsTime = s != null && s.AdsTime > 0.01f ? s.AdsTime : 0.34f;
+            _aimT = Mathf.MoveTowards(_aimT, wantAim ? 1f : 0f, Time.deltaTime / adsTime);
 
             if (_camera == null) return;
 

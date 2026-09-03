@@ -137,6 +137,9 @@ namespace Infront.EditorTools
                 w.RecoilUp = 0.85f; w.RecoilSide = 0.3f; w.SwitchTime = 0.5f;
                 w.SpreadStand = 0.15f; w.SpreadWalk = 1.4f; w.SpreadSprint = 3.2f;
                 w.AdsSpreadMul = 0.4f; w.ScopeZoom = 0f;
+                // Mittleres Gewicht: zuegig im Anschlag, sichtbares Nachschwingen.
+                w.AdsTime = 0.32f; w.SwayScale = 1f;
+                w.RecoilRandomUp = 0.28f; w.RecoilRandomSide = 0.6f;
             });
             var mp = MakeWeapon("Maschinenpistole", w =>
             {
@@ -146,6 +149,10 @@ namespace Infront.EditorTools
                 w.RecoilUp = 0.5f; w.RecoilSide = 0.25f; w.SwitchTime = 0.4f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 1.2f; w.SpreadSprint = 2.5f;
                 w.AdsSpreadMul = 0.55f; w.ScopeZoom = 0f;
+                // Leicht und kurz: schnell im Anschlag, wenig Nachschwingen,
+                // dafuer der unruhigste Rueckstoss von allen.
+                w.AdsTime = 0.22f; w.SwayScale = 0.7f;
+                w.RecoilRandomUp = 0.35f; w.RecoilRandomSide = 0.8f;
             });
             var sniper = MakeWeapon("Scharfschuetzengewehr", w =>
             {
@@ -157,6 +164,11 @@ namespace Infront.EditorTools
                 w.SpreadStand = 1.6f; w.SpreadWalk = 5f; w.SpreadSprint = 10f; w.SpreadAir = 14f;
                 w.AdsSpreadMul = 0.05f; w.ScopeZoom = 4f;
                 w.HeadshotMultiplier = 2f;
+                // Schwer und lang: braucht am laengsten in den Anschlag und
+                // schwingt am staerksten nach. Der Rueckstoss ist heftig,
+                // aber berechenbar - man schiesst ja nur einmal.
+                w.AdsTime = 0.62f; w.SwayScale = 1.6f;
+                w.RecoilRandomUp = 0.12f; w.RecoilRandomSide = 0.2f;
             });
             var pistole = MakeWeapon("Pistole", w =>
             {
@@ -166,6 +178,9 @@ namespace Infront.EditorTools
                 w.RecoilUp = 1.2f; w.RecoilSide = 0.4f; w.SwitchTime = 0.3f;
                 w.SpreadStand = 0.4f; w.SpreadWalk = 1.5f; w.SpreadSprint = 3f;
                 w.AdsSpreadMul = 0.5f; w.ScopeZoom = 0f;
+                // Am leichtesten: sofort einsatzbereit, kaum Nachschwingen.
+                w.AdsTime = 0.18f; w.SwayScale = 0.5f;
+                w.RecoilRandomUp = 0.4f; w.RecoilRandomSide = 0.7f;
             });
             var botRifle = MakeWeapon("Bot_Sturmgewehr", w =>
             {

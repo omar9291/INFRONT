@@ -437,10 +437,20 @@ namespace Infront
             float dPitch = Mathf.DeltaAngle(_prevCamEuler.x, camEuler.x);
             _prevCamEuler = camEuler;
 
+            // Schritt 4: das Nachschwingen haengt jetzt am Gewicht der Waffe.
+            // SwayScale 1 = wie bisher, das Scharfschuetzengewehr bekommt 1.6,
+            // die Pistole 0.5. Je schwerer, desto weiter schwingt sie aus und
+            // desto traeger kommt sie zurueck.
+            float swayScale = _weapon != null && _weapon.Stats != null
+                ? Mathf.Max(0.05f, _weapon.Stats.SwayScale)
+                : 1f;
+            float grenze = 0.03f * swayScale;
             Vector2 swayTarget = new Vector2(
-                Mathf.Clamp(-dYaw * 0.02f, -0.03f, 0.03f),
-                Mathf.Clamp(dPitch * 0.02f, -0.03f, 0.03f));
-            _sway = Vector2.Lerp(_sway, swayTarget, 1f - Mathf.Exp(-10f * dt));
+                Mathf.Clamp(-dYaw * 0.02f * swayScale, -grenze, grenze),
+                Mathf.Clamp(dPitch * 0.02f * swayScale, -grenze, grenze));
+            // Schwere Waffen kommen langsamer zur Ruhe.
+            float swayFolge = 10f / swayScale;
+            _sway = Vector2.Lerp(_sway, swayTarget, 1f - Mathf.Exp(-swayFolge * dt));
 
             // --- Laufwippen ---------------------------------------------
             float speed = _testBobSpeed >= 0f ? _testBobSpeed : HorizontalCameraSpeed();

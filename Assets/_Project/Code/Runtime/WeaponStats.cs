@@ -56,6 +56,22 @@ namespace Infront
         [Tooltip("Wie schnell der Rueckstoss zurueckgeht (Grad/Sekunde).")]
         public float RecoilRecovery = 14f;
 
+        // --- Schritt 4: Waffenmasse und Streuung des Rueckstosses ------------
+        // Bisher war der Rueckstoss vollstaendig vorhersagbar: fester Wert nach
+        // oben, seitlich eine Sinuskurve ueber die Schusszahl. Man konnte ihn
+        // also auswendig lernen und exakt ausgleichen. Diese beiden Werte
+        // streuen ihn - Anteil vom Grundwert, 0.35 = plus/minus 35 %.
+        [Range(0f, 1f)] public float RecoilRandomUp = 0.3f;
+        [Range(0f, 1f)] public float RecoilRandomSide = 0.55f;
+
+        // Zeit in Sekunden, bis die Waffe im Anschlag ist. Vorher war das fuer
+        // jede Waffe gleich und mit rund 0.11 s praktisch sofort.
+        public float AdsTime = 0.34f;
+
+        // Wie stark die Waffe beim Drehen nachschwingt. 1 = wie bisher.
+        // Schwere Waffen bekommen mehr, die Pistole weniger.
+        public float SwayScale = 1f;
+
         [Header("Streuung (rechnet der Server)")]
         [Tooltip("Grundstreuung im Stehen (Grad).")]
         public float SpreadStand = 0.15f;
