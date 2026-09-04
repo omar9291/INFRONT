@@ -141,7 +141,7 @@ namespace Infront
             for (int i = 0; i < args.Length; i++)
             {
                 string a = args[i];
-                if (a == "-skipintro" || a == "-autoshot" || a == "-runTests") return true;
+                if (a == "-skipintro" || a == "-autoshot" || a == "-survey" || a == "-runTests") return true;
             }
             return false;
         }

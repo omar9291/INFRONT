@@ -31,7 +31,12 @@ namespace Infront
     /// </summary>
     public sealed class PostFxController : MonoBehaviour
     {
-        static readonly Color FogColor = new Color(0.05f, 0.06f, 0.08f);
+        // Rundgang 2026-09-04: dieser Wert ist praktisch schwarz. Entfernung
+        // hat dadurch abgedunkelt statt zu dunsten - genau falsch herum. Der
+        // WeatherDirector setzt im Spiel eigene Werte (0,55 aufwaerts), diese
+        // Farbe greift nur, wenn kein Wetter laeuft. Sie liegt jetzt in
+        // derselben Groessenordnung.
+        static readonly Color FogColor = new Color(0.54f, 0.57f, 0.62f);
         const float FogDensity = 0.010f;
 
         [Tooltip("Nur in der Menue-Szene: Tiefenunschaerfe + staerkere Bildraender (Kino-Look).")]
@@ -96,12 +101,18 @@ namespace Infront
             bloom.tint.Override(new Color(1f, 0.93f, 0.82f));
 
             var vignette = _profile.Add<Vignette>(true);
-            vignette.intensity.Override(_menuLook ? 0.46f : 0.30f);
+            // Im Spiel kostet eine starke Vignette Sicht in den Ecken - dort
+            // steht der Gegner. Im Menue ist sie Gestaltung und bleibt.
+            vignette.intensity.Override(_menuLook ? 0.46f : 0.20f);
             vignette.smoothness.Override(_menuLook ? 0.5f : 0.42f);
             vignette.color.Override(new Color(0.02f, 0.02f, 0.03f));
 
             var color = _profile.Add<ColorAdjustments>(true);
-            color.contrast.Override(_menuLook ? 16f : 12f);
+            // ACES bringt bereits kraeftigen eigenen Kontrast mit. Die +12
+            // obendrauf haben im Spiel die Schattenseiten zugedrueckt: gemessen
+            // waren 27 % jedes Bildes praktisch schwarz. Im Menue darf es
+            // haerter bleiben, da steht die Oberflaeche im Vordergrund.
+            color.contrast.Override(_menuLook ? 16f : 5f);
             color.saturation.Override(_menuLook ? -10f : 4f);   // Menue entsaettigt = ernster
             color.colorFilter.Override(_menuLook ? new Color(0.92f, 0.93f, 0.96f) : new Color(1f, 0.96f, 0.90f));
             color.postExposure.Override(_menuLook ? -0.04f : 0f);   // im Spiel keine Extra-Belichtung (Screenshot-Test 2)

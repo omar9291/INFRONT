@@ -1,4 +1,4 @@
-# Lizenzen — Stand 2026-09-04
+# Lizenzen — Stand 2026-09-04 (beide offenen Punkte entschieden)
 
 Diese Datei beantwortet eine Frage: **darf INFRONT so, wie es jetzt ist,
 veröffentlicht werden?** Kurz: fast. Ein Punkt ist offen, und den kann nur
@@ -12,9 +12,14 @@ rechtlich: alle Rechte vorbehalten, niemand darf den Code benutzen. Für ein
 öffentliches Repo ist das ungewöhnlich, aber nicht falsch — es ist einfach der
 Standard, wenn nichts dabeisteht.
 
-**Zu entscheiden:** soll der Code unter eine Lizenz (z. B. MIT), oder bewusst
-„alle Rechte vorbehalten" bleiben? Bei einem Portfolio-Stück, das Leute
-anschauen aber nicht kopieren sollen, ist Letzteres völlig in Ordnung.
+**Entschieden am 2026-09-04:** bewusst **„alle Rechte vorbehalten"**. Seitdem
+liegt eine `LICENSE`-Datei im Wurzelverzeichnis, die genau das sagt — lesen und
+daraus lernen ja, übernehmen nein.
+
+Der Grund für diese Richtung: eine einmal vergebene freie Lizenz lässt sich
+nicht zurückziehen. Von „alle Rechte vorbehalten" kann man später jederzeit
+lockern, umgekehrt nicht. Für ein Portfolio-Stück, das angesehen und nicht
+kopiert werden soll, ist das der passende Stand.
 
 ## Die Assets
 
@@ -90,3 +95,42 @@ Bei jeder neuen Quelle:
 2. Zeile in `Dokumentation/ASSETS.md` eintragen, mit der echten Lizenz.
 3. Eintrag in `MainMenuUi.BuildQuellen` ergänzen, damit es im Spiel steht.
 4. Bei irgendeinem Zweifel: hier vermerken statt hoffen.
+
+
+## Die zwei offenen Punkte — beide am 2026-09-04 entschieden
+
+### 1. Code-Lizenz → alle Rechte vorbehalten
+
+`LICENSE` liegt im Wurzelverzeichnis. Sie betrifft **nur** den Code unter
+`Assets/_Project/Code/`. Fremde Inhalte behalten ihre eigenen Lizenzen; die
+Datei verweist dafür auf `ASSETS.md` und auf die Seite QUELLEN im Hauptmenü.
+
+### 2. Mixamo-Dateien → nicht mehr im Repository
+
+Die fünf FBX unter `Assets/_Project/Art/Figures/` und die daraus erzeugte
+`figur.prefab` stehen jetzt in `.gitignore` und wurden mit `git rm --cached`
+aus der Nachverfolgung genommen.
+
+- **Lokal ändert sich nichts.** Die Dateien liegen weiter auf der Platte, das
+  Spiel läuft hier unverändert mit den echten Figuren.
+- **Wer klont, bekommt sie nicht.** Dort greift die eingebaute Rückfallebene
+  und die Figuren werden wie früher aus Grundkörpern gebaut.
+- **`figur.prefab` fällt mit heraus.** Es verweist per GUID auf die FBX. Bliebe
+  es drin, wäre es in einem Klon *kaputt* statt *abwesend* — und die
+  Rückfallebene würde nicht greifen.
+
+**Was damit ausdrücklich NICHT erledigt ist:** in den alten Commits liegen die
+Dateien weiterhin und sind dort abrufbar. Sie wirklich zu entfernen hieße, die
+öffentliche Versionsgeschichte umzuschreiben. Das wurde bewusst nicht gemacht —
+jeder, der das Repository schon geklont hat, müsste sonst neu klonen. Vor einer
+echten Veröffentlichung ist dieser Punkt noch einmal zu prüfen.
+
+### Was sich durch die neue Download-Regel ändert
+
+Der Nutzer hat am 2026-09-04 erlaubt: *„downloads are all allowed (as long as
+it is with credits and doesnt cost anything)"*. Damit ist neben CC0 jetzt auch
+**CC-BY** zulässig — Bedingung ist die Namensnennung in `ASSETS.md` **und** auf
+der Seite QUELLEN im Spiel. Weiterhin ausgeschlossen bleiben **CC-BY-SA** (die
+Weitergabe-Klausel kann auf das ganze Spiel durchschlagen) und alles mit
+**NC/nicht-kommerziell**. Die Regel steht ausführlich in
+`.claude/agents/asset-sucher.md`.

@@ -98,14 +98,29 @@ namespace Infront.Tests
                 // TRAEGT jetzt den Innenraum. Bei 0,62 waren ganze Waende
                 // schwarz.
                 //
-                // Die Obergrenze bleibt, nur hoeher: wird sie ueberschritten,
-                // ist der Raum wieder flach ausgeleuchtet und nichts wirft
-                // sichtbare Schatten.
-                Assert.LessOrEqual(RenderSettings.ambientIntensity, 1.35f,
+                // Am 2026-09-04 noch einmal angehoben, diesmal gemessen statt
+                // geschaetzt. Ein Rundgang mit 27 festen Kamerastandorten,
+                // Wetter fest auf "klar", liefert die Helligkeitsverteilung:
+                //
+                //   bei 1,10   Mittelwert 48/255, 26,9 % des Bildes schwarz,
+                //              50,9 % unter der Erkennbarkeitsgrenze
+                //   bei 1,65   Mittelwert 88/255,  12,5 % schwarz,
+                //              24,7 % unter der Grenze, 0,5 % ausgebrannt
+                //
+                // Ganze Wandseiten, die von der Sonne wegzeigten, hatten vorher
+                // gar kein Licht: im Suedgang war die eine Wand hell und die
+                // gegenueberliegende schwarz. Im Westgang war nicht zu spielen.
+                //
+                // Die Obergrenze bleibt und bleibt wichtig: wird sie
+                // ueberschritten, ist der Raum flach ausgeleuchtet und nichts
+                // wirft mehr sichtbare Schatten. Auf den Bildern bei 1,65 sind
+                // Lichtflecken und Schattenseiten weiterhin deutlich zu sehen.
+                Assert.LessOrEqual(RenderSettings.ambientIntensity, 2.2f,
                     "Das Umgebungslicht (Skybox) ist zu hell - alles wird flach.");
-                Assert.GreaterOrEqual(RenderSettings.ambientIntensity, 0.8f,
+                Assert.GreaterOrEqual(RenderSettings.ambientIntensity, 1.3f,
                     "Das Umgebungslicht (Skybox) ist zu dunkel - in einer gedeckelten "
-                    + "Halle saufen dann die Waende ab.");
+                    + "Halle saufen dann die Waende ab. Gemessen: bei 1,10 waren "
+                    + "26,9 % jedes Bildes praktisch schwarz.");
             }
             else
             {

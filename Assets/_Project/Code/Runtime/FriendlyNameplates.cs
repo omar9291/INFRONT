@@ -31,14 +31,21 @@ namespace Infront
         void OnGUI()
         {
             if (_me == null || _me.TeamId == Team.None) return;
-            if (_camera == null && Camera.main != null) _camera = Camera.main.transform;
-            if (_camera == null) return;
+            // Nicht nur den gemerkten Transform pruefen, sondern die Kamera
+            // selbst. Der gemerkte Transform bleibt naemlich gueltig, wenn die
+            // Kamera nur ABGESCHALTET wird - dann kommt aus Camera.main null,
+            // der Waechter unten greift trotzdem, und WorldToScreenPoint fliegt
+            // auf die Nase. Gemessen: 2838 NullReferenceExceptions in einem
+            // einzigen Durchlauf, eine pro Bild. Passiert im Spiel zwischen Tod
+            // und Wiedereinstieg.
+            var cam = Camera.main;
+            if (cam == null) return;
+            if (_camera == null) _camera = cam.transform;
 
             if (_name == null)
                 _name = new GUIStyle(GUI.skin.label)
                 { fontSize = 13, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
 
-            var cam = Camera.main;
             Color prev = GUI.color;
 
             foreach (var mate in Combatants.Everyone)

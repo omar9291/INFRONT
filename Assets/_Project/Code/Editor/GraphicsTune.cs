@@ -222,5 +222,142 @@ namespace Infront.EditorTools
             var p = new SerializedObject(obj).FindProperty(prop);
             return p != null && p.boolValue;
         }
-    }
+    
+        /// <summary>
+        /// Sorgt dafuer, dass die zur Laufzeit gesuchten Shader ueberhaupt im
+        /// fertigen Spiel liegen.
+        ///
+        /// Der Fehler dahinter (gefunden 2026-09-04): Unity nimmt nur Shader in
+        /// den Build, die von irgendeinem gespeicherten Material benutzt werden.
+        /// "Universal Render Pipeline/Lit" steckt in den Karten-Materialien und
+        /// ist deshalb da. "Universal Render Pipeline/Unlit" benutzt KEIN
+        /// gespeichertes Material - der wird weggeworfen. Im Editor lief alles,
+        /// im Build gab Shader.Find dafuer null zurueck, und zehn Effekte fielen
+        /// still auf "Sprites/Default" zurueck: Leuchtspur, Muendungsfeuer,
+        /// Bodennebel, Staub, Einschlaege, Explosion, Rauchgranate, Menuestaub.
+        /// Nachgewiesen an der Rauchwolke: 78 Partikel liefen, Material war
+        /// Sprites/Default, im Bild war nichts zu sehen.
+        ///
+        /// Still ist an dem Fehler das Schlimmste: es gibt keine Meldung, und
+        /// im Editor tritt er nie auf.
+        /// </summary>
+        public static void EnsureShaders()
+        {
+            string[] gebraucht =
+            {
+                "Universal Render Pipeline/Unlit",
+                "Universal Render Pipeline/Lit",
+                "Universal Render Pipeline/Particles/Unlit",
+            };
+
+            var gs = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset");
+            if (gs == null || gs.Length == 0)
+            {
+                Debug.LogWarning("[Infront] EnsureShaders: GraphicsSettings nicht lesbar.");
+                return;
+            }
+
+            var so = new SerializedObject(gs[0]);
+            var liste = so.FindProperty("m_AlwaysIncludedShaders");
+            if (liste == null)
+            {
+                Debug.LogWarning("[Infront] EnsureShaders: m_AlwaysIncludedShaders fehlt.");
+                return;
+            }
+
+            int dazu = 0;
+            foreach (var name in gebraucht)
+            {
+                var sh = Shader.Find(name);
+                if (sh == null)
+                {
+                    Debug.LogWarning($"[Infront] EnsureShaders: '{name}' gibt es im Projekt nicht.");
+                    continue;
+                }
+
+                bool schonDa = false;
+                for (int i = 0; i < liste.arraySize; i++)
+                {
+                    if (liste.GetArrayElementAtIndex(i).objectReferenceValue == sh) { schonDa = true; break; }
+                }
+                if (schonDa) continue;
+
+                liste.InsertArrayElementAtIndex(liste.arraySize);
+                liste.GetArrayElementAtIndex(liste.arraySize - 1).objectReferenceValue = sh;
+                dazu++;
+            }
+
+            if (dazu > 0)
+            {
+                so.ApplyModifiedProperties();
+                AssetDatabase.SaveAssets();
+            }
+            Debug.Log($"[Infront] EnsureShaders: {dazu} Shader ergaenzt, Liste hat jetzt {liste.arraySize}.");
+        }
+
+        /// <summary>
+        /// Legt zwei echte Material-Dateien fuer durchsichtige Effekte an.
+        ///
+        /// Warum eine Datei und nicht Shader.Find zur Laufzeit: Unity wirft
+        /// nicht nur ungenutzte Shader aus dem Build, sondern auch ungenutzte
+        /// SPIELARTEN eines Shaders. "Universal Render Pipeline/Unlit" in die
+        /// Liste der immer mitgelieferten Shader zu setzen holt den Shader, aber
+        /// nicht seine durchsichtige Spielart - die benutzt ja kein
+        /// gespeichertes Material. Ergebnis: das Schluesselwort
+        /// _SURFACE_TYPE_TRANSPARENT liess sich zur Laufzeit zwar setzen, es gab
+        /// aber gar keinen dazu passenden uebersetzten Code. Rauch und Nebel
+        /// blieben harte helle Vielecke.
+        ///
+        /// Eine gespeicherte Material-Datei loest beides auf einmal: der Shader
+        /// bleibt drin UND die Spielart wird uebersetzt. Zur Laufzeit wird das
+        /// Material nur noch kopiert.
+        /// </summary>
+        public static void EnsureFxMaterials()
+        {
+            const string ordner = "Assets/_Project/Art/Resources/Materials";
+            if (!AssetDatabase.IsValidFolder(ordner))
+            {
+                Debug.LogWarning($"[Infront] EnsureFxMaterials: {ordner} fehlt.");
+                return;
+            }
+
+            var shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null)
+            {
+                Debug.LogWarning("[Infront] EnsureFxMaterials: URP/Unlit nicht gefunden.");
+                return;
+            }
+
+            Baue($"{ordner}/fx_alpha.mat", shader, additiv: false);
+            Baue($"{ordner}/fx_additiv.mat", shader, additiv: true);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Infront] EnsureFxMaterials: fx_alpha und fx_additiv liegen bereit.");
+        }
+
+        static void Baue(string pfad, Shader shader, bool additiv)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(pfad);
+            bool neu = m == null;
+            if (neu) m = new Material(shader);
+            m.shader = shader;
+
+            m.SetFloat("_Surface", 1f);
+            m.SetFloat("_Blend", additiv ? 1f : 0f);
+            m.SetFloat("_ZWrite", 0f);
+            m.SetFloat("_AlphaClip", 0f);
+            m.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetFloat("_DstBlend", additiv ? (float)UnityEngine.Rendering.BlendMode.One
+                                            : (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.DisableKeyword("_ALPHATEST_ON");
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+            if (neu) AssetDatabase.CreateAsset(m, pfad);
+            else EditorUtility.SetDirty(m);
+        }
+}
 }

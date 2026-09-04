@@ -84,13 +84,16 @@ namespace Infront
             // Denselben Shader wie MenuDust - der ist erwiesenermaßen im Build.
             var shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Sprites/Default");
-            var mat = new Material(shader) { name = "GroundFogMat" };
+            var mat = UrpMaterial.NeuFx(additiv: false, "GroundFogMat");
             if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1f);   // transparent
             if (mat.HasProperty("_Blend")) mat.SetFloat("_Blend", 0f);       // Alpha (NICHT additiv - Nebel dunkelt eher ab)
             if (mat.HasProperty("_SrcBlend")) mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
             if (mat.HasProperty("_DstBlend")) mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             if (mat.HasProperty("_ZWrite")) mat.SetInt("_ZWrite", 0);
             mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Durchsichtig(mat);
             // Ohne Textur ist jedes Partikel ein blankes Viereck - man sah die
             // Kanten und die Diagonale als grosse Dreiecke im Bild.
             SoftParticleTexture.Anwenden(mat);

@@ -44,7 +44,7 @@ namespace Infront
 
             Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Sprites/Default");
-            _quadMat = new Material(shader) { name = "MuzzleMat" };
+            _quadMat = UrpMaterial.NeuFx(additiv: true, "MuzzleMat");
             MakeAdditive(_quadMat, new Color(1f, 0.85f, 0.55f, 1f));
             var r = quadGo.GetComponent<Renderer>();
             r.sharedMaterial = _quadMat;
@@ -63,6 +63,9 @@ namespace Infront
             if (m.HasProperty("_ZWrite")) m.SetInt("_ZWrite", 0);
             m.SetOverrideTag("RenderType", "Transparent");
             m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Leuchtend(m);
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
             if (m.HasProperty("_Color")) m.SetColor("_Color", c);
         }

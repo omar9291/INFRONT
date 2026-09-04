@@ -128,23 +128,89 @@ namespace Infront
             _duration = Mathf.Max(1f, duration);
         }
 
+        // Bis 2026-09-04 war die Wolke eine einzige undurchsichtige Kugel aus
+        // "Universal Render Pipeline/Lit". Im Bild lag dann eine riesige weisse
+        // Billardkugel mitten in der Halle - man sah nichts hindurch, die Kante
+        // war hart, und beleuchtet wurde sie auch noch. Jetzt ist es das, was
+        // Rauch ist: viele weiche, durchscheinende Fetzen, die sich drehen.
+        ParticleSystem _ps;
+        ParticleSystem.EmissionModule _emission;
+        ParticleSystem.MainModule _main;
+
         void Start()
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            go.name = "Wolke";
-            var col = go.GetComponent<Collider>();
-            if (col != null) Destroy(col);
+            var go = new GameObject("Wolke");
+            go.transform.SetParent(transform, false);
             _sphere = go.transform;
-            _sphere.SetParent(transform, false);
-            _sphere.localScale = Vector3.one * 0.2f;
 
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            _mat = new Material(shader) { name = "SmokeMat" };
-            var c = new Color(0.72f, 0.73f, 0.75f, 1f);
-            if (_mat.HasProperty("_BaseColor")) _mat.SetColor("_BaseColor", c);
-            _mat.color = c;
-            if (_mat.HasProperty("_Smoothness")) _mat.SetFloat("_Smoothness", 0f);
-            go.GetComponent<Renderer>().sharedMaterial = _mat;
+            _ps = go.AddComponent<ParticleSystem>();
+            _ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            _main = _ps.main;
+            _main.loop = true;
+            _main.startLifetime = new ParticleSystem.MinMaxCurve(2.2f, 4.2f);
+            _main.startSpeed = new ParticleSystem.MinMaxCurve(0.15f, 0.7f);
+            _main.startSize = new ParticleSystem.MinMaxCurve(_radius * 0.85f, _radius * 1.5f);
+            _main.startColor = new Color(0.78f, 0.79f, 0.81f, 0.34f);
+            _main.startRotation = new ParticleSystem.MinMaxCurve(0f, 2f * Mathf.PI);
+            _main.maxParticles = 260;
+            _main.simulationSpace = ParticleSystemSimulationSpace.World;
+            _main.gravityModifier = -0.012f;   // steigt ganz leicht, wie echter Rauch
+
+            _emission = _ps.emission;
+            _emission.enabled = true;
+            _emission.rateOverTime = 60f;
+
+            var shape = _ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = _radius * 0.55f;
+            shape.randomDirectionAmount = 1f;
+
+            var rot = _ps.rotationOverLifetime;
+            rot.enabled = true;
+            rot.z = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f);
+
+            var col2 = _ps.colorOverLifetime;
+            col2.enabled = true;
+            var grad = new Gradient();
+            grad.SetKeys(
+                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f),
+                    new GradientAlphaKey(1f, 0.18f),
+                    new GradientAlphaKey(1f, 0.7f),
+                    new GradientAlphaKey(0f, 1f),
+                });
+            col2.color = grad;
+
+            var groesse = _ps.sizeOverLifetime;
+            groesse.enabled = true;
+            groesse.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 0.55f, 1f, 1f));
+
+            var shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) shader = Shader.Find("Sprites/Default");
+            _mat = UrpMaterial.NeuFx(additiv: false, "SmokeMat");
+            if (_mat.HasProperty("_Surface")) _mat.SetFloat("_Surface", 1f);   // transparent
+            if (_mat.HasProperty("_Blend")) _mat.SetFloat("_Blend", 0f);       // Alpha, nicht additiv
+            if (_mat.HasProperty("_SrcBlend")) _mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            if (_mat.HasProperty("_DstBlend")) _mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            if (_mat.HasProperty("_ZWrite")) _mat.SetInt("_ZWrite", 0);
+            _mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Durchsichtig(_mat);
+            SoftParticleTexture.Anwenden(_mat);
+
+            var r = _ps.GetComponent<ParticleSystemRenderer>();
+            r.material = _mat;
+            r.renderMode = ParticleSystemRenderMode.Billboard;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+            r.sortingFudge = 0f;
+
+            _ps.Play();
         }
 
         void Update()
@@ -156,7 +222,18 @@ namespace Infront
                 ? Mathf.InverseLerp(_duration, _duration - 1.2f, _age)
                 : 1f;
             float r = _radius * grow * Mathf.Lerp(0.4f, 1f, fade);
-            if (_sphere != null) _sphere.localScale = Vector3.one * r * 2f;
+
+            // Die Wolke waechst ueber die Ausstoss-Kugel und die Partikelgroesse,
+            // nicht mehr ueber eine skalierte Vollkugel.
+            if (_ps != null)
+            {
+                var shape = _ps.shape;
+                shape.radius = Mathf.Max(0.2f, r * 0.55f);
+                _main.startSize = new ParticleSystem.MinMaxCurve(r * 0.85f, r * 1.5f);
+                _main.startColor = new Color(0.78f, 0.79f, 0.81f, 0.34f * fade);
+                _emission.rateOverTime = 60f * grow * fade;
+                if (fade <= 0.02f) _emission.rateOverTime = 0f;
+            }
 
             // Nur registrieren, solange die Wolke wirklich dicht ist.
             bool dense = grow > 0.6f && fade > 0.4f;

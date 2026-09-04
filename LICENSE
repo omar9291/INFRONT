@@ -1,0 +1,31 @@
+Copyright (c) 2026 Driftlab. Alle Rechte vorbehalten.
+All rights reserved.
+
+Dieses Repository ist oeffentlich einsehbar, damit man den Code lesen,
+nachvollziehen und daraus lernen kann. Mehr erlaubt es nicht.
+
+Ohne ausdrueckliche schriftliche Erlaubnis ist es nicht gestattet, den Code
+oder Teile davon zu kopieren, zu veraendern, weiterzugeben, zu
+veroeffentlichen oder in eigene Projekte zu uebernehmen - weder privat noch
+geschaeftlich.
+
+Warum so: INFRONT ist ein Portfolio-Stueck. Es soll angesehen werden, aber
+nicht weiterverwendet. Diese Entscheidung laesst sich jederzeit lockern, der
+umgekehrte Weg nicht: eine einmal vergebene freie Lizenz kann man nicht
+zurueckziehen.
+
+---
+
+Diese Datei betrifft NUR den Code in Assets/_Project/Code/.
+
+Fremde Inhalte (3D-Modelle, Texturen, HDRI, Toene, Figuren und Animationen)
+haben ihre eigenen Lizenzen. Welche das sind, steht vollstaendig in
+Dokumentation/ASSETS.md und zusammengefasst in Dokumentation/LIZENZEN.md.
+Im Spiel selbst stehen sie im Hauptmenue unter QUELLEN.
+
+Kurz:
+- Poly Haven, ambientCG, The Free Firearm Sound Library: CC0 (gemeinfrei).
+- Mixamo (Adobe): darf im fertigen Spiel benutzt werden, die Dateien selbst
+  duerfen aber nicht einzeln weitergegeben werden. Sie liegen deshalb seit
+  dem 2026-09-04 nicht mehr im Repository.
+- Unity-Pakete: Unity Companion License.

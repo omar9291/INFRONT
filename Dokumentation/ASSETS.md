@@ -112,9 +112,19 @@ noetig (besteht).
 **eingebaut in ein Produkt** verbreitet werden, nicht als einzeln
 herunterladbare Dateien.
 
-**Offener Punkt, den nur der Nutzer entscheiden kann:** die fuenf FBX liegen im
-oeffentlichen GitHub-Repo unter `Assets/_Project/Art/Figures/` und sind damit
-einzeln herunterladbar. Das ist eine Grauzone und eher heikel. Siehe
+**ERLEDIGT am 2026-09-04.** Die fuenf FBX lagen im oeffentlichen GitHub-Repo
+unter `Assets/_Project/Art/Figures/` und waren damit einzeln herunterladbar -
+also weitergegeben, und genau das verbieten die Mixamo-Bedingungen.
+
+Sie stehen jetzt in `.gitignore` und wurden mit `git rm --cached` aus der
+Nachverfolgung genommen; ebenso die daraus erzeugte `figur.prefab`, die per
+GUID auf sie verweist und in einem Klon sonst kaputt statt abwesend waere.
+Lokal liegen alle Dateien weiter, das Spiel laeuft hier unveraendert. Wer
+klont, bekommt die Rueckfallebene aus Grundkoerpern.
+
+**Rest-Risiko:** in den alten Commits sind die Dateien weiterhin abrufbar. Das
+zu aendern hiesse, die oeffentliche Versionsgeschichte umzuschreiben - bewusst
+nicht gemacht. Vor einer echten Veroeffentlichung noch einmal pruefen. Siehe
 `Dokumentation/LIZENZEN.md`.
 
 ## Quellen im Spiel

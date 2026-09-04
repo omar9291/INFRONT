@@ -58,3 +58,27 @@ scratch_*.xml
 # Vom PlayMode-Testlaeufer automatisch angelegte Wegwerf-Szenen
 /[Aa]ssets/InitTestScene*.unity
 /[Aa]ssets/InitTestScene*.unity.meta
+
+# ---------------------------------------------------------------------------
+# Mixamo-Figuren und alles, was daraus erzeugt wird (Entscheidung 2026-09-04)
+#
+# Mixamo (Adobe) erlaubt, die Figuren IM fertigen Spiel zu benutzen - auch
+# geschaeftlich. Was es NICHT erlaubt: die Dateien selbst weiterzugeben. In
+# einem oeffentlichen Repository kann sie aber jeder einzeln herunterladen,
+# und genau das ist eine Weitergabe.
+#
+# Die Dateien bleiben lokal liegen, das Spiel laeuft hier unveraendert. Wer
+# das Repository klont, bekommt sie nicht - dort greift die eingebaute
+# Rueckfallebene und die Figuren werden wie frueher aus Grundkoerpern gebaut
+# (siehe AssetImporterTools: "Kein Ordner Art/Figures - Wuerfel bleiben").
+#
+# figur.prefab wird aus den FBX erzeugt und verweist per GUID darauf. Ohne die
+# FBX waere es kaputt statt abwesend - deshalb faellt es mit heraus, sonst
+# greift die Rueckfallebene nicht.
+#
+# ACHTUNG: In den alten Commits liegen die Dateien weiterhin. Sie ganz zu
+# entfernen hiesse, die oeffentliche Versionsgeschichte umzuschreiben - das
+# wurde bewusst NICHT gemacht.
+/[Aa]ssets/_Project/Art/Figures/
+/[Aa]ssets/_Project/Art/Resources/Models/figur.prefab
+/[Aa]ssets/_Project/Art/Resources/Models/figur.prefab.meta

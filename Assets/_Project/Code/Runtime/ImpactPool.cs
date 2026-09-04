@@ -75,17 +75,17 @@ namespace Infront
             if (unlit == null) unlit = Shader.Find("Sprites/Default");
 
             // Einschussloch: dunkler runder Fleck, normal alpha-gemischt.
-            _holeMat = new Material(unlit) { name = "HoleMat" };
+            _holeMat = UrpMaterial.NeuFx(additiv: false, "HoleMat");
             var holeTex = RadialTexture(new Color(0.03f, 0.03f, 0.04f), 1f);
             if (_holeMat.HasProperty("_BaseMap")) _holeMat.SetTexture("_BaseMap", holeTex);
             if (_holeMat.HasProperty("_MainTex")) _holeMat.SetTexture("_MainTex", holeTex);
             SetTransparent(_holeMat);
             if (_holeMat.HasProperty("_BaseColor")) _holeMat.SetColor("_BaseColor", Color.white);
 
-            _sparkMat = new Material(unlit) { name = "SparkMat" };
+            _sparkMat = UrpMaterial.NeuFx(additiv: true, "SparkMat");
             MakeAdditive(_sparkMat, new Color(1f, 0.85f, 0.4f, 1f));
 
-            _puffMat = new Material(unlit) { name = "PuffMat" };
+            _puffMat = UrpMaterial.NeuFx(additiv: true, "PuffMat");
             var puffTex = RadialTexture(new Color(1f, 0.25f, 0.2f), 1f);
             if (_puffMat.HasProperty("_BaseMap")) _puffMat.SetTexture("_BaseMap", puffTex);
             if (_puffMat.HasProperty("_MainTex")) _puffMat.SetTexture("_MainTex", puffTex);
@@ -253,6 +253,9 @@ namespace Infront
             if (m.HasProperty("_ZWrite")) m.SetInt("_ZWrite", 0);
             m.SetOverrideTag("RenderType", "Transparent");
             m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Durchsichtig(m);
         }
 
         static void MakeAdditive(Material m, Color c)
@@ -263,6 +266,9 @@ namespace Infront
             if (m.HasProperty("_ZWrite")) m.SetInt("_ZWrite", 0);
             m.SetOverrideTag("RenderType", "Transparent");
             m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Leuchtend(m);
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
             if (m.HasProperty("_Color")) m.SetColor("_Color", c);
         }

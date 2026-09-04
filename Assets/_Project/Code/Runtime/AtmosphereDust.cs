@@ -77,13 +77,16 @@ namespace Infront
             var r = GetComponent<ParticleSystemRenderer>();
             var shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Sprites/Default");
-            var mat = new Material(shader) { name = "AtmosphereDustMat" };
+            var mat = UrpMaterial.NeuFx(additiv: true, "AtmosphereDustMat");
             if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1f);
             if (mat.HasProperty("_Blend")) mat.SetFloat("_Blend", 1f);   // additiv - fängt Licht ein
             if (mat.HasProperty("_SrcBlend")) mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
             if (mat.HasProperty("_DstBlend")) mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
             if (mat.HasProperty("_ZWrite")) mat.SetInt("_ZWrite", 0);
             mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Leuchtend(mat);
             // Ohne Textur ist jedes Partikel ein blankes Viereck - man sah die
             // Kanten und die Diagonale als grosse Dreiecke im Bild.
             SoftParticleTexture.Anwenden(mat);

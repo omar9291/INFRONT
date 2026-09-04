@@ -44,7 +44,7 @@ namespace Infront
 
             Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Sprites/Default");
-            _material = new Material(shader) { name = "ExplosionMat" };
+            _material = UrpMaterial.NeuFx(additiv: true, "ExplosionMat");
             SetupAdditive(_material);
 
             _sphereRenderer = _sphere.GetComponent<Renderer>();
@@ -77,6 +77,9 @@ namespace Infront
             if (m.HasProperty("_ZWrite")) m.SetInt("_ZWrite", 0);
             m.SetOverrideTag("RenderType", "Transparent");
             m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Erst dieser Aufruf setzt das Schluesselwort, das die
+            // Durchsichtigkeit im Shader wirklich einschaltet.
+            UrpMaterial.Leuchtend(m);
             SetColor(m, new Color(1f, 0.55f, 0.15f, 1f));
         }
 

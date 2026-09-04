@@ -55,6 +55,8 @@ namespace Infront.EditorTools
             // Szene. Sie wird hier mitgezogen, damit auch ein reiner
             // Szenen-Build sie hat - der Aufruf tut nichts, wenn sie schon da ist.
             GraphicsTune.EnsureSsao();
+            GraphicsTune.EnsureShaders();
+            GraphicsTune.EnsureFxMaterials();
 
             // P2-P4: heruntergeladene CC0-Pakete einbauen (falls da). Ohne die
             // Ordner passiert nichts - dann bleibt alles Code-Geometrie wie bisher.
@@ -566,13 +568,45 @@ namespace Infront.EditorTools
 
         static readonly System.Collections.Generic.Dictionary<Color, Material> _mats = new();
 
+        /// <summary>
+        /// Untergrenze fuer die Grundfarbe eines Materials.
+        ///
+        /// Warum es das gibt (Rundgang 2026-09-04): quer durch die Karte standen
+        /// Grundfarben zwischen 0,05 und 0,12 Helligkeit. So dunkel ist in der
+        /// Wirklichkeit fast nichts. Frischer Asphalt liegt bei etwa 0,08, alter
+        /// Beton bei 0,35 bis 0,55, dunkel lackierter Stahl bei 0,15 bis 0,25.
+        /// Unter 0,10 kommen nur Russ, Kohle und Gummi. Eine Halle aus solchen
+        /// Farben kann gar nicht echt aussehen: es fehlt nicht die Textur,
+        /// es fehlt das Licht, das die Flaeche zurueckwerfen wuerde.
+        ///
+        /// Gemessen wurde es an den Rundgang-Bildern: 27 % jedes Bildes war
+        /// praktisch schwarz, 51 % unter der Erkennbarkeitsschwelle.
+        ///
+        /// Deshalb wird jede Grundfarbe auf diese Helligkeit angehoben - der
+        /// Farbton bleibt, nur die Helligkeit steigt. 0,13 ist immer noch
+        /// dunkel, aber es ist eine Helligkeit, die es wirklich gibt.
+        /// </summary>
+        const float MindestAlbedo = 0.13f;
+
+        /// <summary>Hebt zu dunkle Grundfarben auf einen echten Wert an,
+        /// ohne den Farbton zu verschieben.</summary>
+        static Color Echt(Color c)
+        {
+            float l = 0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b;
+            if (l >= MindestAlbedo || l <= 0.0001f) return c;
+            float k = MindestAlbedo / l;
+            return new Color(Mathf.Clamp01(c.r * k), Mathf.Clamp01(c.g * k),
+                             Mathf.Clamp01(c.b * k), c.a);
+        }
+
         static Material MapMat(Color c)
         {
             if (_mats.TryGetValue(c, out var m)) return m;
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             m = new Material(shader) { name = "MapMat" };
-            m.color = c;
-            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+            var e = Echt(c);
+            m.color = e;
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", e);
             _mats[c] = m;
             return m;
         }
@@ -1517,7 +1551,12 @@ namespace Infront.EditorTools
                     ShaftLight($"Dach_Tageslicht_{lx}_{lz}",
                                new Vector3(lx, deckUnten - 0.6f, lz),
                                new Vector3(90f, 0f, 0f), 34f, 116f,
-                               new Color(0.78f, 0.85f, 1f), 3.4f);
+                               // Runter von 3,4: seit das Umgebungslicht den
+                               // Innenraum traegt, brannten die Lichtflecken auf
+                               // dem Boden zu reinem Weiss aus (gemessen 5,6 %
+                               // der Bildflaeche bei 255). Ein Lichtfleck soll
+                               // hell sein, aber noch Struktur zeigen.
+                               new Color(0.78f, 0.85f, 1f), 2.3f);
                 // Kein Schatten an den Lichtbaendern. Ein Versuch mit vier
                 // weichen Schattenkegeln (34 m Reichweite, 116 Grad) sah zwar
                 // gut aus, kostete aber gemessen: 60 FPS / min 57 wurden zu
@@ -2375,7 +2414,7 @@ namespace Infront.EditorTools
                     if (sky.HasProperty("_AtmosphereThickness")) sky.SetFloat("_AtmosphereThickness", 0.4f);
                     if (sky.HasProperty("_Exposure")) sky.SetFloat("_Exposure", 0.35f);
                     if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", new Color(0.18f, 0.22f, 0.3f));
-                    if (sky.HasProperty("_GroundColor")) sky.SetColor("_GroundColor", new Color(0.05f, 0.05f, 0.06f));
+                    if (sky.HasProperty("_GroundColor")) sky.SetColor("_GroundColor", new Color(0.17f, 0.17f, 0.18f));
                     AssetDatabase.CreateAsset(sky, skyPath);
                     AssetDatabase.SaveAssets();
                 }
@@ -2384,9 +2423,12 @@ namespace Infront.EditorTools
             {
                 RenderSettings.skybox = sky;
                 RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-                RenderSettings.ambientSkyColor = new Color(0.10f, 0.12f, 0.16f);
-                RenderSettings.ambientEquatorColor = new Color(0.07f, 0.08f, 0.10f);
-                RenderSettings.ambientGroundColor = new Color(0.03f, 0.03f, 0.04f);
+                // Menue-Kulisse: darf stimmungsvoll dunkel bleiben, aber der
+                // Bodenrueckwurf war praktisch aus - deshalb waren die
+                // Unterseiten aller Objekte schwarze Loecher.
+                RenderSettings.ambientSkyColor = new Color(0.16f, 0.18f, 0.23f);
+                RenderSettings.ambientEquatorColor = new Color(0.12f, 0.13f, 0.15f);
+                RenderSettings.ambientGroundColor = new Color(0.09f, 0.09f, 0.10f);
             }
         }
 
@@ -2609,7 +2651,21 @@ namespace Infront.EditorTools
                 if (isSkybox)
                 {
                     RenderSettings.skybox = hdriSky;
-                    // Licht kommt jetzt aus der HDRI - Umgebungslicht vom Himmel nehmen.
+
+                    // Licht kommt aus der HDRI - Umgebungslicht vom Himmel nehmen.
+                    //
+                    // Versucht und wieder verworfen (2026-09-04): auf Trilight
+                    // umstellen, um den Bodenrueckwurf getrennt einstellen zu
+                    // koennen. Klang richtig - die Unterseite des Laufstegs
+                    // bekommt aus der HDRI naemlich gar nichts, weil deren
+                    // untere Haelfte der dunkle Boden des Fotos ist.
+                    // Gemessen war es dreimal schlechter: der Bildmittelwert
+                    // fiel von 83 auf 30, der schwarze Anteil stieg von 14,5 %
+                    // auf 42 %. Grund: bei Trilight zaehlt ambientIntensity
+                    // nicht mehr, und drei Farbwerte bringen viel weniger Licht
+                    // als die ganze HDRI mal 1,65.
+                    // Die dunklen Unterseiten sind ein Fall fuer gebackenes
+                    // Licht (Phase 3), nicht fuer diesen Schalter.
                     RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox;
                     // P2: Umgebungslicht etwas runter, damit die neuen Schatten
                     // lesbar sind - aber NICHT so weit, dass Schattenseiten
@@ -2618,7 +2674,16 @@ namespace Infront.EditorTools
                     // Seit die Halle ein Dach hat, kommt die Sonne nicht mehr
                     // direkt herein. Das Umgebungslicht traegt jetzt den
                     // Innenraum - bei 0,62 waren ganze Waende schwarz.
-                    RenderSettings.ambientIntensity = 1.1f;
+                    // Rundgang 2026-09-04 gemessen: bei 1,1 waren 27 % jedes
+                    // Bildes praktisch schwarz und 51 % unter der Grenze, wo man
+                    // noch etwas erkennt. Ganze Wandseiten, die von der Sonne
+                    // wegzeigen, bekamen gar kein Licht mehr - im Suedgang war
+                    // die eine Wand hell und die gegenueberliegende schwarz.
+                    // Seit die Halle ein Dach hat, ist das Umgebungslicht die
+                    // Hauptlichtquelle im Innenraum und muss entsprechend tragen.
+                    // Wirkt nur im Skybox-Modus; bleibt gesetzt, falls jemand
+                    // zurueckschaltet.
+                    RenderSettings.ambientIntensity = 1.65f;
                     light.intensity = 0.85f;                  // Sonne wieder etwas hoeher
                     DynamicGI.UpdateEnvironment();
                 }
@@ -2640,15 +2705,19 @@ namespace Infront.EditorTools
                         if (sky.HasProperty("_AtmosphereThickness")) sky.SetFloat("_AtmosphereThickness", 0.4f);
                         if (sky.HasProperty("_Exposure")) sky.SetFloat("_Exposure", 0.35f);
                         if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", new Color(0.18f, 0.22f, 0.3f));
-                        if (sky.HasProperty("_GroundColor")) sky.SetColor("_GroundColor", new Color(0.05f, 0.05f, 0.06f));
+                        if (sky.HasProperty("_GroundColor")) sky.SetColor("_GroundColor", new Color(0.17f, 0.17f, 0.18f));
                         EditorUtility.SetDirty(sky);
                         RenderSettings.skybox = sky;
                         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
                         // P2: etwas dunkler fuer Schatten-Kontrast, aber nicht schwarz
                         // (Screenshot-Test 2026-09-04).
-                        RenderSettings.ambientSkyColor = new Color(0.13f, 0.15f, 0.19f);
-                        RenderSettings.ambientEquatorColor = new Color(0.09f, 0.10f, 0.12f);
-                        RenderSettings.ambientGroundColor = new Color(0.035f, 0.035f, 0.04f);
+                        // Wie oben: der Innenraum lebt vom Umgebungslicht.
+                        // Der Bodenwert ist der Rueckwurf des Betonbodens - der
+                        // war mit 0,035 praktisch aus, obwohl Beton kraeftig
+                        // zurueckwirft. Davon leben die Unterseiten der Kisten.
+                        RenderSettings.ambientSkyColor = new Color(0.34f, 0.37f, 0.44f);
+                        RenderSettings.ambientEquatorColor = new Color(0.26f, 0.27f, 0.30f);
+                        RenderSettings.ambientGroundColor = new Color(0.17f, 0.17f, 0.18f);
                     }
                 }
             }
@@ -2670,7 +2739,7 @@ namespace Infront.EditorTools
                 else
                 {
                     var gm = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "GroundMat" };
-                    var gc = new Color(0.08f, 0.09f, 0.11f);
+                    var gc = new Color(0.30f, 0.31f, 0.33f);   // Beton, nicht Kohle
                     gm.color = gc;
                     if (gm.HasProperty("_BaseColor")) gm.SetColor("_BaseColor", gc);
                     if (gm.HasProperty("_Smoothness")) gm.SetFloat("_Smoothness", 0.12f);

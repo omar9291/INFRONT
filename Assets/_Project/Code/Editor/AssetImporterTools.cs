@@ -979,5 +979,73 @@ namespace Infront.EditorTools
             }
             return null;
         }
-    }
+    
+        /// <summary>
+        /// Sucht Geometrie, die aus dem Rahmen faellt: sehr langgezogene Koerper,
+        /// Dinge die weit ueber dem Boden schweben, und alles mit einer kraeftig
+        /// gelben Grundfarbe.
+        ///
+        /// Warum: auf dem Rundgang lagen ein gelbes Band mit gezackter Kante und
+        /// eine schwarze, spitz zulaufende Platte quer durch die Halle - beide
+        /// mitten durch Kisten hindurch. Raten hilft da nicht, Namen und Masse
+        /// schon. Aufruf:
+        ///   -executeMethod Infront.EditorTools.AssetImporterTools.ReportSeltsam
+        /// </summary>
+        public static void ReportSeltsam()
+        {
+            var szene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
+                "Assets/_Project/Scenes/Arena.unity",
+                UnityEditor.SceneManagement.OpenSceneMode.Single);
+
+            int lang = 0, schwebt = 0, gelb = 0;
+            Debug.Log("=== SELTSAM: sehr langgezogen (Verhaeltnis > 25:1) ===");
+            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                var b = r.bounds;
+                float gross = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
+                float klein = Mathf.Min(b.size.x, Mathf.Min(b.size.y, b.size.z));
+                if (klein < 0.0005f) klein = 0.0005f;
+                float v = gross / klein;
+
+                if (v > 25f && gross > 6f)
+                {
+                    lang++;
+                    Debug.Log($"LANG  {Pfad(r.transform)}  Mitte={b.center}  Groesse={b.size}  Verhaeltnis={v:F0}:1");
+                }
+            }
+
+            Debug.Log("=== SELTSAM: schwebt (Unterkante > 2,2 m ueber dem Hallenboden) und ist gross ===");
+            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                var b = r.bounds;
+                float unten = b.center.y - b.extents.y;
+                float gross = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
+                // Dach, Lampen, Kran und Schilder haengen absichtlich - die haben
+                // eigene Namen und werden hier uebersprungen.
+                string n = r.transform.name;
+                if (n.StartsWith("Dach_") || n.Contains("Kran") || n.Contains("Lampe")
+                    || n.Contains("Schild") || n.Contains("Licht") || n.Contains("Strahler")) continue;
+                if (unten > 2.2f && gross > 4f && b.center.y < 12f)
+                {
+                    schwebt++;
+                    Debug.Log($"SCHWEBT  {Pfad(r.transform)}  Unterkante={unten:F2}  Mitte={b.center}  Groesse={b.size}");
+                }
+            }
+
+            Debug.Log("=== SELTSAM: kraeftig gelbe Grundfarbe ===");
+            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                var m = r.sharedMaterial;
+                if (m == null) continue;
+                Color c = m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor") : m.color;
+                if (c.r > 0.45f && c.g > 0.30f && c.b < 0.30f && c.r > c.b * 1.8f)
+                {
+                    gelb++;
+                    Debug.Log($"GELB  {Pfad(r.transform)}  Farbe={c}  Mitte={r.bounds.center}  Groesse={r.bounds.size}");
+                }
+            }
+
+            Debug.Log($"SELTSAM_FERTIG lang={lang} schwebt={schwebt} gelb={gelb} szene={szene.name}");
+        }
+}
 }

@@ -312,10 +312,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2336c4f69c56e438a8115956d1c21e63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.TracerEffect
-  _lifetime: 0.12
-  _width: 0.07
-  _color: {r: 1, g: 0.9, b: 0.5, a: 1}
-  _poolSize: 4
+  _tempo: 340
+  _segment: 6.5
+  _nachglut: 0.05
+  _width: 0.045
+  _color: {r: 1, g: 0.86, b: 0.52, a: 1}
+  _poolSize: 8
 --- !u!114 &6685988269515785844
 MonoBehaviour:
   m_ObjectHideFlags: 0
