@@ -658,11 +658,45 @@ namespace Infront.EditorTools
                 if (inst.HasProperty("_BumpMap")) inst.SetTextureScale("_BumpMap", scale);
                 if (metallic >= 0f && inst.HasProperty("_Metallic")) inst.SetFloat("_Metallic", metallic);
                 if (smoothness >= 0f && inst.HasProperty("_Smoothness")) inst.SetFloat("_Smoothness", smoothness);
-                // Leichtes Abtoenen der texturierten Flaeche gegen Ausbrennen
-                // unter Punktlicht - nur ein Hauch, nie Richtung Schwarz.
+
+                // ---- Abnutzung ohne einen einzigen zusaetzlichen Zeichenaufruf
+                //
+                // Warum ueberhaupt: die Halle sah fabrikneu aus. JEDE
+                // texturierte Flaeche bekam denselben Farbton (0,72 / 0,72 /
+                // 0,74) und denselben Ausschnitt derselben Betontextur - also
+                // sah jede Wand exakt aus wie die daneben. Das ist der
+                // eigentliche Grund fuer den Bauklotz-Eindruck, nicht die
+                // fehlenden Flecken.
+                //
+                // Ein Versuch mit aufgelegten Schmutzflecken ist zuvor
+                // gescheitert: durchscheinende Rechtecke ohne Textur wurden zu
+                // harten schwarzen Kacheln auf dem Boden, und die Bildrate fiel
+                // von 60 auf 55,5 (18,0 ms). Verworfen.
+                //
+                // Das hier kostet nichts: derselbe Baustein, nur ein anderer
+                // Ausschnitt und ein anderer Hauch Farbe - abgeleitet aus dem
+                // Namen, also bei jedem Build gleich.
+                int hash = Mathf.Abs(name.GetHashCode());
+                float a = (hash % 997) / 997f;
+                float b2 = ((hash / 997) % 991) / 991f;
+
+                // Anderer Ausschnitt der Textur. Nachbarwaende zeigen damit
+                // nicht mehr denselben Fleck.
+                var versatz = new Vector2(a * 3.7f, b2 * 3.7f);
+                inst.SetTextureOffset("_BaseMap", versatz);
+                if (inst.HasProperty("_BumpMap")) inst.SetTextureOffset("_BumpMap", versatz);
+
                 if (fallbackTint.maxColorComponent < 0.8f)
                 {
-                    var t = new Color(0.72f, 0.72f, 0.74f);
+                    // Helligkeit plus/minus rund zehn Prozent, dazu ein Hauch
+                    // warm oder kalt. Nie Richtung Schwarz - das war hier schon
+                    // zweimal der Fehler.
+                    float hell = Mathf.Lerp(0.88f, 1.06f, a);
+                    float warm = Mathf.Lerp(-0.03f, 0.03f, b2);
+                    var t = new Color(
+                        Mathf.Clamp(0.72f * hell + warm, 0.45f, 1f),
+                        Mathf.Clamp(0.72f * hell, 0.45f, 1f),
+                        Mathf.Clamp(0.74f * hell - warm, 0.45f, 1f));
                     if (inst.HasProperty("_BaseColor")) inst.SetColor("_BaseColor", t);
                     inst.color = t;
                 }
