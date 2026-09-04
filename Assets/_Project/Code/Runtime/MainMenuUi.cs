@@ -41,7 +41,7 @@ namespace Infront
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuUi : MonoBehaviour
     {
-        enum Page { Spielen, Einstellungen, Steuerung, Beenden }
+        enum Page { Spielen, Einstellungen, Steuerung, Quellen, Beenden }
 
         // Kurze Hinweise, die in der Navigation langsam durchwechseln.
         static readonly string[] Tips =
@@ -565,6 +565,7 @@ namespace Infront
             nav.Add(NavButton("SPIELEN", Page.Spielen));
             nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
             nav.Add(NavButton("STEUERUNG", Page.Steuerung));
+            nav.Add(NavButton("QUELLEN", Page.Quellen));
 
             var sep = new VisualElement();
             sep.style.height = 1f;
@@ -853,6 +854,7 @@ namespace Infront
                 case Page.Spielen: BuildSpielen(_pageHost); break;
                 case Page.Einstellungen: BuildEinstellungen(_pageHost); break;
                 case Page.Steuerung: BuildSteuerung(_pageHost); break;
+                case Page.Quellen: BuildQuellen(_pageHost); break;
                 case Page.Beenden: BuildBeenden(_pageHost); break;
             }
             StaggerIn(_pageHost);
@@ -1390,6 +1392,92 @@ namespace Infront
             AddKey(list, "Pause", "Esc");
             AddKey(list, "Zuschauen wechseln (tot)", "Linksklick", "Rechtsklick");
             host.Add(list);
+        }
+
+        /// <summary>
+        /// Quellen und Lizenzen. Rechtlich noetig ist das bei CC0 nicht - bei
+        /// Mixamo schon, und ausserdem gehoert es sich: hinter jedem Ton und
+        /// jedem Modell steckt jemand, der Arbeit hineingesteckt hat.
+        /// </summary>
+        void BuildQuellen(VisualElement host)
+        {
+            host.Add(UiTheme.Section("SPIEL"));
+            var intro = new VisualElement();
+            AddQuelle(intro, "INFRONT", "Driftlab", "Code und Spielaufbau");
+            host.Add(intro);
+
+            host.Add(UiTheme.Section("FIGUREN UND ANIMATIONEN"));
+            var figuren = new VisualElement();
+            AddQuelle(figuren, "Figur, Idle, Gehen, Rennen, Sterben",
+                      "Mixamo (Adobe)",
+                      "Nutzung im Spiel erlaubt. Die Dateien selbst duerfen "
+                      + "NICHT einzeln weitergegeben werden.");
+            host.Add(figuren);
+
+            host.Add(UiTheme.Section("GERAEUSCHE"));
+            var ton = new VisualElement();
+            AddQuelle(ton, "Schussaufnahmen (AK-47, Carl Gustav M45, Mosin Nagant, 1911)",
+                      "The Free Firearm Sound Library - opengameart.org",
+                      "CC0. Aufgenommen von Ben Jaszczak, Brian Nelson, "
+                      + "Kevin Heras und Matthew Nanney.");
+            AddQuelle(ton, "Alle uebrigen Geraeusche", "Driftlab",
+                      "Im Spiel selbst erzeugt.");
+            host.Add(ton);
+
+            host.Add(UiTheme.Section("MODELLE UND TEXTUREN"));
+            var art = new VisualElement();
+            AddQuelle(art, "Deckungen, Faesser, Kisten, Lampen, Rolltore, Hallenkran, Himmel",
+                      "Poly Haven - polyhaven.com", "CC0, keine Namensnennung noetig.");
+            AddQuelle(art, "Wand-, Boden- und Deckungstexturen",
+                      "ambientCG - ambientcg.com", "CC0, keine Namensnennung noetig.");
+            host.Add(art);
+
+            host.Add(UiTheme.Section("WERKZEUGE"));
+            var tools = new VisualElement();
+            AddQuelle(tools, "Unity 6", "Unity Technologies", "");
+            AddQuelle(tools, "Netcode for GameObjects", "Unity Technologies", "");
+            host.Add(tools);
+
+            var schluss = new Label(
+                "CC0 heisst: frei nutzbar, auch geschaeftlich, ohne dass jemand "
+                + "genannt werden muss. Genannt wird hier trotzdem.");
+            schluss.style.color = UiTheme.TextDim;
+            schluss.style.fontSize = 11f;
+            schluss.style.whiteSpace = WhiteSpace.Normal;
+            schluss.style.marginTop = 14f;
+            host.Add(schluss);
+        }
+
+        void AddQuelle(VisualElement list, string was, string wer, string hinweis)
+        {
+            var r = new VisualElement();
+            r.style.paddingTop = 6f;
+            r.style.paddingBottom = 6f;
+            r.style.borderBottomWidth = 1f;
+            r.style.borderBottomColor = UiTheme.Line;
+
+            var a = new Label(was);
+            a.style.color = UiTheme.Text;
+            a.style.fontSize = 13f;
+            a.style.whiteSpace = WhiteSpace.Normal;
+            r.Add(a);
+
+            var b = new Label(wer);
+            b.style.color = UiTheme.Ice;
+            b.style.fontSize = 12f;
+            b.style.whiteSpace = WhiteSpace.Normal;
+            r.Add(b);
+
+            if (!string.IsNullOrEmpty(hinweis))
+            {
+                var c = new Label(hinweis);
+                c.style.color = UiTheme.TextDim;
+                c.style.fontSize = 11f;
+                c.style.whiteSpace = WhiteSpace.Normal;
+                r.Add(c);
+            }
+
+            list.Add(r);
         }
 
         void AddKey(VisualElement list, string action, params string[] keys)

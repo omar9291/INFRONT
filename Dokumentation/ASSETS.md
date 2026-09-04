@@ -23,9 +23,19 @@ Nacht-8-Entscheidung ("nur Code") wurde auf Wunsch des Nutzers zurueckgenommen.
 Stil-Richtung: realistisch. Alles laeuft ueber `AssetLibrary` mit Rueckfall auf
 die Code-Geometrie - fehlt eine Datei, sieht das Spiel aus wie vorher.
 
-Alle folgenden Pakete: **CC0 (Public Domain), kommerzielle Nutzung erlaubt,
-keine Namensnennung noetig.** Damit sauber fuer eine spaetere Veroeffentlichung
-unter "Driftlab" auf itch.io.
+**ACHTUNG - das ist seit dem 2026-09-04 nicht mehr pauschal wahr.** Bis dahin
+war jedes Paket hier CC0. Die Mixamo-Figuren sind es NICHT. Deshalb steht die
+Lizenz jetzt in jeder Zeile einzeln, und die Ausnahme steht ganz unten.
+
+Der grosse Teil ist weiterhin **CC0 (Public Domain), kommerzielle Nutzung
+erlaubt, keine Namensnennung noetig** - damit sauber fuer eine
+Veroeffentlichung unter "Driftlab" auf itch.io.
+
+**Regel, die uns fast reingelegt haette:** immer die Lizenzdatei IM Paket lesen,
+nicht nur die Angabe auf der Webseite. Bei einem Schuss-Paket auf opengameart
+stand "CC0" auf der Seite, im ZIP aber eine `creativecommons.txt` mit
+"Copyright (c) 2009 Vincent Sevedge, CC-BY 3.0" - und damit ein anderer Name als
+der Hochladende. Das Paket wurde verworfen.
 
 | Paket | Quelle | Lizenz | Wofuer | Eingetragen |
 |-------|--------|--------|--------|-------------|
@@ -87,3 +97,33 @@ kommerziell. Stand: installiert in Phase 1 (2026-08-29).
 Wenn es an Grafik geht (Spaeter-Stufe 4), werden hier Pakete fuer
 Charaktermodelle, Waffen, Umgebung und Animationen eingetragen. Jedes
 einzeln mit Lizenzpruefung.
+
+## AUSNAHME: Mixamo (NICHT CC0)
+
+| Paket | Quelle | Lizenz | Wofuer | Eingetragen |
+|-------|--------|--------|--------|-------------|
+| basis.fbx, idle.fbx, walk.fbx, run.fbx, death.fbx | mixamo.com (Adobe) | Mixamo-Nutzungsbedingungen - **nicht** CC0 | Spielerfigur mit vier Animationen | 2026-09-03 |
+
+**Was erlaubt ist:** die Figuren und Animationen im Spiel benutzen, auch
+geschaeftlich, ohne Lizenzgebuehr. Bearbeiten ebenfalls. Ein Adobe-Konto ist
+noetig (besteht).
+
+**Was NICHT erlaubt ist:** die Dateien als solche weitergeben. Sie duerfen nur
+**eingebaut in ein Produkt** verbreitet werden, nicht als einzeln
+herunterladbare Dateien.
+
+**Offener Punkt, den nur der Nutzer entscheiden kann:** die fuenf FBX liegen im
+oeffentlichen GitHub-Repo unter `Assets/_Project/Art/Figures/` und sind damit
+einzeln herunterladbar. Das ist eine Grauzone und eher heikel. Siehe
+`Dokumentation/LIZENZEN.md`.
+
+## Quellen im Spiel
+
+Seit dem 2026-09-04 gibt es im Hauptmenue die Seite **QUELLEN**, die alle
+Urheber nennt. Bei CC0 ist das nicht noetig, gehoert sich aber. Bei Mixamo
+ist die Nennung Teil der Sorgfalt.
+
+Wird eine neue Quelle eingebaut, gehoert sie an drei Stellen:
+1. hier in ASSETS.md,
+2. in `MainMenuUi.BuildQuellen` (die Seite im Spiel),
+3. bei Zweifeln in `Dokumentation/LIZENZEN.md`.
