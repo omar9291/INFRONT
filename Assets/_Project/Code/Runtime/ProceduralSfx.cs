@@ -28,7 +28,7 @@ namespace Infront
                 case SoundId.SchussFern:        return DistantBoom("sfx_schuss_fern");
                 case SoundId.Zischen:           return Whiz("sfx_zischen");
 
-                case SoundId.Nachladen:         return Clicks("sfx_nachladen", 2, 0.09f, 1300f);
+                case SoundId.Nachladen:         return Reload("sfx_nachladen", 0.55f);
                 case SoundId.WaffeWechsel:      return Clicks("sfx_wechsel", 1, 0f, 900f);
 
                 case SoundId.TrefferMarke:      return Blip("sfx_treffer", 1650f, 0.05f, 0.5f);
@@ -37,17 +37,17 @@ namespace Infront
                 case SoundId.EigenerTod:        return Sweep("sfx_tod", 400f, 90f, 0.7f, 0.7f);
                 case SoundId.OhrenPfeifen:      return Ringing("sfx_ohren_pfeifen");
 
-                case SoundId.EinschlagWand:     return Noise("sfx_einschlag_wand", 0.07f, 3000f, 0.5f);
-                case SoundId.EinschlagKoerper:  return Noise("sfx_einschlag_koerper", 0.09f, 700f, 0.55f);
+                case SoundId.EinschlagWand:     return Impact("sfx_einschlag_wand", 0.24f, 2600f, 0.55f, 0.55f);
+                case SoundId.EinschlagKoerper:  return Impact("sfx_einschlag_koerper", 0.20f, 620f, 0.12f, 0.6f);
 
                 case SoundId.AtemEin:           return Breath("sfx_atem_ein",       0.55f, 620f, 0.30f, true);
                 case SoundId.AtemAus:           return Breath("sfx_atem_aus",       0.75f, 430f, 0.26f, false);
                 case SoundId.AtemKeuchen:       return Breath("sfx_atem_keuchen",   0.42f, 900f, 0.42f, true);
                 case SoundId.AtemSchnappen:     return Breath("sfx_atem_schnappen", 0.35f, 1150f, 0.5f, true);
 
-                case SoundId.SchrittLeise:      return Noise("sfx_schritt_leise", 0.05f, 500f, 0.16f);
-                case SoundId.SchrittNormal:     return Noise("sfx_schritt_normal", 0.06f, 800f, 0.32f);
-                case SoundId.SchrittLaut:       return Noise("sfx_schritt_laut", 0.07f, 1100f, 0.5f);
+                case SoundId.SchrittLeise:      return Footstep("sfx_schritt_leise", 0.18f, 78f, 0.35f, 0.20f);
+                case SoundId.SchrittNormal:     return Footstep("sfx_schritt_normal", 0.22f, 92f, 0.6f, 0.38f);
+                case SoundId.SchrittLaut:       return Footstep("sfx_schritt_laut", 0.26f, 105f, 0.95f, 0.58f);
 
                 case SoundId.RundeStart:        return Arp("sfx_runde_start", new[] { 392f, 523f }, 0.12f, 0.45f);
                 case SoundId.RundeSieg:         return Arp("sfx_runde_sieg", new[] { 523f, 659f, 784f, 1047f }, 0.11f, 0.5f);
@@ -194,6 +194,162 @@ namespace Infront
                 prev = lp;
                 data[i] = hp * env * vol;
             }
+            return FromData(name, data);
+        }
+
+        /// <summary>
+        /// Ein Schritt.
+        ///
+        /// Vorher war das EIN gefilterter Rauschstoss - also ein "pff". Ein
+        /// Schritt besteht aber aus drei Dingen, die kurz nacheinander
+        /// passieren, und genau daran erkennt das Ohr einen Stiefel:
+        ///
+        ///  1. die Ferse setzt auf: dumpfes Rauschen, sehr schneller Abfall
+        ///  2. das Koerpergewicht geht durch den Boden: eine tiefe, gedaempfte
+        ///     Schwingung - das ist der Teil, den man mehr spuert als hoert
+        ///  3. die Sohle rollt ab: ein kuerzeres, helleres Kratzen, rund
+        ///     vierzig Millisekunden spaeter
+        ///
+        /// Der Abstand zwischen 1 und 3 ist das Entscheidende. Faellt er weg,
+        /// klingt es nach einem Klopfen auf Pappe.
+        /// </summary>
+        static AudioClip Footstep(string name, float seconds, float koerperHz,
+                                  float abrieb, float vol)
+        {
+            int n = Len(seconds);
+            var data = new float[n];
+            var rng = new System.Random(name.GetHashCode());
+
+            int zeheAb = Mathf.Min(n - 1, (int)(SampleRate * 0.042f));
+            float tief = 0f;      // Tiefpass fuer die Ferse
+            float hoch = 0f;      // grober Hochpass fuer den Abrieb
+            float vorher = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float rausch = (float)(rng.NextDouble() * 2.0 - 1.0);
+
+                // 1) Ferse - dumpf und sofort weg
+                tief += (rausch - tief) * 0.07f;
+                float ferse = tief * Mathf.Exp(-t * 52f);
+
+                // 2) Gewicht durch den Boden
+                float wucht = Mathf.Sin(2f * Mathf.PI * koerperHz * t) * Mathf.Exp(-t * 36f);
+
+                // 3) Abrollen der Sohle - spaeter, heller, kuerzer
+                float zehe = 0f;
+                if (i >= zeheAb)
+                {
+                    float tz = (i - zeheAb) / (float)SampleRate;
+                    hoch = rausch - vorher + hoch * 0.9f;
+                    zehe = hoch * Mathf.Exp(-tz * 85f) * abrieb;
+                }
+                vorher = rausch;
+
+                data[i] = (ferse * 0.95f + wucht * 0.5f + zehe * 0.55f) * vol;
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>
+        /// Ein Einschlag.
+        ///
+        /// Vorher: ein Rauschstoss mit Tiefpass - ein Zischen. Ein Geschoss,
+        /// das in Beton geht, macht erst einen sehr kurzen harten Knall (unter
+        /// zwei Millisekunden), dann fliegt Material weg. Ohne den Knall vorne
+        /// klingt jeder Treffer weich, und man hoert nicht, ob man getroffen hat.
+        /// </summary>
+        static AudioClip Impact(string name, float seconds, float cutoff,
+                                float splitter, float vol)
+        {
+            int n = Len(seconds);
+            var data = new float[n];
+            var rng = new System.Random(name.GetHashCode());
+
+            // Ein paar Bruchstuecke, die kurz nach dem Knall wegfliegen.
+            int teile = 5;
+            var wann = new int[teile];
+            var wie = new float[teile];
+            for (int t = 0; t < teile; t++)
+            {
+                wann[t] = (int)(SampleRate * (0.006f + (float)rng.NextDouble() * 0.05f));
+                wie[t] = 0.12f + (float)rng.NextDouble() * 0.22f;
+            }
+
+            float tief = 0f;
+            float a = Mathf.Clamp01(cutoff / SampleRate * 6f);
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)SampleRate;
+                float rausch = (float)(rng.NextDouble() * 2.0 - 1.0);
+
+                // Der Knall: sehr kurz, ungefiltert, hart.
+                float knall = rausch * Mathf.Exp(-t * 900f);
+
+                // Das Material: gefiltert, laenger.
+                tief += (rausch - tief) * a;
+                float koerper = tief * Mathf.Exp(-t * 26f);
+
+                // Bruchstuecke.
+                float splitterTon = 0f;
+                for (int k = 0; k < teile; k++)
+                {
+                    if (i < wann[k]) continue;
+                    float tk = (i - wann[k]) / (float)SampleRate;
+                    splitterTon += (float)(rng.NextDouble() * 2.0 - 1.0)
+                                   * Mathf.Exp(-tk * 240f) * wie[k];
+                }
+
+                data[i] = (knall * 0.85f + koerper * 0.7f + splitterTon * splitter) * vol;
+            }
+            return FromData(name, data);
+        }
+
+        /// <summary>
+        /// Nachladen.
+        ///
+        /// Vorher zwei gleiche Klicks. Ein Magazinwechsel hat aber drei
+        /// verschiedene Geraeusche mit verschiedenen Tonhoehen: der Halter
+        /// schnappt auf (hell), das neue Magazin sitzt (tief und satt), der
+        /// Verschluss geht vor (metallisch, dazwischen). Erst dadurch hoert
+        /// man, WAS gerade passiert - und weiss, wie lange es noch dauert.
+        /// </summary>
+        static AudioClip Reload(string name, float vol)
+        {
+            const float dauer = 1.15f;
+            int n = Len(dauer);
+            var data = new float[n];
+            var rng = new System.Random(name.GetHashCode());
+
+            void Ereignis(float beiSekunde, float hz, float abfall, float staerke, float ton)
+            {
+                int ab = (int)(SampleRate * beiSekunde);
+                float tief = 0f;
+                for (int i = ab; i < n; i++)
+                {
+                    float t = (i - ab) / (float)SampleRate;
+                    float huelle = Mathf.Exp(-t * abfall);
+                    if (huelle < 0.0008f) break;
+
+                    float rausch = (float)(rng.NextDouble() * 2.0 - 1.0);
+                    tief += (rausch - tief) * 0.35f;
+                    // Metall klingt kurz nach: ein Sinus mit derselben Huelle.
+                    float klang = Mathf.Sin(2f * Mathf.PI * hz * t);
+                    data[i] += (tief * (1f - ton) + klang * ton) * huelle * staerke * vol;
+                }
+            }
+
+            Ereignis(0.00f, 2100f, 130f, 0.55f, 0.35f);   // Halter auf, hell
+            Ereignis(0.34f,  380f,  46f, 0.85f, 0.30f);   // Magazin sitzt, tief und satt
+            Ereignis(0.78f, 1250f,  85f, 0.70f, 0.45f);   // Verschluss vor, metallisch
+
+            // Nichts uebersteuern lassen.
+            float max = 0f;
+            for (int i = 0; i < n; i++) max = Mathf.Max(max, Mathf.Abs(data[i]));
+            if (max > 1f) for (int i = 0; i < n; i++) data[i] /= max;
+
             return FromData(name, data);
         }
 
