@@ -34,6 +34,7 @@ namespace Infront
         [SerializeField] float _advanceDistance = 18f;
 
         NavMeshAgent _agent;
+        BotLocomotion _loco;        // Gewicht: Anlauf, Bremsweg, Tempoverlust
         Health _health;
         NetworkWeapon _weapon;
         TeamMember _team;
@@ -71,6 +72,7 @@ namespace Infront
         void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
+            _loco = GetComponent<BotLocomotion>();
             _health = GetComponent<Health>();
             _weapon = GetComponent<NetworkWeapon>();
             _team = GetComponent<TeamMember>();
@@ -99,7 +101,10 @@ namespace Infront
 
             _patrolCenter = _baseAnchor = transform.position;
             if (_stats != null)
+            {
                 _agent.speed = _stats.MoveSpeed;
+                if (_loco != null) _loco.SetStats(_stats);
+            }
             AimDirection = transform.forward;
         }
 
@@ -109,6 +114,7 @@ namespace Infront
             if (stats == null) return;
             _stats = stats;
             if (_agent != null) _agent.speed = stats.MoveSpeed;
+            if (_loco != null) _loco.SetStats(stats);
         }
 
         /// <summary>
@@ -166,6 +172,7 @@ namespace Infront
             if (MatchManager.Instance != null && MatchManager.Instance.IsFrozen)
             {
                 if (_agent.hasPath) _agent.ResetPath();
+                if (_loco != null) _loco.SetzeAbsicht(BotLocomotion.Absicht.Stehen);
                 return;
             }
 
@@ -180,11 +187,26 @@ namespace Infront
             if (IsBlind)
             {
                 if (_agent.hasPath) _agent.ResetPath();
+                if (_loco != null) _loco.SetzeAbsicht(BotLocomotion.Absicht.Stehen);
                 AimDirection = transform.forward;
                 return;
             }
 
             MaybeUseAbility();
+
+            // Das Grundtempo haengt am Zustand: umherlaufen wird gegangen,
+            // ein gesehener Gegner wird angerannt, im Feuerkampf bleibt die
+            // Waffe oben und das Tempo unten.
+            if (_loco != null)
+            {
+                switch (_state)
+                {
+                    case State.Combat: _loco.SetzeAbsicht(BotLocomotion.Absicht.Kampf); break;
+                    case State.Chase:
+                    case State.Search: _loco.SetzeAbsicht(BotLocomotion.Absicht.Rennen); break;
+                    default: _loco.SetzeAbsicht(BotLocomotion.Absicht.Gehen); break;
+                }
+            }
 
             switch (_state)
             {
@@ -408,7 +430,10 @@ namespace Infront
             }
 
             _reactionTimer -= Time.deltaTime;
-            if (_reactionTimer <= 0f && _weapon != null && AimIsOnTarget(aimPoint))
+            // Wer rennt, hat die Waffe unten. Vorher konnte ein Bot im vollen
+            // Lauf treffen - das war der auffaelligste unrealistische Rest.
+            bool waffeBereit = _loco == null || _loco.DarfSchiessen;
+            if (_reactionTimer <= 0f && _weapon != null && waffeBereit && AimIsOnTarget(aimPoint))
                 _weapon.ServerTryFire();
         }
 
@@ -482,7 +507,11 @@ namespace Infront
             if (_aimErrorRefresh <= 0f)
             {
                 _aimErrorRefresh = Random.Range(0.25f, 0.75f);
-                float mag = Mathf.Tan(_stats.AimSpread * Mathf.Deg2Rad);
+                // Grundstreuung plus das, was Bewegung und verletzte Arme
+                // dazulegen. Ein angeschossener Bot auf dem Sprung trifft
+                // schlechter - dieselbe Regel gilt fuer den Spieler.
+                float streuung = _stats.AimSpread + (_loco != null ? _loco.StreuungsMalus : 0f);
+                float mag = Mathf.Tan(streuung * Mathf.Deg2Rad);
                 _aimError += Random.insideUnitSphere * mag;
             }
 

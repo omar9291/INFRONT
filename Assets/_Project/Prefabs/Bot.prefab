@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 8940519830397328918}
   - component: {fileID: 8627205252778513026}
   - component: {fileID: 7724272312276240929}
+  - component: {fileID: 6643128263238958899}
   - component: {fileID: 4474647486833197032}
   - component: {fileID: 7843354415560311325}
   - component: {fileID: 4489904422936479355}
@@ -422,6 +423,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.BotBuyer
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &6643128263238958899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398209644832255039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b93edbcbe78490b9844e641fdcedaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Infront.Runtime::Infront.BotLocomotion
+  _gehFaktor: 1
+  _rennFaktor: 1.56
+  _kampfFaktor: 0.62
+  _rennAufbau: 1.1
+  _rennAbbau: 0.5
+  _beschleunigung: 14
+  _drehTempo: 220
+  _setzZeit: 0.5
+  _laufStreuung: 4.5
+  _rennSchwelle: 5.6
 --- !u!114 &4474647486833197032
 MonoBehaviour:
   m_ObjectHideFlags: 0

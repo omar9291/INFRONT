@@ -1815,6 +1815,7 @@ namespace Infront.EditorTools
             root.AddComponent<AbilityHolder>();
             var purchaseAgent = root.AddComponent<PurchaseAgent>();
             root.AddComponent<BotBuyer>();
+            root.AddComponent<BotLocomotion>();  // Gewicht wie beim Spieler
             var brain = root.AddComponent<BotBrain>();
             root.AddComponent<BotObjective>();   // Bomben-Modus: legen / bewachen / entschaerfen
             var lifecycle = root.AddComponent<BotLifecycle>();
