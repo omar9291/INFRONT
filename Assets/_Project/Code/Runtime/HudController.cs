@@ -164,6 +164,7 @@ namespace Infront
         void OnDestroy()
         {
             if (Instance == this) Instance = null;
+            Meldungen.Abhaengen();
         }
 
         IEnumerator BuildWhenReady()
@@ -206,6 +207,7 @@ namespace Infront
             BuildScoreboard(root);
             BuildBuyMenu(root);
             BuildPause(root);
+            Meldungen.Anhaengen(root);   // kurze Hinweise unten links
 
             UiTheme.IgnorePickingTree(root);
             // ... ausser den echten Knoepfen (Rundenende, Pause). PickingMode.Ignore

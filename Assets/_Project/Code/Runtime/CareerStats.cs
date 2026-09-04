@@ -36,7 +36,13 @@ namespace Infront
                 PlayerPrefs.SetInt(KeyWins, Wins + 1);
                 int s = Streak + 1;
                 PlayerPrefs.SetInt(KeyStreak, s);
-                if (s > BestStreak) PlayerPrefs.SetInt(KeyBest, s);
+                if (s > BestStreak)
+                {
+                    PlayerPrefs.SetInt(KeyBest, s);
+                    // Eine Bestleistung, die niemand mitbekommt, ist keine.
+                    if (s > 1) Meldungen.Zeige($"Neue Bestleistung: {s} Siege in Folge",
+                                               Meldungen.Art.Gut);
+                }
             }
             else
             {

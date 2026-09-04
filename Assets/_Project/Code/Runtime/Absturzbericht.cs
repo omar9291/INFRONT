@@ -103,6 +103,11 @@ namespace Infront
 
                 File.WriteAllText(datei, sb.ToString());
                 AufraeumenAltes();
+
+                // Sagen, dass etwas geschrieben wurde. Sonst passiert das
+                // lautlos, und niemand weiss, dass es die Datei gibt.
+                Meldungen.Zeige("Fehlerbericht geschrieben - siehe DEINE DATEN",
+                                Meldungen.Art.Fehler);
             }
             catch (Exception)
             {
