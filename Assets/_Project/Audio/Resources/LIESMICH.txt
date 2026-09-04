@@ -14,4 +14,16 @@ Unterstrichen, so wie die Einträge in SoundId.cs:
 
 Liegt eine Datei da, wird sie automatisch statt des
 Platzhalter-Tons benutzt. Du kannst einzeln austauschen.
-Gute Gratis-Quellen: freesound.org, kenney.nl/assets (Audio).
+
+STAND 2026-09-04: die vier Schussgeraeusche sind bereits echte
+Aufnahmen aus "The Free Firearm Sound Library" (opengameart.org,
+CC0, keine Namensnennung noetig). Die alten Platzhalter liegen
+gesichert unter Assets/_Project/Audio/Platzhalter_alt/.
+
+Alles andere ist weiterhin prozedural erzeugt.
+
+Gute Gratis-Quellen: opengameart.org (viel echtes CC0, kein Konto
+noetig), kenney.nl/assets (Audio). VORSICHT bei freesound.org: dort
+braucht man ein Konto, und die Lizenzen sind gemischt. Und generell:
+immer die Lizenzdatei IM Paket lesen, nicht nur die Angabe auf der
+Webseite - die beiden koennen sich widersprechen.

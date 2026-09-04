@@ -1,0 +1,8 @@
+Die alten prozeduralen Platzhalter-Schuesse (Stand vor 2026-09-04).
+
+Liegen bewusst AUSSERHALB von Resources, damit sie nicht mehr geladen
+werden und nicht im Build landen - aber auch nicht verloren sind.
+
+Zum Zurueckholen: die gewuenschte Datei nach
+Assets/_Project/Audio/Resources/ kopieren und Unity neu importieren
+lassen. Sie ueberschreibt dann wieder die echte Aufnahme.

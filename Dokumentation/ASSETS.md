@@ -34,6 +34,7 @@ unter "Driftlab" auf itch.io.
 | Barrel_01, ammo_box, wooden_military_crate, metal_jerrycan_green, modular_industrial_pipes_01, hanging_industrial_lamp, cement_bag (1K FBX) | polyhaven.com | CC0 | Deko-Modelle statt Grundkoerper (P4) | 2026-09-01 |
 | concrete_road_barrier, concrete_road_barrier_02, metal_trash_can, old_tyre, hand_truck, industrial_storage_cart (1K FBX + diff/nor) | polyhaven.com | CC0 | Betonbarrieren als echte Deckung + Deko, "realistischer Look" | 2026-09-04 |
 | caged_hanging_light, security_light, mounted_fluorescent_lights, rollershutter_door, overhead_crane (1K FBX + diff/nor) | polyhaven.com | CC0 | Runde 2 "realistischer Look": Kaefiglampen ersetzen die Code-Wuerfel, Rolltore an den Aussenwaenden, Hallenkran ueber der Mittelachse, Wand- und Deckenleuchten. Alles rein optisch, ohne Collider. | 2026-09-03 |
+| schuss_gewehr.wav (AK-47), schuss_mp.wav (Carl Gustav M45), schuss_sniper.wav (Mosin Nagant), schuss_pistole.wav (1911) | opengameart.org "The Free Firearm Sound Library" | CC0 | Echte Schussaufnahmen statt der prozeduralen Platzhalter. Aus 96 kHz/24 bit Stereo auf 44.1 kHz/16 bit Mono gewandelt, auf einen Einzelschuss zugeschnitten, ausgeblendet und auf gleiche Lautstaerke gebracht. Aufgenommen von Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney - CC0, keine Namensnennung noetig. | 2026-09-04 |
 
 Ablage:
 - Roh-Downloads: `Assets/_Project/Art/Textures/`, `Art/Sky/`, `Art/Models/`
