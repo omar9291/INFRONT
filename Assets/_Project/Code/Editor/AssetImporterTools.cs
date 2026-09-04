@@ -811,6 +811,53 @@ namespace Infront.EditorTools
             Debug.Log($"BOUNDS_REPORT_OK {paths.Length}");
         }
 
+        /// <summary>
+        /// Listet fuer die grossen Flaechen der Arena auf, welches Material sie
+        /// tragen und wie es eingestellt ist. Rein informativ - aendert nichts.
+        /// Gedacht fuer die Frage "warum ist das schwarz".
+        ///
+        /// Aufruf headless:
+        ///   Unity -batchmode -quit -projectPath ... \
+        ///     -executeMethod Infront.EditorTools.AssetImporterTools.ReportFlaechen
+        /// </summary>
+        public static void ReportFlaechen()
+        {
+            var szene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
+                "Assets/_Project/Scenes/Arena.unity");
+
+            // Alles auflisten, was gross und waagrecht ist - unabhaengig vom
+            // Namen. Beim Suchen nach den schwarzen Flaechen hat die Suche nach
+            // Namen in die Irre gefuehrt: die Objekte hiessen anders als
+            // vermutet, und eine Aenderung lief ins Leere.
+            foreach (var go in szene.GetRootGameObjects())
+            foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+            {
+                string n = r.gameObject.name;
+                var b = r.bounds;
+                bool grossUndWaagrecht = b.size.x > 6f && b.size.z > 6f && b.size.y < 6f
+                                         && b.center.y > 0.2f && b.center.y < 6f;
+                if (!grossUndWaagrecht) continue;
+
+                var m = r.sharedMaterial;
+                if (m == null) { Debug.Log($"FLAECHE {n,-18} KEIN MATERIAL"); continue; }
+
+                var basis = m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor") : Color.magenta;
+                var tex = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") : null;
+                var kachel = m.HasProperty("_BaseMap") ? m.GetTextureScale("_BaseMap") : Vector2.zero;
+                float smooth = m.HasProperty("_Smoothness") ? m.GetFloat("_Smoothness") : -1f;
+                float metal = m.HasProperty("_Metallic") ? m.GetFloat("_Metallic") : -1f;
+
+                Debug.Log($"FLAECHE {n,-18} pos=({r.bounds.center.x:0.0},{r.bounds.center.y:0.0},{r.bounds.center.z:0.0}) " +
+                          $"groesse=({r.bounds.size.x:0.0}x{r.bounds.size.y:0.0}x{r.bounds.size.z:0.0}) " +
+                          $"mat={m.name,-24} " +
+                          $"basis=({basis.r:0.00},{basis.g:0.00},{basis.b:0.00}) " +
+                          $"tex={(tex != null ? tex.name : "KEINE"),-22} " +
+                          $"kachel=({kachel.x:0.00},{kachel.y:0.00}) " +
+                          $"smooth={smooth:0.00} metal={metal:0.00}");
+            }
+            Debug.Log("FLAECHEN_REPORT_OK");
+        }
+
         static string FindFbx(string dir, params string[] hints)
         {
             var fbxs = Directory.GetFiles(dir)

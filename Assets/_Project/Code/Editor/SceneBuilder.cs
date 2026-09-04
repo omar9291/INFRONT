@@ -624,7 +624,24 @@ namespace Infront.EditorTools
                 // Kachelung an die groesste sichtbare Flaeche des Quaders anpassen,
                 // damit die Textur nicht gestreckt wirkt.
                 var inst = new Material(baseMat) { name = baseMat.name + "_" + name };
-                Vector2 scale = new Vector2(Mathf.Max(sx, sz) * tilePerUnit.x, sy * tilePerUnit.y);
+
+                // Die Kachelung muss zur GROESSTEN sichtbaren Flaeche passen,
+                // nicht blind zur Hoehe.
+                //
+                // Vorher stand hier fest (max(sx,sz), sy). Bei einer Wand ist
+                // das richtig. Bei einer flachen Platte ist die sichtbare
+                // Flaeche aber die Oberseite (sx mal sz), und sy ist nur die
+                // Dicke - bei MidDais 0.5 m. Ergebnis war eine Kachelung von
+                // (4.90, 0.18): ein 18-Prozent-Ausschnitt der Betontextur wurde
+                // ueber zehn Meter gezogen. Erwischte er eine dunkle Stelle,
+                // war die ganze Platte gleichmaessig fast schwarz. Genau das
+                // war der "schwarze Podeste"-Fehler.
+                //
+                // Jetzt: die zwei groessten Kanten bestimmen die Kachelung.
+                float k1 = Mathf.Max(sx, Mathf.Max(sy, sz));                  // groesste
+                float k3 = Mathf.Min(sx, Mathf.Min(sy, sz));                  // kleinste
+                float k2 = sx + sy + sz - k1 - k3;                            // mittlere
+                Vector2 scale = new Vector2(k1 * tilePerUnit.x, k2 * tilePerUnit.y);
                 inst.SetTextureScale("_BaseMap", scale);
                 if (inst.HasProperty("_BumpMap")) inst.SetTextureScale("_BumpMap", scale);
                 if (metallic >= 0f && inst.HasProperty("_Metallic")) inst.SetFloat("_Metallic", metallic);
@@ -1085,9 +1102,15 @@ namespace Infront.EditorTools
         /// Matt und dunkel gehalten (Screenshot-Test: helle glaenzende Podeste
         /// unter dem Platzlicht sind komplett ausgebrannt).</summary>
         static void Platform(string n, float x, float top, float z, float sx, float sz)
+            // Screenshot-Test 2026-09-04: die Podeste waren pechschwarz, obwohl
+            // ringsum alles normal beleuchtet war. Zwei Ursachen zusammen:
+            //  - die Abtoenung (fallbackTint dunkler als 0.8 -> 0.72 Grau) UND
+            //  - smoothness 0.05, also praktisch kein Glanz.
+            // Die Rampen daneben sehen richtig aus und benutzen genau das
+            // nicht. Deshalb hier derselbe helle Aufbau wie bei den Rampen.
             => Surfaced(n, x, top - 0.25f, z, sx, 0.5f, sz, "platte",
-                        new Vector2(0.35f, 0.35f), new Color(0.14f, 0.15f, 0.18f),
-                        metallic: 0f, smoothness: 0.05f);
+                        new Vector2(0.35f, 0.35f), new Color(0.82f, 0.82f, 0.84f),
+                        metallic: 0f, smoothness: 0.32f);
 
         /// <summary>Hüfthohe Brüstung MIT Collider - hält Spieler und Bots oben
         /// auf dem Balkon, man schiesst aber darüber hinweg nach unten.</summary>
@@ -1334,8 +1357,32 @@ namespace Infront.EditorTools
                 CoverMid($"SiteM1_{side}", cx + 3f * sgn, 0f, 0f, 2.5f, 2.5f);
                 CoverLow($"SiteL1_{side}", cx, 0f, 5f, 3f, 1f);
                 CoverLow($"SiteL1b_{side}", cx, 0f, -5f, 3f, 1f);
-                Stripe($"SiteFrame_{side}", cx, 4.4f, 0f, 8f, 0.14f, 8f);
+                SiteFrameOutline($"SiteFrame_{side}", cx, 4.4f, 0f, 8f);
             }
+        }
+
+        /// <summary>
+        /// Markierungs-Rahmen ueber einem Bombenplatz: VIER duenne Leisten,
+        /// keine Platte.
+        ///
+        /// Vorher stand hier ein einziger Stripe-Aufruf mit 8 mal 8 Metern.
+        /// Stripe war urspruenglich der orange leuchtende Streifen; als er in
+        /// der Optik-Runde auf dunkles Metall umgestellt wurde (richtig fuer
+        /// schmale Kantenleisten), wurde daraus eine fast schwarze Vollplatte,
+        /// die 4,4 m ueber jedem Bombenplatz schwebte und ihn von oben komplett
+        /// verdeckte. Das waren die beruechtigten "schwarzen Flaechen".
+        ///
+        /// Jetzt bleibt der Rahmen ein Rahmen: man sieht den Platz darunter.
+        /// </summary>
+        static void SiteFrameOutline(string name, float x, float y, float z, float size)
+        {
+            float halb = size * 0.5f;
+            float dicke = 0.35f;
+
+            Stripe($"{name}_N", x, y, z + halb, size, 0.14f, dicke);
+            Stripe($"{name}_S", x, y, z - halb, size, 0.14f, dicke);
+            Stripe($"{name}_W", x - halb, y, z, dicke, 0.14f, size);
+            Stripe($"{name}_E", x + halb, y, z, dicke, 0.14f, size);
         }
 
         static void BuildWerkConnectors()
@@ -1657,9 +1704,11 @@ namespace Infront.EditorTools
         static void BuildSite(string name, float x)
         {
             float y = 1.2f;
+            // Gleiche Ursache wie bei Platform(): dunkle Toenung plus
+            // smoothness 0.05 machte die Bombenplatz-Podeste pechschwarz.
             Surfaced(name + "_Platform", x, y * 0.5f, 0f, 11f, y, 12f, "platte",
-                     new Vector2(0.4f, 0.4f), new Color(0.15f, 0.16f, 0.19f),
-                     metallic: 0f, smoothness: 0.05f);
+                     new Vector2(0.4f, 0.4f), new Color(0.82f, 0.82f, 0.84f),
+                     metallic: 0f, smoothness: 0.32f);
 
             // Rampe von beiden Seiten (Alpha- und Bravo-Zugang)
             Ramp(name + "_RampB", x, 8f, 3f, y, 4f);
