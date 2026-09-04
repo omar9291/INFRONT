@@ -51,6 +51,24 @@ namespace Infront
         Vector3 _smoothedAimDir = Vector3.forward;
         bool _helpCalled;           // "Brauche Hilfe" nur einmal pro Kampf
 
+        // ---- Beschossen werden ------------------------------------------
+        // Vorher lief ein Bot, dem man in den Ruecken schoss, einfach weiter
+        // seine Runde. Ein Mensch tut das nicht: er dreht sich um und geht
+        // hinter etwas. Genau das fehlte am meisten.
+        [Header("Beschossen")]
+        [Tooltip("Wie lange der Bot nach einem Treffer in Deckung will (Sekunden).")]
+        [SerializeField] float _deckungsZeit = 2.6f;
+        [Tooltip("Wie weit er dabei hoechstens sucht.")]
+        [SerializeField] float _deckungsRadius = 7f;
+        [Tooltip("Ab wie viel Schaden auf einmal er wirklich zurueckweicht.")]
+        [SerializeField] int _schreckSchwelle = 12;
+
+        float _deckungBis;          // Time.time, bis dahin will er in Deckung
+        Vector3 _deckungsZiel;
+        bool _hatDeckungsZiel;
+        Vector3 _beschussAus;       // woher der letzte Treffer kam
+        bool _wurdeBeschossen;
+
         Transform _target;
         Vector3 _lastKnownPosition;
         float _memoryTimer;
@@ -99,6 +117,8 @@ namespace Infront
                 return;
             }
 
+            if (_health != null) _health.ServerDamagedBy += OnServerDamagedBy;
+
             _patrolCenter = _baseAnchor = transform.position;
             if (_stats != null)
             {
@@ -106,6 +126,98 @@ namespace Infront
                 if (_loco != null) _loco.SetStats(_stats);
             }
             AimDirection = transform.forward;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (_health != null) _health.ServerDamagedBy -= OnServerDamagedBy;
+            base.OnNetworkDespawn();
+        }
+
+        /// <summary>
+        /// Getroffen worden. Der Bot weiss jetzt, wo der Schuetze steht - auch
+        /// wenn er ihn nicht sieht. Das ist kein Schummeln: wer angeschossen
+        /// wird, weiss auch in Wirklichkeit ungefaehr, aus welcher Richtung.
+        /// </summary>
+        void OnServerDamagedBy(int schaden, GameObject verursacher)
+        {
+            if (!IsServer || !_active) return;
+            if (verursacher == null) return;
+
+            _beschussAus = verursacher.transform.position;
+            _wurdeBeschossen = true;
+
+            // Den Schuetzen als letzten bekannten Ort merken und hinschauen.
+            _lastKnownPosition = _beschussAus;
+            _memoryTimer = _stats != null ? _stats.MemoryTime : 4f;
+
+            // Ein Streifschuss laesst niemanden fluechten - ein richtiger
+            // Treffer schon.
+            if (schaden >= _schreckSchwelle)
+            {
+                _deckungBis = Time.time + _deckungsZeit;
+                _hatDeckungsZiel = false;   // neu suchen, die Lage hat sich geaendert
+            }
+
+            // Sieht er niemanden, geht er dem Beschuss nach statt weiterzulaufen.
+            if (_target == null && _state == State.Patrol)
+            {
+                _state = State.Search;
+                Callout("Beschuss!", 0.5f);
+            }
+        }
+
+        /// <summary>Will der Bot gerade in Deckung?</summary>
+        public bool InDeckung => Time.time < _deckungBis;
+
+        /// <summary>Nur fuer Tests.</summary>
+        public bool WurdeBeschossenForTests => _wurdeBeschossen;
+        public Vector3 BeschussAusForTests => _beschussAus;
+
+        /// <summary>Nur fuer Tests: Beschuss vortaeuschen.</summary>
+        public void ServerBeschussForTests(int schaden, Vector3 von)
+        {
+            var attrappe = new GameObject("BeschussQuelle");
+            attrappe.transform.position = von;
+            OnServerDamagedBy(schaden, attrappe);
+            Destroy(attrappe);
+        }
+
+        /// <summary>
+        /// Einen Platz suchen, an dem der Bot vor <paramref name="bedrohung"/>
+        /// gedeckt steht. Es werden ein paar Punkte im Umkreis probiert; gut
+        /// ist einer, von dem aus die Sicht zur Bedrohung auf Brusthoehe
+        /// blockiert ist - also steht etwas dazwischen.
+        /// </summary>
+        bool FindeDeckung(Vector3 bedrohung, out Vector3 platz)
+        {
+            platz = transform.position;
+            Vector3 weg = (transform.position - bedrohung);
+            weg.y = 0f;
+            if (weg.sqrMagnitude < 0.01f) weg = -transform.forward;
+            weg.Normalize();
+
+            // Acht Kandidaten, mit Vorliebe fuer "weg von der Bedrohung".
+            for (int i = 0; i < 8; i++)
+            {
+                float winkel = (i - 3.5f) * 26f;
+                Vector3 richtung = Quaternion.Euler(0f, winkel, 0f) * weg;
+                Vector3 kandidat = transform.position + richtung * _deckungsRadius;
+
+                if (!NavMesh.SamplePosition(kandidat, out NavMeshHit nav, 4f, NavMesh.AllAreas))
+                    continue;
+
+                Vector3 brust = nav.position + Vector3.up * 1.1f;
+                Vector3 ziel = bedrohung + Vector3.up * 1.1f;
+
+                // Blockiert = gut. Genau umgekehrt zur Sichtpruefung.
+                if (Physics.Linecast(brust, ziel, _sightBlockers, QueryTriggerInteraction.Ignore))
+                {
+                    platz = nav.position;
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>Nur Server: Schwierigkeits-Kennwerte setzen (Menue-Auswahl).</summary>
@@ -197,7 +309,11 @@ namespace Infront
             // Das Grundtempo haengt am Zustand: umherlaufen wird gegangen,
             // ein gesehener Gegner wird angerannt, im Feuerkampf bleibt die
             // Waffe oben und das Tempo unten.
-            if (_loco != null)
+            if (_loco != null && InDeckung)
+            {
+                _loco.SetzeAbsicht(BotLocomotion.Absicht.Rennen);
+            }
+            else if (_loco != null)
             {
                 switch (_state)
                 {
@@ -208,12 +324,22 @@ namespace Infront
                 }
             }
 
-            switch (_state)
+            // Deckung hat Vorrang: wer gerade getroffen wurde, geht erst mal
+            // aus der Schusslinie. Gezielt und geschossen wird dabei weiter -
+            // er rennt rueckwaerts, nicht kopflos davon.
+            if (InDeckung)
             {
-                case State.Patrol: TickPatrol(); break;
-                case State.Chase: TickChase(); break;
-                case State.Combat: TickCombat(); break;
-                case State.Search: TickSearch(); break;
+                TickDeckung();
+            }
+            else
+            {
+                switch (_state)
+                {
+                    case State.Patrol: TickPatrol(); break;
+                    case State.Chase: TickChase(); break;
+                    case State.Combat: TickCombat(); break;
+                    case State.Search: TickSearch(); break;
+                }
             }
 
             // Ausserhalb des Kampfes zeigt die Blickrichtung einfach nach vorne.
@@ -435,6 +561,53 @@ namespace Infront
             bool waffeBereit = _loco == null || _loco.DarfSchiessen;
             if (_reactionTimer <= 0f && _weapon != null && waffeBereit && AimIsOnTarget(aimPoint))
                 _weapon.ServerTryFire();
+        }
+
+        /// <summary>
+        /// In Deckung gehen. Einmal einen Platz suchen und den anlaufen -
+        /// nicht jeden Frame neu ueberlegen, sonst zappelt der Bot auf der
+        /// Stelle.
+        /// </summary>
+        void TickDeckung()
+        {
+            if (!_hatDeckungsZiel)
+            {
+                _hatDeckungsZiel = FindeDeckung(_beschussAus, out _deckungsZiel);
+                if (!_hatDeckungsZiel)
+                {
+                    // Nichts gefunden - dann wenigstens Abstand nehmen.
+                    Vector3 weg = transform.position - _beschussAus;
+                    weg.y = 0f;
+                    if (weg.sqrMagnitude < 0.01f) weg = -transform.forward;
+                    Vector3 ziel = transform.position + weg.normalized * _deckungsRadius;
+                    if (NavMesh.SamplePosition(ziel, out NavMeshHit nav, 5f, NavMesh.AllAreas))
+                    {
+                        _deckungsZiel = nav.position;
+                        _hatDeckungsZiel = true;
+                    }
+                }
+            }
+
+            if (_hatDeckungsZiel) _agent.SetDestination(_deckungsZiel);
+
+            // Beim Zurueckweichen weiter in die Gefahr schauen und, wenn ein
+            // Ziel da ist, auch schiessen. Der Rueckzug ist kein Blindflug.
+            Vector3 hin = _target != null
+                ? _target.position + Vector3.up * 1.3f
+                : _beschussAus + Vector3.up * 1.3f;
+            FaceAndAim(hin);
+
+            if (_target != null && _weapon != null
+                && (_loco == null || _loco.DarfSchiessen)
+                && AimIsOnTarget(hin))
+                _weapon.ServerTryFire();
+
+            // Angekommen? Dann ist die Deckung erreicht, frueher weiter.
+            if (_hatDeckungsZiel
+                && Vector3.Distance(transform.position, _deckungsZiel) < 1.2f)
+            {
+                _deckungBis = Mathf.Min(_deckungBis, Time.time + 0.4f);
+            }
         }
 
         void TickSearch()

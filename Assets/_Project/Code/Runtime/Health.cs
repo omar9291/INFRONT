@@ -32,6 +32,16 @@ namespace Infront
         public event Action<int, int> HealthChanged;
         /// <summary>Nur Server: wurde gerade getroffen. (Schaden, Verursacher-ClientId).</summary>
         public event Action<int, ulong> DamageTaken;
+
+        /// <summary>
+        /// Nur Server: Schaden MIT dem Verursacher als Objekt.
+        ///
+        /// <see cref="DamageTaken"/> liefert nur eine Client-Nummer, und die
+        /// ist bei Bots immer die des Servers - man kann daran also nicht
+        /// erkennen, WER geschossen hat. Fuer das Verhalten der Bots ist genau
+        /// das noetig: wer beschossen wird, muss wissen, woher.
+        /// </summary>
+        public event Action<int, GameObject> ServerDamagedBy;
         /// <summary>Server + Clients: Figur ist gerade gestorben.</summary>
         public event Action Died;
         /// <summary>Nur Server: gestorben, mit dem Verursacher (kann null sein).</summary>
@@ -95,6 +105,7 @@ namespace Infront
 
             ulong sourceId = NetworkManager != null ? NetworkManager.ServerClientId : 0;
             DamageTaken?.Invoke(amount, sourceId);
+            ServerDamagedBy?.Invoke(amount, instigator);
 
             if (newValue == 0)
             {

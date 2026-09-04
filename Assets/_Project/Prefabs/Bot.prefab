@@ -464,6 +464,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   _advanceDistance: 18
+  _deckungsZeit: 2.6
+  _deckungsRadius: 7
+  _schreckSchwelle: 12
 --- !u!114 &7843354415560311325
 MonoBehaviour:
   m_ObjectHideFlags: 0
