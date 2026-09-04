@@ -57,6 +57,7 @@ namespace Infront
 
         bool _pendingBegin;
         string _pendingMode = "";
+        string _pendingContext = "ARENA";
 
         // ---- Test-Schnittstelle ----
         public bool ReadyForTests => _ready;
@@ -114,7 +115,7 @@ namespace Infront
             _screen.style.opacity = 0f;
             _screen.style.display = DisplayStyle.None;
 
-            if (_pendingBegin) { _pendingBegin = false; Begin(_pendingMode); }
+            if (_pendingBegin) { _pendingBegin = false; Begin(_pendingMode, _pendingContext); }
         }
 
         // ------------------------------------------------------------------
@@ -122,9 +123,17 @@ namespace Infront
         // ------------------------------------------------------------------
 
         /// <summary>Ladebildschirm einblenden. modeLabel steht unten rechts.</summary>
-        public void Begin(string modeLabel)
+        public void Begin(string modeLabel) => Begin(modeLabel, "ARENA");
+
+        /// <summary>
+        /// Wie <see cref="Begin(string)"/>, aber mit eigenem Kontext links vom
+        /// Punkt. Der Startbildschirm meldet sich als "START", der
+        /// Szenenwechsel als "ARENA" - so sieht man sofort, wofuer gewartet
+        /// wird.
+        /// </summary>
+        public void Begin(string modeLabel, string context)
         {
-            if (!_ready) { _pendingBegin = true; _pendingMode = modeLabel; return; }
+            if (!_ready) { _pendingBegin = true; _pendingMode = modeLabel; _pendingContext = context; return; }
 
             _shownProgress = 0f;
             _targetProgress = 0.02f;
@@ -134,7 +143,9 @@ namespace Infront
             _tipTimer = 0f;
             _tipIndex = Random.Range(0, Tips.Length);
             if (_tip != null) _tip.text = Tips[_tipIndex];
-            if (_mode != null) _mode.text = "ARENA   ·   " + (string.IsNullOrEmpty(modeLabel) ? "-" : modeLabel);
+            if (_mode != null)
+                _mode.text = (string.IsNullOrEmpty(context) ? "ARENA" : context)
+                             + "   ·   " + (string.IsNullOrEmpty(modeLabel) ? "-" : modeLabel);
 
             _visible = true;
             _opacityTarget = 1f;

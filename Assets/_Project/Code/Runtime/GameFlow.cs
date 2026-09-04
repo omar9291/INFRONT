@@ -27,6 +27,7 @@ namespace Infront
             go.AddComponent<LoadingOverlay>();   // Ladebildschirm, ueberlebt Szenenwechsel
             go.AddComponent<AudioService>();     // Ton-Ausgabe, ueberlebt Szenenwechsel
             go.AddComponent<PerfOverlay>();      // Leistungsanzeige (F3), standardmaessig aus
+            go.AddComponent<BootFlow>();         // Startbildschirm, laeuft genau einmal
             DontDestroyOnLoad(go);
         }
 

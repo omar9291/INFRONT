@@ -170,8 +170,11 @@ namespace Infront
                 // genau einmal und liegt ueber dem fertigen Menue - wer
                 // ueberspringt, ist sofort drin. Im Testlauf uebersprungen,
                 // sonst haengen alle Menue-Tests am Erstlauf fest.
+                // Erst nach dem Startbildschirm - sonst liegen die Karten
+                // unsichtbar hinter dem Ladebildschirm und werden weggeklickt,
+                // bevor sie jemand sieht.
                 if (!Application.isBatchMode)
-                    FirstRunFlow.ZeigeWennNoetig(root, null);
+                    BootFlow.WhenDone(() => FirstRunFlow.ZeigeWennNoetig(root, null));
             }
             catch (Exception e)
             {
