@@ -80,6 +80,24 @@ namespace Infront.EditorTools
             Debug.Log("SCENE_BUILD_OK");
         }
 
+        /// <summary>
+        /// Szene bauen UND das Licht backen - in dieser Reihenfolge.
+        ///
+        /// Wichtig: <see cref="Build"/> legt die Arena jedes Mal neu an. Damit
+        /// ist jede vorher gebackene Lichtkarte weg. Wer nur baut und dann die
+        /// App baut, bekommt eine Karte ohne indirektes Licht zurueck - und
+        /// zwar ohne Fehlermeldung, sie sieht einfach wieder flach aus.
+        ///
+        /// Deshalb dieser Einstiegspunkt. BacklichtTests laesst den Testlauf
+        /// rot werden, wenn in der Arena keine Lichtkarte liegt.
+        /// </summary>
+        public static void BuildUndBacke()
+        {
+            Build();
+            Backlicht.BackeFein();
+            Debug.Log("SCENE_BUILD_UND_BACK_OK");
+        }
+
         [MenuItem("Infront/Setup/0 - Alles aufsetzen (URP + Arena)")]
         public static void SetupEverything()
         {
@@ -2869,6 +2887,7 @@ namespace Infront.EditorTools
 
             BuildMap();
             BuildReflexionssonden();
+            Backlicht.MacheKarteBackfaehig(_mapRoot);
 
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;

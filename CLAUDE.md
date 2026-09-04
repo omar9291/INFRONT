@@ -24,6 +24,13 @@ Studio-Marke: Driftlab.
   **Nie einen Anzeigetext (DisplayName) als Schalter im Code auswerten** —
   genau daran waere bei dieser Umstellung das Waffenmodell kaputtgegangen.
   Antworten im Chat: Englisch.
+- **Licht backen NICHT vergessen** (Stand 2026-09-04): `SceneBuilder.Build` legt
+  die Arena jedes Mal neu an und wirft dabei jede gebackene Lichtkarte weg.
+  Danach fehlt der indirekte Anteil - ohne Fehlermeldung, die Halle sieht
+  einfach wieder flach aus. Richtig ist **`SceneBuilder.BuildUndBacke`**
+  (Bauen + `Backlicht.BackeFein`, zusammen rund eine Minute). `BacklichtTests`
+  macht den Testlauf rot, wenn in der Arena keine Lichtkarte liegt.
+  Reihenfolge immer: Szene bauen -> backen -> App bauen.
 - Modellwechsel: denkende Arbeit auf Opus/hoher Effort, umsetzende auf
   Sonnet/Auto. STOPP-Zeilen vor Diagnose/Planung und nach bestaetigtem Plan.
 - Rueckfragen immer mit Auswahlmoeglichkeiten stellen (AskUserQuestion),
