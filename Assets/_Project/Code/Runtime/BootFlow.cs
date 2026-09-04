@@ -105,8 +105,21 @@ namespace Infront
             if (Instance == this) Instance = null;
         }
 
+        void OnApplicationQuit()
+        {
+            // Spielzeit dieser Sitzung festhalten, sonst geht sie verloren.
+            Spielstatistik.SitzungSichern();
+            Absturzbericht.Beenden();
+        }
+
         void Start()
         {
+            // So frueh wie moeglich, und auch wenn der Startbildschirm
+            // uebersprungen wird: ein Absturz beim Laden ist genau der Fall,
+            // fuer den es den Bericht gibt.
+            Absturzbericht.Starten();
+            Spielstatistik.StartGezaehlt();
+
             if (Ueberspringen())
             {
                 Fertig();
@@ -165,7 +178,11 @@ namespace Infront
 
             yield return Phase(ov, 0.12f, "PROFIL LESEN", () => PlayerProfile.Load());
             yield return Phase(ov, 0.24f, "EINSTELLUNGEN", () => GameSettings.Load());
-            yield return Phase(ov, 0.34f, "LAUFBAHN", () => { var _ = CareerStats.Matches; });
+            yield return Phase(ov, 0.34f, "LAUFBAHN", () =>
+            {
+                var _ = CareerStats.Matches;
+                Spielstatistik.Laden();
+            });
 
             // Toene vorwaermen. Das ist die einzige Phase mit echtem Gewicht:
             // ohne sie ruckelt der erste Schuss, weil der Ton dann erst von der

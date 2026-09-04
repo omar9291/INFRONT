@@ -91,6 +91,7 @@ namespace Infront
             int myTeam = LocalTeam();
             if (myTeam != Team.None)
                 CareerStats.RecordMatch(winner == myTeam);
+                Spielstatistik.SpielVorbei(winner == myTeam);
         }
 
         static string NameOf(ulong objectId)

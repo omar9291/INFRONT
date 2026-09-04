@@ -295,7 +295,12 @@ namespace Infront
         void BroadcastRoundStartRpc() => RoundStarted?.Invoke();
 
         [Rpc(SendTo.Everyone)]
-        void BroadcastRoundEndRpc(int winner) => RoundEnded?.Invoke(winner);
+        void BroadcastRoundEndRpc(int winner)
+        {
+            RoundEnded?.Invoke(winner);
+            // Gute Stelle zum Sichern: einmal je Runde statt bei jedem Schuss.
+            Spielstatistik.RundeVorbei();
+        }
 
         [Rpc(SendTo.Everyone)]
         void BroadcastBuyTimeEndedRpc() => BuyTimeEnded?.Invoke();

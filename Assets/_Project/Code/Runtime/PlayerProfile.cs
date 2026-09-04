@@ -131,6 +131,10 @@ namespace Infront
         /// </summary>
         public static void DeleteEverything()
         {
+            // Wer "alles loeschen" sagt, meint alles - nicht nur das Profil.
+            Spielstatistik.AllesLoeschen();
+            Absturzbericht.AllesLoeschen();
+
             try
             {
                 if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);

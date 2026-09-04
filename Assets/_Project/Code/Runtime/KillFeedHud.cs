@@ -118,6 +118,15 @@ namespace Infront
                 Time = Time.time
             });
             if (_entries.Count > 6) _entries.RemoveAt(0);
+
+            // Eigene Zahlen mitfuehren. Bleibt auf diesem Rechner.
+            var netz = Unity.Netcode.NetworkManager.Singleton;
+            if (netz != null)
+            {
+                ulong ich = netz.LocalClientId;
+                if (killerId == ich && victimId != ich) Spielstatistik.Abschuss();
+                if (victimId == ich) Spielstatistik.Tod();
+            }
         }
 
         static void Resolve(ulong id, out string name, out int team)

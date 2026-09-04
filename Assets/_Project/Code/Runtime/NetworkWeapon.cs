@@ -244,6 +244,7 @@ namespace Infront
 
             _playerController.AddRecoil(up, side);
             LocalFired?.Invoke();   // Waffe in der Hand zuckt zurueck
+            Spielstatistik.Schuss();   // eigene Zahlen, bleiben auf diesem Rechner
             _clientShot++;
         }
 
@@ -407,6 +408,12 @@ namespace Infront
 
                     ServerHitConfirmed?.Invoke(hit.collider.gameObject, dmg);
                     HitConfirmedRpc(head, !targetHealth.IsAlive);
+
+                    // Nur die Treffer des MENSCHEN zaehlen. Bots laufen auf
+                    // demselben Server und sind dort ebenfalls "Owner" - der
+                    // Unterschied ist, dass nur der Mensch einen
+                    // NetworkPlayerController hat.
+                    if (_playerController != null) Spielstatistik.Treffer(head);
                 }
                 break;
             }

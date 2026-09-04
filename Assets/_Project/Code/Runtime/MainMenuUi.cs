@@ -41,7 +41,7 @@ namespace Infront
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuUi : MonoBehaviour
     {
-        enum Page { Spielen, Einstellungen, Zugaenglichkeit, Steuerung, Quellen, Beenden }
+        enum Page { Spielen, Einstellungen, Zugaenglichkeit, Steuerung, Daten, Quellen, Beenden }
 
         // Kurze Hinweise, die in der Navigation langsam durchwechseln.
         static readonly string[] Tips =
@@ -572,6 +572,7 @@ namespace Infront
             nav.Add(NavButton("SPIELEN", Page.Spielen));
             nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
             nav.Add(NavButton("ZUGAENGLICHKEIT", Page.Zugaenglichkeit));
+            nav.Add(NavButton("DEINE DATEN", Page.Daten));
             nav.Add(NavButton("STEUERUNG", Page.Steuerung));
             nav.Add(NavButton("QUELLEN", Page.Quellen));
 
@@ -862,6 +863,7 @@ namespace Infront
                 case Page.Spielen: BuildSpielen(_pageHost); break;
                 case Page.Einstellungen: BuildEinstellungen(_pageHost); break;
                 case Page.Zugaenglichkeit: BuildZugaenglichkeit(_pageHost); break;
+                case Page.Daten: BuildDaten(_pageHost); break;
                 case Page.Steuerung: BuildSteuerung(_pageHost); break;
                 case Page.Quellen: BuildQuellen(_pageHost); break;
                 case Page.Beenden: BuildBeenden(_pageHost); break;
@@ -1271,6 +1273,171 @@ namespace Infront
         // ------------------------------------------------------------------
         //  Seite: EINSTELLUNGEN  (einmal einstellen, nie wieder anfassen)
         // ------------------------------------------------------------------
+
+        // ------------------------------------------------------------------
+        //  Seite: DEINE DATEN
+        // ------------------------------------------------------------------
+
+        bool _loeschenBestaetigt;
+
+        /// <summary>
+        /// Was gespeichert wird, wo es liegt, und wie man es loswird.
+        ///
+        /// Der ganze Punkt dieser Seite: es gibt nichts zu verbergen, weil
+        /// nichts den Rechner verlaesst. Das kann man behaupten - oder man kann
+        /// den Ordner zeigen und den Loeschknopf danebenstellen.
+        /// </summary>
+        void BuildDaten(VisualElement host)
+        {
+            Hinweis(host,
+                "INFRONT verschickt nichts. Kein Konto, kein Server, keine Anmeldung. "
+                + "Alles, was das Spiel ueber dich weiss, liegt in Dateien auf diesem "
+                + "Rechner - und die kannst du ansehen und loeschen.");
+
+            // --- Was liegt wo -------------------------------------------------
+            host.Add(UiTheme.Gap(20f));
+            host.Add(UiTheme.Section("WAS GESPEICHERT WIRD"));
+            Punkt(host, "profil.json", "Dein Name und ob der Erstlauf durch ist.");
+            Punkt(host, "statistik.json", "Summen: Spiele, Schuesse, Treffer, Spielzeit.");
+            Punkt(host, "abstuerze/", "Fehlerberichte, falls das Spiel abstuerzt. "
+                                      + $"Zurzeit: {Absturzbericht.Anzahl}.");
+            Punkt(host, "Einstellungen", "Lautstaerke, Empfindlichkeit, Zugaenglichkeit.");
+
+            var pfad = new Label(Application.persistentDataPath);
+            pfad.style.color = UiTheme.TextDim;
+            pfad.style.fontSize = 10f;
+            pfad.style.marginTop = 10f;
+            pfad.style.whiteSpace = WhiteSpace.Normal;
+            host.Add(pfad);
+
+            var oeffnen = FlacherKnopf("ORDNER OEFFNEN", "btn-ordner", () =>
+                Application.OpenURL("file://" + Application.persistentDataPath));
+            oeffnen.style.marginTop = 8f;
+            host.Add(oeffnen);
+
+            // --- Was NICHT gespeichert wird -----------------------------------
+            host.Add(UiTheme.Gap(22f));
+            host.Add(UiTheme.Section("WAS NICHT GESPEICHERT WIRD"));
+            Punkt(host, "Keine E-Mail-Adresse", "Es gibt keine Anmeldung.");
+            Punkt(host, "Kein Passwort", "Auch keins zum Zuruecksetzen.");
+            Punkt(host, "Keine Zeitpunkte", "Nur Summen, keine Aufzeichnung einzelner Spiele.");
+            Punkt(host, "Keine Uebertragung", "Das Spiel oeffnet keine Verbindung nach aussen.");
+
+            // --- Deine Zahlen --------------------------------------------------
+            host.Add(UiTheme.Gap(22f));
+            host.Add(UiTheme.Section("DEINE ZAHLEN"));
+            var d = Spielstatistik.Daten;
+            Wert(host, "SPIELE", d.Spiele.ToString());
+            Wert(host, "DAVON GEWONNEN", d.Siege.ToString());
+            Wert(host, "RUNDEN", d.Runden.ToString());
+            Wert(host, "SCHUESSE", d.Schuesse.ToString());
+            Wert(host, "TREFFERQUOTE", (Spielstatistik.Trefferquote * 100f).ToString("0.0") + " %");
+            Wert(host, "DAVON KOPF", (Spielstatistik.Kopfquote * 100f).ToString("0.0") + " %");
+            Wert(host, "ABSCHUESSE JE TOD", Spielstatistik.Verhaeltnis.ToString("0.00"));
+            Wert(host, "SPIELZEIT", Dauer(d.SekundenGespielt));
+
+            // --- Loeschen -------------------------------------------------------
+            host.Add(UiTheme.Gap(22f));
+            host.Add(UiTheme.Section("LOESCHEN"));
+
+            var weg = FlacherKnopf("FEHLERBERICHTE LOESCHEN", "btn-berichte-weg", () =>
+            {
+                Absturzbericht.AllesLoeschen();
+                ShowPage(Page.Daten);   // Seite neu zeichnen, damit die Zahl stimmt
+            });
+            weg.style.marginTop = 6f;
+            host.Add(weg);
+
+            var alles = FlacherKnopf(
+                _loeschenBestaetigt ? "WIRKLICH ALLES LOESCHEN?" : "ALLES LOESCHEN",
+                "btn-alles-weg", () =>
+                {
+                    if (!_loeschenBestaetigt)
+                    {
+                        _loeschenBestaetigt = true;
+                        ShowPage(Page.Daten);
+                        return;
+                    }
+                    _loeschenBestaetigt = false;
+                    PlayerProfile.DeleteEverything();
+                    ShowPage(Page.Daten);
+                });
+            alles.style.marginTop = 6f;
+            host.Add(alles);
+
+            Hinweis(host, _loeschenBestaetigt
+                ? "Noch einmal druecken loescht Profil, Zahlen, Laufbahn und Berichte. "
+                  + "Das laesst sich nicht rueckgaengig machen."
+                : "Loescht Profil, Zahlen, Laufbahn und Fehlerberichte.");
+        }
+
+        /// <summary>Aufzaehlungspunkt: fetter Titel, grauer Text daneben.</summary>
+        static void Punkt(VisualElement host, string titel, string text)
+        {
+            var reihe = new VisualElement();
+            reihe.style.flexDirection = FlexDirection.Row;
+            reihe.style.marginTop = 6f;
+
+            var t = new Label(titel);
+            t.style.color = UiTheme.Text;
+            t.style.fontSize = 11.5f;
+            t.style.unityFontStyleAndWeight = FontStyle.Bold;
+            t.style.width = 170f;
+            t.style.flexShrink = 0f;
+
+            var b = new Label(text);
+            b.style.color = UiTheme.TextDim;
+            b.style.fontSize = 11.5f;
+            b.style.whiteSpace = WhiteSpace.Normal;
+            b.style.flexGrow = 1f;
+
+            reihe.Add(t); reihe.Add(b);
+            host.Add(reihe);
+        }
+
+        /// <summary>Beschriftete Zahl.</summary>
+        static void Wert(VisualElement host, string titel, string wert)
+        {
+            var reihe = new VisualElement();
+            reihe.style.flexDirection = FlexDirection.Row;
+            reihe.style.justifyContent = Justify.SpaceBetween;
+            reihe.style.marginTop = 5f;
+
+            var t = new Label(titel);
+            t.style.color = UiTheme.TextDim;
+            t.style.fontSize = 11f;
+            t.style.letterSpacing = 2f;
+
+            var w = new Label(wert);
+            w.style.color = UiTheme.Ice;
+            w.style.fontSize = 13f;
+            w.style.unityFontStyleAndWeight = FontStyle.Bold;
+
+            reihe.Add(t); reihe.Add(w);
+            host.Add(reihe);
+        }
+
+        static string Dauer(int sekunden)
+        {
+            if (sekunden < 60) return sekunden + " s";
+            int min = sekunden / 60;
+            if (min < 60) return min + " min";
+            return (min / 60) + " h " + (min % 60) + " min";
+        }
+
+        /// <summary>Schlichter breiter Knopf im Menue-Stil.</summary>
+        Button FlacherKnopf(string text, string name, Action tun)
+        {
+            var b = new Button(tun) { text = text, name = name };
+            b.style.height = 34f;
+            b.style.fontSize = 11.5f;
+            b.style.letterSpacing = 2f;
+            b.style.color = UiTheme.Text;
+            b.style.backgroundColor = UiTheme.GlassHi;
+            UiTheme.Square(b);
+            UiTheme.Border(b, 1f, UiTheme.Edge);
+            return b;
+        }
 
         // ------------------------------------------------------------------
         //  Seite: ZUGAENGLICHKEIT
