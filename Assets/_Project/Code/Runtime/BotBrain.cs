@@ -235,10 +235,27 @@ namespace Infront
         /// beim Spawn zum Gegner zeigt). Ohne das patrouillieren beide Teams
         /// nur in einer Blase um ihren eigenen Spawn und treffen sich nie.
         /// </summary>
-        public void ServerAnchorForward()
+        public void ServerAnchorForward() => ServerAnchorForward(0);
+
+        /// <summary>
+        /// Wie oben, aber mit seitlichem Versatz. Ohne den laufen alle Bots
+        /// eines Teams denselben Weg und treffen einer nach dem anderen ein -
+        /// fuenf Einzelgaenger statt einer Mannschaft.
+        /// </summary>
+        public void ServerAnchorForward(int platz)
         {
             if (!IsServer) return;
-            Vector3 ahead = transform.position + transform.forward * _advanceDistance;
+
+            // Platz 0 bleibt in der Mitte, danach abwechselnd links und rechts.
+            float seite = 0f;
+            if (platz > 0)
+            {
+                int stufe = (platz + 1) / 2;
+                seite = (platz % 2 == 1 ? -1f : 1f) * stufe * 13f;
+            }
+
+            Vector3 ahead = transform.position + transform.forward * _advanceDistance
+                            + transform.right * seite;
             _baseAnchor = NavMesh.SamplePosition(ahead, out NavMeshHit hit, 6f, NavMesh.AllAreas)
                 ? hit.position
                 : transform.position;
@@ -293,6 +310,7 @@ namespace Infront
             {
                 _perceptionTimer = PerceptionInterval;
                 UpdatePerception();
+                HoereAufDieAnderen();
             }
 
             // Geblendet: stehen bleiben, nicht schiessen, kurz zurueckziehen.
@@ -366,7 +384,15 @@ namespace Infront
                     _state = State.Chase;
                     _reactionTimer = _stats.ReactionTime;
                     _helpCalled = false;
-                    if (freshSpot) Callout("Feind gesichtet!", 0.5f);
+                    if (freshSpot)
+                    {
+                        Callout("Feind gesichtet!", 0.5f);
+                        // Und zwar so, dass die eigenen Leute wirklich etwas
+                        // davon haben - nicht nur Text im Meldungsfenster.
+                        if (_team != null)
+                            BotFunk.ServerFeindGesichtet(_team.TeamId, transform.position,
+                                                         _lastKnownPosition);
+                    }
                 }
                 return;
             }
@@ -608,6 +634,30 @@ namespace Infront
             {
                 _deckungBis = Mathf.Min(_deckungBis, Time.time + 0.4f);
             }
+        }
+
+        /// <summary>
+        /// Auf die eigenen Leute hoeren. Nur, wenn man selbst nichts sieht -
+        /// wer im Gefecht steht, laesst sich nicht wegrufen.
+        /// </summary>
+        void HoereAufDieAnderen()
+        {
+            if (_target != null) return;
+            if (_state == State.Combat || _state == State.Chase) return;
+            if (_stats == null || _team == null) return;
+
+            // Wer wenig auf sein Team achtet, geht auch seltener hin.
+            if (_stats.Teamwork < 0.3f) return;
+
+            if (!BotFunk.TryEmpfangen(_team.TeamId, transform.position, out Vector3 ort))
+                return;
+
+            // Schon dort? Dann bringt es nichts.
+            if (Vector3.Distance(_lastKnownPosition, ort) < 2f && _state == State.Search) return;
+
+            _lastKnownPosition = ort;
+            _memoryTimer = _stats.MemoryTime;
+            _state = State.Search;
         }
 
         void TickSearch()

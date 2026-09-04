@@ -80,6 +80,7 @@ namespace Infront
 
             BotBrain.GloballyFrozen = false;
             Combatants.Reset();
+            BotFunk.Reset();      // alte Funksprueche gehoeren nicht in die naechste Runde
             SpawnService.Reset();
 
             Cursor.lockState = CursorLockMode.None;

@@ -611,8 +611,11 @@ namespace Infront
 
         void PlaceTeam(int team)
         {
+            BotFunk.Reset();   // Meldungen der letzten Runde sind wertlos
+
             SpawnService.CollectTeamSpawns(team, _spawnBuffer);
             int i = 0;
+            int botPlatz = 0;   // faechert die Bots eines Teams seitlich auf
 
             foreach (var member in Combatants.Everyone)
             {
@@ -626,8 +629,11 @@ namespace Infront
                 }
 
                 // Bots: Patrouillen-Punkt Richtung Kartenmitte schieben, sonst
-                // bleiben beide Teams je in ihrer Spawn-Blase.
-                member.GetComponent<BotBrain>()?.ServerAnchorForward();
+                // bleiben beide Teams je in ihrer Spawn-Blase. Der laufende
+                // Platz faechert sie dabei seitlich auf - sonst nehmen alle
+                // denselben Weg und kommen einzeln an.
+                var hirn = member.GetComponent<BotBrain>();
+                if (hirn != null) { hirn.ServerAnchorForward(botPlatz); botPlatz++; }
 
                 member.Health.ResetFull();
 
