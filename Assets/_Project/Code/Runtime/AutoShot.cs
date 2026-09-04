@@ -547,6 +547,7 @@ namespace Infront
 
             // Kaufzeit: das Kaufmenue steht von selbst offen.
             yield return new WaitForSecondsRealtime(3f);
+            SichtProtokoll("08_buymenu", spieler);
             yield return Foto(outDir, "08_buymenu");
 
             // Kaufzeit beenden -> normales HUD mit Rollen- und Bomben-Zeile.
@@ -557,6 +558,7 @@ namespace Infront
             catch (System.Exception e) { Debug.LogWarning($"[Infront] OBERFLAECHE: {e.Message}"); }
 
             yield return new WaitForSecondsRealtime(4f);
+            SichtProtokoll("09_hud", spieler);
             yield return Foto(outDir, "09_hud");
 
             // Punktetabelle. Tab laesst sich hier nicht druecken, also der
@@ -569,11 +571,45 @@ namespace Infront
 
             // Noch etwas Gefecht, dann ein zweites HUD-Bild mit Abschussliste.
             yield return new WaitForSecondsRealtime(8f);
+            SichtProtokoll("11_hud_spaeter", spieler);
             yield return Foto(outDir, "11_hud_spaeter");
 
             Debug.Log("[Infront] OBERFLAECHE_FERTIG");
             yield return new WaitForSecondsRealtime(1f);
             Application.Quit();
+        }
+
+        /// <summary>
+        /// Was sieht der Spieler gerade? Wird direkt vor einem Bild gerufen,
+        /// damit Protokoll und Foto denselben Moment zeigen - bei der ersten
+        /// Fassung lag die Messung Sekunden vor der Aufnahme, und das hat zu
+        /// einer falschen Erklaerung gefuehrt.
+        ///
+        /// Der Faecher geht bis 45 Grad, weil die Kamera 85 Grad breit ist.
+        /// Ein Faecher bis 30 Grad meldet "alles frei", waehrend links eine
+        /// Wand steht: eine Wand LAENGS der Blickrichtung wird von keinem
+        /// Strahl nach vorne getroffen.
+        /// </summary>
+        static void SichtProtokoll(string name, NetworkPlayerController spieler)
+        {
+            if (spieler == null) return;
+            var k = Camera.main;
+            Vector3 auge = k != null ? k.transform.position
+                                     : spieler.transform.position + Vector3.up * 1.6f;
+            Vector3 blick = k != null ? k.transform.forward : spieler.transform.forward;
+
+            var sb = new System.Text.StringBuilder();
+            sb.Append($"[Infront] SICHT {name} pos={spieler.transform.position} ");
+            foreach (float winkel in new[] { -45f, -35f, -20f, 0f, 20f, 35f, 45f })
+            {
+                Vector3 r = Quaternion.AngleAxis(winkel, Vector3.up) * blick;
+                string was = Physics.Raycast(auge, r, out var treffer, 80f, ~0,
+                                             QueryTriggerInteraction.Ignore)
+                    ? $"{treffer.collider.name}@{treffer.distance:0.0}m"
+                    : "frei";
+                sb.Append($"| {winkel:0}\u00b0 {was} ");
+            }
+            Debug.Log(sb.ToString());
         }
 
         /// <summary>Ein Bild machen und warten, bis es wirklich auf der Platte

@@ -87,6 +87,40 @@ namespace Infront
             return gefunden;
         }
 
+        // --- Wiederholsperre fuer Ansagen ---------------------------------
+        //
+        // Jeder Bot hat seine eigene Sprechpause, aber niemand hat auf die
+        // anderen geachtet. Sehen fuenf Bots gleichzeitig denselben Gegner,
+        // rufen alle fuenf im selben Moment "Enemy spotted!", und die
+        // Abschussliste besteht aus fuenf gleichen Zeilen. Das ist kein
+        // Funkverkehr, das ist Rauschen - und es verdeckt die Zeilen, auf die
+        // es ankommt (wer wen ausgeschaltet hat).
+        //
+        // Deshalb: derselbe Satz geht je Team nur einmal in diesem Fenster
+        // hinaus. Wer zu spaet kommt, schweigt. Das taktische Weiterreichen
+        // der Feindposition (ServerFeindGesichtet) bleibt davon unberuehrt -
+        // gedrosselt wird nur, was auf dem Bildschirm steht.
+
+        /// <summary>So lange wird derselbe Satz im selben Team nicht wiederholt.</summary>
+        public const float Wiederholsperre = 6f;
+
+        static readonly Dictionary<string, float> _zuletztGerufen = new Dictionary<string, float>();
+
+        /// <summary>Darf dieser Satz fuer dieses Team gerade heraus? Sagt beim
+        /// ersten Mal ja und merkt sich den Zeitpunkt.</summary>
+        public static bool DarfRufen(int team, string satz)
+        {
+            if (string.IsNullOrEmpty(satz)) return false;
+
+            string schluessel = team + "|" + satz;
+            if (_zuletztGerufen.TryGetValue(schluessel, out float wann)
+                && Time.time - wann < Wiederholsperre)
+                return false;
+
+            _zuletztGerufen[schluessel] = Time.time;
+            return true;
+        }
+
         static void Aufraeumen()
         {
             for (int i = _meldungen.Count - 1; i >= 0; i--)
@@ -95,7 +129,11 @@ namespace Infront
         }
 
         /// <summary>Beim Rundenwechsel: alles vergessen.</summary>
-        public static void Reset() => _meldungen.Clear();
+        public static void Reset()
+        {
+            _meldungen.Clear();
+            _zuletztGerufen.Clear();
+        }
 
         /// <summary>Nur fuer Tests.</summary>
         public static int AnzahlForTests => _meldungen.Count;

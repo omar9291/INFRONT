@@ -2760,8 +2760,20 @@ namespace Infront.EditorTools
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;
             var spawns = new System.Collections.Generic.List<(Vector3 pos, int team)>();
-            // 6 pro Team, auf die fünf Wege der Karte "Werk" verteilt, im Spawn-Raum
-            float[] laneX = { -34f, -32f, -8f, 8f, 32f, 34f };
+            // 6 pro Team, im Spawn-Raum, jeder in einer LÜCKE der Rückwand.
+            //
+            // Vorher standen vier der sechs direkt hinter einem Riegel: die
+            // Rückwand aus BuildWerkSpawns besteht aus fünf Blöcken bei
+            // x = 0, ±15, ±36, und die Blöcke bei ±36 reichen von ±31 bis ±41 -
+            // genau dort lagen die Spawns bei ±32 und ±34. Wer dort erschien,
+            // startete die Runde mit einer Betonwand 1,4 m vor dem Gesicht.
+            // Gemessen mit einem Strahlenfächer aus der Spielerkamera; ein
+            // Fächer bis nur 30° hatte "alles frei" gemeldet, weil er an der
+            // Wand vorbeizielte.
+            //
+            // Die Lücken liegen bei x = -31..-19, -11..-5, +5..+11, +19..+31.
+            // SpawnFreiTests wacht darüber, dass das so bleibt.
+            float[] laneX = { -27f, -23f, -8f, 8f, 23f, 27f };
             foreach (float sx in laneX)
             {
                 spawns.Add((new Vector3(sx, 1f, -42f), Team.Alpha));

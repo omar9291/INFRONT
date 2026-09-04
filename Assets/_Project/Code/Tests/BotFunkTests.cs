@@ -134,5 +134,25 @@ namespace Infront.Tests
 
             yield return MatchTestHarness.Teardown();
         }
+
+        [Test]
+        public void Derselbe_Satz_geht_im_Team_nur_einmal_heraus()
+        {
+            Assert.IsTrue(BotFunk.DarfRufen(Team.Alpha, "Enemy spotted!"),
+                "Der erste Ruf muss durchkommen.");
+            Assert.IsFalse(BotFunk.DarfRufen(Team.Alpha, "Enemy spotted!"),
+                "Fuenf Bots duerfen nicht fuenfmal dasselbe in die Liste schreiben.");
+        }
+
+        [Test]
+        public void Ein_anderer_Satz_und_das_andere_Team_duerfen_trotzdem()
+        {
+            Assert.IsTrue(BotFunk.DarfRufen(Team.Alpha, "Enemy spotted!"));
+            Assert.IsTrue(BotFunk.DarfRufen(Team.Alpha, "Need help!"),
+                "Eine andere Ansage ist keine Wiederholung.");
+            Assert.IsTrue(BotFunk.DarfRufen(Team.Bravo, "Enemy spotted!"),
+                "Die Sperre gilt je Team, nicht fuer die ganze Karte.");
+        }
+
     }
 }

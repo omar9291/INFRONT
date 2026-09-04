@@ -434,10 +434,15 @@ namespace Infront
             if (Time.time < _calloutTimer) return;
             _calloutTimer = Time.time + Random.Range(4f, 8f);
 
+            int teamId = _team != null ? _team.TeamId : Team.None;
+
+            // Erst fragen, ob im Team gerade schon jemand dasselbe gesagt hat.
+            // Sonst stehen fuenf gleiche Zeilen untereinander - siehe BotFunk.
+            if (!BotFunk.DarfRufen(teamId, text)) return;
+
             string tag = _team != null && !string.IsNullOrEmpty(_team.DisplayName)
                 ? _team.DisplayName : "Bot";
-            MatchManager.Instance?.ServerReportCallout($"{tag}: {text}",
-                _team != null ? _team.TeamId : Team.None);
+            MatchManager.Instance?.ServerReportCallout($"{tag}: {text}", teamId);
         }
 
         Transform FindVisibleTarget()
