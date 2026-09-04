@@ -165,6 +165,13 @@ namespace Infront
             {
                 Build(root);
                 _built = true;
+
+                // Erster Start ueberhaupt? Dann die drei Karten zeigen. Laeuft
+                // genau einmal und liegt ueber dem fertigen Menue - wer
+                // ueberspringt, ist sofort drin. Im Testlauf uebersprungen,
+                // sonst haengen alle Menue-Tests am Erstlauf fest.
+                if (!Application.isBatchMode)
+                    FirstRunFlow.ZeigeWennNoetig(root, null);
             }
             catch (Exception e)
             {
@@ -478,15 +485,12 @@ namespace Infront
 
             box.Add(UiTheme.Section("LAUFBAHN"));
 
-            // Neuer Spieler: vier Nullen sehen aus wie ein Fehler - stattdessen ein Hinweis.
+            // Neuer Spieler: vier Nullen sehen aus wie ein Fehler. Der
+            // Leer-Zustand aus UiStates sagt stattdessen, was hier stehen wird
+            // und was zu tun ist - und sieht ueberall im Spiel gleich aus.
             if (CareerStats.Matches <= 0)
             {
-                var hint = new Label("Noch keine Runde gespielt");
-                hint.style.color = UiTheme.TextDim;
-                hint.style.fontSize = 11f;
-                hint.style.marginTop = 2f;
-                hint.style.whiteSpace = WhiteSpace.Normal;
-                box.Add(hint);
+                box.Add(UiStates.KeineLaufbahn(() => ShowPage(Page.Spielen)));
                 return box;
             }
 

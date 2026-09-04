@@ -39,6 +39,8 @@ namespace Infront
         Label _tip;
         Label _mode;
         Label _dots;                // "." ".." "..." beim Laden
+        Label _phaseLabel;          // was gerade passiert, im Klartext
+        string _phase = "";
 
         float _patternT;
         float _pulseT;
@@ -127,6 +129,8 @@ namespace Infront
             _shownProgress = 0f;
             _targetProgress = 0.02f;
             _scanT = 0f;
+            _phase = "VORBEREITEN";
+            if (_phaseLabel != null) _phaseLabel.text = _phase;
             _tipTimer = 0f;
             _tipIndex = Random.Range(0, Tips.Length);
             if (_tip != null) _tip.text = Tips[_tipIndex];
@@ -141,6 +145,24 @@ namespace Infront
         }
 
         /// <summary>Fortschritt 0..1 setzen. Der Balken zieht weich nach.</summary>
+        /// <summary>
+        /// Fortschritt MIT Phasennamen. Ein Balken ohne Beschriftung ist eine
+        /// Behauptung - man sieht nicht, ob das Spiel arbeitet oder haengt.
+        /// Mit Phasennamen sieht man beides.
+        /// </summary>
+        public void SetProgress(float p01, string phase)
+        {
+            if (!string.IsNullOrEmpty(phase))
+            {
+                _phase = phase;
+                if (_phaseLabel != null) _phaseLabel.text = phase;
+            }
+            SetProgress(p01);
+        }
+
+        /// <summary>Die aktuelle Phase im Klartext. Nur fuer Tests.</summary>
+        public string PhaseForTests => _phase;
+
         public void SetProgress(float p01)
         {
             _targetProgress = Mathf.Clamp01(p01);
@@ -379,6 +401,18 @@ namespace Infront
             infoRow.Add(loadingWrap);
             infoRow.Add(_percent);
             center.Add(infoRow);
+
+            // Phasenzeile: was gerade wirklich passiert. Ohne sie ist der
+            // Balken nur eine Behauptung - man sieht nicht, ob das Spiel
+            // arbeitet oder haengt.
+            _phaseLabel = new Label(_phase);
+            _phaseLabel.name = "loading-phase";
+            _phaseLabel.style.color = UiTheme.Ice;
+            _phaseLabel.style.fontSize = 11f;
+            _phaseLabel.style.letterSpacing = 3f;
+            _phaseLabel.style.marginTop = 8f;
+            _phaseLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            center.Add(_phaseLabel);
 
             // Tipp
             _tip = new Label(Tips[0]);

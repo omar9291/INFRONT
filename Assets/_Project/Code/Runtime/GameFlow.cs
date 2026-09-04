@@ -51,7 +51,7 @@ namespace Infront
                     ? (GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMBE" : "AUSSCHEIDEN")
                     : "HAUPTMENUE";
                 overlay.Begin(label);
-                overlay.SetProgress(0.05f);
+                overlay.SetProgress(0.05f, "VORBEREITEN");
             }
             float startedAt = Time.unscaledTime;
 
@@ -74,7 +74,7 @@ namespace Infront
                 yield return null;
             }
 
-            if (overlay != null) overlay.SetProgress(0.25f);
+            if (overlay != null) overlay.SetProgress(0.25f, "NETZWERK TRENNEN");
 
             BotBrain.GloballyFrozen = false;
             Combatants.Reset();
@@ -82,16 +82,17 @@ namespace Infront
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            if (overlay != null) overlay.SetProgress(0.35f);
+            if (overlay != null) overlay.SetProgress(0.35f, "KARTE LADEN");
 
             var op = SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
             while (op != null && !op.isDone)
             {
                 if (overlay != null)
-                    overlay.SetProgress(0.35f + 0.6f * Mathf.Clamp01(op.progress / 0.9f));
+                    overlay.SetProgress(0.35f + 0.6f * Mathf.Clamp01(op.progress / 0.9f),
+                                        op.progress < 0.5f ? "KARTE LADEN" : "GEGNER AUFSTELLEN");
                 yield return null;
             }
-            if (overlay != null) overlay.SetProgress(1f);
+            if (overlay != null) overlay.SetProgress(1f, "BEREIT");
 
             // Mindestanzeige, damit der Ladebildschirm nicht nur aufblitzt.
             // Im Testlauf (batchmode) faellt das weg, damit die Ablauf-Tests

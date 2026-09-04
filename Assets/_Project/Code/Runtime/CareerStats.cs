@@ -46,6 +46,13 @@ namespace Infront
         }
 
         /// <summary>Nur fuer Tests: alles auf 0.</summary>
+        /// <summary>
+        /// Alle Laufbahn-Werte loeschen. Wird sowohl von der Kontoloeschung im
+        /// Spiel benutzt (siehe PlayerProfile.DeleteEverything) als auch von
+        /// den Tests - deshalb hier ein Name, der beides abdeckt.
+        /// </summary>
+        public static void DeleteAll() => ResetForTests();
+
         public static void ResetForTests()
         {
             PlayerPrefs.DeleteKey(KeyMatches);
