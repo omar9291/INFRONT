@@ -728,6 +728,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Infront.Runtime::Infront.ViewModel
   ShowTopMostFoldoutHeaderGroup: 1
+  _wandAbstand: 1.05
+  _wandRadius: 0.14
+  _wandMaske:
+    serializedVersion: 2
+    m_Bits: 1
+  _wandFolge: 11
 --- !u!114 &4305847294707415203
 MonoBehaviour:
   m_ObjectHideFlags: 0

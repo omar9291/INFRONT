@@ -29,6 +29,41 @@ namespace Infront
     public sealed class ViewModel : NetworkBehaviour
     {
         // Ruhelage vor der Kamera (rechte Hand, leicht unten).
+        // ------------------------------------------------------------------
+        //  Waffe an der Wand
+        //
+        //  Bisher steckte die Waffe im Beton, sobald man an einer Wand stand -
+        //  in der Ego-Sicht der auffaelligste Bruch, den es gibt: die Welt ist
+        //  fest, aber das Ding in den eigenen Haenden ist es nicht.
+        //
+        //  Ein Mensch mit einem Gewehr in einem engen Gang laesst es nicht in
+        //  die Wand laufen, sondern zieht es an den Koerper und die Muendung
+        //  nach oben. Genau das passiert hier.
+        // ------------------------------------------------------------------
+
+        [Header("Wand")]
+        [Tooltip("Ab welcher Entfernung vor der Kamera die Waffe angezogen wird.")]
+        [SerializeField] float _wandAbstand = 1.05f;
+        [Tooltip("Dicke der Tastkugel. Zu duenn und die Waffe schrammt an Kanten vorbei.")]
+        [SerializeField] float _wandRadius = 0.14f;
+        [Tooltip("Nur die Karte (Schicht 0). Mitspieler und Gegner sollen die Waffe NICHT anheben.")]
+        [SerializeField] LayerMask _wandMaske = 1;
+        [Tooltip("Wie schnell die Waffe angezogen wird und wieder herunterkommt.")]
+        [SerializeField] float _wandFolge = 11f;
+
+        float _wandPose;   // 0 = frei, 1 = ganz angezogen
+
+        /// <summary>Nur Tests: wie stark die Waffe gerade angezogen ist (0..1).</summary>
+        public float WandPoseForTests => _wandPose;
+
+        // Diagnose. In diesem Projekt hat schon zweimal ein "das Ergebnis ist
+        // immer derselbe Wert" tagelang in die falsche Richtung gefuehrt.
+        // Deshalb: nachsehen statt raten.
+        public bool WandLetzterTrefferForTests { get; private set; }
+        public float WandLetzteEntfernungForTests { get; private set; } = -1f;
+        public string WandLetzterNameForTests { get; private set; } = "(nichts)";
+        public bool WandLateUpdateLaeuftForTests { get; private set; }
+
         static readonly Vector3 BasePos = new Vector3(0.20f, -0.19f, 0.42f);
         static readonly Vector3 BaseEuler = new Vector3(1.5f, -4f, 0.5f);
 
@@ -526,6 +561,33 @@ namespace Infront
                 atemPos = new Vector3(b.x * -0.012f, b.y * -0.014f, 0f);
             }
 
+            // --- Wand vor der Muendung -------------------------------
+            // Tastkugel statt Strahl: ein Strahl schluepft an Kanten und
+            // Gitterstaeben vorbei, und dann steckt die Waffe doch wieder drin.
+            float wandZiel = 0f;
+            WandLateUpdateLaeuftForTests = true;
+            if (Physics.SphereCast(_cam.position, _wandRadius, _cam.forward,
+                                   out RaycastHit wandHit, _wandAbstand,
+                                   _wandMaske, QueryTriggerInteraction.Ignore))
+            {
+                wandZiel = Mathf.Clamp01(1f - wandHit.distance / Mathf.Max(0.01f, _wandAbstand));
+                WandLetzterTrefferForTests = true;
+                WandLetzteEntfernungForTests = wandHit.distance;
+                WandLetzterNameForTests = wandHit.collider != null
+                    ? wandHit.collider.name : "(kein Collider)";
+            }
+            else
+            {
+                WandLetzterTrefferForTests = false;
+                WandLetzteEntfernungForTests = -1f;
+                WandLetzterNameForTests = "(nichts)";
+            }
+            _wandPose = Mathf.MoveTowards(_wandPose, wandZiel, dt * _wandFolge);
+
+            // Anziehen: zurueck an den Koerper, Muendung hoch und leicht zur Seite.
+            Vector3 wandPos = _wandPose * new Vector3(0.03f, -0.035f, -0.17f);
+            Vector3 wandRot = _wandPose * new Vector3(-26f, 14f, -7f);
+
             // --- alles zusammensetzen --------------------------------
             Vector3 pos = BasePos
                           + new Vector3(_sway.x, _sway.y, 0f)
@@ -534,12 +596,13 @@ namespace Infront
                           + _recoilPos
                           + reloadPos
                           + sprintPos
+                          + wandPos
                           + Vector3.down * (drawDown + landOffset);
 
             Quaternion rot = Quaternion.Euler(BaseEuler
-                          + new Vector3(_recoilRot.x + reloadRot.x - drawRot + sprintRot.x,
-                                        _recoilRot.y + reloadRot.y + sprintRot.y,
-                                        _recoilRot.z + reloadRot.z + sprintRot.z));
+                          + new Vector3(_recoilRot.x + reloadRot.x - drawRot + sprintRot.x + wandRot.x,
+                                        _recoilRot.y + reloadRot.y + sprintRot.y + wandRot.y,
+                                        _recoilRot.z + reloadRot.z + sprintRot.z + wandRot.z));
 
             // --- Zielen ueber Kimme/Korn: Waffe vor die Blickmitte ziehen ---
             float adsT = _npc != null ? _npc.Aim01 : 0f;
@@ -547,6 +610,11 @@ namespace Infront
             {
                 Vector3 adsPos = BasePos + new Vector3(-BasePos.x + 0.005f, 0.02f, -0.05f);
                 Quaternion adsRot = Quaternion.Euler(BaseEuler + new Vector3(0f, 4f, 0f));
+                // Auch im Anschlag bleibt das Anziehen erhalten - sonst faehrt
+                // die Waffe beim Zielen doch wieder in die Wand.
+                adsPos += wandPos;
+                adsRot = Quaternion.Euler(adsRot.eulerAngles + wandRot);
+
                 float k = Mathf.SmoothStep(0f, 1f, adsT) * 0.9f;
                 pos = Vector3.Lerp(pos, adsPos, k);
                 rot = Quaternion.Slerp(rot, adsRot, k);
