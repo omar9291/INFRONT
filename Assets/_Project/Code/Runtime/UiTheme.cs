@@ -52,6 +52,56 @@ namespace Infront
         public static readonly Color Money       = new Color32(0x8B, 0xE6, 0x9B, 0xFF);   // Geldbetrag
         public static readonly Color Armor       = new Color32(0x4F, 0x9B, 0xFF, 0xFF);   // Schutzweste
         public static readonly Color TeamMine    = new Color32(0x5B, 0xA9, 0xFF, 0xFF);   // eigenes Team
+
+        // ------------------------------------------------------------------
+        //  Farben, die sich nach dem Farbmodus richten
+        //
+        //  Die festen Werte oben bleiben, damit nichts kaputtgeht. Wer eine
+        //  Farbe waehlt, die BEDEUTUNG traegt - Leben, Freund, Feind - nimmt
+        //  ab jetzt diese Eigenschaften. Sie liefern im Standardfall genau die
+        //  alten Werte zurueck.
+        // ------------------------------------------------------------------
+
+        /// <summary>Leben in Ordnung.</summary>
+        public static Color Gut => GameSettings.ColorMode switch
+        {
+            // Rot-Gruen-Schwaeche: gruen faellt weg, also blau als "alles gut".
+            GameSettings.Farbmodus.RotGruen => new Color32(0x4D, 0xB2, 0xFF, 0xFF),
+            // Blau-Gelb-Schwaeche: gruen bleibt gut unterscheidbar.
+            GameSettings.Farbmodus.BlauGelb => new Color32(0x4C, 0xD9, 0x64, 0xFF),
+            GameSettings.Farbmodus.HoherKontrast => new Color32(0xF2, 0xF2, 0xF2, 0xFF),
+            _ => Good,
+        };
+
+        /// <summary>Leben mittel.</summary>
+        public static Color Mittel => GameSettings.ColorMode switch
+        {
+            GameSettings.Farbmodus.RotGruen => new Color32(0xFF, 0xD5, 0x4A, 0xFF),
+            GameSettings.Farbmodus.BlauGelb => new Color32(0xE8, 0xE8, 0xE8, 0xFF),
+            GameSettings.Farbmodus.HoherKontrast => new Color32(0x9A, 0x9A, 0x9A, 0xFF),
+            _ => Warn,
+        };
+
+        /// <summary>Leben kritisch.</summary>
+        public static Color Schlecht => GameSettings.ColorMode switch
+        {
+            // Magenta statt Rot: gegen Blau und Gelb klar unterscheidbar, auch
+            // wenn Rot und Gruen ineinanderlaufen.
+            GameSettings.Farbmodus.RotGruen => new Color32(0xFF, 0x3E, 0xC8, 0xFF),
+            GameSettings.Farbmodus.BlauGelb => new Color32(0xE0, 0x3B, 0x2E, 0xFF),
+            GameSettings.Farbmodus.HoherKontrast => new Color32(0x33, 0x33, 0x33, 0xFF),
+            _ => Bad,
+        };
+
+        /// <summary>Eigenes Team.</summary>
+        public static Color Freund => GameSettings.ColorMode == GameSettings.Farbmodus.HoherKontrast
+            ? (Color)new Color32(0xFF, 0xFF, 0xFF, 0xFF)
+            : TeamMine;
+
+        /// <summary>Gegner.</summary>
+        public static Color Gegner => GameSettings.ColorMode == GameSettings.Farbmodus.HoherKontrast
+            ? (Color)new Color32(0x22, 0x22, 0x22, 0xFF)
+            : Foe;
         public static readonly Color TeamFoe     = new Color32(0xFF, 0x6B, 0x5E, 0xFF);   // Gegner
 
         /// <summary>Feste Schriftstufen fuers HUD - nirgends sonst eine Groesse

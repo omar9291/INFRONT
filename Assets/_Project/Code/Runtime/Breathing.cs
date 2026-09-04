@@ -91,6 +91,11 @@ namespace Infront
             float amp = Mathf.Lerp(_amplitudeRuhe, _amplitudeErschoepft, schwere);
             if (_holding) amp *= 0.12f;          // angehalten: fast ruhig
             else if (Aiming) amp *= _amplitudeBeimZielen;
+
+            // "Weniger Bewegung": der Atem bleibt spuerbar, aber der Blick
+            // wandert kaum noch. Wer von der Kamerabewegung Uebelkeit bekommt,
+            // kann sonst gar nicht spielen.
+            amp *= GameSettings.BewegungsFaktor;
             return amp;
         }
 

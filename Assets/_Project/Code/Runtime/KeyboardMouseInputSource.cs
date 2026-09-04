@@ -62,19 +62,73 @@ namespace Infront
             }
         }
 
+        // ------------------------------------------------------------------
+        //  Halten oder Umschalten
+        //
+        //  Zielen, Ducken und Sprinten dauerhaft gedrueckt zu halten ist fuer
+        //  manche Haende schlicht schmerzhaft, und mit nur einer brauchbaren
+        //  Hand geht es gar nicht. Wer will, schaltet stattdessen um. Die
+        //  Tasten bleiben dieselben - nur die Bedeutung des Druckes aendert sich.
+        // ------------------------------------------------------------------
+
+        bool _zielUm;      // Zustand im Umschalt-Betrieb
+        bool _duckUm;
+        bool _sprintUm;
+
+        /// <summary>
+        /// Gemeinsame Regel: im Halte-Betrieb zaehlt der Druck, im
+        /// Umschalt-Betrieb kippt jeder neue Druck den Zustand.
+        /// </summary>
+        static bool HaltenOderUmschalten(bool umschalten, bool gedrueckt, bool neuGedrueckt,
+                                         ref bool zustand)
+        {
+            if (!umschalten)
+            {
+                zustand = false;      // sauber zuruecksetzen fuer den naechsten Wechsel
+                return gedrueckt;
+            }
+            if (neuGedrueckt) zustand = !zustand;
+            return zustand;
+        }
+
         public bool Sprint
         {
-            get { var k = Keyboard.current; return k != null && k.leftShiftKey.isPressed; }
+            get
+            {
+                var k = Keyboard.current;
+                if (k == null) return false;
+                return HaltenOderUmschalten(GameSettings.ToggleSprint,
+                    k.leftShiftKey.isPressed, k.leftShiftKey.wasPressedThisFrame, ref _sprintUm);
+            }
         }
 
         public bool AimHeld
         {
-            get { var m = Mouse.current; return m != null && m.rightButton.isPressed; }
+            get
+            {
+                var m = Mouse.current;
+                if (m == null) return false;
+                return HaltenOderUmschalten(GameSettings.ToggleAim,
+                    m.rightButton.isPressed, m.rightButton.wasPressedThisFrame, ref _zielUm);
+            }
         }
 
         public bool CrouchHeld
         {
-            get { var k = Keyboard.current; return k != null && (k.leftCtrlKey.isPressed || k.rightCtrlKey.isPressed); }
+            get
+            {
+                var k = Keyboard.current;
+                if (k == null) return false;
+                bool gedrueckt = k.leftCtrlKey.isPressed || k.rightCtrlKey.isPressed;
+                bool neu = k.leftCtrlKey.wasPressedThisFrame || k.rightCtrlKey.wasPressedThisFrame;
+                return HaltenOderUmschalten(GameSettings.ToggleCrouch, gedrueckt, neu, ref _duckUm);
+            }
+        }
+
+        /// <summary>Nur fuer Tests: die Umschalt-Zustaende zuruecksetzen.</summary>
+        public void UmschaltZustandZuruecksetzenForTests()
+        {
+            _zielUm = _duckUm = _sprintUm = false;
         }
 
         public bool WalkHeld

@@ -28,6 +28,7 @@ namespace Infront
             go.AddComponent<AudioService>();     // Ton-Ausgabe, ueberlebt Szenenwechsel
             go.AddComponent<PerfOverlay>();      // Leistungsanzeige (F3), standardmaessig aus
             go.AddComponent<BootFlow>();         // Startbildschirm, laeuft genau einmal
+            go.AddComponent<ZugaenglichkeitAnwender>();   // Schriftgroesse der Oberflaeche
             DontDestroyOnLoad(go);
         }
 

@@ -41,7 +41,7 @@ namespace Infront
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuUi : MonoBehaviour
     {
-        enum Page { Spielen, Einstellungen, Steuerung, Quellen, Beenden }
+        enum Page { Spielen, Einstellungen, Zugaenglichkeit, Steuerung, Quellen, Beenden }
 
         // Kurze Hinweise, die in der Navigation langsam durchwechseln.
         static readonly string[] Tips =
@@ -571,6 +571,7 @@ namespace Infront
             nav.style.marginRight = 44f;
             nav.Add(NavButton("SPIELEN", Page.Spielen));
             nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
+            nav.Add(NavButton("ZUGAENGLICHKEIT", Page.Zugaenglichkeit));
             nav.Add(NavButton("STEUERUNG", Page.Steuerung));
             nav.Add(NavButton("QUELLEN", Page.Quellen));
 
@@ -860,6 +861,7 @@ namespace Infront
             {
                 case Page.Spielen: BuildSpielen(_pageHost); break;
                 case Page.Einstellungen: BuildEinstellungen(_pageHost); break;
+                case Page.Zugaenglichkeit: BuildZugaenglichkeit(_pageHost); break;
                 case Page.Steuerung: BuildSteuerung(_pageHost); break;
                 case Page.Quellen: BuildQuellen(_pageHost); break;
                 case Page.Beenden: BuildBeenden(_pageHost); break;
@@ -1269,6 +1271,152 @@ namespace Infront
         // ------------------------------------------------------------------
         //  Seite: EINSTELLUNGEN  (einmal einstellen, nie wieder anfassen)
         // ------------------------------------------------------------------
+
+        // ------------------------------------------------------------------
+        //  Seite: ZUGAENGLICHKEIT
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// Eine eigene Seite, nicht ein Kasten unten in den Einstellungen.
+        /// Wer diese Sachen braucht, soll sie finden, ohne zu suchen.
+        /// </summary>
+        void BuildZugaenglichkeit(VisualElement host)
+        {
+            Hinweis(host,
+                "Diese Einstellungen aendern nichts am Schwierigkeitsgrad. "
+                + "Sie aendern nur, wie das Spiel aussieht und wie es bedient wird.");
+
+            // --- Schriftgroesse ---------------------------------------------
+            host.Add(UiTheme.Gap(18f));
+            host.Add(UiTheme.Section("GROESSE DER ANZEIGE"));
+            host.Add(Regler("slider-uiscale", 0.8f, 1.6f, GameSettings.UiScale, "0.00", v =>
+            {
+                GameSettings.UiScale = v;
+                GameSettings.Save();
+                Zugaenglichkeit.UiGroesseAnwenden();
+            }));
+            Hinweis(host, "Vergroessert Menue und Anzeige im Spiel gemeinsam.");
+
+            // --- Fadenkreuz --------------------------------------------------
+            host.Add(UiTheme.Gap(18f));
+            host.Add(UiTheme.Section("FADENKREUZ"));
+            host.Add(Regler("slider-crosshair", 0.6f, 2f, GameSettings.CrosshairScale, "0.00", v =>
+            {
+                GameSettings.CrosshairScale = v;
+                GameSettings.Save();
+            }));
+            Hinweis(host, "Groesser und dicker. Ein Fadenkreuz, das man nicht sieht, "
+                          + "macht das ganze Spiel unspielbar.");
+
+            // --- Farben ------------------------------------------------------
+            host.Add(UiTheme.Gap(24f));
+            host.Add(UiTheme.Section("FARBEN"));
+            host.Add(Segmented("seg-farbe",
+                new[] { "STANDARD", "ROT-GRUEN", "BLAU-GELB", "KONTRAST" },
+                (int)GameSettings.ColorMode, i =>
+                {
+                    GameSettings.ColorMode = (GameSettings.Farbmodus)i;
+                    GameSettings.Save();
+                }));
+            Hinweis(host,
+                "Betrifft vor allem die Lebensanzeige. Gruen-gelb-rot laeuft bei "
+                + "Rot-Gruen-Schwaeche ineinander; dann wird daraus blau-gelb-magenta.");
+
+            // --- Bewegung ----------------------------------------------------
+            host.Add(UiTheme.Gap(24f));
+            host.Add(UiTheme.Section("WENIGER BEWEGUNG"));
+            host.Add(Segmented("seg-motion", new[] { "AUS", "AN" },
+                GameSettings.ReduceMotion ? 1 : 0, i =>
+                {
+                    GameSettings.ReduceMotion = i == 1;
+                    GameSettings.Save();
+                }));
+            Hinweis(host,
+                "Daempft Atem-Schwenk und Waffenwippen stark. Wenn dir vom Bild "
+                + "schlecht wird, liegt das nicht an dir - schalte das hier an.");
+
+            // --- Halten oder Umschalten --------------------------------------
+            host.Add(UiTheme.Gap(24f));
+            host.Add(UiTheme.Section("HALTEN ODER UMSCHALTEN"));
+
+            host.Add(Zeile("ZIELEN", "seg-toggleaim", GameSettings.ToggleAim, v =>
+            {
+                GameSettings.ToggleAim = v; GameSettings.Save();
+            }));
+            host.Add(Zeile("DUCKEN", "seg-togglecrouch", GameSettings.ToggleCrouch, v =>
+            {
+                GameSettings.ToggleCrouch = v; GameSettings.Save();
+            }));
+            host.Add(Zeile("SPRINTEN", "seg-togglesprint", GameSettings.ToggleSprint, v =>
+            {
+                GameSettings.ToggleSprint = v; GameSettings.Save();
+            }));
+            Hinweis(host,
+                "Dauerhaft gedrueckt halten tut auf Dauer weh, und mit einer Hand "
+                + "geht es gar nicht. Die Tasten bleiben dieselben.");
+        }
+
+        /// <summary>Beschriftete Zeile mit HALTEN/UMSCHALTEN.</summary>
+        VisualElement Zeile(string titel, string name, bool an, Action<bool> setzen)
+        {
+            var reihe = new VisualElement();
+            reihe.style.flexDirection = FlexDirection.Row;
+            reihe.style.alignItems = Align.Center;
+            reihe.style.marginTop = 8f;
+
+            var l = new Label(titel);
+            l.style.color = UiTheme.TextDim;
+            l.style.fontSize = 12f;
+            l.style.letterSpacing = 2f;
+            l.style.width = 130f;
+            reihe.Add(l);
+
+            var seg = Segmented(name, new[] { "HALTEN", "UMSCHALTEN" }, an ? 1 : 0,
+                                i => setzen(i == 1));
+            seg.style.flexGrow = 1f;
+            reihe.Add(seg);
+            return reihe;
+        }
+
+        /// <summary>Kleiner grauer Erklaertext unter einer Einstellung.</summary>
+        static void Hinweis(VisualElement host, string text)
+        {
+            var l = new Label(text);
+            l.style.color = UiTheme.TextDim;
+            l.style.fontSize = 11f;
+            l.style.marginTop = 6f;
+            l.style.whiteSpace = WhiteSpace.Normal;
+            host.Add(l);
+        }
+
+        /// <summary>Regler mit Zahl daneben. Dieselbe Optik wie Maus und Lautstaerke.</summary>
+        static VisualElement Regler(string name, float min, float max, float wert,
+                                    string format, Action<float> setzen)
+        {
+            var reihe = new VisualElement();
+            reihe.style.flexDirection = FlexDirection.Row;
+            reihe.style.alignItems = Align.Center;
+            reihe.style.marginTop = 6f;
+
+            var slider = new Slider(min, max) { value = wert, name = name };
+            slider.style.flexGrow = 1f;
+
+            var zahl = new Label(wert.ToString(format));
+            zahl.style.color = UiTheme.Ice;
+            zahl.style.width = 64f;
+            zahl.style.unityTextAlign = TextAnchor.MiddleRight;
+            zahl.style.unityFontStyleAndWeight = FontStyle.Bold;
+
+            slider.RegisterValueChangedCallback(ev =>
+            {
+                setzen(ev.newValue);
+                zahl.text = ev.newValue.ToString(format);
+            });
+
+            reihe.Add(slider);
+            reihe.Add(zahl);
+            return reihe;
+        }
 
         void BuildEinstellungen(VisualElement host)
         {

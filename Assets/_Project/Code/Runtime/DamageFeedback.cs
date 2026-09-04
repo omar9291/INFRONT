@@ -151,13 +151,22 @@ namespace Infront
             {
                 float cx = Screen.width / 2f, cy = Screen.height / 2f;
                 float spread = _controller != null ? _controller.CrosshairSpread01 : 0f;
-                float gap = 4f + spread * 26f + _hitFlash * 7f;
-                float len = 9f;
+
+                // Groesse des Fadenkreuzes ist einstellbar. Bei 1600 mal 780 auf
+                // einem grossen Bildschirm ist das Standardkreuz fuer manche
+                // Augen schlicht zu duenn - und ein Fadenkreuz, das man nicht
+                // sieht, macht das ganze Spiel unspielbar.
+                float k = Mathf.Clamp(GameSettings.CrosshairScale, 0.6f, 2f);
+                float gap = (4f + spread * 26f + _hitFlash * 7f) * k;
+                float len = 9f * k;
+                float dick = Mathf.Max(1f, Mathf.Round(2f * k));
+                float halb = dick * 0.5f;
+
                 GUI.color = _hitFlash > 0f ? new Color(1f, 0.55f, 0.25f, 0.95f) : new Color(1f, 1f, 1f, 0.7f);
-                GUI.DrawTexture(new Rect(cx - 1, cy - gap - len, 2, len), Texture2D.whiteTexture);
-                GUI.DrawTexture(new Rect(cx - 1, cy + gap, 2, len), Texture2D.whiteTexture);
-                GUI.DrawTexture(new Rect(cx - gap - len, cy - 1, len, 2), Texture2D.whiteTexture);
-                GUI.DrawTexture(new Rect(cx + gap, cy - 1, len, 2), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(cx - halb, cy - gap - len, dick, len), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(cx - halb, cy + gap, dick, len), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(cx - gap - len, cy - halb, len, dick), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(cx + gap, cy - halb, len, dick), Texture2D.whiteTexture);
 
                 // Abschuss-Haken: ein kräftiges X über dem Fadenkreuz.
                 if (_killMark > 0f)

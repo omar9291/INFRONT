@@ -389,7 +389,7 @@ namespace Infront
             _hpFill.style.position = Position.Absolute;
             _hpFill.style.left = 0f; _hpFill.style.top = 0f; _hpFill.style.bottom = 0f;
             _hpFill.style.width = Length.Percent(100f);
-            _hpFill.style.backgroundColor = UiTheme.Good;
+            _hpFill.style.backgroundColor = UiTheme.Gut;
 
             _hpText = new Label("100");
             _hpText.style.color = Color.white;
@@ -1082,7 +1082,7 @@ namespace Infront
 
             int secs = Mathf.Max(0, Mathf.CeilToInt((float)match.SecondsRemaining));
             _clock.text = $"{secs / 60}:{secs % 60:00}";
-            _clock.style.color = secs <= 10 && !match.IsFrozen ? UiTheme.Bad : UiTheme.Text;
+            _clock.style.color = secs <= 10 && !match.IsFrozen ? UiTheme.Schlecht : UiTheme.Text;
 
             _roundInfo.text = $"RUNDE BIS {match.RoundsToWin}";
 
@@ -1110,7 +1110,7 @@ namespace Infront
             {
                 int t = Mathf.CeilToInt(bomb.FuseSecondsLeft);
                 status = $"BOMBE GELEGT   {t}";
-                statusColor = UiTheme.Bad;
+                statusColor = UiTheme.Schlecht;
             }
             else if (match.IsFrozen || match.IsBuyTime)
             {
@@ -1233,7 +1233,7 @@ namespace Infront
                     float s = _hpShakeT * 6f;
                     _statusBox.style.translate = new Translate(
                         Mathf.Sin(Time.unscaledTime * 90f) * s, Mathf.Cos(Time.unscaledTime * 70f) * s * 0.5f, 0f);
-                    UiTheme.Border(_statusBox, 1f, Color.Lerp(UiTheme.HudLine, UiTheme.Bad, _hpShakeT));
+                    UiTheme.Border(_statusBox, 1f, Color.Lerp(UiTheme.HudLine, UiTheme.Schlecht, _hpShakeT));
                 }
                 else
                 {
@@ -1251,8 +1251,8 @@ namespace Infront
                 _hpText.text = health.Current.ToString();
 
                 Color hpc = f > 0.5f
-                    ? Color.Lerp(UiTheme.Warn, UiTheme.Good, (f - 0.5f) * 2f)
-                    : Color.Lerp(UiTheme.Bad, UiTheme.Warn, f * 2f);
+                    ? Color.Lerp(UiTheme.Mittel, UiTheme.Gut, (f - 0.5f) * 2f)
+                    : Color.Lerp(UiTheme.Schlecht, UiTheme.Mittel, f * 2f);
                 if (_hpFlash > 0f)
                 {
                     _hpFlash = Mathf.Max(0f, _hpFlash - dt * 3f);
@@ -1289,7 +1289,7 @@ namespace Infront
                 _ammoMag.text = "/ " + weapon.MagazineSize;
                 bool low = weapon.MagazineSize > 0 && weapon.Ammo <= weapon.MagazineSize * 0.25f;
                 _ammoText.style.color = weapon.IsReloading ? UiTheme.Accent
-                    : low ? UiTheme.Bad : UiTheme.Text;
+                    : low ? UiTheme.Schlecht : UiTheme.Text;
 
                 if (_ammoPulse > 0f)
                 {

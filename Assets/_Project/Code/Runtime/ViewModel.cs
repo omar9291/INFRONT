@@ -456,7 +456,8 @@ namespace Infront
             float speed = _testBobSpeed >= 0f ? _testBobSpeed : HorizontalCameraSpeed();
             float speed01 = Mathf.Clamp01(speed / 10f);
             _bobPhase += dt * (6f + speed01 * 8f);
-            float bobAmt = Mathf.Lerp(0.0015f, 0.02f, speed01);
+            // "Weniger Bewegung" daempft auch das Laufwippen der Waffe.
+            float bobAmt = Mathf.Lerp(0.0015f, 0.02f, speed01) * GameSettings.BewegungsFaktor;
             Vector3 bob = new Vector3(
                 Mathf.Cos(_bobPhase) * bobAmt,
                 Mathf.Abs(Mathf.Sin(_bobPhase)) * bobAmt * -1f,
