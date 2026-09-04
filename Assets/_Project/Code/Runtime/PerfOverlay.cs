@@ -165,9 +165,9 @@ namespace Infront
             _sb.Append($"min {_fpsMin,4:0}   max {_fpsMax,4:0}   1% ")
                .Append(Colorize($"{_fps1Low,3:0}", _fps1Low)).Append('\n');
             _sb.Append($"RAM {ram} / {ramReserved} MB\n");
-            _sb.Append($"Ton  {voices} Quellen aktiv\n");
+            _sb.Append($"Audio  {voices} sources active\n");
             _sb.Append($"{Screen.width}x{Screen.height}   VSync {QualitySettings.vSyncCount}\n");
-            _sb.Append($"Bild: {GameSettings.GraphicsQuality}\n");
+            _sb.Append($"Graphics: {GameSettings.GraphicsQuality}\n");
             _sb.Append(SystemInfo.graphicsDeviceName);
 
             const float w = 260f, x = 8f, y = 8f;

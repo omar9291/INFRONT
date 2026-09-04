@@ -99,7 +99,7 @@ namespace Infront
             foreach (var m in Combatants.Everyone)
                 if (m != null && m.NetworkObject != null && m.NetworkObject.NetworkObjectId == objectId)
                     return m.DisplayName;
-            return "Jemand";
+            return "Someone";
         }
     }
 }

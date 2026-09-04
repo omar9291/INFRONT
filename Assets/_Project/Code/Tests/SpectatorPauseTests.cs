@@ -59,7 +59,7 @@ namespace Infront.Tests
 
             string who = player.SpectatingName;
             Assert.IsNotNull(who, "Kein Zuschau-Ziel angezeigt.");
-            Assert.IsTrue(who.StartsWith("Gegner"),
+            Assert.IsTrue(who.StartsWith("Enemy"),
                 $"Sollte einem Gegner zuschauen, Anzeige war aber: {who}");
         }
 

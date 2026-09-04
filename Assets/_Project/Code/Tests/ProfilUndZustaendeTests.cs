@@ -192,7 +192,7 @@ namespace Infront.Tests
             string text = "";
             f.Query<Label>().ForEach(l => text += " " + l.text.ToLowerInvariant());
 
-            foreach (var schuld in new[] { "du hast", "dein fehler", "falsch gemacht" })
+            foreach (var schuld in new[] { "you did", "your fault", "your mistake", "did it wrong" })
                 Assert.IsFalse(text.Contains(schuld),
                     $"Der Fehlertext schiebt dem Spieler die Schuld zu ('{schuld}').");
         }

@@ -278,12 +278,18 @@ namespace Infront
         }
 
         /// <summary>Ist die aktive Waffe die Maschinenpistole? (Das Sturmgewehr
-        /// baut sonst denselben Zweig - die MP soll kompakter aussehen.)</summary>
+        /// baut sonst denselben Zweig - die MP soll kompakter aussehen.)
+        ///
+        /// Geprueft wird der ASSET-Name, nicht DisplayName. DisplayName ist der
+        /// Text, den der Spieler sieht, und der ist seit der Englisch-Umstellung
+        /// "SMG" - eine Anzeige darf nie steuern, welches Modell gebaut wird.
+        /// Die Asset-Namen bleiben deutsch, weil sie in Speicherdaten und
+        /// Katalog-Verweisen stehen.</summary>
         bool IsSubmachineGun()
         {
             var s = _weapon != null ? _weapon.Stats : null;
-            return s != null && !string.IsNullOrEmpty(s.DisplayName)
-                   && s.DisplayName.IndexOf("aschinenpistole", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return s != null && !string.IsNullOrEmpty(s.name)
+                   && s.name.IndexOf("aschinenpistole", System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         // ----- Pistole -----------------------------------------------------
@@ -366,9 +372,9 @@ namespace Infront
             var s = _weapon != null ? _weapon.Stats : null;
             if (s == null) return null;
             if (s.SlotKind == WeaponStats.Slot.Pistole) return "waffe_pistole";
-            if (!string.IsNullOrEmpty(s.DisplayName)
-                && s.DisplayName.IndexOf("scharfsch", System.StringComparison.OrdinalIgnoreCase) >= 0)
-                return "waffe_sniper";
+            // Zielfernrohr statt Name: nur das Scharfschuetzengewehr hat eins.
+            // Ein Anzeigetext darf nicht entscheiden, welches Modell erscheint.
+            if (s.ScopeZoom >= 2f) return "waffe_sniper";
             return null;
         }
 

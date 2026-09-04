@@ -36,22 +36,22 @@ namespace Infront
         public static readonly Karte[] Karten =
         {
             new Karte {
-                Titel = "DU BIST SCHWER",
-                Text  = "Du gehst und drehst dich langsamer als in den meisten Shootern. "
-                      + "Das ist Absicht. Anlaufen, Abbremsen und Landen kosten Zeit - "
-                      + "plane deine Wege, statt zu zappeln.",
+                Titel = "YOU ARE HEAVY",
+                Text  = "You walk and turn slower than in most shooters. "
+                      + "That is on purpose. Accelerating, braking and landing all cost time - "
+                      + "plan your route instead of twitching around.",
             },
             new Karte {
-                Titel = "DEIN ATEM ZAEHLT",
-                Text  = "Nach dem Sprinten geht dein Atem schwer und das Bild wandert. "
-                      + "Beim Zielen kannst du mit Umschalt die Luft anhalten - "
-                      + "aber nur ein paar Sekunden, danach wird es schlimmer als vorher.",
+                Titel = "YOUR BREATHING MATTERS",
+                Text  = "After sprinting your breathing gets heavy and the view drifts. "
+                      + "While aiming you can hold your breath with Shift - "
+                      + "but only for a few seconds, after that it gets worse than before.",
             },
             new Karte {
-                Titel = "TREFFER SIND UNTERSCHIEDLICH",
-                Text  = "Kopf, Rumpf, Arme und Beine zaehlen getrennt. Beintreffer bremsen, "
-                      + "Armtreffer machen dein Zielen unruhig, und Wunden bluten weiter, "
-                      + "bis du ein Verbandspaket benutzt.",
+                Titel = "NOT ALL HITS ARE EQUAL",
+                Text  = "Head, torso, arms and legs count separately. Leg hits slow you down, "
+                      + "arm hits make your aim shaky, and wounds keep bleeding "
+                      + "until you use a med kit.",
             },
         };
 
@@ -142,13 +142,13 @@ namespace Infront
             reihe.style.justifyContent = Justify.SpaceBetween;
             reihe.style.marginTop = 22f;
 
-            var ueber = new Button(Ueberspringen) { text = "UEBERSPRINGEN" };
+            var ueber = new Button(Ueberspringen) { text = "SKIP" };
             ueber.name = "firstrun-skip";
             Schmuecke(ueber, leise: true);
 
             var weiter = new Button(Weiter)
             {
-                text = _index >= Karten.Length - 1 ? "LOS GEHT'S" : "WEITER",
+                text = _index >= Karten.Length - 1 ? "LET'S GO" : "NEXT",
             };
             weiter.name = "firstrun-next";
             Schmuecke(weiter, leise: false);

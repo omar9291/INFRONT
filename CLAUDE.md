@@ -11,7 +11,19 @@ Studio-Marke: Driftlab.
 
 ## Die wichtigsten Regeln fuer dieses Projekt
 
-- Deutsch: alle Antworten, Code-Kommentare und Oberflaechentexte auf Deutsch.
+- Sprache (Stand 2026-09-04): **alles, was der Spieler sieht, ist Englisch** —
+  Menue, HUD, Kaufmenue, Bot-Funksprueche, Waffen- und Faehigkeitsnamen,
+  Ladebildschirm, Absturzbericht. Grund: Reichweite. **Deutsch bleiben**
+  Code-Kommentare, XML-Doku, Bezeichner, Enum-Werte, Testnamen und
+  Test-Meldungen, Debug-Ausgaben, `[Tooltip]`/`[Header]` im Inspector und
+  diese Dokumentation. Ebenfalls deutsch bleiben **Asset-Dateinamen**
+  (Sturmgewehr.asset, Faehigkeit_Rauchwand.asset), **SoundId-Namen**,
+  **PlayerPrefs-Schluessel** und die Dateinamen im Spielerordner
+  (profil.json, statistik.json, abstuerze/) — die stehen in Speicherdaten
+  und in Katalog-Verweisen; umbenennen wuerde Fortschritt zerstoeren.
+  **Nie einen Anzeigetext (DisplayName) als Schalter im Code auswerten** —
+  genau daran waere bei dieser Umstellung das Waffenmodell kaputtgegangen.
+  Antworten im Chat: Englisch.
 - Modellwechsel: denkende Arbeit auf Opus/hoher Effort, umsetzende auf
   Sonnet/Auto. STOPP-Zeilen vor Diagnose/Planung und nach bestaetigtem Plan.
 - Rueckfragen immer mit Auswahlmoeglichkeiten stellen (AskUserQuestion),

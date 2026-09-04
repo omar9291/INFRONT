@@ -123,7 +123,7 @@ namespace Infront.Tests
             var inhalt = File.ReadAllText(datei);
             Assert.IsTrue(inhalt.Contains("Etwas ist schiefgegangen"),
                 "Die Meldung muesste im Bericht stehen.");
-            Assert.IsTrue(inhalt.Contains("Es wird nichts verschickt"),
+            Assert.IsTrue(inhalt.Contains("Nothing is sent anywhere"),
                 "Im Bericht muesste stehen, dass er nirgendwo hingeht - sonst weiss "
                 + "der Spieler nicht, was damit passiert.");
         }
@@ -177,7 +177,7 @@ namespace Infront.Tests
         [UnityTest]
         public IEnumerator Die_Seite_Deine_Daten_steht_im_Menue()
         {
-            yield return MenuUiHarness.OeffneSeite("DEINE DATEN");
+            yield return MenuUiHarness.OeffneSeite("YOUR DATA");
 
             Assert.IsNotNull(MenuUiHarness.Finde("btn-ordner"),
                 "Es muesste einen Knopf geben, der den Ordner oeffnet - sonst ist die "

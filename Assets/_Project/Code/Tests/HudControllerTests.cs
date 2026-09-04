@@ -97,7 +97,7 @@ namespace Infront.Tests
             for (int i = 0; i < 10; i++) yield return null;
 
             string s = hud.StatusLineForTests;
-            Assert.IsTrue(s != null && s.Contains("KAUFZEIT"),
+            Assert.IsTrue(s != null && s.Contains("BUY TIME"),
                 $"Die Statuszeile zeigt die Kaufzeit nicht an (war: '{s}').");
 
             match.ForceBuyTimeForTests = false;

@@ -78,35 +78,35 @@ namespace Infront
                 string datei = Path.Combine(Ordner, $"absturz-{stempel}-{_dieseSitzung}.txt");
 
                 var sb = new StringBuilder();
-                sb.AppendLine("INFRONT - Absturzbericht");
-                sb.AppendLine("Diese Datei liegt nur auf diesem Rechner. Es wird nichts verschickt.");
-                sb.AppendLine("Wenn du willst, kannst du sie selbst weitergeben.");
+                sb.AppendLine("INFRONT - crash report");
+                sb.AppendLine("This file stays on this computer. Nothing is sent anywhere.");
+                sb.AppendLine("If you want to, you can pass it on yourself.");
                 sb.AppendLine();
-                sb.AppendLine("Zeitpunkt:   " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss",
+                sb.AppendLine("Time:        " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss",
                                                                      CultureInfo.InvariantCulture));
-                sb.AppendLine("Art:         " + art);
-                sb.AppendLine("Spielstand:  " + Application.version);
+                sb.AppendLine("Kind:        " + art);
+                sb.AppendLine("Build:       " + Application.version);
                 sb.AppendLine("Unity:       " + Application.unityVersion);
                 sb.AppendLine("System:      " + SystemInfo.operatingSystem);
-                sb.AppendLine("Prozessor:   " + SystemInfo.processorType);
-                sb.AppendLine("Grafik:      " + SystemInfo.graphicsDeviceName
+                sb.AppendLine("CPU:         " + SystemInfo.processorType);
+                sb.AppendLine("Graphics:    " + SystemInfo.graphicsDeviceName
                               + " (" + SystemInfo.graphicsDeviceType + ")");
-                sb.AppendLine("Speicher:    " + SystemInfo.systemMemorySize + " MB");
-                sb.AppendLine("Szene:       "
+                sb.AppendLine("Memory:      " + SystemInfo.systemMemorySize + " MB");
+                sb.AppendLine("Scene:       "
                               + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
                 sb.AppendLine();
-                sb.AppendLine("Meldung:");
+                sb.AppendLine("Message:");
                 sb.AppendLine(nachricht);
                 sb.AppendLine();
-                sb.AppendLine("Aufrufstapel:");
-                sb.AppendLine(string.IsNullOrEmpty(stapel) ? "(keiner)" : stapel);
+                sb.AppendLine("Call stack:");
+                sb.AppendLine(string.IsNullOrEmpty(stapel) ? "(none)" : stapel);
 
                 File.WriteAllText(datei, sb.ToString());
                 AufraeumenAltes();
 
                 // Sagen, dass etwas geschrieben wurde. Sonst passiert das
                 // lautlos, und niemand weiss, dass es die Datei gibt.
-                Meldungen.Zeige("Fehlerbericht geschrieben - siehe DEINE DATEN",
+                Meldungen.Zeige("Crash report written - see YOUR DATA",
                                 Meldungen.Art.Fehler);
             }
             catch (Exception)

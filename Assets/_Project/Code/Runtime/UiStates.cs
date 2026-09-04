@@ -101,29 +101,29 @@ namespace Infront
         /// <summary>Noch keine Runde gespielt.</summary>
         public static VisualElement KeineLaufbahn(Action spielen) => Panel(
             Kind.Leer,
-            "NOCH KEINE RUNDE",
-            "Hier stehen deine Siege, Serien und Aces, sobald du gespielt hast.",
-            "ERSTE RUNDE STARTEN", spielen);
+            "NO ROUNDS YET",
+            "Your wins, streaks and aces show up here once you have played.",
+            "START YOUR FIRST ROUND", spielen);
 
         /// <summary>Es dauert gerade. Kein Ausweg-Knopf - warten ist die Aktion.</summary>
         public static VisualElement Laedt(string was) => Panel(
-            Kind.Laedt, "LAEDT", was);
+            Kind.Laedt, "LOADING", was);
 
         /// <summary>Etwas ist schiefgegangen.</summary>
         public static VisualElement Fehler(string grund, Action nochmal) => Panel(
             Kind.Fehler,
-            "DAS HAT NICHT GEKLAPPT",
-            grund + "\n\nDas liegt nicht an dir. Versuch es noch einmal - " +
-            "wenn es wieder passiert, steht der Grund im Fehlerbericht.",
-            "NOCHMAL VERSUCHEN", nochmal);
+            "THAT DID NOT WORK",
+            grund + "\n\nThis is not on you. Give it another try - " +
+            "if it happens again, the reason is in the crash report.",
+            "TRY AGAIN", nochmal);
 
         /// <summary>Verbindung weg. Im Host-Modus heisst das: die Runde ist vorbei.</summary>
         public static VisualElement Netz(Action zurueck) => Panel(
             Kind.Netz,
-            "VERBINDUNG VERLOREN",
-            "Das Spiel laeuft als eigener Host auf diesem Rechner. Wenn die " +
-            "Verbindung abreisst, ist die laufende Runde nicht mehr zu retten - " +
-            "dein Fortschritt in der Laufbahn bleibt aber gespeichert.",
-            "ZURUECK INS MENUE", zurueck);
+            "CONNECTION LOST",
+            "The game runs as its own host on this computer. If the " +
+            "connection drops, the running round cannot be saved - " +
+            "but your career progress stays saved.",
+            "BACK TO MENU", zurueck);
     }
 }

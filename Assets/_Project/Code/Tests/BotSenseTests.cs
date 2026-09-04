@@ -81,7 +81,7 @@ namespace Infront.Tests
                 "Der Bot hat beim Entdecken nichts angesagt.");
             MatchManager.Instance.CalloutReported -= OnCallout;
 
-            Assert.IsTrue(got.Contains("Feind") || got.Contains("Hilfe") || got.Contains("Hoere"),
+            Assert.IsTrue(got.Contains("Enemy") || got.Contains("help") || got.Contains("hear"),
                 $"Unerwartete Ansage: {got}");
         }
     }

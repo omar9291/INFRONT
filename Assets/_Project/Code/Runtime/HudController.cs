@@ -630,12 +630,12 @@ namespace Infront
             _roundOverSub.style.display = DisplayStyle.None;
             _roundOverPanel.Add(_roundOverSub);
 
-            _roundOverNext = MenuButton("SOFORT WEITER", () =>
+            _roundOverNext = MenuButton("CONTINUE NOW", () =>
             {
                 var mm = MatchManager.Instance;
                 if (mm != null && mm.IsServer) mm.ServerStartNextRoundNow();
             });
-            _roundOverMenu = MenuButton("ZURUECK ZUM MENUE", () =>
+            _roundOverMenu = MenuButton("BACK TO MENU", () =>
             {
                 if (GameFlow.Instance != null) GameFlow.Instance.ToMenu();
             });
@@ -715,7 +715,7 @@ namespace Infront
             hn.style.fontSize = UiTheme.FontM;
             hn.style.unityFontStyleAndWeight = FontStyle.Bold;
             hn.style.letterSpacing = 3f;
-            var hk = new Label("K  /  T");
+            var hk = new Label("K  /  D");
             hk.style.color = UiTheme.TextDim;
             hk.style.fontSize = UiTheme.FontXS;
             hk.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -761,7 +761,7 @@ namespace Infront
             corner.style.backgroundColor = UiTheme.Accent;
             _buyPanel.Add(corner);
 
-            _buyTitle = new Label("KAUFMENUE");
+            _buyTitle = new Label("BUY MENU");
             _buyTitle.style.color = UiTheme.Text;
             _buyTitle.style.fontSize = UiTheme.FontL;
             _buyTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -775,17 +775,17 @@ namespace Infront
             _buyWeapons = new VisualElement();
             _buyWeapons.style.flexGrow = 1f; _buyWeapons.style.flexBasis = 0f;
             _buyWeapons.style.marginRight = 20f;
-            _buyWeapons.Add(UiTheme.Section("WAFFEN"));
+            _buyWeapons.Add(UiTheme.Section("WEAPONS"));
 
             _buyGear = new VisualElement();
             _buyGear.style.flexGrow = 1f; _buyGear.style.flexBasis = 0f;
-            _buyGear.Add(UiTheme.Section("AUSRUESTUNG & FAEHIGKEITEN"));
+            _buyGear.Add(UiTheme.Section("GEAR & ABILITIES"));
 
             cols.Add(_buyWeapons);
             cols.Add(_buyGear);
             _buyPanel.Add(cols);
 
-            _buyReady = MenuButton("BEREIT  ·  KAUFZEIT BEENDEN", () => BuyMenuHud.Local?.Ready());
+            _buyReady = MenuButton("READY  ·  END BUY TIME", () => BuyMenuHud.Local?.Ready());
             _buyReady.style.marginTop = 18f;
             _buyReady.style.minWidth = 0f;
             _buyPanel.Add(_buyReady);
@@ -807,7 +807,7 @@ namespace Infront
             if (bm.ShouldShowHint)
             {
                 _buyHint.style.display = DisplayStyle.Flex;
-                _buyHint.text = $"KAUFZEIT {secs}s   ·   [B] FUER KAUFMENUE";
+                _buyHint.text = $"BUY TIME {secs}s   ·   [B] FOR BUY MENU";
             }
             else _buyHint.style.display = DisplayStyle.None;
 
@@ -815,7 +815,7 @@ namespace Infront
             _buyDim.style.display = DisplayStyle.Flex;
 
             int money = bm.Money;
-            _buyTitle.text = $"KAUFMENUE      $ {money}      {secs}s";
+            _buyTitle.text = $"BUY MENU      $ {money}      {secs}s";
 
             // Signatur: was koennte die Zeilen aendern? Geld-Stufe, Besitz, Kit-Angebot
             int sig = money / 50;
@@ -851,18 +851,18 @@ namespace Infront
                 bool afford = money >= e.Price && !owned;
                 int idx = i;
                 _buyWeapons.Add(BuyRow($"{i + 1}", e.DisplayName,
-                    owned ? "gekauft" : $"$ {e.Price}", owned, afford,
+                    owned ? "owned" : $"$ {e.Price}", owned, afford,
                     () => bm.BuyWeapon(idx)));
             }
 
-            _buyGear.Add(BuyRow("4", "Schutzweste",
-                bm.OwnsArmor ? "gekauft" : $"$ {bm.Agent.ArmorPrice}",
+            _buyGear.Add(BuyRow("4", "Body Armor",
+                bm.OwnsArmor ? "owned" : $"$ {bm.Agent.ArmorPrice}",
                 bm.OwnsArmor, money >= bm.Agent.ArmorPrice && !bm.OwnsArmor,
                 () => bm.BuyArmor()));
 
             if (bm.KitOffered)
-                _buyGear.Add(BuyRow("5", "Entschaerfungs-Kit",
-                    bm.OwnsKit ? "gekauft" : $"$ {bm.Agent.KitPrice}",
+                _buyGear.Add(BuyRow("5", "Defuse Kit",
+                    bm.OwnsKit ? "owned" : $"$ {bm.Agent.KitPrice}",
                     bm.OwnsKit, money >= bm.Agent.KitPrice && !bm.OwnsKit,
                     () => bm.BuyKit()));
 
@@ -879,7 +879,7 @@ namespace Infront
                 string key = i < 5 ? ((i + 6) % 10).ToString() : "";
                 int idx = i;
                 _buyGear.Add(BuyRow(key, $"{a.DisplayName}  ({slot})",
-                    have ? "gekauft" : $"$ {a.Price}", have,
+                    have ? "owned" : $"$ {a.Price}", have,
                     money >= a.Price && !have, () => bm.BuyAbility(idx)));
             }
         }
@@ -961,8 +961,8 @@ namespace Infront
             title.style.marginBottom = 18f;
             box.Add(title);
 
-            var resume = MenuButton("WEITER", () => PauseMenu.SetPausedExternally(false));
-            var quit = MenuButton("SPIEL BEENDEN", () =>
+            var resume = MenuButton("RESUME", () => PauseMenu.SetPausedExternally(false));
+            var quit = MenuButton("QUIT GAME", () =>
             {
                 PauseMenu.ForceResume();
                 if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
@@ -1007,17 +1007,22 @@ namespace Infront
             UpdatePause();
         }
 
+        /// <summary>Nur fuer Tests und den Oberflaechen-Rundgang: Punktetabelle
+        /// zeigen, ohne Tab zu druecken. Synthetische Tasten sind auf diesem
+        /// Rechner gesperrt, sonst gaebe es davon nie ein Bild.</summary>
+        public bool ForceScoreboardForTests;
+
         void UpdateScoreboard()
         {
             var kb = Keyboard.current;
-            bool show = kb != null && kb.tabKey.isPressed;
+            bool show = ForceScoreboardForTests || (kb != null && kb.tabKey.isPressed);
             _scoreboard.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
             if (!show) return;
 
             var mm = MatchManager.Instance;
             _scoreboardTitle.text = mm != null
                 ? $"ALPHA  {mm.GetScore(Team.Alpha)}   :   {mm.GetScore(Team.Bravo)}  BRAVO"
-                : "PUNKTETABELLE";
+                : "SCOREBOARD";
 
             FillSbColumn(_sbAlpha, Team.Alpha);
             FillSbColumn(_sbBravo, Team.Bravo);
@@ -1054,7 +1059,7 @@ namespace Infront
                 bool alive = m.Health != null && m.Health.IsAlive;
                 var nm = r.Q<Label>("n");
                 var kd = r.Q<Label>("kd");
-                nm.text = m.DisplayName + (alive ? "" : "  (tot)");
+                nm.text = m.DisplayName + (alive ? "" : "  (dead)");
                 nm.style.color = alive ? UiTheme.Text : UiTheme.TextDim;
                 kd.text = $"{m.Kills} / {m.Deaths}";
                 kd.style.color = alive ? UiTheme.Text : UiTheme.TextDim;
@@ -1086,7 +1091,7 @@ namespace Infront
             _clock.text = $"{secs / 60}:{secs % 60:00}";
             _clock.style.color = secs <= 10 && !match.IsFrozen ? UiTheme.Schlecht : UiTheme.Text;
 
-            _roundInfo.text = $"RUNDE BIS {match.RoundsToWin}";
+            _roundInfo.text = $"FIRST TO {match.RoundsToWin}";
 
             // eigenes Team hervorheben
             _badgeAlpha.style.opacity = myTeam == Team.Alpha || myTeam == Team.None ? 1f : 0.45f;
@@ -1099,7 +1104,7 @@ namespace Infront
             {
                 bool attacker = myTeam == match.AttackingTeam;
                 _roleLine.style.display = DisplayStyle.Flex;
-                _roleLine.text = attacker ? "ANGRIFF" : "VERTEIDIGUNG";
+                _roleLine.text = attacker ? "ATTACK" : "DEFENSE";
                 _roleLine.style.color = attacker ? UiTheme.Accent : UiTheme.Armor;
             }
             else _roleLine.style.display = DisplayStyle.None;
@@ -1111,15 +1116,15 @@ namespace Infront
             if (match.IsBombMode && bomb != null && bomb.IsPlanted)
             {
                 int t = Mathf.CeilToInt(bomb.FuseSecondsLeft);
-                status = $"BOMBE GELEGT   {t}";
+                status = $"BOMB PLANTED   {t}";
                 statusColor = UiTheme.Schlecht;
             }
             else if (match.IsFrozen || match.IsBuyTime)
             {
                 int fz = Mathf.Max(0, Mathf.CeilToInt((float)match.FreezeSecondsLeft));
                 status = match.IsBombMode && myTeam != Team.None
-                    ? (myTeam == match.AttackingTeam ? $"KAUFZEIT {fz} — DU GREIFST AN" : $"KAUFZEIT {fz} — DU VERTEIDIGST")
-                    : $"KAUFZEIT {fz}";
+                    ? (myTeam == match.AttackingTeam ? $"BUY TIME {fz} — YOU ATTACK" : $"BUY TIME {fz} — YOU DEFEND")
+                    : $"BUY TIME {fz}";
             }
             if (status != null)
             {
@@ -1141,17 +1146,17 @@ namespace Infront
             {
                 string text;
                 if (match.MatchWinner != Team.None)
-                    text = Team.Name(match.MatchWinner) + " GEWINNT DAS MATCH";
+                    text = Team.Name(match.MatchWinner) + " WINS THE MATCH";
                 else if (match.RoundWinner == Team.None)
-                    text = "RUNDE UNENTSCHIEDEN";
+                    text = "ROUND DRAW";
                 else
-                    text = Team.Name(match.RoundWinner) + " GEWINNT DIE RUNDE";
+                    text = Team.Name(match.RoundWinner) + " WINS THE ROUND";
                 _roundOverTitle.text = text;
 
                 bool halftime = match.IsBombMode && match.MatchWinner == Team.None
                                 && match.RoundsPlayed == match.RoundsPerHalf;
                 _roundOverSub.style.display = halftime ? DisplayStyle.Flex : DisplayStyle.None;
-                if (halftime) _roundOverSub.text = "HALBZEIT — SEITEN GEWECHSELT, GELD ZURUECKGESETZT";
+                if (halftime) _roundOverSub.text = "HALFTIME — SIDES SWAPPED, MONEY RESET";
 
                 bool matchOver = match.MatchWinner != Team.None;
                 _roundOverNext.style.display = matchOver ? DisplayStyle.None : DisplayStyle.Flex;
@@ -1391,12 +1396,12 @@ namespace Infront
 
         static string AbilityShortName(AbilityKind k) => k switch
         {
-            AbilityKind.Rauchwand => "RAUCH",
-            AbilityKind.Blendgranate => "BLEND",
-            AbilityKind.Splittergranate => "SPLITTER",
+            AbilityKind.Rauchwand => "SMOKE",
+            AbilityKind.Blendgranate => "FLASH",
+            AbilityKind.Splittergranate => "FRAG",
             AbilityKind.ScanPuls => "SCAN",
-            AbilityKind.Brandwand => "BRAND",
-            AbilityKind.Stolperdraht => "DRAHT",
+            AbilityKind.Brandwand => "FIRE",
+            AbilityKind.Stolperdraht => "WIRE",
             _ => "-",
         };
 

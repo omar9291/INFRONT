@@ -176,9 +176,9 @@ namespace Infront
             ov.Begin("INFRONT", "START");
             float begonnen = Time.unscaledTime;
 
-            yield return Phase(ov, 0.12f, "PROFIL LESEN", () => PlayerProfile.Load());
-            yield return Phase(ov, 0.24f, "EINSTELLUNGEN", () => GameSettings.Load());
-            yield return Phase(ov, 0.34f, "LAUFBAHN", () =>
+            yield return Phase(ov, 0.12f, "READING PROFILE", () => PlayerProfile.Load());
+            yield return Phase(ov, 0.24f, "SETTINGS", () => GameSettings.Load());
+            yield return Phase(ov, 0.34f, "CAREER", () =>
             {
                 var _ = CareerStats.Matches;
                 Spielstatistik.Laden();
@@ -191,8 +191,8 @@ namespace Infront
 
             // Auf das Menue warten. MainMenuUi baut sich selbst ueber mehrere
             // Frames auf; vorher waere das Ausblenden ein Sprung ins Leere.
-            ov.SetProgress(0.8f, "MENUE AUFBAUEN");
-            PhaseForTests = "MENUE AUFBAUEN";
+            ov.SetProgress(0.8f, "BUILDING MENU");
+            PhaseForTests = "BUILDING MENU";
             float wartenBis = Time.unscaledTime + Mathf.Min(8f, _hoechstDauer);
             while (Time.unscaledTime < wartenBis)
             {
@@ -201,8 +201,8 @@ namespace Infront
                 yield return null;
             }
 
-            ov.SetProgress(1f, "BEREIT");
-            PhaseForTests = "BEREIT";
+            ov.SetProgress(1f, "READY");
+            PhaseForTests = "READY";
 
             float ende = begonnen + Mathf.Min(_mindestDauer, _hoechstDauer);
             while (Time.unscaledTime < ende) yield return null;
@@ -223,7 +223,7 @@ namespace Infront
 
         IEnumerator PhaseToene(LoadingOverlay ov, float von, float bis)
         {
-            const string name = "TON VORBEREITEN";
+            const string name = "PREPARING AUDIO";
             PhaseForTests = name;
             ov.SetProgress(von, name);
 

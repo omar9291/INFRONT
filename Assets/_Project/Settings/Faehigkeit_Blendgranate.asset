@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_Blendgranate
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 2
-  DisplayName: Blendgranate
+  DisplayName: Flashbang
   Slot: 2
   Price: 250
   Charges: 2

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_Stolperdraht
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 6
-  DisplayName: Stolperdraht
+  DisplayName: Tripwire
   Slot: 1
   Price: 200
   Charges: 1

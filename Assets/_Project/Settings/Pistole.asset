@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
   m_Name: Pistole
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
-  DisplayName: Pistole
+  DisplayName: Pistol
   SlotKind: 1
   ShotSound: 3
   SwitchTime: 0.3

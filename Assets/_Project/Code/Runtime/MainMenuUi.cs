@@ -46,20 +46,20 @@ namespace Infront
         // Kurze Hinweise, die in der Navigation langsam durchwechseln.
         static readonly string[] Tips =
         {
-            "Kopftreffer machen doppelten Schaden.",
-            "Halte E, um die Bombe zu legen oder zu entschaerfen.",
-            "Wer stirbt, bleibt die Runde tot - kein Respawn.",
-            "Ueberlebende behalten Waffe und Weste.",
-            "Mit B oeffnest du am Rundenanfang das Kaufmenue.",
-            "Die Weste schluckt den halben Koerperschaden.",
-            "Nach 15 Runden werden die Seiten getauscht.",
+            "Headshots do double damage.",
+            "Hold E to plant or defuse the bomb.",
+            "If you die, you stay dead for the round - no respawn.",
+            "Survivors keep their weapon and armor.",
+            "Press B at the start of a round to open the buy menu.",
+            "Body armor absorbs half of all body damage.",
+            "Sides are swapped after 15 rounds.",
         };
 
         // Rufnamen fuer die Aufstellung. Platz 0 bist immer du selbst.
         static readonly string[] TeamNames =
-            { "DU", "FALKE", "WOLF", "LUCHS", "RABE", "BÄR", "OTTER", "HECHT", "GEIER", "DACHS" };
+            { "YOU", "FALCON", "WOLF", "LYNX", "RAVEN", "BEAR", "OTTER", "PIKE", "VULTURE", "BADGER" };
         static readonly string[] FoeNames =
-            { "KOBRA", "NATTER", "SKORPION", "HORNISSE", "WIDDER", "PIRANHA", "WARAN", "BUSSARD", "MARDER", "ILTIS" };
+            { "COBRA", "ADDER", "SCORPION", "HORNET", "RAM", "PIRANHA", "MONITOR", "BUZZARD", "MARTEN", "POLECAT" };
 
         UIDocument _doc;
         VisualElement _parallax;         // ganze Oberflaeche, kippt leicht mit der Maus
@@ -444,7 +444,7 @@ namespace Infront
                 title.style.letterSpacing = 14f;
             }).StartingIn(120);
 
-            var tagline = new Label("TAKTIK-SHOOTER   ·   RUNDENBASIERT   ·   HOST-MODUS");
+            var tagline = new Label("TACTICAL SHOOTER   ·   ROUND-BASED   ·   HOST MODE");
             tagline.style.color = UiTheme.TextDim;
             tagline.style.fontSize = 11f;
             tagline.style.letterSpacing = 5f;
@@ -486,7 +486,7 @@ namespace Infront
             box.style.paddingTop = 12f; box.style.paddingBottom = 12f;
             SoftPanel(box, 0.30f);
 
-            box.Add(UiTheme.Section("LAUFBAHN"));
+            box.Add(UiTheme.Section("CAREER"));
 
             // Neuer Spieler: vier Nullen sehen aus wie ein Fehler. Der
             // Leer-Zustand aus UiStates sagt stattdessen, was hier stehen wird
@@ -529,9 +529,9 @@ namespace Infront
             }
 
             Row("Matches", CareerStats.Matches);
-            Row("Siege", CareerStats.Wins);
+            Row("Wins", CareerStats.Wins);
             Row("Aces", CareerStats.Aces);
-            Row("Längste Serie", CareerStats.BestStreak);
+            Row("Best Streak", CareerStats.BestStreak);
             return box;
         }
 
@@ -569,12 +569,12 @@ namespace Infront
             nav.style.width = 264f;
             nav.style.flexShrink = 0f;
             nav.style.marginRight = 44f;
-            nav.Add(NavButton("SPIELEN", Page.Spielen));
-            nav.Add(NavButton("EINSTELLUNGEN", Page.Einstellungen));
-            nav.Add(NavButton("ZUGAENGLICHKEIT", Page.Zugaenglichkeit));
-            nav.Add(NavButton("DEINE DATEN", Page.Daten));
-            nav.Add(NavButton("STEUERUNG", Page.Steuerung));
-            nav.Add(NavButton("QUELLEN", Page.Quellen));
+            nav.Add(NavButton("PLAY", Page.Spielen));
+            nav.Add(NavButton("SETTINGS", Page.Einstellungen));
+            nav.Add(NavButton("ACCESSIBILITY", Page.Zugaenglichkeit));
+            nav.Add(NavButton("YOUR DATA", Page.Daten));
+            nav.Add(NavButton("CONTROLS", Page.Steuerung));
+            nav.Add(NavButton("CREDITS", Page.Quellen));
 
             var sep = new VisualElement();
             sep.style.height = 1f;
@@ -582,7 +582,7 @@ namespace Infront
             sep.style.marginTop = 6f; sep.style.marginBottom = 10f;
             nav.Add(sep);
 
-            nav.Add(NavButton("Beenden", Page.Beenden, minor: true));
+            nav.Add(NavButton("Quit", Page.Beenden, minor: true));
             nav.Add(BuildCareer());
 
             var navSpacer = new VisualElement();
@@ -664,7 +664,7 @@ namespace Infront
             box.style.borderLeftColor = UiTheme.Ice;
             UiTheme.Pad(box, 12f);
 
-            var head = new Label("TIPP");
+            var head = new Label("TIP");
             head.style.color = UiTheme.Ice;
             head.style.fontSize = 10f;
             head.style.letterSpacing = 3f;
@@ -712,7 +712,7 @@ namespace Infront
             bool on = true;
             dot.schedule.Execute(() => { on = !on; dot.style.opacity = on ? 1f : 0.3f; }).Every(1400);
 
-            var label = new Label("SYSTEM BEREIT   ·   HOST");
+            var label = new Label("SYSTEM READY   ·   HOST");
             label.style.color = UiTheme.TextDim;
             label.style.fontSize = 10f;
             label.style.letterSpacing = 2f;
@@ -731,12 +731,12 @@ namespace Infront
             footer.style.paddingLeft = 72f; footer.style.paddingRight = 72f;
             footer.style.paddingBottom = 18f;
 
-            var left = new Label("F10  –  ALTES MENUE");
+            var left = new Label("F10  –  LEGACY MENU");
             left.style.color = UiTheme.TextDim;
             left.style.fontSize = 11f;
             left.style.letterSpacing = 2f;
 
-            var right = new Label("HOST-MODUS  ·  EINZELSPIELER GEGEN BOTS");
+            var right = new Label("HOST MODE  ·  SINGLE PLAYER VS BOTS");
             right.style.color = UiTheme.TextDim;
             right.style.fontSize = 11f;
             right.style.letterSpacing = 2f;
@@ -914,7 +914,7 @@ namespace Infront
             left.style.marginRight = 30f;
 
             // --- Einsatzart: zwei grosse Karten ---
-            left.Add(UiTheme.Section("EINSATZART"));
+            left.Add(UiTheme.Section("GAME MODE"));
 
             var modeRow = new VisualElement();
             modeRow.style.flexDirection = FlexDirection.Row;
@@ -993,10 +993,10 @@ namespace Infront
                 return card;
             }
 
-            modeRow.Add(MakeModeCard(0, "AUSSCHEIDEN",
-                "Schalte das gegnerische Team komplett aus, dann ist die Runde gewonnen."));
-            modeRow.Add(MakeModeCard(1, "BOMBE",
-                "Lege die Bombe und halte sie - oder verhindere das Legen und entschaerfe."));
+            modeRow.Add(MakeModeCard(0, "ELIMINATION",
+                "Wipe out the enemy team and the round is yours."));
+            modeRow.Add(MakeModeCard(1, "BOMB",
+                "Plant the bomb and hold the site - or stop the plant and defuse."));
             left.Add(modeRow);
             PaintModes();
 
@@ -1009,7 +1009,7 @@ namespace Infront
             var colA = new VisualElement();
             colA.style.flexGrow = 1f; colA.style.flexBasis = 0f;
             colA.style.marginRight = 20f;
-            colA.Add(UiTheme.Section("TEAMGROESSE"));
+            colA.Add(UiTheme.Section("TEAM SIZE"));
             colA.Add(Segmented("seg-team", new[] { "2", "3", "4", "5" },
                 Mathf.Clamp(GameSettings.TeamSize - 2, 0, 3), i =>
                 {
@@ -1021,8 +1021,8 @@ namespace Infront
 
             var colB = new VisualElement();
             colB.style.flexGrow = 1f; colB.style.flexBasis = 0f;
-            colB.Add(UiTheme.Section("BOT-STAERKE"));
-            colB.Add(Segmented("seg-diff", new[] { "LEICHT", "NORMAL", "SCHWER" },
+            colB.Add(UiTheme.Section("BOT SKILL"));
+            colB.Add(Segmented("seg-diff", new[] { "EASY", "NORMAL", "HARD" },
                 (int)GameSettings.Difficulty, i =>
                 {
                     GameSettings.Difficulty = (GameSettings.Level)i;
@@ -1059,7 +1059,7 @@ namespace Infront
 
             // --- Breiter Startbalken unten: die einzige orange Flaeche im Menue ---
             var start = new Button(() => { Click(SoundId.RundeStart, 0.6f); StartRound(); })
-                { text = "▶   RUNDE STARTEN" };
+                { text = "▶   START ROUND" };
             start.name = "btn-start";
             start.style.height = 62f;
             start.style.marginTop = 14f;
@@ -1122,7 +1122,7 @@ namespace Infront
             card.style.paddingTop = 16f; card.style.paddingBottom = 16f;
             SoftPanel(card, 0.34f);
 
-            card.Add(UiTheme.Section("AUFSTELLUNG"));
+            card.Add(UiTheme.Section("LINEUP"));
 
             _lineup = new VisualElement();
             _lineup.style.flexDirection = FlexDirection.Column;
@@ -1143,9 +1143,9 @@ namespace Infront
             card.Add(spacer);
 
             // kleine "Readout"-Zeilen ganz unten - reine Deko, fuellt die Hoehe
-            card.Add(ReadoutRow("NETCODE", "HOST-AUTHORITATIV"));
+            card.Add(ReadoutRow("NETCODE", "HOST-AUTHORITATIVE"));
             card.Add(ReadoutRow("TICKRATE", "64"));
-            card.Add(ReadoutRow("REGION", "LOKAL"));
+            card.Add(ReadoutRow("REGION", "LOCAL"));
 
             RefreshBriefing();
             return card;
@@ -1228,22 +1228,22 @@ namespace Infront
                 _lineup.Clear();
                 int n = Mathf.Clamp(GameSettings.TeamSize, 1, 10);
 
-                _lineup.Add(RosterHead("DEIN TEAM", UiTheme.Ice));
+                _lineup.Add(RosterHead("YOUR TEAM", UiTheme.Ice));
                 for (int i = 0; i < n; i++)
                     _lineup.Add(RosterRow(TeamNames[i % TeamNames.Length], UiTheme.Ice, i));
 
-                _lineup.Add(RosterHead("GEGNER", UiTheme.Foe));
+                _lineup.Add(RosterHead("ENEMY", UiTheme.Foe));
                 for (int i = 0; i < n; i++)
                     _lineup.Add(RosterRow(FoeNames[i % FoeNames.Length], UiTheme.Foe, n + i));
             }
 
             if (_briefLine != null)
             {
-                string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMBE" : "AUSSCHEIDEN";
+                string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMB" : "ELIMINATION";
                 string diff = GameSettings.Difficulty switch
                 {
-                    GameSettings.Level.Leicht => "LEICHT",
-                    GameSettings.Level.Schwer => "SCHWER",
+                    GameSettings.Level.Leicht => "EASY",
+                    GameSettings.Level.Schwer => "HARD",
                     _ => "NORMAL"
                 };
                 _briefLine.text = mode + "   ·   BOTS: " + diff;
@@ -1253,15 +1253,15 @@ namespace Infront
         void RefreshSummary()
         {
             if (_summary == null) return;
-            string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMBE" : "AUSSCHEIDEN";
+            string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMB" : "ELIMINATION";
             string diff = GameSettings.Difficulty switch
             {
-                GameSettings.Level.Leicht => "LEICHT",
-                GameSettings.Level.Schwer => "SCHWER",
+                GameSettings.Level.Leicht => "EASY",
+                GameSettings.Level.Schwer => "HARD",
                 _ => "NORMAL"
             };
             int n = GameSettings.TeamSize;
-            _summary.text = $"{mode}   ·   {n} GEGEN {n}   ·   BOTS {diff}";
+            _summary.text = $"{mode}   ·   {n} VS {n}   ·   BOTS {diff}";
         }
 
         void StartRound()
@@ -1290,18 +1290,18 @@ namespace Infront
         void BuildDaten(VisualElement host)
         {
             Hinweis(host,
-                "INFRONT verschickt nichts. Kein Konto, kein Server, keine Anmeldung. "
-                + "Alles, was das Spiel ueber dich weiss, liegt in Dateien auf diesem "
-                + "Rechner - und die kannst du ansehen und loeschen.");
+                "INFRONT sends nothing anywhere. No account, no server, no sign-in. "
+                + "Everything the game knows about you sits in files on this "
+                + "computer - and you can look at them and delete them.");
 
             // --- Was liegt wo -------------------------------------------------
             host.Add(UiTheme.Gap(20f));
-            host.Add(UiTheme.Section("WAS GESPEICHERT WIRD"));
-            Punkt(host, "profil.json", "Dein Name und ob der Erstlauf durch ist.");
-            Punkt(host, "statistik.json", "Summen: Spiele, Schuesse, Treffer, Spielzeit.");
-            Punkt(host, "abstuerze/", "Fehlerberichte, falls das Spiel abstuerzt. "
-                                      + $"Zurzeit: {Absturzbericht.Anzahl}.");
-            Punkt(host, "Einstellungen", "Lautstaerke, Empfindlichkeit, Zugaenglichkeit.");
+            host.Add(UiTheme.Section("WHAT IS SAVED"));
+            Punkt(host, "profil.json", "Your name and whether the intro is done.");
+            Punkt(host, "statistik.json", "Totals: matches, shots, hits, time played.");
+            Punkt(host, "abstuerze/", "Crash reports, if the game ever crashes. "
+                                      + $"Currently: {Absturzbericht.Anzahl}.");
+            Punkt(host, "Settings", "Volume, sensitivity, accessibility.");
 
             var pfad = new Label(Application.persistentDataPath);
             pfad.style.color = UiTheme.TextDim;
@@ -1310,37 +1310,37 @@ namespace Infront
             pfad.style.whiteSpace = WhiteSpace.Normal;
             host.Add(pfad);
 
-            var oeffnen = FlacherKnopf("ORDNER OEFFNEN", "btn-ordner", () =>
+            var oeffnen = FlacherKnopf("OPEN FOLDER", "btn-ordner", () =>
                 Application.OpenURL("file://" + Application.persistentDataPath));
             oeffnen.style.marginTop = 8f;
             host.Add(oeffnen);
 
             // --- Was NICHT gespeichert wird -----------------------------------
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("WAS NICHT GESPEICHERT WIRD"));
-            Punkt(host, "Keine E-Mail-Adresse", "Es gibt keine Anmeldung.");
-            Punkt(host, "Kein Passwort", "Auch keins zum Zuruecksetzen.");
-            Punkt(host, "Keine Zeitpunkte", "Nur Summen, keine Aufzeichnung einzelner Spiele.");
-            Punkt(host, "Keine Uebertragung", "Das Spiel oeffnet keine Verbindung nach aussen.");
+            host.Add(UiTheme.Section("WHAT IS NOT SAVED"));
+            Punkt(host, "No email address", "There is no sign-in.");
+            Punkt(host, "No password", "Not even one to reset.");
+            Punkt(host, "No timestamps", "Totals only, no record of single matches.");
+            Punkt(host, "No transmission", "The game opens no outbound connection.");
 
             // --- Deine Zahlen --------------------------------------------------
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("DEINE ZAHLEN"));
+            host.Add(UiTheme.Section("YOUR NUMBERS"));
             var d = Spielstatistik.Daten;
-            Wert(host, "SPIELE", d.Spiele.ToString());
-            Wert(host, "DAVON GEWONNEN", d.Siege.ToString());
-            Wert(host, "RUNDEN", d.Runden.ToString());
-            Wert(host, "SCHUESSE", d.Schuesse.ToString());
-            Wert(host, "TREFFERQUOTE", (Spielstatistik.Trefferquote * 100f).ToString("0.0") + " %");
-            Wert(host, "DAVON KOPF", (Spielstatistik.Kopfquote * 100f).ToString("0.0") + " %");
-            Wert(host, "ABSCHUESSE JE TOD", Spielstatistik.Verhaeltnis.ToString("0.00"));
-            Wert(host, "SPIELZEIT", Dauer(d.SekundenGespielt));
+            Wert(host, "MATCHES", d.Spiele.ToString());
+            Wert(host, "OF THOSE WON", d.Siege.ToString());
+            Wert(host, "ROUNDS", d.Runden.ToString());
+            Wert(host, "SHOTS", d.Schuesse.ToString());
+            Wert(host, "ACCURACY", (Spielstatistik.Trefferquote * 100f).ToString("0.0") + " %");
+            Wert(host, "OF THOSE HEADSHOTS", (Spielstatistik.Kopfquote * 100f).ToString("0.0") + " %");
+            Wert(host, "KILLS PER DEATH", Spielstatistik.Verhaeltnis.ToString("0.00"));
+            Wert(host, "TIME PLAYED", Dauer(d.SekundenGespielt));
 
             // --- Loeschen -------------------------------------------------------
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("LOESCHEN"));
+            host.Add(UiTheme.Section("DELETE"));
 
-            var weg = FlacherKnopf("FEHLERBERICHTE LOESCHEN", "btn-berichte-weg", () =>
+            var weg = FlacherKnopf("DELETE CRASH REPORTS", "btn-berichte-weg", () =>
             {
                 Absturzbericht.AllesLoeschen();
                 ShowPage(Page.Daten);   // Seite neu zeichnen, damit die Zahl stimmt
@@ -1349,7 +1349,7 @@ namespace Infront
             host.Add(weg);
 
             var alles = FlacherKnopf(
-                _loeschenBestaetigt ? "WIRKLICH ALLES LOESCHEN?" : "ALLES LOESCHEN",
+                _loeschenBestaetigt ? "REALLY DELETE EVERYTHING?" : "DELETE EVERYTHING",
                 "btn-alles-weg", () =>
                 {
                     if (!_loeschenBestaetigt)
@@ -1366,9 +1366,9 @@ namespace Infront
             host.Add(alles);
 
             Hinweis(host, _loeschenBestaetigt
-                ? "Noch einmal druecken loescht Profil, Zahlen, Laufbahn und Berichte. "
-                  + "Das laesst sich nicht rueckgaengig machen."
-                : "Loescht Profil, Zahlen, Laufbahn und Fehlerberichte.");
+                ? "Press again to delete profile, numbers, career and reports. "
+                  + "This cannot be undone."
+                : "Deletes profile, numbers, career and crash reports.");
         }
 
         /// <summary>Aufzaehlungspunkt: fetter Titel, grauer Text daneben.</summary>
@@ -1450,77 +1450,77 @@ namespace Infront
         void BuildZugaenglichkeit(VisualElement host)
         {
             Hinweis(host,
-                "Diese Einstellungen aendern nichts am Schwierigkeitsgrad. "
-                + "Sie aendern nur, wie das Spiel aussieht und wie es bedient wird.");
+                "These settings do not change the difficulty. "
+                + "They only change how the game looks and how it is operated.");
 
             // --- Schriftgroesse ---------------------------------------------
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section("GROESSE DER ANZEIGE"));
+            host.Add(UiTheme.Section("INTERFACE SIZE"));
             host.Add(Regler("slider-uiscale", 0.8f, 1.6f, GameSettings.UiScale, "0.00", v =>
             {
                 GameSettings.UiScale = v;
                 GameSettings.Save();
                 Zugaenglichkeit.UiGroesseAnwenden();
             }));
-            Hinweis(host, "Vergroessert Menue und Anzeige im Spiel gemeinsam.");
+            Hinweis(host, "Scales the menu and the in-game display together.");
 
             // --- Fadenkreuz --------------------------------------------------
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section("FADENKREUZ"));
+            host.Add(UiTheme.Section("CROSSHAIR"));
             host.Add(Regler("slider-crosshair", 0.6f, 2f, GameSettings.CrosshairScale, "0.00", v =>
             {
                 GameSettings.CrosshairScale = v;
                 GameSettings.Save();
             }));
-            Hinweis(host, "Groesser und dicker. Ein Fadenkreuz, das man nicht sieht, "
-                          + "macht das ganze Spiel unspielbar.");
+            Hinweis(host, "Bigger and thicker. A crosshair you cannot see "
+                          + "makes the whole game unplayable.");
 
             // --- Farben ------------------------------------------------------
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("FARBEN"));
+            host.Add(UiTheme.Section("COLORS"));
             host.Add(Segmented("seg-farbe",
-                new[] { "STANDARD", "ROT-GRUEN", "BLAU-GELB", "KONTRAST" },
+                new[] { "DEFAULT", "RED-GREEN", "BLUE-YELLOW", "CONTRAST" },
                 (int)GameSettings.ColorMode, i =>
                 {
                     GameSettings.ColorMode = (GameSettings.Farbmodus)i;
                     GameSettings.Save();
                 }));
             Hinweis(host,
-                "Betrifft vor allem die Lebensanzeige. Gruen-gelb-rot laeuft bei "
-                + "Rot-Gruen-Schwaeche ineinander; dann wird daraus blau-gelb-magenta.");
+                "Mainly affects the health bar. Green-yellow-red runs together with "
+                + "red-green color blindness; it then becomes blue-yellow-magenta.");
 
             // --- Bewegung ----------------------------------------------------
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("WENIGER BEWEGUNG"));
-            host.Add(Segmented("seg-motion", new[] { "AUS", "AN" },
+            host.Add(UiTheme.Section("REDUCE MOTION"));
+            host.Add(Segmented("seg-motion", new[] { "OFF", "ON" },
                 GameSettings.ReduceMotion ? 1 : 0, i =>
                 {
                     GameSettings.ReduceMotion = i == 1;
                     GameSettings.Save();
                 }));
             Hinweis(host,
-                "Daempft Atem-Schwenk und Waffenwippen stark. Wenn dir vom Bild "
-                + "schlecht wird, liegt das nicht an dir - schalte das hier an.");
+                "Strongly damps breathing sway and weapon bob. If the picture "
+                + "makes you feel sick, that is not on you - switch this on.");
 
             // --- Halten oder Umschalten --------------------------------------
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("HALTEN ODER UMSCHALTEN"));
+            host.Add(UiTheme.Section("HOLD OR TOGGLE"));
 
-            host.Add(Zeile("ZIELEN", "seg-toggleaim", GameSettings.ToggleAim, v =>
+            host.Add(Zeile("AIM", "seg-toggleaim", GameSettings.ToggleAim, v =>
             {
                 GameSettings.ToggleAim = v; GameSettings.Save();
             }));
-            host.Add(Zeile("DUCKEN", "seg-togglecrouch", GameSettings.ToggleCrouch, v =>
+            host.Add(Zeile("CROUCH", "seg-togglecrouch", GameSettings.ToggleCrouch, v =>
             {
                 GameSettings.ToggleCrouch = v; GameSettings.Save();
             }));
-            host.Add(Zeile("SPRINTEN", "seg-togglesprint", GameSettings.ToggleSprint, v =>
+            host.Add(Zeile("SPRINT", "seg-togglesprint", GameSettings.ToggleSprint, v =>
             {
                 GameSettings.ToggleSprint = v; GameSettings.Save();
             }));
             Hinweis(host,
-                "Dauerhaft gedrueckt halten tut auf Dauer weh, und mit einer Hand "
-                + "geht es gar nicht. Die Tasten bleiben dieselben.");
+                "Holding a key down forever hurts after a while, and with one hand "
+                + "it does not work at all. The keys stay the same.");
         }
 
         /// <summary>Beschriftete Zeile mit HALTEN/UMSCHALTEN.</summary>
@@ -1538,7 +1538,7 @@ namespace Infront
             l.style.width = 130f;
             reihe.Add(l);
 
-            var seg = Segmented(name, new[] { "HALTEN", "UMSCHALTEN" }, an ? 1 : 0,
+            var seg = Segmented(name, new[] { "HOLD", "TOGGLE" }, an ? 1 : 0,
                                 i => setzen(i == 1));
             seg.style.flexGrow = 1f;
             reihe.Add(seg);
@@ -1587,8 +1587,8 @@ namespace Infront
 
         void BuildEinstellungen(VisualElement host)
         {
-            host.Add(UiTheme.Section("ANZEIGE"));
-            host.Add(Segmented("seg-anzeige", new[] { "VOLLBILD", "FENSTER" },
+            host.Add(UiTheme.Section("DISPLAY"));
+            host.Add(Segmented("seg-anzeige", new[] { "FULLSCREEN", "WINDOWED" },
                 (int)GameSettings.DisplayMode, i =>
                 {
                     var next = (GameSettings.Anzeige)i;
@@ -1600,8 +1600,8 @@ namespace Infront
                 }));
 
             var anzeigeHint = new Label(
-                "Vollbild: randloses Fenster in Bildschirmgröße. Fenster: 1280×720, "
-                + "falls du schnell auf den Schreibtisch wechseln willst.");
+                "Fullscreen: borderless window at screen size. Windowed: 1280×720, "
+                + "in case you want to switch to the desktop quickly.");
             anzeigeHint.style.color = UiTheme.TextDim;
             anzeigeHint.style.fontSize = 11f;
             anzeigeHint.style.marginTop = 6f;
@@ -1609,8 +1609,8 @@ namespace Infront
             host.Add(anzeigeHint);
 
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("BILD"));
-            host.Add(Segmented("seg-grafik", new[] { "VOLL", "SCHLICHT" },
+            host.Add(UiTheme.Section("GRAPHICS"));
+            host.Add(Segmented("seg-grafik", new[] { "FULL", "PLAIN" },
                 (int)GameSettings.GraphicsQuality, i =>
                 {
                     GameSettings.GraphicsQuality = (GameSettings.Graphics)i;
@@ -1618,8 +1618,8 @@ namespace Infront
                 }));
 
             var bildHint = new Label(
-                "Voll: mit Tiefenunschärfe, Bloom, Vignette und Nebel. "
-                + "Schlicht: alles aus, falls es ruckelt oder streift.");
+                "Full: with depth of field, bloom, vignette and fog. "
+                + "Plain: everything off, in case it stutters or smears.");
             bildHint.style.color = UiTheme.TextDim;
             bildHint.style.fontSize = 11f;
             bildHint.style.marginTop = 6f;
@@ -1627,7 +1627,7 @@ namespace Infront
             host.Add(bildHint);
 
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("MAUS-EMPFINDLICHKEIT"));
+            host.Add(UiTheme.Section("MOUSE SENSITIVITY"));
 
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
@@ -1657,7 +1657,7 @@ namespace Infront
             host.Add(row);
 
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section("LAUTSTAERKE"));
+            host.Add(UiTheme.Section("VOLUME"));
 
             var volRow = new VisualElement();
             volRow.style.flexDirection = FlexDirection.Row;
@@ -1693,26 +1693,26 @@ namespace Infront
 
         void BuildSteuerung(VisualElement host)
         {
-            host.Add(UiTheme.Section("TASTENBELEGUNG"));
+            host.Add(UiTheme.Section("KEY BINDINGS"));
 
             var list = new VisualElement();
             list.style.marginTop = 4f;
-            AddKey(list, "Bewegen", "W", "A", "S", "D");
-            AddKey(list, "Umsehen", "Maus");
-            AddKey(list, "Schiessen", "Linke Maustaste");
-            AddKey(list, "Zielen (halten)", "Rechte Maustaste");
-            AddKey(list, "Ducken (halten)", "Strg");
-            AddKey(list, "Schleichen (halten)", "Alt");
-            AddKey(list, "Nachladen", "R");
-            AddKey(list, "Springen", "Leertaste");
-            AddKey(list, "Sprinten (halten)", "Umschalt");
-            AddKey(list, "Luft anhalten (im Zielfernrohr)", "Umschalt");
-            AddKey(list, "Waffe wechseln", "1", "2");
-            AddKey(list, "Bombe legen / entschärfen (halten)", "E");
-            AddKey(list, "Kaufmenü", "B");
-            AddKey(list, "Punktetabelle (halten)", "Tab");
+            AddKey(list, "Move", "W", "A", "S", "D");
+            AddKey(list, "Look", "Mouse");
+            AddKey(list, "Fire", "Left mouse button");
+            AddKey(list, "Aim (hold)", "Right mouse button");
+            AddKey(list, "Crouch (hold)", "Ctrl");
+            AddKey(list, "Walk quietly (hold)", "Alt");
+            AddKey(list, "Reload", "R");
+            AddKey(list, "Jump", "Space");
+            AddKey(list, "Sprint (hold)", "Shift");
+            AddKey(list, "Hold breath (while scoped)", "Shift");
+            AddKey(list, "Switch weapon", "1", "2");
+            AddKey(list, "Plant / defuse bomb (hold)", "E");
+            AddKey(list, "Buy menu", "B");
+            AddKey(list, "Scoreboard (hold)", "Tab");
             AddKey(list, "Pause", "Esc");
-            AddKey(list, "Zuschauen wechseln (tot)", "Linksklick", "Rechtsklick");
+            AddKey(list, "Switch spectator target (dead)", "Left click", "Right click");
             host.Add(list);
         }
 
@@ -1723,56 +1723,117 @@ namespace Infront
         /// </summary>
         void BuildQuellen(VisualElement host)
         {
-            host.Add(UiTheme.Section("SPIEL"));
+            // Die Quellen sind die laengste Seite - der Inhalt ist hoeher als
+            // das Feld. Ohne Rolle drueckt Flexbox jede Zeile zusammen, die
+            // Beschriftungen passen dann nicht mehr in ihre Zeile und laufen in
+            // die naechste Ueberschrift hinein. Genau so sah die Seite aus:
+            // "Code and game design" lag auf "CHARACTERS AND ANIMATIONS".
+            var roll = new ScrollView(ScrollViewMode.Vertical);
+            roll.style.flexGrow = 1f;
+            roll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            SchlankeRolle(roll);
+            host.Add(roll);
+
+            roll.Add(UiTheme.Section("GAME"));
             var intro = new VisualElement();
-            AddQuelle(intro, "INFRONT", "Driftlab", "Code und Spielaufbau");
-            host.Add(intro);
+            AddQuelle(intro, "INFRONT", "Driftlab", "Code and game design");
+            roll.Add(intro);
 
-            host.Add(UiTheme.Section("FIGUREN UND ANIMATIONEN"));
+            roll.Add(UiTheme.Section("CHARACTERS AND ANIMATIONS"));
             var figuren = new VisualElement();
-            AddQuelle(figuren, "Figur, Idle, Gehen, Rennen, Sterben",
+            AddQuelle(figuren, "Character, idle, walk, run, death",
                       "Mixamo (Adobe)",
-                      "Nutzung im Spiel erlaubt. Die Dateien selbst duerfen "
-                      + "NICHT einzeln weitergegeben werden.");
-            host.Add(figuren);
+                      "Use inside the game is allowed. The files themselves may "
+                      + "NOT be redistributed on their own.");
+            roll.Add(figuren);
 
-            host.Add(UiTheme.Section("GERAEUSCHE"));
+            roll.Add(UiTheme.Section("SOUND"));
             var ton = new VisualElement();
-            AddQuelle(ton, "Schussaufnahmen (AK-47, Carl Gustav M45, Mosin Nagant, 1911)",
+            AddQuelle(ton, "Gunshot recordings (AK-47, Carl Gustav M45, Mosin Nagant, 1911)",
                       "The Free Firearm Sound Library - opengameart.org",
-                      "CC0. Aufgenommen von Ben Jaszczak, Brian Nelson, "
-                      + "Kevin Heras und Matthew Nanney.");
-            AddQuelle(ton, "Alle uebrigen Geraeusche", "Driftlab",
-                      "Im Spiel selbst erzeugt.");
-            host.Add(ton);
+                      "CC0. Recorded by Ben Jaszczak, Brian Nelson, "
+                      + "Kevin Heras and Matthew Nanney.");
+            AddQuelle(ton, "All other sounds", "Driftlab",
+                      "Generated by the game itself.");
+            roll.Add(ton);
 
-            host.Add(UiTheme.Section("MODELLE UND TEXTUREN"));
+            roll.Add(UiTheme.Section("MODELS AND TEXTURES"));
             var art = new VisualElement();
-            AddQuelle(art, "Deckungen, Faesser, Kisten, Lampen, Rolltore, Hallenkran, Himmel",
-                      "Poly Haven - polyhaven.com", "CC0, keine Namensnennung noetig.");
-            AddQuelle(art, "Wand-, Boden- und Deckungstexturen",
-                      "ambientCG - ambientcg.com", "CC0, keine Namensnennung noetig.");
-            host.Add(art);
+            AddQuelle(art, "Cover, barrels, crates, lamps, roller doors, gantry crane, sky",
+                      "Poly Haven - polyhaven.com", "CC0, no attribution required.");
+            AddQuelle(art, "Wall, floor and cover textures",
+                      "ambientCG - ambientcg.com", "CC0, no attribution required.");
+            roll.Add(art);
 
-            host.Add(UiTheme.Section("WERKZEUGE"));
+            roll.Add(UiTheme.Section("TOOLS"));
             var tools = new VisualElement();
             AddQuelle(tools, "Unity 6", "Unity Technologies", "");
             AddQuelle(tools, "Netcode for GameObjects", "Unity Technologies", "");
-            host.Add(tools);
+            roll.Add(tools);
 
             var schluss = new Label(
-                "CC0 heisst: frei nutzbar, auch geschaeftlich, ohne dass jemand "
-                + "genannt werden muss. Genannt wird hier trotzdem.");
+                "CC0 means: free to use, commercially too, without anyone having "
+                + "to be credited. They are credited here anyway.");
             schluss.style.color = UiTheme.TextDim;
             schluss.style.fontSize = 11f;
             schluss.style.whiteSpace = WhiteSpace.Normal;
             schluss.style.marginTop = 14f;
-            host.Add(schluss);
+            roll.Add(schluss);
+        }
+
+        /// <summary>
+        /// Die Rolle so herrichten, dass sie zum Rest passt. Unity liefert von
+        /// Haus aus einen hellgrauen Balken mit zwei Pfeilknoepfen - der sieht
+        /// in diesem dunklen Menue aus wie ein Fenster aus einem anderen
+        /// Programm. Also: Pfeile weg, schmaler Strich, gedeckte Farbe.
+        /// </summary>
+        static void SchlankeRolle(ScrollView roll)
+        {
+            var s = roll.verticalScroller;
+            if (s == null) return;
+
+            s.style.width = 6f;
+            s.style.backgroundColor = Color.clear;
+            if (s.lowButton != null) s.lowButton.style.display = DisplayStyle.None;
+            if (s.highButton != null) s.highButton.style.display = DisplayStyle.None;
+
+            if (s.slider != null)
+            {
+                s.slider.style.marginLeft = 0f;
+                s.slider.style.marginRight = 0f;
+                s.slider.style.marginTop = 0f;
+                s.slider.style.marginBottom = 0f;
+                s.slider.style.backgroundColor = Color.clear;
+
+                var rinne = s.slider.Q("unity-tracker");
+                if (rinne != null)
+                {
+                    rinne.style.backgroundColor = Color.clear;
+                    rinne.style.borderTopWidth = 0f; rinne.style.borderBottomWidth = 0f;
+                    rinne.style.borderLeftWidth = 0f; rinne.style.borderRightWidth = 0f;
+                }
+
+                var griff = s.slider.Q("unity-dragger");
+                if (griff != null)
+                {
+                    griff.style.backgroundColor = UiTheme.TextDim;
+                    griff.style.width = 4f;
+                    griff.style.marginLeft = 1f;
+                    griff.style.borderTopWidth = 0f; griff.style.borderBottomWidth = 0f;
+                    griff.style.borderLeftWidth = 0f; griff.style.borderRightWidth = 0f;
+                    griff.style.borderTopLeftRadius = 0f; griff.style.borderTopRightRadius = 0f;
+                    griff.style.borderBottomLeftRadius = 0f; griff.style.borderBottomRightRadius = 0f;
+                }
+            }
+
+            // Damit der Text nicht unter dem Balken klebt.
+            if (roll.contentContainer != null) roll.contentContainer.style.paddingRight = 14f;
         }
 
         void AddQuelle(VisualElement list, string was, string wer, string hinweis)
         {
             var r = new VisualElement();
+            r.style.flexShrink = 0f;          // nicht zusammendruecken lassen
             r.style.paddingTop = 6f;
             r.style.paddingBottom = 6f;
             r.style.borderBottomWidth = 1f;
@@ -1853,7 +1914,7 @@ namespace Infront
 
         void BuildBeenden(VisualElement host)
         {
-            var q = new Label("Spiel wirklich beenden?");
+            var q = new Label("Really quit the game?");
             q.style.color = UiTheme.Text;
             q.style.fontSize = 18f;
             q.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -1863,12 +1924,12 @@ namespace Infront
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
 
-            var yes = new Button(Quit) { text = "JA, BEENDEN" };
+            var yes = new Button(Quit) { text = "YES, QUIT" };
             yes.name = "btn-quit";
             StyleChoice(yes, danger: true);
             _actions["btn-quit"] = Quit;
 
-            var no = new Button(() => ShowPage(Page.Spielen)) { text = "ZURUECK" };
+            var no = new Button(() => ShowPage(Page.Spielen)) { text = "BACK" };
             no.name = "btn-quit-cancel";
             StyleChoice(no, danger: false);
             no.style.marginLeft = 12f;

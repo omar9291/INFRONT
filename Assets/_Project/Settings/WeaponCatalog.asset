@@ -21,15 +21,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b009f304991e746dc86e4ce56b544307, type: 2}
   - {fileID: 11400000, guid: f4b204785b9154be79a05a94fb1c47ae, type: 2}
   BuyEntries:
-  - DisplayName: Maschinenpistole
+  - DisplayName: SMG
     Price: 1500
     PlayerWeaponIndex: 1
     BotWeaponIndex: 5
-  - DisplayName: Sturmgewehr
+  - DisplayName: Assault Rifle
     Price: 2700
     PlayerWeaponIndex: 0
     BotWeaponIndex: 4
-  - DisplayName: Scharfschuetzengewehr
+  - DisplayName: Sniper Rifle
     Price: 4750
     PlayerWeaponIndex: 2
     BotWeaponIndex: 6

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_Brandwand
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 5
-  DisplayName: Brandwand
+  DisplayName: Incendiary Wall
   Slot: 0
   Price: 300
   Charges: 1

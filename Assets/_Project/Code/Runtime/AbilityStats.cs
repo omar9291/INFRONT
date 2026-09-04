@@ -11,7 +11,7 @@ namespace Infront
     public sealed class AbilityStats : ScriptableObject
     {
         public AbilityKind Kind = AbilityKind.Rauchwand;
-        public string DisplayName = "Rauchwand";
+        public string DisplayName = "Smoke Wall";
         public AbilitySlot Slot = AbilitySlot.Q;
 
         [Tooltip("Preis im Kaufmenue.")]

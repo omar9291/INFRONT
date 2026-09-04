@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_Rauchwand
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 1
-  DisplayName: Rauchwand
+  DisplayName: Smoke Wall
   Slot: 0
   Price: 300
   Charges: 1

@@ -57,7 +57,7 @@ namespace Infront.Tests
 
         /// <summary>
         /// Eine Seite ueber die Navigation links oeffnen. Der Text muss genau
-        /// dem Knopf entsprechen (z. B. "ZUGAENGLICHKEIT").
+        /// dem Knopf entsprechen (z. B. "ACCESSIBILITY").
         /// </summary>
         public static IEnumerator OeffneSeite(string knopfText)
         {

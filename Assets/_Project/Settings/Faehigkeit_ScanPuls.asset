@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_ScanPuls
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 4
-  DisplayName: Scan-Puls
+  DisplayName: Scan Pulse
   Slot: 1
   Price: 250
   Charges: 1

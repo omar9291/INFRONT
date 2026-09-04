@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_Verbandspaket
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 7
-  DisplayName: Verbandspaket
+  DisplayName: Med Kit
   Slot: 1
   Price: 200
   Charges: 1

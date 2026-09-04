@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faehigkeit_Splittergranate
   m_EditorClassIdentifier: Infront.Runtime::Infront.AbilityStats
   Kind: 3
-  DisplayName: Splittergranate
+  DisplayName: Frag Grenade
   Slot: 2
   Price: 300
   Charges: 1

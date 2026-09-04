@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
 namespace Infront
 {
@@ -29,6 +30,7 @@ namespace Infront
     {
         const string DefaultOutDir = "/Users/user/UnityProjects/INFRONT/Screenshots/auto";
         const string SurveyOutDir = "/Users/user/UnityProjects/INFRONT/Screenshots/rundgang";
+        const string UiOutDir = "/Users/user/UnityProjects/INFRONT/Screenshots/ui";
 
         static readonly (Vector3 pos, Vector3 look, string name)[] Stops =
         {
@@ -204,10 +206,16 @@ namespace Infront
         static void Boot()
         {
             var argv = System.Environment.GetCommandLineArgs();
-            if (!argv.Contains("-autoshot") && !argv.Contains("-survey")) return;
+            if (!argv.Contains("-autoshot") && !argv.Contains("-survey")
+                && !argv.Contains("-uishot")) return;
 
             GameSettings.DisplayMode = GameSettings.Anzeige.Fenster;   // Fenster statt Vollbild
-            GameSettings.GameMode = GameSettings.Mode.Ausscheiden;     // sauberes Gefecht fuer die Fotos
+
+            // Beim Oberflaechen-Rundgang der Bomben-Modus: nur dort gibt es
+            // ANGRIFF/VERTEIDIGUNG, die Bomben-Hinweise und die Halbzeit-Zeile.
+            GameSettings.GameMode = argv.Contains("-uishot")
+                ? GameSettings.Mode.Bombe
+                : GameSettings.Mode.Ausscheiden;                       // sauberes Gefecht fuer die Fotos
 
             var go = new GameObject("AutoShot");
             go.AddComponent<AutoShot>();
@@ -229,8 +237,17 @@ namespace Infront
             int weather = int.TryParse(Arg("-weather", "-1"), out var w) ? w : -1;
             string tag = weather >= 0 ? $"w{weather}_" : "";
 
+            bool istOberflaeche = System.Environment.GetCommandLineArgs().Contains("-uishot");
+            if (istOberflaeche) outDir = Arg("-outdir", UiOutDir);
+
             Directory.CreateDirectory(outDir);
             Screen.SetResolution(1600, 900, FullScreenMode.Windowed);
+
+            if (istOberflaeche)
+            {
+                yield return Oberflaeche(outDir);
+                yield break;
+            }
 
             yield return new WaitForSecondsRealtime(2.5f);
             Capture(outDir, $"{tag}00_menu");
@@ -418,6 +435,160 @@ namespace Infront
         {
             if (_flying && _cam != null && cam == _cam)
                 _cam.transform.SetPositionAndRotation(_flyPos, _flyRot);
+        }
+
+        // ------------------------------------------------------------------
+        //  -uishot: Rundgang durch die OBERFLAECHE statt durch die Karte.
+        //
+        //  Der Karten-Rundgang zeigt Beton. Diese Route zeigt Text: jede Seite
+        //  des Hauptmenues, das Kaufmenue, das HUD im Gefecht und die
+        //  Punktetabelle. Gebaut fuer die Englisch-Umstellung - ohne sie waere
+        //  "das Menue ist jetzt englisch" eine Behauptung ohne Beleg. Sie
+        //  bleibt danach nuetzlich: zu lange Woerter, abgeschnittene Zeilen und
+        //  vergessene Texte sieht man nur auf dem Bild.
+        // ------------------------------------------------------------------
+        IEnumerator Oberflaeche(string outDir)
+        {
+            // Auf das fertig gebaute Menue warten.
+            MainMenuUi menue = null;
+            float t = 0f;
+            while (t < 30f && (menue == null || !menue.IsBuiltForTests))
+            {
+                menue = Object.FindAnyObjectByType<MainMenuUi>();
+                t += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            if (menue == null)
+            {
+                Debug.LogError("[Infront] OBERFLAECHE: kein Hauptmenue gefunden.");
+                Application.Quit();
+                yield break;
+            }
+
+            var doc = menue.GetComponent<UIDocument>();
+            VisualElement wurzel = doc != null ? doc.rootVisualElement : null;
+
+            yield return new WaitForSecondsRealtime(2f);
+
+            // Der Erstlauf legt sich als abgedunkelte Karte ueber das ganze
+            // Menue. Beim ersten Lauf hatte der Testlauf kurz vorher das Profil
+            // geloescht - und alle sieben Menue-Bilder zeigten dieselbe Karte
+            // vor einem fast schwarzen Hintergrund. Also wegklicken.
+            for (int versuch = 0; versuch < 4; versuch++)
+            {
+                Button weg = null;
+                foreach (var d in Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None))
+                {
+                    if (d.rootVisualElement == null) continue;
+                    weg = d.rootVisualElement.Q<Button>("firstrun-skip");
+                    if (weg != null) break;
+                }
+                if (weg == null) break;
+                using (var e = new NavigationSubmitEvent { target = weg }) weg.SendEvent(e);
+                Debug.Log("[Infront] OBERFLAECHE: Erstlauf-Karte weggeklickt.");
+                yield return new WaitForSecondsRealtime(1f);
+            }
+
+            yield return Foto(outDir, "01_menu_play");
+
+            // Jede Seite ueber ihren Knopf-NAMEN oeffnen, nicht ueber die
+            // Beschriftung - der Name bleibt deutsch und aendert sich nie mit
+            // der Sprache. Genau dafuer ist er da.
+            var seiten = new (string knopf, string bild)[]
+            {
+                ("nav-einstellungen", "02_menu_settings"),
+                ("nav-zugaenglichkeit", "03_menu_accessibility"),
+                ("nav-daten", "04_menu_data"),
+                ("nav-steuerung", "05_menu_controls"),
+                ("nav-quellen", "06_menu_credits"),
+                ("nav-beenden", "07_menu_quit"),
+            };
+            foreach (var s in seiten)
+            {
+                var knopf = wurzel != null ? wurzel.Q<Button>(s.knopf) : null;
+                if (knopf == null)
+                {
+                    Debug.LogWarning($"[Infront] OBERFLAECHE: Knopf '{s.knopf}' fehlt.");
+                    continue;
+                }
+                using (var e = new NavigationSubmitEvent { target = knopf }) knopf.SendEvent(e);
+                // 3 s statt 1,2 s: die Seiten blenden ihre Zeilen gestaffelt
+                // ein. Beim ersten Lauf lagen auf der CREDITS-Seite die
+                // Ueberschriften ueber den Lizenzzeilen und auf YOUR DATA
+                // fehlten die Loesch-Knoepfe - beides nur, weil das Bild
+                // mitten in der Einblendung entstand. Ein Foto zu frueh sieht
+                // aus wie ein Layout-Fehler.
+                yield return new WaitForSecondsRealtime(3f);
+                yield return Foto(outDir, s.bild);
+            }
+
+            // Zurueck auf die Startseite und ins Gefecht.
+            var zurueck = wurzel != null ? wurzel.Q<Button>("nav-spielen") : null;
+            if (zurueck != null)
+                using (var e = new NavigationSubmitEvent { target = zurueck }) zurueck.SendEvent(e);
+            yield return new WaitForSecondsRealtime(0.6f);
+
+            if (GameFlow.Instance != null) GameFlow.Instance.ToArena();
+
+            NetworkPlayerController spieler = null;
+            t = 0f;
+            while (t < 30f && (MatchManager.Instance == null || spieler == null))
+            {
+                spieler = Object.FindAnyObjectByType<NetworkPlayerController>();
+                t += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            if (MatchManager.Instance == null)
+            {
+                Debug.LogError("[Infront] OBERFLAECHE: kein Match zustande gekommen.");
+                Application.Quit();
+                yield break;
+            }
+
+            // Kaufzeit: das Kaufmenue steht von selbst offen.
+            yield return new WaitForSecondsRealtime(3f);
+            yield return Foto(outDir, "08_buymenu");
+
+            // Kaufzeit beenden -> normales HUD mit Rollen- und Bomben-Zeile.
+            var mm = MatchManager.Instance;
+            mm.SkipFreezeForTests = true;
+            mm.SuspendedForTests = true;          // Runde soll waehrenddessen nicht enden
+            try { mm.RequestEndBuyTimeRpc(); }
+            catch (System.Exception e) { Debug.LogWarning($"[Infront] OBERFLAECHE: {e.Message}"); }
+
+            yield return new WaitForSecondsRealtime(4f);
+            yield return Foto(outDir, "09_hud");
+
+            // Punktetabelle. Tab laesst sich hier nicht druecken, also der
+            // Schalter - Tastatureingaben sind auf diesem Rechner gesperrt.
+            var hud = HudController.Instance;
+            if (hud != null) hud.ForceScoreboardForTests = true;
+            yield return new WaitForSecondsRealtime(1.5f);
+            yield return Foto(outDir, "10_scoreboard");
+            if (hud != null) hud.ForceScoreboardForTests = false;
+
+            // Noch etwas Gefecht, dann ein zweites HUD-Bild mit Abschussliste.
+            yield return new WaitForSecondsRealtime(8f);
+            yield return Foto(outDir, "11_hud_spaeter");
+
+            Debug.Log("[Infront] OBERFLAECHE_FERTIG");
+            yield return new WaitForSecondsRealtime(1f);
+            Application.Quit();
+        }
+
+        /// <summary>Ein Bild machen und warten, bis es wirklich auf der Platte
+        /// liegt. ScreenCapture arbeitet nebenher; ohne das Warten zeigen
+        /// spaetere Dateien aeltere Ansichten (siehe Rundgang).</summary>
+        static IEnumerator Foto(string dir, string name)
+        {
+            string pfad = Path.Combine(dir, $"{name}.png");
+            if (File.Exists(pfad)) File.Delete(pfad);
+            ScreenCapture.CaptureScreenshot(pfad, 1);
+
+            float t = 0f;
+            while (!File.Exists(pfad) && t < 8f) { t += Time.unscaledDeltaTime; yield return null; }
+            yield return new WaitForSecondsRealtime(0.25f);
+            Debug.Log($"[Infront] OBERFLAECHE_BILD {name} da={File.Exists(pfad)}");
         }
 
         static void Capture(string dir, string name)

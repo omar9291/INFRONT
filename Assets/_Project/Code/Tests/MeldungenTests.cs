@@ -98,7 +98,7 @@ namespace Infront.Tests
 
             Absturzbericht.SchreibeTestbericht("Test");
 
-            StringAssert.Contains("Fehlerbericht", Meldungen.LetzteForTests,
+            StringAssert.Contains("Crash report", Meldungen.LetzteForTests,
                 "Wenn ein Fehlerbericht geschrieben wird, muss der Spieler das erfahren - "
                 + "sonst weiss niemand, dass es die Datei gibt.");
 
@@ -117,7 +117,7 @@ namespace Infront.Tests
                 "Der erste Sieg ist noch keine Bestleistung.");
 
             CareerStats.RecordMatch(true);    // Serie 2 - jetzt schon
-            StringAssert.Contains("Bestleistung", Meldungen.LetzteForTests,
+            StringAssert.Contains("personal best", Meldungen.LetzteForTests,
                 "Eine neue Bestleistung muesste gemeldet werden.");
 
             CareerStats.ResetForTests();

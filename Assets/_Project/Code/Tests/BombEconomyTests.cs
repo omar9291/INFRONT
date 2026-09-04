@@ -133,15 +133,15 @@ namespace Infront.Tests
 
             Bomb.Instance.ServerPlantForTests(0, player.GetComponent<TeamMember>());
             yield return MatchTestHarness.WaitUntil(
-                () => feed.LastNoteForTests != null && feed.LastNoteForTests.Contains("gelegt"), 3f,
-                "Meldung 'gelegt' kam nicht im Kill-Feed an.");
+                () => feed.LastNoteForTests != null && feed.LastNoteForTests.Contains("planted"), 3f,
+                "Meldung 'planted' kam nicht im Kill-Feed an.");
 
             var defender = AnyBotOnTeam(Team.Opponent(myTeam));
             Assert.IsNotNull(defender, "Kein Verteidiger-Bot.");
             match.ServerOnBombDefused(defender);
             yield return MatchTestHarness.WaitUntil(
-                () => feed.LastNoteForTests != null && feed.LastNoteForTests.Contains("entschaerft"), 3f,
-                "Meldung 'entschaerft' kam nicht im Kill-Feed an.");
+                () => feed.LastNoteForTests != null && feed.LastNoteForTests.Contains("defused"), 3f,
+                "Meldung 'defused' kam nicht im Kill-Feed an.");
         }
 
         [UnityTest]
@@ -161,8 +161,8 @@ namespace Infront.Tests
             bomb.ServerSetDetonateInForTests(0.4f);
 
             yield return MatchTestHarness.WaitUntil(
-                () => feed.LastNoteForTests != null && feed.LastNoteForTests.Contains("explodiert"), 4f,
-                "Meldung 'explodiert' kam nicht im Kill-Feed an.");
+                () => feed.LastNoteForTests != null && feed.LastNoteForTests.Contains("exploded"), 4f,
+                "Meldung 'exploded' kam nicht im Kill-Feed an.");
         }
     }
 }

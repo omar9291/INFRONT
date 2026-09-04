@@ -58,7 +58,7 @@ namespace Infront.Tests
                 + "Haengengeblieben bei: " + boot.PhaseForTests);
             Assert.IsFalse(BootFlow.Running,
                 "Nach dem Start duerfte er nicht mehr als laufend gelten.");
-            Assert.AreEqual("BEREIT", boot.PhaseForTests,
+            Assert.AreEqual("READY", boot.PhaseForTests,
                 "Die letzte Phase muesste BEREIT sein.");
         }
 
@@ -78,8 +78,8 @@ namespace Infront.Tests
                 yield return null;
             }
 
-            foreach (var erwartet in new[] { "PROFIL LESEN", "EINSTELLUNGEN", "LAUFBAHN",
-                                             "TON VORBEREITEN", "MENUE AUFBAUEN", "BEREIT" })
+            foreach (var erwartet in new[] { "READING PROFILE", "SETTINGS", "CAREER",
+                                             "PREPARING AUDIO", "BUILDING MENU", "READY" })
                 Assert.Contains(erwartet, gesehen,
                     "Phase '" + erwartet + "' wurde nie angezeigt. Gesehen: "
                     + string.Join(" -> ", gesehen));

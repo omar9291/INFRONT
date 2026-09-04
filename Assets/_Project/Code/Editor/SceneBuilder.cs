@@ -138,7 +138,7 @@ namespace Infront.EditorTools
             // Reihenfolge = Netz-Index. Nicht umsortieren!
             var sturmgewehr = MakeWeapon("Sturmgewehr", w =>
             {
-                w.DisplayName = "Sturmgewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.DisplayName = "Assault Rifle"; w.SlotKind = WeaponStats.Slot.Primaer;
                 w.ShotSound = SoundId.SchussGewehr;
                 w.Damage = 18; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
                 w.RecoilUp = 0.85f; w.RecoilSide = 0.3f; w.SwitchTime = 0.5f;
@@ -150,7 +150,7 @@ namespace Infront.EditorTools
             });
             var mp = MakeWeapon("Maschinenpistole", w =>
             {
-                w.DisplayName = "Maschinenpistole"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.DisplayName = "SMG"; w.SlotKind = WeaponStats.Slot.Primaer;
                 w.ShotSound = SoundId.SchussMp;
                 w.Damage = 12; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
                 w.RecoilUp = 0.5f; w.RecoilSide = 0.25f; w.SwitchTime = 0.4f;
@@ -163,7 +163,7 @@ namespace Infront.EditorTools
             });
             var sniper = MakeWeapon("Scharfschuetzengewehr", w =>
             {
-                w.DisplayName = "Scharfschuetzengewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.DisplayName = "Sniper Rifle"; w.SlotKind = WeaponStats.Slot.Primaer;
                 w.ShotSound = SoundId.SchussSniper;
                 w.Damage = 120; w.FireRate = 1.1f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
                 w.RecoilUp = 4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
@@ -179,7 +179,7 @@ namespace Infront.EditorTools
             });
             var pistole = MakeWeapon("Pistole", w =>
             {
-                w.DisplayName = "Pistole"; w.SlotKind = WeaponStats.Slot.Pistole;
+                w.DisplayName = "Pistol"; w.SlotKind = WeaponStats.Slot.Pistole;
                 w.ShotSound = SoundId.SchussPistole;
                 w.Damage = 14; w.FireRate = 5f; w.MagazineSize = 14; w.ReloadTime = 1.5f; w.Range = 90f;
                 w.RecoilUp = 1.2f; w.RecoilSide = 0.4f; w.SwitchTime = 0.3f;
@@ -191,7 +191,7 @@ namespace Infront.EditorTools
             });
             var botRifle = MakeWeapon("Bot_Sturmgewehr", w =>
             {
-                w.DisplayName = "Sturmgewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.DisplayName = "Assault Rifle"; w.SlotKind = WeaponStats.Slot.Primaer;
                 w.ShotSound = SoundId.SchussGewehr;
                 w.Damage = 12; w.FireRate = 9f; w.MagazineSize = 30; w.ReloadTime = 2f; w.Range = 200f;
                 w.RecoilUp = 0.4f; w.RecoilSide = 0.2f; w.SwitchTime = 0.5f;
@@ -201,7 +201,7 @@ namespace Infront.EditorTools
             // damit die Schwierigkeit stimmt (wie beim Bot-Sturmgewehr).
             var botMp = MakeWeapon("Bot_Maschinenpistole", w =>
             {
-                w.DisplayName = "Maschinenpistole"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.DisplayName = "SMG"; w.SlotKind = WeaponStats.Slot.Primaer;
                 w.ShotSound = SoundId.SchussMp;
                 w.Damage = 9; w.FireRate = 14f; w.MagazineSize = 30; w.ReloadTime = 1.8f; w.Range = 120f;
                 w.RecoilUp = 0.3f; w.RecoilSide = 0.15f; w.SwitchTime = 0.4f;
@@ -209,7 +209,7 @@ namespace Infront.EditorTools
             });
             var botSniper = MakeWeapon("Bot_Scharfschuetzengewehr", w =>
             {
-                w.DisplayName = "Scharfschuetzengewehr"; w.SlotKind = WeaponStats.Slot.Primaer;
+                w.DisplayName = "Sniper Rifle"; w.SlotKind = WeaponStats.Slot.Primaer;
                 w.ShotSound = SoundId.SchussSniper;
                 w.Damage = 90; w.FireRate = 1.0f; w.MagazineSize = 5; w.ReloadTime = 3.2f; w.Range = 300f;
                 w.RecoilUp = 3f; w.RecoilSide = 0.2f; w.SwitchTime = 0.9f;
@@ -230,9 +230,9 @@ namespace Infront.EditorTools
 
             cat.BuyEntries = new[]
             {
-                new WeaponCatalog.BuyEntry { DisplayName = "Maschinenpistole",       Price = 1500, PlayerWeaponIndex = 1, BotWeaponIndex = 5 },
-                new WeaponCatalog.BuyEntry { DisplayName = "Sturmgewehr",             Price = 2700, PlayerWeaponIndex = 0, BotWeaponIndex = 4 },
-                new WeaponCatalog.BuyEntry { DisplayName = "Scharfschuetzengewehr",   Price = 4750, PlayerWeaponIndex = 2, BotWeaponIndex = 6 },
+                new WeaponCatalog.BuyEntry { DisplayName = "SMG",       Price = 1500, PlayerWeaponIndex = 1, BotWeaponIndex = 5 },
+                new WeaponCatalog.BuyEntry { DisplayName = "Assault Rifle",             Price = 2700, PlayerWeaponIndex = 0, BotWeaponIndex = 4 },
+                new WeaponCatalog.BuyEntry { DisplayName = "Sniper Rifle",   Price = 4750, PlayerWeaponIndex = 2, BotWeaponIndex = 6 },
             };
 
             EditorUtility.SetDirty(cat);
@@ -259,25 +259,25 @@ namespace Infront.EditorTools
         {
             var rauch = MakeAbility("Faehigkeit_Rauchwand", a =>
             {
-                a.Kind = AbilityKind.Rauchwand; a.DisplayName = "Rauchwand"; a.Slot = AbilitySlot.Q;
+                a.Kind = AbilityKind.Rauchwand; a.DisplayName = "Smoke Wall"; a.Slot = AbilitySlot.Q;
                 a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 15f; a.Radius = 4.5f; a.ThrowRange = 16f;
             });
             var blend = MakeAbility("Faehigkeit_Blendgranate", a =>
             {
-                a.Kind = AbilityKind.Blendgranate; a.DisplayName = "Blendgranate"; a.Slot = AbilitySlot.G;
+                a.Kind = AbilityKind.Blendgranate; a.DisplayName = "Flashbang"; a.Slot = AbilitySlot.G;
                 a.Price = 250; a.Charges = 2; a.Cooldown = 0f;
                 a.Duration = 2f; a.Radius = 10f; a.ThrowRange = 14f;
             });
             var splitter = MakeAbility("Faehigkeit_Splittergranate", a =>
             {
-                a.Kind = AbilityKind.Splittergranate; a.DisplayName = "Splittergranate"; a.Slot = AbilitySlot.G;
+                a.Kind = AbilityKind.Splittergranate; a.DisplayName = "Frag Grenade"; a.Slot = AbilitySlot.G;
                 a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 0f; a.Radius = 5.5f; a.ThrowRange = 16f;
             });
             var scan = MakeAbility("Faehigkeit_ScanPuls", a =>
             {
-                a.Kind = AbilityKind.ScanPuls; a.DisplayName = "Scan-Puls"; a.Slot = AbilitySlot.F;
+                a.Kind = AbilityKind.ScanPuls; a.DisplayName = "Scan Pulse"; a.Slot = AbilitySlot.F;
                 a.Price = 250; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 3f; a.Radius = 16f; a.ThrowRange = 2f;
                 // Schritt 6: bleibt vollstaendig im Spiel, wird aber nicht mehr
@@ -287,13 +287,13 @@ namespace Infront.EditorTools
             });
             var brand = MakeAbility("Faehigkeit_Brandwand", a =>
             {
-                a.Kind = AbilityKind.Brandwand; a.DisplayName = "Brandwand"; a.Slot = AbilitySlot.Q;
+                a.Kind = AbilityKind.Brandwand; a.DisplayName = "Incendiary Wall"; a.Slot = AbilitySlot.Q;
                 a.Price = 300; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 8f; a.Radius = 4f; a.ThrowRange = 14f;
             });
             var verband = MakeAbility("Faehigkeit_Verbandspaket", a =>
             {
-                a.Kind = AbilityKind.Verbandspaket; a.DisplayName = "Verbandspaket";
+                a.Kind = AbilityKind.Verbandspaket; a.DisplayName = "Med Kit";
                 a.Slot = AbilitySlot.F;
                 a.Price = 200; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 0f;
@@ -304,7 +304,7 @@ namespace Infront.EditorTools
             });
             var draht = MakeAbility("Faehigkeit_Stolperdraht", a =>
             {
-                a.Kind = AbilityKind.Stolperdraht; a.DisplayName = "Stolperdraht"; a.Slot = AbilitySlot.F;
+                a.Kind = AbilityKind.Stolperdraht; a.DisplayName = "Tripwire"; a.Slot = AbilitySlot.F;
                 a.Price = 200; a.Charges = 1; a.Cooldown = 0f;
                 a.Duration = 30f; a.Radius = 3f; a.ThrowRange = 6f;
             });

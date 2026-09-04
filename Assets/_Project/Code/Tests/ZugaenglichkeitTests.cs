@@ -195,7 +195,7 @@ namespace Infront.Tests
         [UnityTest]
         public IEnumerator Die_Seite_steht_im_Menue_und_hat_alle_Schalter()
         {
-            yield return MenuUiHarness.OeffneSeite("ZUGAENGLICHKEIT");
+            yield return MenuUiHarness.OeffneSeite("ACCESSIBILITY");
 
             foreach (var name in new[] { "slider-uiscale", "slider-crosshair", "seg-farbe",
                                          "seg-motion", "seg-toggleaim", "seg-togglecrouch",

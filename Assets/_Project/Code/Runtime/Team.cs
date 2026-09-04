@@ -21,7 +21,7 @@ namespace Infront
         {
             Alpha => "Team Alpha",
             Bravo => "Team Bravo",
-            _ => "Kein Team",
+            _ => "No team",
         };
 
         /// <summary>Zwei Kaempfer sind Verbuendete, wenn sie dasselbe echte Team haben.</summary>

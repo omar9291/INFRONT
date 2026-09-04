@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
   m_Name: Bot_Sturmgewehr
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
-  DisplayName: Sturmgewehr
+  DisplayName: Assault Rifle
   SlotKind: 0
   ShotSound: 0
   SwitchTime: 0.5

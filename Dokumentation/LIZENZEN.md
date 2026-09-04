@@ -31,7 +31,7 @@ kopiert werden soll, ist das der passende Stand.
 | **Mixamo (Adobe)** | **Mixamo-Bedingungen** | — | **NICHT erlaubt** |
 
 Alle bis auf Mixamo sind unproblematisch. Genannt werden sie trotzdem, im
-Hauptmenü unter **QUELLEN**.
+Hauptmenü unter **CREDITS**.
 
 ## Der offene Punkt: Mixamo im öffentlichen Repo
 
@@ -103,7 +103,7 @@ Bei jeder neuen Quelle:
 
 `LICENSE` liegt im Wurzelverzeichnis. Sie betrifft **nur** den Code unter
 `Assets/_Project/Code/`. Fremde Inhalte behalten ihre eigenen Lizenzen; die
-Datei verweist dafür auf `ASSETS.md` und auf die Seite QUELLEN im Hauptmenü.
+Datei verweist dafür auf `ASSETS.md` und auf die Seite CREDITS im Hauptmenü.
 
 ### 2. Mixamo-Dateien → nicht mehr im Repository
 
@@ -130,7 +130,7 @@ echten Veröffentlichung ist dieser Punkt noch einmal zu prüfen.
 Der Nutzer hat am 2026-09-04 erlaubt: *„downloads are all allowed (as long as
 it is with credits and doesnt cost anything)"*. Damit ist neben CC0 jetzt auch
 **CC-BY** zulässig — Bedingung ist die Namensnennung in `ASSETS.md` **und** auf
-der Seite QUELLEN im Spiel. Weiterhin ausgeschlossen bleiben **CC-BY-SA** (die
+der Seite CREDITS im Spiel. Weiterhin ausgeschlossen bleiben **CC-BY-SA** (die
 Weitergabe-Klausel kann auf das ganze Spiel durchschlagen) und alles mit
 **NC/nicht-kommerziell**. Die Regel steht ausführlich in
 `.claude/agents/asset-sucher.md`.

@@ -79,8 +79,8 @@ namespace Infront.Tests
             Assert.IsNotNull(doc, "Kein Menue-Dokument gefunden.");
 
             string text = AllerText(doc.rootVisualElement);
-            Assert.IsTrue(text.Contains("QUELLEN"),
-                "Im Hauptmenue gibt es keinen Knopf 'QUELLEN'.");
+            Assert.IsTrue(text.Contains("CREDITS"),
+                "Im Hauptmenue gibt es keinen Knopf 'CREDITS'.");
         }
 
         [UnityTest]

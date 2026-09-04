@@ -163,7 +163,7 @@ namespace Infront
             if (_target == null && _state == State.Patrol)
             {
                 _state = State.Search;
-                Callout("Beschuss!", 0.5f);
+                Callout("Taking fire!", 0.5f);
             }
         }
 
@@ -386,7 +386,7 @@ namespace Infront
                     _helpCalled = false;
                     if (freshSpot)
                     {
-                        Callout("Feind gesichtet!", 0.5f);
+                        Callout("Enemy spotted!", 0.5f);
                         // Und zwar so, dass die eigenen Leute wirklich etwas
                         // davon haben - nicht nur Text im Meldungsfenster.
                         if (_team != null)
@@ -421,7 +421,7 @@ namespace Infront
             {
                 _lastKnownPosition = heardPos;
                 _memoryTimer = _stats.MemoryTime;
-                if (_state != State.Search) Callout("Hoere was!", 0.25f);
+                if (_state != State.Search) Callout("I hear something!", 0.25f);
                 _state = State.Search;
             }
         }
@@ -578,7 +578,7 @@ namespace Infront
             if (!_helpCalled && _health != null && _health.Current <= _health.Max * 0.35f)
             {
                 _helpCalled = true;
-                Callout("Brauche Hilfe!", 0.4f);
+                Callout("Need help!", 0.4f);
             }
 
             _reactionTimer -= Time.deltaTime;

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f5b3d92634d4e109b67913653cbb3d, type: 3}
   m_Name: Scharfschuetzengewehr
   m_EditorClassIdentifier: Infront.Runtime::Infront.WeaponStats
-  DisplayName: Scharfschuetzengewehr
+  DisplayName: Sniper Rifle
   SlotKind: 0
   ShotSound: 2
   SwitchTime: 0.9

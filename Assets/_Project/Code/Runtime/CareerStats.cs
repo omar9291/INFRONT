@@ -40,7 +40,7 @@ namespace Infront
                 {
                     PlayerPrefs.SetInt(KeyBest, s);
                     // Eine Bestleistung, die niemand mitbekommt, ist keine.
-                    if (s > 1) Meldungen.Zeige($"Neue Bestleistung: {s} Siege in Folge",
+                    if (s > 1) Meldungen.Zeige($"New personal best: {s} wins in a row",
                                                Meldungen.Art.Gut);
                 }
             }

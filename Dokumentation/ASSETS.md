@@ -129,7 +129,7 @@ nicht gemacht. Vor einer echten Veroeffentlichung noch einmal pruefen. Siehe
 
 ## Quellen im Spiel
 
-Seit dem 2026-09-04 gibt es im Hauptmenue die Seite **QUELLEN**, die alle
+Seit dem 2026-09-04 gibt es im Hauptmenue die Seite **CREDITS**, die alle
 Urheber nennt. Bei CC0 ist das nicht noetig, gehoert sich aber. Bei Mixamo
 ist die Nennung Teil der Sorgfalt.
 

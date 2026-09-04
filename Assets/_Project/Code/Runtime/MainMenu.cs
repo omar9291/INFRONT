@@ -45,43 +45,43 @@ namespace Infront
             y += 90f;
 
             // Teamgroesse
-            GUI.Label(new Rect(x, y, w, 26), $"Teamgroesse: {GameSettings.TeamSize} gegen {GameSettings.TeamSize}", _label);
+            GUI.Label(new Rect(x, y, w, 26), $"Team size: {GameSettings.TeamSize} vs {GameSettings.TeamSize}", _label);
             y += 28f;
             GameSettings.TeamSize = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(x, y, w, 24), GameSettings.TeamSize, 2f, 5f));
             y += 40f;
 
             // Schwierigkeit
-            GUI.Label(new Rect(x, y, w, 26), "Bot-Schwierigkeit", _label);
+            GUI.Label(new Rect(x, y, w, 26), "Bot difficulty", _label);
             y += 28f;
-            string[] names = { "Leicht", "Normal", "Schwer" };
+            string[] names = { "Easy", "Normal", "Hard" };
             int diff = (int)GameSettings.Difficulty;
             diff = GUI.Toolbar(new Rect(x, y, w, 34), diff, names);
             GameSettings.Difficulty = (GameSettings.Level)diff;
             y += 50f;
 
             // Spielmodus
-            GUI.Label(new Rect(x, y, w, 26), "Spielmodus", _label);
+            GUI.Label(new Rect(x, y, w, 26), "Game mode", _label);
             y += 28f;
-            string[] modes = { "Ausscheiden", "Bombe" };
+            string[] modes = { "Elimination", "Bomb" };
             int mode = (int)GameSettings.GameMode;
             mode = GUI.Toolbar(new Rect(x, y, w, 34), mode, modes);
             GameSettings.GameMode = (GameSettings.Mode)mode;
             y += 50f;
 
             // Maus-Empfindlichkeit
-            GUI.Label(new Rect(x, y, w, 26), $"Maus-Empfindlichkeit: {GameSettings.MouseSensitivity:0.00}", _label);
+            GUI.Label(new Rect(x, y, w, 26), $"Mouse sensitivity: {GameSettings.MouseSensitivity:0.00}", _label);
             y += 28f;
             GameSettings.MouseSensitivity = GUI.HorizontalSlider(new Rect(x, y, w, 24), GameSettings.MouseSensitivity, 0.02f, 0.3f);
             y += 50f;
 
-            if (GUI.Button(new Rect(x, y, w, 48), "Runde starten", _button))
+            if (GUI.Button(new Rect(x, y, w, 48), "Start round", _button))
             {
                 GameSettings.Save();
                 if (GameFlow.Instance != null) GameFlow.Instance.ToArena();
             }
             y += 58f;
 
-            if (GUI.Button(new Rect(x, y, w, 44), "Beenden", _button))
+            if (GUI.Button(new Rect(x, y, w, 44), "Quit", _button))
             {
                 GameSettings.Save();
                 Application.Quit();

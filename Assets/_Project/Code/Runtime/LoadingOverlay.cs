@@ -19,14 +19,14 @@ namespace Infront
 
         static readonly string[] Tips =
         {
-            "Halte E gedrueckt, um die Bombe zu legen oder zu entschaerfen.",
-            "Kopftreffer machen doppelten Schaden.",
-            "Wer stirbt, bleibt die Runde tot - kein Respawn mitten in der Runde.",
-            "Ueberlebende behalten Waffe und Weste in die naechste Runde.",
-            "Nach 15 Runden werden die Seiten getauscht.",
-            "Tote koennen mit Links- und Rechtsklick bei Verbuendeten zuschauen.",
-            "Mit B oeffnest du am Rundenanfang das Kaufmenue.",
-            "Die Schutzweste schluckt den halben Koerperschaden.",
+            "Hold E to plant or defuse the bomb.",
+            "Headshots do double damage.",
+            "If you die, you stay dead - there is no respawn mid-round.",
+            "Survivors carry their weapon and armor into the next round.",
+            "Sides are swapped after 15 rounds.",
+            "When dead, left and right click switch which teammate you watch.",
+            "Press B at the start of a round to open the buy menu.",
+            "Body armor absorbs half of all body damage.",
         };
 
         UIDocument _doc;
@@ -138,7 +138,7 @@ namespace Infront
             _shownProgress = 0f;
             _targetProgress = 0.02f;
             _scanT = 0f;
-            _phase = "VORBEREITEN";
+            _phase = "PREPARING";
             if (_phaseLabel != null) _phaseLabel.text = _phase;
             _tipTimer = 0f;
             _tipIndex = Random.Range(0, Tips.Length);
@@ -359,7 +359,7 @@ namespace Infront
             brandRow.Add(title);
             center.Add(brandRow);
 
-            var subtitle = new Label("TAKTISCHER TEAM-SHOOTER");
+            var subtitle = new Label("TACTICAL TEAM SHOOTER");
             subtitle.style.color = UiTheme.TextDim;
             subtitle.style.fontSize = 11f;
             subtitle.style.letterSpacing = 5f;
@@ -390,7 +390,7 @@ namespace Infront
             var loadingWrap = new VisualElement();
             loadingWrap.style.flexDirection = FlexDirection.Row;
 
-            var loadingLabel = new Label("LADEN");
+            var loadingLabel = new Label("LOADING");
             loadingLabel.style.color = UiTheme.TextDim;
             loadingLabel.style.fontSize = 12f;
             loadingLabel.style.letterSpacing = 3f;

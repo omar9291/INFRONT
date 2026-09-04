@@ -86,10 +86,10 @@ namespace Infront
             string txt = kind switch
             {
                 (int)MatchManager.BombEvent.Gelegt =>
-                    name != null ? $"{name} hat die Bombe gelegt" : "Die Bombe wurde gelegt",
+                    name != null ? $"{name} planted the bomb" : "The bomb was planted",
                 (int)MatchManager.BombEvent.Entschaerft =>
-                    name != null ? $"{name} hat die Bombe entschaerft" : "Die Bombe wurde entschaerft",
-                _ => "Die Bombe ist explodiert!"
+                    name != null ? $"{name} defused the bomb" : "The bomb was defused",
+                _ => "The bomb exploded!"
             };
             Color c = kind switch
             {
