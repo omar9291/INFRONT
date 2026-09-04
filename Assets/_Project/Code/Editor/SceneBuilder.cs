@@ -542,8 +542,56 @@ namespace Infront.EditorTools
         static Transform _mapRoot;
 
         static void Block(string name, float x, float y, float z, float sx, float sy, float sz)
-            => Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(0.5f, 0.5f),
-                        new Color(0.12f, 0.14f, 0.22f));   // Wand: Beton, sonst fast schwarz
+        {
+            // Ein Bauteil, drei Aufgaben - und bis hierher fuer alle dasselbe
+            // Material. 26 Aufrufe, ein Beton, eine Kachelung: die Aussenwand
+            // der Halle, die Trennwaende im Inneren und die Saeulen sahen
+            // identisch aus. Das ist der Hauptgrund, warum die Karte trotz
+            // Texturen wie eine Graukiste wirkt - nicht die Schattierung,
+            // sondern die Gleichfoermigkeit.
+            //
+            // Jetzt entscheidet der NAME ueber den Stoff, so wie es in einem
+            // echten Werk waere: die Huelle ist Beton, die Trennwaende sind
+            // Blech, die Saeulen sind ein anderer, feiner gekoernter Beton.
+            // Das ist Absicht nach Bauteil, nicht Zufall nach Hash - sonst
+            // steht neben derselben Wand mal Blech, mal Beton.
+            if (name.StartsWith("Screen_"))
+            {
+                // Trennwaende: Blech im Rahmen. Enger gekachelt, damit die
+                // Struktur auf 10 m Breite nicht zu Brei wird.
+                Surfaced(name, x, y, z, sx, sy, sz, "deckung_metall", new Vector2(0.8f, 0.8f),
+                         new Color(0.30f, 0.31f, 0.34f));
+                return;
+            }
+
+            // Saeulen. ACHTUNG bei den Namen: in der gebauten Karte heissen sie
+            // "HallePil_A", nicht "...Pillar...". Eine erste Fassung pruefte auf
+            // "Pillar" und traf deshalb nur die Menue-Kulisse - in der Arena
+            // aenderte sich nichts, und die Messung zeigte folgerichtig eine
+            // Null. Die Namen stammen aus der gebauten Szene, nicht aus dem
+            // Gedaechtnis.
+            if (name.StartsWith("HallePil") || name.Contains("Pillar"))
+            {
+                Surfaced(name, x, y, z, sx, sy, sz, "platte", new Vector2(1.1f, 1.1f),
+                         new Color(0.34f, 0.34f, 0.36f));
+                return;
+            }
+
+            // ZURUECKGENOMMEN: die grossen Hallenwaende (HalleWall_*, TunWall_*)
+            // hatten hier kurzzeitig den zweiten Beton bekommen. Gemessen war
+            // das ein klarer Rueckschritt - Median 85 -> 65, unlesbare Flaeche
+            // 27,6 % -> 33,5 %. Concrete016 ist ein dunkler Zuschlagbeton; auf
+            // der groessten Flaeche der Karte zieht er das ganze Bild herunter,
+            // und genau die Lesbarkeit war vorher muehsam erkaempft worden.
+            //
+            // Merksatz: Abwechslung darf nicht ueber die groesste Flaeche
+            // gehen. Wer Vielfalt will, nimmt die kleinen Bauteile - Saeulen,
+            // Trennwaende, Deckung - und laesst die Huelle in Ruhe.
+
+            // Huelle: grober Beton, weit gekachelt.
+            Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(0.5f, 0.5f),
+                     new Color(0.12f, 0.14f, 0.22f));   // sonst fast schwarz
+        }
 
         /// <summary>Deckungsklotz. Nicht alles gleich grau: nach Namens-Hash
         /// abwechselnd Metallplatte oder Beton, enger gekachelt (mehr Detail),
@@ -690,8 +738,22 @@ namespace Infront.EditorTools
                 Vector2 scale = new Vector2(k1 * tilePerUnit.x, k2 * tilePerUnit.y);
                 inst.SetTextureScale("_BaseMap", scale);
                 if (inst.HasProperty("_BumpMap")) inst.SetTextureScale("_BumpMap", scale);
-                if (metallic >= 0f && inst.HasProperty("_Metallic")) inst.SetFloat("_Metallic", metallic);
-                if (smoothness >= 0f && inst.HasProperty("_Smoothness")) inst.SetFloat("_Smoothness", smoothness);
+                // Regler nur setzen, solange KEINE Glanzkarte da ist.
+                //
+                // Seit die Materialien eine _MetallicGlossMap tragen, ist
+                // _Metallic wirkungslos (der Wert kommt aus dem roten Kanal)
+                // und _Smoothness nur noch ein MULTIPLIKATOR auf das Alpha.
+                // Wuerde hier weiterhin 0,15 oder 0,38 gesetzt, waere die
+                // frisch verkabelte Karte sofort wieder auf ein Sechstel
+                // heruntergedreht - die Halle saehe stumpfer aus als vorher,
+                // und zwar genau wegen der Verbesserung.
+                bool hatGlanzkarte = inst.HasProperty("_MetallicGlossMap")
+                                     && inst.GetTexture("_MetallicGlossMap") != null;
+                if (!hatGlanzkarte)
+                {
+                    if (metallic >= 0f && inst.HasProperty("_Metallic")) inst.SetFloat("_Metallic", metallic);
+                    if (smoothness >= 0f && inst.HasProperty("_Smoothness")) inst.SetFloat("_Smoothness", smoothness);
+                }
 
                 // ---- Abnutzung ohne einen einzigen zusaetzlichen Zeichenaufruf
                 //
@@ -1311,6 +1373,56 @@ namespace Infront.EditorTools
             BuildLightShafts();
             BuildDecorationWerk();
             BuildDetailWerk();
+        }
+
+        /// <summary>
+        /// Reflexionssonden fuer das Hallen-Innere.
+        ///
+        /// Vorher gab es KEINE einzige Sonde. 870 Renderer standen auf
+        /// "Reflexionssonde benutzen", es war aber keine da - also fiel alles
+        /// auf die Umgebungsreflexion zurueck, und die ist der Himmel aus dem
+        /// HDRI. Jede glaenzende Flaeche in einer geschlossenen Halle hat also
+        /// den Aussenhimmel gespiegelt, den sie gar nicht sehen kann. Deshalb
+        /// sahen die Metallkisten falsch aus, und deshalb hat die neu
+        /// verkabelte Glanzkarte zunaechst so wenig gebracht: Glanz ohne etwas
+        /// zum Spiegeln ist nur ein heller Fleck.
+        ///
+        /// Neun Sonden im Raster von 30 m, mit Kasten-Projektion, damit die
+        /// Spiegelung zur Raumkante passt statt aus dem Unendlichen zu kommen.
+        ///
+        /// Echtzeit statt gebacken, einmal beim Start: die Karte steht still,
+        /// ein Durchlauf reicht. Das spart den langen Bake-Schritt und es
+        /// liegen keine Cubemaps im Projekt. Schicht 7 (Character) bleibt
+        /// aussen vor - sonst brennen sich die Bots, die zufaellig beim Start
+        /// dastehen, als Geister in jede Spiegelung ein.
+        /// </summary>
+        static void BuildReflexionssonden()
+        {
+            var wurzel = new GameObject("Reflexionssonden").transform;
+            wurzel.SetParent(_mapRoot, true);
+
+            for (int ix = -1; ix <= 1; ix++)
+            for (int iz = -1; iz <= 1; iz++)
+            {
+                var go = new GameObject($"Sonde_{ix + 1}_{iz + 1}");
+                go.transform.SetParent(wurzel, true);
+                go.transform.position = new Vector3(ix * 30f, 4.5f, iz * 30f);
+
+                var s = go.AddComponent<ReflectionProbe>();
+                s.mode = UnityEngine.Rendering.ReflectionProbeMode.Realtime;
+                s.refreshMode = UnityEngine.Rendering.ReflectionProbeRefreshMode.OnAwake;
+                s.timeSlicingMode = UnityEngine.Rendering.ReflectionProbeTimeSlicingMode.NoTimeSlicing;
+                s.clearFlags = UnityEngine.Rendering.ReflectionProbeClearFlags.Skybox;
+                s.resolution = 128;
+                s.size = new Vector3(34f, 13f, 34f);   // ueberlappt die Nachbarn leicht
+                s.boxProjection = true;
+                s.importance = 1;
+                s.intensity = 1f;
+                s.nearClipPlane = 0.3f;
+                s.farClipPlane = 140f;
+                s.cullingMask = ~(1 << 7);             // ohne Figuren
+                s.hdr = true;
+            }
         }
 
         static void BuildWerkSpawns()
@@ -2756,6 +2868,7 @@ namespace Infront.EditorTools
             navGo.AddComponent<NavMeshBaker>();
 
             BuildMap();
+            BuildReflexionssonden();
 
             // Mehrere Spawn-Punkte
             var spawnParent = new GameObject("SpawnPoints").transform;

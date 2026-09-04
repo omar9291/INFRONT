@@ -44,6 +44,10 @@ namespace Infront.EditorTools
         static readonly string[] MetalHints = { "metalness", "metallic", "_metal", "_mtl" };
         static readonly string[] AoHints = { "ambientocclusion", "_ao", "occlusion" };
 
+        /// <summary>Die selbst gebaute Metall-/Glanz-Karte. Muss getrennt
+        /// gesucht werden - "_MetalSmooth" enthaelt "_metal".</summary>
+        static readonly string[] GlanzHints = { "_metalsmooth" };
+
         static readonly string[] TextureExt = { ".png", ".jpg", ".jpeg", ".tga", ".tif", ".tiff", ".exr" };
 
         [MenuItem("Infront/Assets/Alle Textur-Ordner zu Materialien bauen")]
@@ -97,7 +101,10 @@ namespace Infront.EditorTools
             string color = Pick(files, ColorHints);
             string normal = Pick(files, NormalHints);
             string rough = Pick(files, RoughHints);
-            string metal = Pick(files, MetalHints);
+            // "_MetalSmooth" enthaelt "_metal" - sonst haelt Pick die selbst
+            // gebaute Glanzkarte fuer die Metall-Karte des Herstellers.
+            var ohneGlanz = files.Where(f => !f.ToLowerInvariant().Contains("_metalsmooth")).ToArray();
+            string metal = Pick(ohneGlanz, MetalHints);
             string ao = Pick(files, AoHints);
 
             if (color == null)
@@ -139,15 +146,46 @@ namespace Infront.EditorTools
                 if (mat.HasProperty("_BumpScale")) mat.SetFloat("_BumpScale", 1f);
             }
 
-            // Erste Stufe: skalares Smoothness/Metallic statt Karten-Verkabelung.
-            // rough ist das Gegenteil von smoothness - Beton eher rau.
-            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.32f);
-            if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", metal != null ? 0.4f : 0.0f);
-            if (mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", 0.32f);
+            // --- Glanz: erst jetzt eine echte Karte ------------------------
+            //
+            // Bis hierher stand ueberall EIN fester Glanzwert (0,32) - vom
+            // Asphalt bis zum Stahlblech derselbe. Genau daran erkennt man
+            // eine Graukiste: alle Flaechen antworten gleich auf Licht, also
+            // wirken sie aus demselben Stoff.
+            //
+            // Die heruntergeladenen Saetze bringen eine Roughness-Karte mit,
+            // die ungenutzt herumlag. URP liest aber keine Roughness, sondern
+            // _MetallicGlossMap: RGB = Metall, ALPHA = Glaette. Deshalb wird
+            // daraus <key>_MetalSmooth.png gebaut und hier verkabelt.
+            // Streuung danach z. B. beim Asphalt 41..202 statt starr 82.
+            //
+            // ACHTUNG, zwei Fallen: mit dieser Karte ignoriert URP den Regler
+            // _Metallic vollstaendig - der Metallwert kommt aus dem roten
+            // Kanal. Und _Smoothness wirkt nur noch als MULTIPLIKATOR auf das
+            // Alpha, muss also auf 1 stehen, sonst wird alles wieder stumpf.
+            string glanz = Pick(files, GlanzHints);
+            if (glanz != null)
+            {
+                SetTextureImporter(glanz, isNormal: false, isColor: false, alphaBehalten: true);
+                var glanzTex = AssetDatabase.LoadAssetAtPath<Texture2D>(glanz);
+                if (mat.HasProperty("_MetallicGlossMap"))
+                    mat.SetTexture("_MetallicGlossMap", glanzTex);
+                mat.EnableKeyword("_METALLICSPECGLOSSMAP");
+                if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 1f);
+                if (mat.HasProperty("_SmoothnessTextureChannel"))
+                    mat.SetFloat("_SmoothnessTextureChannel", 0f);   // Alpha der Metallkarte
+            }
+            else
+            {
+                // Kein Satz mit Roughness: wie bisher ein fester Wert.
+                if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.32f);
+                if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", metal != null ? 0.4f : 0.0f);
+                if (mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", 0.32f);
+            }
 
             EditorUtility.SetDirty(mat);
             Debug.Log($"[Assets] Material '{matKey}': BaseMap={colorTex != null} Normal={normal != null} " +
-                      $"({Path.GetFileName(color)})");
+                      $"Glanz={glanz != null} ({Path.GetFileName(color)})");
             return true;
         }
 
@@ -581,11 +619,25 @@ namespace Infront.EditorTools
         }
 
         static void SetTextureImporter(string path, bool isNormal, bool isColor)
+            => SetTextureImporter(path, isNormal, isColor, alphaBehalten: false);
+
+        static void SetTextureImporter(string path, bool isNormal, bool isColor, bool alphaBehalten)
         {
             var ti = AssetImporter.GetAtPath(path) as TextureImporter;
             if (ti == null) return;
 
             bool changed = false;
+
+            // Die Glanzkarte traegt die Glaette im ALPHA-Kanal. Ohne das hier
+            // wirft der Import das Alpha weg, URP liest dann eine durchgehende
+            // Eins - also spiegelglatten Beton.
+            if (alphaBehalten)
+            {
+                if (ti.alphaSource != TextureImporterAlphaSource.FromInput)
+                { ti.alphaSource = TextureImporterAlphaSource.FromInput; changed = true; }
+                if (ti.alphaIsTransparency)
+                { ti.alphaIsTransparency = false; changed = true; }
+            }
             if (isNormal && ti.textureType != TextureImporterType.NormalMap)
             {
                 ti.textureType = TextureImporterType.NormalMap;
