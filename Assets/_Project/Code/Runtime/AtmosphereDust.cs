@@ -84,6 +84,9 @@ namespace Infront
             if (mat.HasProperty("_DstBlend")) mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
             if (mat.HasProperty("_ZWrite")) mat.SetInt("_ZWrite", 0);
             mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            // Ohne Textur ist jedes Partikel ein blankes Viereck - man sah die
+            // Kanten und die Diagonale als grosse Dreiecke im Bild.
+            SoftParticleTexture.Anwenden(mat);
             r.material = mat;
             r.renderMode = ParticleSystemRenderMode.Billboard;
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

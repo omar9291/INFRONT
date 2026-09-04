@@ -766,7 +766,12 @@ namespace Infront.EditorTools
         /// Buchstaben (A / B), aus flachen leuchtenden Balken.</summary>
         static void SiteLetter(float x, float z, char letter, Color c)
         {
-            var mat = GlowMat(c, 1.2f);   // deutlich dezenter (war viel zu grell)
+            // Frueher leuchteten die Buchstaben. Von oben sah man dann zwei
+            // riesige Neon-Lettern auf dem Hallenboden - das war der
+            // auffaelligste Arcade-Rest der Karte. In einem echten Werk ist so
+            // eine Kennzeichnung aufgemalt: abgelaufene Farbe, matt, sie
+            // reflektiert nur das Licht, das ohnehin da ist.
+            var mat = MapMat(Color.Lerp(c, new Color(0.86f, 0.84f, 0.78f), 0.45f));
             void Bar(float bx, float bz, float bw, float bd)
             {
                 var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1214,6 +1219,7 @@ namespace Infront.EditorTools
             BuildWerkTunnels();
             BuildWerkLanes();
             BuildWerkSites();
+            BuildWerkDach();
             BuildWerkConnectors();
             BuildWerkLights();
             BuildLightShafts();
@@ -1339,6 +1345,184 @@ namespace Infront.EditorTools
             }
         }
 
+        // ------------------------------------------------------------------
+        //  Dach
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// Das Dach ueber der ganzen Karte.
+        ///
+        /// Vorher war die Halle eine oben offene Kiste: sieben Meter hohe
+        /// Waende und darueber direkt der Himmel. Von oben sah man in einen
+        /// Schacht, im Spiel sah man ueber jede Wand hinweg ins Leere. Genau
+        /// das liess die Karte nach Bauklotz aussehen und nicht nach Werk.
+        ///
+        /// Jetzt: Waende bis zwoelf Meter hoch, darueber Fachwerktraeger,
+        /// Pfetten und ein Blechdach mit vier durchgehenden Lichtbaendern. Das
+        /// Tageslicht kommt durch die Lichtbaender herein - deshalb bleibt es
+        /// drinnen hell, obwohl die Sonne nicht mehr direkt hereinscheint.
+        ///
+        /// Wichtig: alles haengt unter einem eigenen Wurzelobjekt mit einem
+        /// NavMeshModifier (ignoreFromBuild). Ohne das wuerde die Oberseite des
+        /// Daches als begehbare Flaeche mitgebacken, und Bots koennten dort
+        /// oben landen.
+        /// </summary>
+        static void BuildWerkDach()
+        {
+            const float H = WerkHalf;       // 45
+            const float wandOben = 12.6f;   // Unterkante Traeger
+            const float deckUnten = 14.0f;  // Unterkante Blech
+            const float traeger = 13.3f;    // Hoehe der Hauptbinder
+
+            // ---- Waende hochziehen, sonst klafft zwischen 7 m und Dach eine Luecke
+            Block("Dach_WallUp_N", 0f, 9.9f, H, H * 2f, 5.8f, 2f);
+            Block("Dach_WallUp_S", 0f, 9.9f, -H, H * 2f, 5.8f, 2f);
+            Block("Dach_WallUp_E", H, 9.9f, 0f, 2f, 5.8f, H * 2f);
+            Block("Dach_WallUp_W", -H, 9.9f, 0f, 2f, 5.8f, H * 2f);
+
+            // ---- Hauptbinder quer (Nord-Sued-Abstand 12 m)
+            foreach (float z in new[] { -36f, -24f, -12f, 0f, 12f, 24f, 36f })
+            {
+                // Untergurt, Steg, Obergurt - zusammen liest sich das als I-Traeger
+                Surfaced($"Dach_Binder_U_{z}", 0f, traeger - 0.45f, z, H * 2f, 0.22f, 0.9f,
+                         "deckung_metall", new Vector2(1.2f, 1.2f),
+                         new Color(0.27f, 0.28f, 0.30f), metallic: 0.8f, smoothness: 0.35f);
+                Surfaced($"Dach_Binder_S_{z}", 0f, traeger, z, H * 2f, 0.9f, 0.28f,
+                         "deckung_metall", new Vector2(1.2f, 1.2f),
+                         new Color(0.24f, 0.25f, 0.27f), metallic: 0.8f, smoothness: 0.35f);
+                Surfaced($"Dach_Binder_O_{z}", 0f, traeger + 0.45f, z, H * 2f, 0.22f, 0.9f,
+                         "deckung_metall", new Vector2(1.2f, 1.2f),
+                         new Color(0.27f, 0.28f, 0.30f), metallic: 0.8f, smoothness: 0.35f);
+
+                // Diagonale Streben - ohne sie ist es ein Balken, kein Fachwerk
+                for (float x = -H + 6f; x < H; x += 12f)
+                {
+                    var d = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    d.name = $"Dach_Strebe_{z}_{x}";
+                    d.transform.SetParent(_mapRoot, true);
+                    d.transform.position = new Vector3(x, traeger, z);
+                    d.transform.rotation = Quaternion.Euler(0f, 0f, 38f);
+                    d.transform.localScale = new Vector3(0.18f, 1.5f, 0.24f);
+                    var dc = d.GetComponent<Collider>();
+                    if (dc != null) Object.DestroyImmediate(dc);
+                    d.GetComponent<Renderer>().sharedMaterial =
+                        MapMat(new Color(0.26f, 0.27f, 0.29f));
+                }
+            }
+
+            // ---- Pfetten laengs (tragen das Blech)
+            for (float x = -40f; x <= 40f; x += 8f)
+            {
+                Surfaced($"Dach_Pfette_{x}", x, deckUnten - 0.35f, 0f, 0.22f, 0.5f, H * 2f,
+                         "deckung_metall", new Vector2(1.2f, 1.2f),
+                         new Color(0.30f, 0.31f, 0.33f), metallic: 0.8f, smoothness: 0.3f);
+            }
+
+            // ---- Blechfelder, zwischen den Lichtbaendern
+            // Lichtbaender liegen bei x = -30, -10, 10, 30 und sind 5 m breit.
+            void Feld(string n, float cx, float breite)
+            {
+                Surfaced($"Dach_Blech_{n}", cx, deckUnten + 0.2f, 0f, breite, 0.4f, H * 2f,
+                         "deckung_metall", new Vector2(0.35f, 0.35f),
+                         new Color(0.20f, 0.21f, 0.23f), metallic: 0.55f, smoothness: 0.25f);
+            }
+            Feld("A", -38.75f, 12.5f);
+            Feld("B", -20f, 15f);
+            Feld("C", 0f, 15f);
+            Feld("D", 20f, 15f);
+            Feld("E", 38.75f, 12.5f);
+
+            // ---- Lichtbaender: milchige Scheiben, von aussen beschienen
+            var glasMat = GlowMat(new Color(0.82f, 0.88f, 1f), 1.35f);
+            foreach (float lx in new[] { -30f, -10f, 10f, 30f })
+            {
+                var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                g.name = $"Dach_Lichtband_{lx}";
+                g.transform.SetParent(_mapRoot, true);
+                g.transform.position = new Vector3(lx, deckUnten + 0.1f, 0f);
+                g.transform.localScale = new Vector3(5f, 0.12f, H * 2f);
+                g.GetComponent<Renderer>().sharedMaterial = glasMat;
+
+                // Sprossen quer, sonst ist es eine leuchtende Platte
+                for (float sz = -H + 4f; sz < H; sz += 8f)
+                {
+                    var sp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    sp.name = $"Dach_Sprosse_{lx}_{sz}";
+                    sp.transform.SetParent(_mapRoot, true);
+                    sp.transform.position = new Vector3(lx, deckUnten - 0.02f, sz);
+                    sp.transform.localScale = new Vector3(5.2f, 0.16f, 0.3f);
+                    var spc = sp.GetComponent<Collider>();
+                    if (spc != null) Object.DestroyImmediate(spc);
+                    sp.GetComponent<Renderer>().sharedMaterial =
+                        MapMat(new Color(0.18f, 0.19f, 0.20f));
+                }
+
+                // Das Tageslicht, das durch das Band faellt. Breit, ohne
+                // Schatten - Schatten von so grossen Kegeln waeren zu teuer.
+                // Drei Kegel je Band: einer allein liess die Enden der 90 m
+                // langen Halle im Dunkeln.
+                foreach (float lz in new[] { -28f, 0f, 28f })
+                    ShaftLight($"Dach_Tageslicht_{lx}_{lz}",
+                               new Vector3(lx, deckUnten - 0.6f, lz),
+                               new Vector3(90f, 0f, 0f), 34f, 116f,
+                               new Color(0.78f, 0.85f, 1f), 3.4f);
+            }
+
+            // ---- Hallenstrahler an den Bindern
+            foreach (float hx in new[] { -30f, 0f, 30f })
+            {
+                foreach (float hz in new[] { -24f, 0f, 24f })
+                {
+                    var schirm = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    schirm.name = $"Dach_Strahler_{hx}_{hz}";
+                    schirm.transform.SetParent(_mapRoot, true);
+                    schirm.transform.position = new Vector3(hx, traeger - 1.3f, hz);
+                    schirm.transform.localScale = new Vector3(1.1f, 0.22f, 1.1f);
+                    var sc = schirm.GetComponent<Collider>();
+                    if (sc != null) Object.DestroyImmediate(sc);
+                    schirm.GetComponent<Renderer>().sharedMaterial =
+                        GlowMat(new Color(1f, 0.93f, 0.78f), 2.2f);
+
+                    // Aufhaengung
+                    var stange = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    stange.name = $"Dach_Strahlerstange_{hx}_{hz}";
+                    stange.transform.SetParent(_mapRoot, true);
+                    stange.transform.position = new Vector3(hx, traeger - 0.7f, hz);
+                    stange.transform.localScale = new Vector3(0.08f, 0.6f, 0.08f);
+                    var stc = stange.GetComponent<Collider>();
+                    if (stc != null) Object.DestroyImmediate(stc);
+                    stange.GetComponent<Renderer>().sharedMaterial =
+                        MapMat(new Color(0.2f, 0.2f, 0.22f));
+                }
+            }
+
+            // Nur die drei mittleren Strahler bekommen wirklich Licht - neun
+            // Punktlichter waeren Verschwendung, drei reichen fuer die Tiefe.
+            foreach (float hz in new[] { -24f, 0f, 24f })
+                PointLightAt($"Dach_Strahlerlicht_{hz}", new Vector3(0f, traeger - 2f, hz),
+                             new Color(1f, 0.88f, 0.72f), 36f, 4.2f);
+
+            // ---- Alles aus dem NavMesh heraushalten
+            var dachRoot = new GameObject("Dach");
+            dachRoot.transform.SetParent(_mapRoot, false);
+            var mod = dachRoot.AddComponent<NavMeshModifier>();
+            mod.ignoreFromBuild = true;
+            mod.overrideArea = false;
+            // NavMeshModifier wirkt nur mit AffectsAgentType/Children-Schalter.
+            var soMod = new SerializedObject(mod);
+            var kinder = soMod.FindProperty("m_ApplyToChildren");
+            if (kinder != null) { kinder.boolValue = true; soMod.ApplyModifiedPropertiesWithoutUndo(); }
+
+            var umzug = new System.Collections.Generic.List<Transform>();
+            for (int i = 0; i < _mapRoot.childCount; i++)
+            {
+                var kind = _mapRoot.GetChild(i);
+                if (kind != dachRoot.transform && kind.name.StartsWith("Dach_"))
+                    umzug.Add(kind);
+            }
+            foreach (var t in umzug) t.SetParent(dachRoot.transform, true);
+        }
+
         static void BuildWerkSites()
         {
             MakeBombSite("BombZone_A", 0, -20f);
@@ -1357,11 +1541,78 @@ namespace Infront.EditorTools
                 CoverMid($"SiteM1_{side}", cx + 3f * sgn, 0f, 0f, 2.5f, 2.5f);
                 CoverLow($"SiteL1_{side}", cx, 0f, 5f, 3f, 1f);
                 CoverLow($"SiteL1b_{side}", cx, 0f, -5f, 3f, 1f);
-                SiteFrameOutline($"SiteFrame_{side}", cx, 4.4f, 0f, 8f);
+                // Vorher hing hier ein Rahmen frei in der Luft - dafuer gibt
+                // es in einem Werk kein Vorbild. Ein haengendes Hallenschild
+                // schon: es zeigt den Platz genauso von weitem an und haengt
+                // sichtbar an Stangen unter dem Dach.
+                SiteHangingSign($"SiteSign_{side}", cx, 0f, side[0],
+                                sgn < 0 ? new Color(1f, 0.75f, 0.15f)
+                                        : new Color(0.35f, 0.75f, 1f));
             }
         }
 
         /// <summary>
+        /// Haengendes Hallenschild ueber einem Bombenplatz: eine Blechtafel an
+        /// zwei Stangen, mit dem Buchstaben darauf. Ersetzt den frueher frei
+        /// schwebenden Rahmen - dieselbe Aufgabe (Platz von weitem erkennen),
+        /// aber mit einem Vorbild in der Wirklichkeit.
+        /// </summary>
+        static void SiteHangingSign(string name, float x, float z, char letter, Color c)
+        {
+            const float tafelY = 6.4f;
+
+            // Aufhaengung bis unter das Dach
+            foreach (float dx in new[] { -1.6f, 1.6f })
+            {
+                var stange = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                stange.name = $"{name}_Stange{dx}";
+                stange.transform.SetParent(_mapRoot, true);
+                stange.transform.position = new Vector3(x + dx, (tafelY + 12.6f) * 0.5f, z);
+                stange.transform.localScale = new Vector3(0.07f, (12.6f - tafelY) * 0.5f, 0.07f);
+                var col = stange.GetComponent<Collider>();
+                if (col != null) Object.DestroyImmediate(col);
+                stange.GetComponent<Renderer>().sharedMaterial =
+                    MapMat(new Color(0.22f, 0.22f, 0.24f));
+            }
+
+            // Die Tafel selbst
+            Surfaced($"{name}_Tafel", x, tafelY, z, 4.2f, 2.4f, 0.16f,
+                     "deckung_metall", new Vector2(1.2f, 1.2f),
+                     new Color(0.24f, 0.25f, 0.27f), metallic: 0.7f, smoothness: 0.35f);
+
+            // Der Buchstabe darauf - aufgemalt, leicht leuchtend, damit er im
+            // Halbdunkel der Halle noch lesbar ist. Eine Werksbeschilderung ist
+            // oft hinterleuchtet, das ist also kein Arcade-Rest.
+            var mat = GlowMat(c, 0.8f);
+            // Auf BEIDE Seiten: ein Schild, das nur von einer Seite lesbar ist,
+            // ist von der anderen eine schwarze Platte. Genau so sah es im
+            // ersten Bild aus.
+            void Bar(float bx, float by, float bw, float bh)
+            {
+                foreach (float dz in new[] { -0.11f, 0.11f })
+                {
+                    var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    b.name = $"{name}_Bar";
+                    b.transform.SetParent(_mapRoot, true);
+                    b.transform.position = new Vector3(x + bx, tafelY + by, z + dz);
+                    b.transform.localScale = new Vector3(bw, bh, 0.06f);
+                    var col = b.GetComponent<Collider>();
+                    if (col != null) Object.DestroyImmediate(col);
+                    b.GetComponent<Renderer>().sharedMaterial = mat;
+                }
+            }
+            Bar(-0.55f, 0f, 0.22f, 1.5f);
+            Bar(0.55f, 0f, 0.22f, 1.5f);
+            Bar(0f, 0f, 1.3f, 0.22f);
+            Bar(0f, 0.65f, 1.3f, 0.22f);
+            if (letter != 'A') Bar(0f, -0.65f, 1.3f, 0.22f);
+        }
+
+        /// <summary>
+        /// NICHT MEHR BENUTZT - ersetzt durch <see cref="SiteHangingSign"/>.
+        /// Bleibt stehen, falls der schwebende Rahmen doch nochmal gebraucht
+        /// wird; ein Aufruf genuegt.
+        ///
         /// Markierungs-Rahmen ueber einem Bombenplatz: VIER duenne Leisten,
         /// keine Platte.
         ///
@@ -1694,7 +1945,9 @@ namespace Infront.EditorTools
 
             // sichtbare Markierung auf dem Platzboden: nur ein Rahmen (kein
             // roter Teppich - Screenshot-Test: das dominierte alles).
-            var edge = new Color(0.5f, 0.13f, 0.13f);
+            // Warngelb statt Rot: so sind Gefahrenbereiche in einer Halle
+            // wirklich markiert, und es liest sich nicht als Spielfeldlinie.
+            var edge = new Color(0.46f, 0.40f, 0.16f);
             Tinted(name + "_MarkN", x, 1.28f, 4.8f, 9f, 0.05f, 0.4f, edge);
             Tinted(name + "_MarkS", x, 1.28f, -4.8f, 9f, 0.05f, 0.4f, edge);
             Tinted(name + "_MarkE", x + 4.3f, 1.28f, 0f, 0.4f, 0.05f, 10f, edge);
@@ -2305,7 +2558,10 @@ namespace Infront.EditorTools
                     // lesbar sind - aber NICHT so weit, dass Schattenseiten
                     // schwarz absaufen (Screenshot-Test 2026-09-04: 0.4 war zu
                     // dunkel). 0.62 haelt Kontrast und laesst die Ecken sehen.
-                    RenderSettings.ambientIntensity = 0.62f;
+                    // Seit die Halle ein Dach hat, kommt die Sonne nicht mehr
+                    // direkt herein. Das Umgebungslicht traegt jetzt den
+                    // Innenraum - bei 0,62 waren ganze Waende schwarz.
+                    RenderSettings.ambientIntensity = 1.1f;
                     light.intensity = 0.85f;                  // Sonne wieder etwas hoeher
                     DynamicGI.UpdateEnvironment();
                 }

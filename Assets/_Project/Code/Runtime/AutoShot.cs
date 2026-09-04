@@ -36,7 +36,9 @@ namespace Infront
             (new Vector3(-13f, 7f, -7f), new Vector3(-22f, 1.5f, 2f), "site_a"),
             (new Vector3(15f, 7f, 7f),   new Vector3(24f, 1.5f, -2f), "site_b"),
             (new Vector3(-30f, 8f, 15f), new Vector3(-40f, 1.5f, -12f), "lane"),
-            (new Vector3(0f, 19f, -13f), new Vector3(0f, 0.5f, 6f),   "vogelperspektive"),
+            // Unter das Dach gerueckt: seit die Halle ein Dach hat, wuerde die
+            // alte Position bei 19 m nur noch Blech zeigen.
+            (new Vector3(0f, 11.5f, -20f), new Vector3(0f, 0.5f, 6f),  "vogelperspektive"),
         };
 
         Camera _cam;

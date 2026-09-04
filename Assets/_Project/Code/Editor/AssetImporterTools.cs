@@ -820,6 +820,69 @@ namespace Infront.EditorTools
         ///   Unity -batchmode -quit -projectPath ... \
         ///     -executeMethod Infront.EditorTools.AssetImporterTools.ReportFlaechen
         /// </summary>
+        /// <summary>
+        /// Sucht Objekte, die im Bild fast schwarz herauskommen.
+        ///
+        /// Warum es das gibt: dieselbe Sorte Fehler ist in diesem Projekt schon
+        /// zweimal aufgetreten - erst die "schwarzen Podeste" (Kachelung traf
+        /// eine dunkle Stelle der Textur), dann die "schwarzen Flaechen" (ein
+        /// entglaenzter Streifen wurde zur Vollplatte). Beide Male wurde
+        /// tagelang an der falschen Stelle gesucht.
+        ///
+        /// Gemeldet wird nach ZAHLEN, nicht nach Namen: Grundfarbe, Metallwert
+        /// und Glanz. Metall ohne Umgebung zum Spiegeln wird schwarz, eine
+        /// dunkle Grundfarbe ebenfalls - beides steht hier nebeneinander.
+        ///
+        /// Aufruf: -executeMethod Infront.EditorTools.AssetImporterTools.ReportDunkel
+        /// </summary>
+        public static void ReportDunkel()
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
+                "Assets/_Project/Scenes/Arena.unity",
+                UnityEditor.SceneManagement.OpenSceneMode.Single);
+
+            int gemeldet = 0;
+            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                var m = r.sharedMaterial;
+                if (m == null)
+                {
+                    Debug.Log($"DUNKEL kein-material  {Pfad(r.transform)}");
+                    gemeldet++;
+                    continue;
+                }
+
+                Color c = m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor")
+                        : m.HasProperty("_Color") ? m.GetColor("_Color")
+                        : Color.white;
+                float lum = 0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b;
+                float metal = m.HasProperty("_Metallic") ? m.GetFloat("_Metallic") : 0f;
+                bool hatTextur = m.HasProperty("_BaseMap") && m.GetTexture("_BaseMap") != null;
+
+                // Schwarz wird es aus zwei Gruenden: dunkle Grundfarbe, oder viel
+                // Metall ohne Textur (dann bleibt nur die Spiegelung uebrig).
+                bool verdaechtig = lum < 0.10f || (metal > 0.5f && !hatTextur && lum < 0.35f);
+                if (!verdaechtig) continue;
+
+                var b = r.bounds;
+                float flaeche = Mathf.Max(b.size.x * b.size.z, Mathf.Max(b.size.x * b.size.y, b.size.y * b.size.z));
+                if (flaeche < 1.5f) continue;   // Kleinkram interessiert nicht
+
+                Debug.Log($"DUNKEL lum={lum:F3} metal={metal:F2} tex={hatTextur} "
+                          + $"flaeche={flaeche:F1} pos={b.center} mat={m.name} {Pfad(r.transform)}");
+                gemeldet++;
+            }
+
+            Debug.Log($"DUNKEL_FERTIG {gemeldet} Treffer in {scene.name}");
+        }
+
+        static string Pfad(Transform t)
+        {
+            string s = t.name;
+            while (t.parent != null) { t = t.parent; s = t.name + "/" + s; }
+            return s;
+        }
+
         public static void ReportFlaechen()
         {
             var szene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
