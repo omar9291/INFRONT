@@ -51,6 +51,11 @@ namespace Infront.EditorTools
             EnsureAudioFolder();
             AssetDatabase.Refresh();
 
+            // Die Umgebungsverdeckung sitzt im Renderer-Asset, nicht in der
+            // Szene. Sie wird hier mitgezogen, damit auch ein reiner
+            // Szenen-Build sie hat - der Aufruf tut nichts, wenn sie schon da ist.
+            GraphicsTune.EnsureSsao();
+
             // P2-P4: heruntergeladene CC0-Pakete einbauen (falls da). Ohne die
             // Ordner passiert nichts - dann bleibt alles Code-Geometrie wie bisher.
             AssetImporterTools.BuildAllSurfaceMaterials();   // Flaechen-Texturen
@@ -545,8 +550,15 @@ namespace Infront.EditorTools
         {
             bool metal = (Mathf.Abs(name.GetHashCode()) % 5) < 3;   // ~60% Metall, ~40% Beton
             if (metal)
+                // Metallwert von 0,75 auf 0,3. Bei 0,75 ist das blankes,
+                // poliertes Metall: es hat fast keine eigene Farbe mehr und
+                // zeigt nur noch die Spiegelung der Umgebung. In einer offenen
+                // Karte war das der Himmel und sah gut aus - seit die Halle ein
+                // Dach hat, ist da nichts mehr zu spiegeln, und die Kisten
+                // kamen tiefschwarz heraus. Lackierter Stahl, wie er in einem
+                // Werk wirklich steht, ist ohnehin ueberwiegend nicht metallisch.
                 Surfaced(name, x, y, z, sx, sy, sz, "deckung_metall", new Vector2(1.5f, 1.5f),
-                         new Color(0.34f, 0.36f, 0.40f), metallic: 0.75f, smoothness: 0.42f);
+                         new Color(0.34f, 0.36f, 0.40f), metallic: 0.3f, smoothness: 0.38f);
             else
                 Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(1.2f, 1.2f),
                          new Color(0.42f, 0.42f, 0.44f), metallic: 0f, smoothness: 0.15f);
@@ -695,9 +707,13 @@ namespace Infront.EditorTools
             var col = b.GetComponent<Collider>();
             if (col != null) Object.DestroyImmediate(col);   // Deko, nicht beschussrelevant
             // Screenshot-Test 4: die orangen "Landebahn"-Streifen weg. Jetzt eine
-            // dunkle Metall-Kantenleiste, die in der Geometrie fast verschwindet.
-            // Zurueck auf leuchtendes Orange ist eine Zeile, falls doch gewuenscht.
-            b.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.11f, 0.11f, 0.12f));
+            // Metall-Kantenleiste, die in der Geometrie fast verschwindet.
+            //
+            // Von 0,11 auf 0,30 aufgehellt: bei 0,11 sass auf jeder Wandkrone
+            // ein schwarzer Balken, und seit die Halle ein Dach hat (also kein
+            // heller Himmel mehr dahinter) sah das aus wie ein Loch in der Wand
+            // statt wie eine Leiste. 0,30 liest sich als Stahl, ohne zu leuchten.
+            b.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.30f, 0.30f, 0.32f));
         }
 
         static void StripeM(string name, float x, float y, float z, float sx, float sy, float sz)
@@ -1167,7 +1183,7 @@ namespace Infront.EditorTools
         /// entsteht der sichtbare Lichtschacht ganz ohne Zusatz-Geometrie.
         /// Wirft keine Schatten (Kosten).</summary>
         static void ShaftLight(string name, Vector3 pos, Vector3 dirEuler, float range,
-                               float angle, Color c, float intensity)
+                               float angle, Color c, float intensity, bool shadows = false)
         {
             var go = new GameObject(name);
             go.transform.SetParent(_mapRoot, true);
@@ -1180,7 +1196,9 @@ namespace Infront.EditorTools
             l.spotAngle = angle;
             l.innerSpotAngle = angle * 0.55f;
             l.intensity = intensity;
-            l.shadows = LightShadows.None;
+            // Schatten kosten - nur die wenigen Kegel bekommen sie, bei denen
+            // man den Lichtfleck auf dem Boden wirklich sehen soll.
+            l.shadows = shadows ? LightShadows.Soft : LightShadows.None;
         }
 
         /// <summary>Sechs Lichtschaechte: zwei quer durch die Halle (wie durch
@@ -1386,13 +1404,13 @@ namespace Infront.EditorTools
                 // Untergurt, Steg, Obergurt - zusammen liest sich das als I-Traeger
                 Surfaced($"Dach_Binder_U_{z}", 0f, traeger - 0.45f, z, H * 2f, 0.22f, 0.9f,
                          "deckung_metall", new Vector2(1.2f, 1.2f),
-                         new Color(0.27f, 0.28f, 0.30f), metallic: 0.8f, smoothness: 0.35f);
+                         new Color(0.27f, 0.28f, 0.30f), metallic: 0.35f, smoothness: 0.3f);
                 Surfaced($"Dach_Binder_S_{z}", 0f, traeger, z, H * 2f, 0.9f, 0.28f,
                          "deckung_metall", new Vector2(1.2f, 1.2f),
-                         new Color(0.24f, 0.25f, 0.27f), metallic: 0.8f, smoothness: 0.35f);
+                         new Color(0.24f, 0.25f, 0.27f), metallic: 0.35f, smoothness: 0.3f);
                 Surfaced($"Dach_Binder_O_{z}", 0f, traeger + 0.45f, z, H * 2f, 0.22f, 0.9f,
                          "deckung_metall", new Vector2(1.2f, 1.2f),
-                         new Color(0.27f, 0.28f, 0.30f), metallic: 0.8f, smoothness: 0.35f);
+                         new Color(0.27f, 0.28f, 0.30f), metallic: 0.35f, smoothness: 0.3f);
 
                 // Diagonale Streben - ohne sie ist es ein Balken, kein Fachwerk
                 for (float x = -H + 6f; x < H; x += 12f)
@@ -1415,7 +1433,7 @@ namespace Infront.EditorTools
             {
                 Surfaced($"Dach_Pfette_{x}", x, deckUnten - 0.35f, 0f, 0.22f, 0.5f, H * 2f,
                          "deckung_metall", new Vector2(1.2f, 1.2f),
-                         new Color(0.30f, 0.31f, 0.33f), metallic: 0.8f, smoothness: 0.3f);
+                         new Color(0.30f, 0.31f, 0.33f), metallic: 0.35f, smoothness: 0.28f);
             }
 
             // ---- Blechfelder, zwischen den Lichtbaendern
@@ -1424,7 +1442,7 @@ namespace Infront.EditorTools
             {
                 Surfaced($"Dach_Blech_{n}", cx, deckUnten + 0.2f, 0f, breite, 0.4f, H * 2f,
                          "deckung_metall", new Vector2(0.35f, 0.35f),
-                         new Color(0.20f, 0.21f, 0.23f), metallic: 0.55f, smoothness: 0.25f);
+                         new Color(0.20f, 0.21f, 0.23f), metallic: 0.3f, smoothness: 0.22f);
             }
             Feld("A", -38.75f, 12.5f);
             Feld("B", -20f, 15f);
@@ -1466,6 +1484,11 @@ namespace Infront.EditorTools
                                new Vector3(lx, deckUnten - 0.6f, lz),
                                new Vector3(90f, 0f, 0f), 34f, 116f,
                                new Color(0.78f, 0.85f, 1f), 3.4f);
+                // Kein Schatten an den Lichtbaendern. Ein Versuch mit vier
+                // weichen Schattenkegeln (34 m Reichweite, 116 Grad) sah zwar
+                // gut aus, kostete aber gemessen: 60 FPS / min 57 wurden zu
+                // 57,7 FPS / min 30. Die Lichtflecken sind das nicht wert -
+                // die Ankerlichter an den Engstellen werfen weiter Schatten.
             }
 
             // ---- Hallenstrahler an den Bindern
@@ -1578,7 +1601,7 @@ namespace Infront.EditorTools
             // Die Tafel selbst
             Surfaced($"{name}_Tafel", x, tafelY, z, 4.2f, 2.4f, 0.16f,
                      "deckung_metall", new Vector2(1.2f, 1.2f),
-                     new Color(0.24f, 0.25f, 0.27f), metallic: 0.7f, smoothness: 0.35f);
+                     new Color(0.24f, 0.25f, 0.27f), metallic: 0.3f, smoothness: 0.3f);
 
             // Der Buchstabe darauf - aufgemalt, leicht leuchtend, damit er im
             // Halbdunkel der Halle noch lesbar ist. Eine Werksbeschilderung ist

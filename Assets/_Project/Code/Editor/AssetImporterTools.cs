@@ -855,6 +855,13 @@ namespace Infront.EditorTools
                 Color c = m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor")
                         : m.HasProperty("_Color") ? m.GetColor("_Color")
                         : Color.white;
+
+                // WICHTIG: nicht nur den Farbton messen. Die Helligkeit im Bild
+                // ist Farbton MAL Textur. Genau dieser Unterschied hat hier
+                // schon zweimal auf die falsche Faehrte gefuehrt - eine helle
+                // Tinte auf einer fast schwarzen Textur ist immer noch schwarz.
+                Color tex = MittlereFarbe(m);
+                c = new Color(c.r * tex.r, c.g * tex.g, c.b * tex.b);
                 float lum = 0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b;
                 float metal = m.HasProperty("_Metallic") ? m.GetFloat("_Metallic") : 0f;
                 bool hatTextur = m.HasProperty("_BaseMap") && m.GetTexture("_BaseMap") != null;
@@ -874,6 +881,43 @@ namespace Infront.EditorTools
             }
 
             Debug.Log($"DUNKEL_FERTIG {gemeldet} Treffer in {scene.name}");
+        }
+
+        /// <summary>
+        /// Mittlere Farbe der Grundtextur eines Materials. Weiss, wenn keine da
+        /// ist. Liest die kleinste Mip-Stufe - die ist genau der Durchschnitt.
+        /// </summary>
+        static Color MittlereFarbe(Material m)
+        {
+            if (!m.HasProperty("_BaseMap")) return Color.white;
+            var tex = m.GetTexture("_BaseMap") as Texture2D;
+            if (tex == null) return Color.white;
+
+            try
+            {
+                var pfad = AssetDatabase.GetAssetPath(tex);
+                if (!string.IsNullOrEmpty(pfad))
+                {
+                    var imp = AssetImporter.GetAtPath(pfad) as TextureImporter;
+                    if (imp != null && !imp.isReadable)
+                    {
+                        imp.isReadable = true;
+                        imp.SaveAndReimport();
+                        tex = AssetDatabase.LoadAssetAtPath<Texture2D>(pfad);
+                    }
+                }
+
+                var px = tex.GetPixels(Mathf.Max(0, tex.mipmapCount - 1));
+                if (px == null || px.Length == 0) return Color.white;
+
+                Color summe = Color.black;
+                for (int i = 0; i < px.Length; i++) summe += px[i];
+                return summe / px.Length;
+            }
+            catch (System.Exception)
+            {
+                return Color.white;   // nicht lesbar - dann lieber nichts behaupten
+            }
         }
 
         static string Pfad(Transform t)

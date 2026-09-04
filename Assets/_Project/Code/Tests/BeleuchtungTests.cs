@@ -91,12 +91,21 @@ namespace Infront.Tests
 
             if (RenderSettings.ambientMode == AmbientMode.Skybox)
             {
-                // Heruntergefahren (Default ist 1.0), aber NICHT so weit, dass
-                // Schattenseiten schwarz absaufen (Screenshot-Test 2026-09-04).
-                Assert.LessOrEqual(RenderSettings.ambientIntensity, 0.75f,
-                    "Das Umgebungslicht (Skybox) ist zu hell - die Schatten verschwinden.");
-                Assert.GreaterOrEqual(RenderSettings.ambientIntensity, 0.45f,
-                    "Das Umgebungslicht (Skybox) ist zu dunkel - man sieht nichts im Schatten.");
+                // Die Grenzen galten fuer die oben offene Karte: da schien die
+                // Sonne direkt herein, und viel Umgebungslicht haette die
+                // Schatten weggewaschen. Seit die Halle ein Dach hat, kommt
+                // kein direktes Sonnenlicht mehr an - das Umgebungslicht
+                // TRAEGT jetzt den Innenraum. Bei 0,62 waren ganze Waende
+                // schwarz.
+                //
+                // Die Obergrenze bleibt, nur hoeher: wird sie ueberschritten,
+                // ist der Raum wieder flach ausgeleuchtet und nichts wirft
+                // sichtbare Schatten.
+                Assert.LessOrEqual(RenderSettings.ambientIntensity, 1.35f,
+                    "Das Umgebungslicht (Skybox) ist zu hell - alles wird flach.");
+                Assert.GreaterOrEqual(RenderSettings.ambientIntensity, 0.8f,
+                    "Das Umgebungslicht (Skybox) ist zu dunkel - in einer gedeckelten "
+                    + "Halle saufen dann die Waende ab.");
             }
             else
             {
