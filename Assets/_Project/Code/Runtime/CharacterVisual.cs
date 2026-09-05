@@ -24,6 +24,12 @@ namespace Infront
     public sealed class CharacterVisual : NetworkBehaviour
     {
         static readonly Color Cloth = new Color(0.22f, 0.24f, 0.27f);
+
+        /// <summary>Uniform der echten Figur. Dunkel und matt, damit ein
+        /// einziges Material ueber die ganze Figur nicht wie eingefaerbte Haut
+        /// aussieht.</summary>
+        static readonly Color Uniform = new Color(0.20f, 0.21f, 0.18f);
+        static readonly Color Ausruestung = new Color(0.13f, 0.13f, 0.12f);
         static readonly Color Skin = new Color(0.55f, 0.42f, 0.34f);
 
         Health _health;
@@ -34,7 +40,7 @@ namespace Infront
         Transform _figure;
         Transform _head;
         Transform _legL, _legR, _armL, _armR;
-        Material _clothMat, _skinMat;
+        Material _clothMat, _skinMat, _markenMat;
 
         // P7: echtes Figuren-Modell (Mixamo o.ae.), wenn vorhanden.
         Animator _animator;
@@ -176,6 +182,7 @@ namespace Infront
                 _figure = go.transform;
                 _animator = go.GetComponentInChildren<Animator>();
                 _usingRealModel = true;
+                ZieheFigurAn(go);
                 _built = true;
                 return;
             }
@@ -206,6 +213,118 @@ namespace Infront
             _legR = Limb("BeinR", _figure, new Vector3(0.13f, 0.86f, 0f), 0.86f, _clothMat);
 
             _built = true;
+        }
+
+        /// <summary>Gibt dem echten Modell eine Uniform und ein Teamkennzeichen.
+        ///
+        /// Warum ueberhaupt: die Mixamo-Figur ist ohne Texturen heruntergeladen
+        /// worden - im FBX steckt keine einzige Bilddatei, nur eine
+        /// Diffuse-Farbe. Zusammen mit der alten Faerbung durch TeamTint, die
+        /// JEDEN Renderer flaechig uebermalt hat, ergab das die lachsfarbenen
+        /// Plastikpuppen der Rundgangsbilder.
+        ///
+        /// Ein einziges Material deckt die ganze Figur ab, Gesicht und Haende
+        /// eingeschlossen. Deshalb ist die Uniform bewusst eine dunkle,
+        /// matte Einsatzfarbe - das liest sich als Sturmhaube und Handschuhe
+        /// und nicht als nackte Haut in Falschfarbe.</summary>
+        void ZieheFigurAn(GameObject go)
+        {
+            _clothMat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+                { name = "FigurUniform" };
+            Paint(_clothMat, Uniform);
+            Mattieren(_clothMat, 0.16f);
+
+            var gurt = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+                { name = "FigurAusruestung" };
+            Paint(gurt, Ausruestung);
+            Mattieren(gurt, 0.24f);
+
+            foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+            {
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                    mats[i] = i == 0 ? _clothMat : gurt;
+                r.sharedMaterials = mats;
+            }
+
+            // Armbinden an beiden Oberarmen und ein Rueckenpanel. Nur diese
+            // Teile faerbt TeamTint spaeter in die Mannschaftsfarbe.
+            Armbinde(go, "LeftArm");
+            Armbinde(go, "RightArm");
+            Rueckenpanel(go);
+        }
+
+        static void Mattieren(Material m, float glanz)
+        {
+            if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", glanz);
+            if (m.HasProperty("_Metallic")) m.SetFloat("_Metallic", 0f);
+        }
+
+        /// <summary>Sucht den Oberarm-Knochen und legt eine Binde darum. Die
+        /// Mixamo-Knochen heissen "mixamorig:LeftArm" - deshalb Endung
+        /// vergleichen und nicht den ganzen Namen.</summary>
+        void Armbinde(GameObject go, string knochenEnde)
+        {
+            var knochen = FindeKnochen(go.transform, knochenEnde);
+            if (knochen == null) return;
+
+            // Mitte zwischen Schulter und Ellenbogen. Direkt am Gelenk saesse
+            // die Binde im Rumpf.
+            Vector3 pos = knochen.childCount > 0
+                ? Vector3.Lerp(knochen.position, knochen.GetChild(0).position, 0.45f)
+                : knochen.position;
+
+            var band = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            band.name = "Teamband_" + knochenEnde;
+            var c = band.GetComponent<Collider>();
+            if (c != null) Destroy(c);
+            band.transform.SetParent(knochen, true);
+            band.transform.position = pos;
+            band.transform.rotation = knochen.rotation;
+            band.transform.localScale = new Vector3(0.14f, 0.09f, 0.14f);
+            band.AddComponent<TeamMarker>();
+            band.GetComponent<Renderer>().sharedMaterial = Kennzeichenmaterial();
+        }
+
+        void Rueckenpanel(GameObject go)
+        {
+            var spine = FindeKnochen(go.transform, "Spine2") ?? FindeKnochen(go.transform, "Spine1")
+                        ?? FindeKnochen(go.transform, "Spine");
+            if (spine == null) return;
+
+            var panel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            panel.name = "Teamband_Ruecken";
+            var c = panel.GetComponent<Collider>();
+            if (c != null) Destroy(c);
+            panel.transform.SetParent(spine, true);
+            panel.transform.position = spine.position - transform.forward * 0.17f
+                                       + transform.up * 0.08f;
+            panel.transform.rotation = transform.rotation;
+            panel.transform.localScale = new Vector3(0.22f, 0.16f, 0.03f);
+            panel.AddComponent<TeamMarker>();
+            panel.GetComponent<Renderer>().sharedMaterial = Kennzeichenmaterial();
+        }
+
+        /// <summary>Weisse Grundfarbe mit Absicht: TeamTint setzt sie ueber
+        /// einen MaterialPropertyBlock auf die Mannschaftsfarbe. Waere sie
+        /// schon eingefaerbt, saehe ein Kennzeichen ohne Team falsch aus.</summary>
+        Material Kennzeichenmaterial()
+        {
+            if (_markenMat == null)
+            {
+                _markenMat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+                    { name = "FigurTeamband" };
+                Paint(_markenMat, Color.white);
+                Mattieren(_markenMat, 0.10f);
+            }
+            return _markenMat;
+        }
+
+        static Transform FindeKnochen(Transform wurzel, string ende)
+        {
+            foreach (var t in wurzel.GetComponentsInChildren<Transform>(true))
+                if (t.name.EndsWith(ende, System.StringComparison.Ordinal)) return t;
+            return null;
         }
 
         static Transform Cube(string name, Transform parent, Vector3 pos, Vector3 scale, Material mat)

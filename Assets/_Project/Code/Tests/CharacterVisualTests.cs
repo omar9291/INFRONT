@@ -139,5 +139,56 @@ namespace Infront.Tests
 
             Assert.IsTrue(cv.LeaningForTests, "Die Figur ist beim Tod nicht umgekippt.");
         }
+
+        /// <summary>
+        /// Die Figur traegt eine Uniform, und die Mannschaftsfarbe sitzt nur
+        /// auf den Kennzeichen.
+        ///
+        /// Vorgeschichte (2026-09-05): TeamTint hat die Grundfarbe JEDES
+        /// Renderers der Figur ueberschrieben - beim Gegner (1, 0.35, 0.30).
+        /// Flaechig ueber Gesicht, Haende und Kleidung ergab das lachsfarbene
+        /// Plastikpuppen. Auf den Rundgangsbildern war das der groesste
+        /// einzelne Grund, warum die Karte nach Spielzeug aussah, obwohl
+        /// laengst ein echtes Modell mit Animationen dahintersteckt.
+        ///
+        /// NICHT pruefbar: ob die Uniform gut aussieht. Pruefbar: dass der
+        /// Koerper nicht mehr uebermalt wird und die Mannschaft trotzdem
+        /// erkennbar bleibt.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Die_Mannschaftsfarbe_sitzt_nur_auf_den_Kennzeichen()
+        {
+            yield return MatchTestHarness.LoadReady((p, m) => { });
+            // TeamTint faerbt in LateUpdate - ein paar Bilder warten.
+            for (int i = 0; i < 10; i++) yield return null;
+
+            var cv = FirstBotVisual();
+            Assert.IsNotNull(cv, "Kein Bot mit CharacterVisual.");
+            Assert.IsTrue(cv.UsingRealModelForTests,
+                "Ohne echtes Modell sagt diese Pruefung nichts aus.");
+
+            var marken = cv.GetComponentsInChildren<TeamMarker>(true);
+            Assert.GreaterOrEqual(marken.Length, 2,
+                "Die Figur hat " + marken.Length + " Teamkennzeichen. Ohne sie ist "
+                + "nicht mehr zu erkennen, wer Freund und wer Feind ist - und genau "
+                + "das war der Grund, warum frueher die ganze Figur eingefaerbt wurde.");
+
+            // Der Koerper selbst darf nicht mehr uebermalt sein.
+            foreach (var r in cv.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                Assert.IsFalse(r.HasPropertyBlock(),
+                    "Auf '" + r.name + "' liegt wieder ein MaterialPropertyBlock. "
+                    + "Damit uebermalt TeamTint den ganzen Koerper flaechig in der "
+                    + "Mannschaftsfarbe - der alte Plastikpuppen-Zustand.");
+
+                Assert.IsNotNull(r.sharedMaterial, "Kein Material an der Figur.");
+                Assert.AreEqual("FigurUniform", r.sharedMaterial.name,
+                    "Die Figur traegt noch das Material aus dem FBX ('"
+                    + r.sharedMaterial.name + "'). Die Mixamo-Datei enthaelt keine "
+                    + "einzige Textur, nur eine Diffuse-Farbe - ohne eigene Uniform "
+                    + "sieht die Figur deshalb aus wie eingefaerbter Kunststoff.");
+            }
+        }
+
     }
 }

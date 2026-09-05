@@ -3,9 +3,21 @@ using UnityEngine;
 namespace Infront
 {
     /// <summary>
-    /// Faerbt die Figur relativ zum lokalen Spieler: eigenes Team blau,
-    /// Gegner rot. Laeuft auf jedem Client fuer dessen eigene Sicht.
-    /// Faellt weg, sobald es echte Charaktermodelle gibt.
+    /// Faerbt die Teamkennzeichen der Figur relativ zum lokalen Spieler:
+    /// eigenes Team blau, Gegner rot. Laeuft auf jedem Client fuer dessen
+    /// eigene Sicht.
+    ///
+    /// WICHTIG - was hier NICHT mehr passiert: bis zum 2026-09-05 hat diese
+    /// Klasse die Grundfarbe JEDES Renderers der Figur ueberschrieben. Beim
+    /// Gegner war das (1, 0.35, 0.30), flaechig ueber Gesicht, Haende und
+    /// Kleidung. Das war der Grund, warum die Bots auf den Rundgangsbildern
+    /// wie lachsfarbene Plastikpuppen aussahen, obwohl laengst ein echtes
+    /// Modell mit Animationen dahintersteckt.
+    ///
+    /// Jetzt gilt: gibt es an der Figur <see cref="TeamMarker"/>-Teile
+    /// (Armbinden, Rueckenpanel), wird NUR die gefaerbt. Gibt es keine - etwa
+    /// bei der alten Wuerfel-Figur, wenn kein Modell vorhanden ist - bleibt es
+    /// beim alten Verhalten, damit die Mannschaft dort erkennbar bleibt.
     /// </summary>
     [RequireComponent(typeof(TeamMember))]
     public sealed class TeamTint : MonoBehaviour
@@ -23,7 +35,7 @@ namespace Infront
         void Awake()
         {
             _team = GetComponent<TeamMember>();
-            _renderers = GetComponentsInChildren<Renderer>(true);
+            _renderers = SammleRenderer();
             _mpb = new MaterialPropertyBlock();
         }
 
@@ -32,8 +44,27 @@ namespace Infront
         /// LateUpdate neu.</summary>
         public void RefreshRenderers()
         {
-            _renderers = GetComponentsInChildren<Renderer>(true);
+            _renderers = SammleRenderer();
             _applied = Color.clear;
+        }
+
+        /// <summary>Nur die Kennzeichen - und nur wenn es welche gibt.</summary>
+        Renderer[] SammleRenderer()
+        {
+            var marken = GetComponentsInChildren<TeamMarker>(true);
+            if (marken.Length > 0)
+            {
+                var liste = new System.Collections.Generic.List<Renderer>();
+                foreach (var m in marken)
+                {
+                    var r = m.GetComponent<Renderer>();
+                    if (r != null) liste.Add(r);
+                }
+                if (liste.Count > 0) return liste.ToArray();
+            }
+            // Rueckfall: Wuerfel-Figur ohne Kennzeichen. Ohne diesen Zweig
+            // waeren dort Freund und Feind nicht mehr zu unterscheiden.
+            return GetComponentsInChildren<Renderer>(true);
         }
 
         void LateUpdate()
