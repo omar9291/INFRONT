@@ -1646,6 +1646,7 @@ namespace Infront.EditorTools
             BuildLightShafts();
             BuildDecorationWerk();
             BuildDetailWerk();
+            BuildWandDetail();
         }
 
         /// <summary>
@@ -2474,6 +2475,64 @@ namespace Infront.EditorTools
                     new Vector3(0.55f, 0.28f, 0.42f), new Color(0.30f, 0.28f, 0.22f),
                     Quaternion.Euler(0f, (float)r.NextDouble() * 20f - 10f, 0f));
             }
+        }
+
+        /// <summary>Sockelleisten und Plattenfugen auf den vier Aussenwaenden.
+        ///
+        /// Der Optik-Pruefer hat am 2026-09-05 gemessen, woran es liegt, dass
+        /// die Halle trotz echter Betontextur leer wirkt: auf den Gangwaenden
+        /// betraegt die Helligkeits-Streuung nur 8,8 bis 9,8. Vom Boden bis zur
+        /// Decke eine einzige gleichmaessige Flaeche - keine Fugen, keine
+        /// Kante, kein Sockel. Eine echte Werkhalle ist aus Fertigteilen
+        /// gebaut, und man sieht jede einzelne Plattenfuge.
+        ///
+        /// Die Sockelleiste hat zusaetzlich eine Aufgabe: sie gibt der Wand
+        /// einen Fuss. Ohne sie stoesst die Wandflaeche ohne Uebergang auf den
+        /// Boden, und genau solche Stoesse liest das Auge als "nicht
+        /// verbunden" - derselbe Eindruck, der die schwebenden Objekte von
+        /// heute frueh so auffaellig gemacht hat.
+        ///
+        /// Alles ohne Collider (Deco) - Balance und NavMesh bleiben unberuehrt.</summary>
+        static void BuildWandDetail()
+        {
+            const float H = WerkHalf;          // 45
+            const float innen = H - 1f;        // Innenflaeche der 2 m dicken Wand
+            var fuge = new Color(0.14f, 0.14f, 0.15f);
+            var sockel = new Color(0.27f, 0.27f, 0.28f);
+
+            // seite 0 = West, 1 = Ost, 2 = Sued, 3 = Nord
+            void Wand(int seite)
+            {
+                bool xWand = seite < 2;
+                float vz = (seite % 2 == 0) ? -1f : 1f;
+                float fest = (innen - 0.06f) * vz;
+                string p = xWand ? (vz < 0 ? "W" : "O") : (vz < 0 ? "S" : "N");
+
+                // raus = wie weit das Teil in den Raum hineinsteht
+                Vector3 Pos(float laengs, float y, float raus)
+                    => xWand ? new Vector3(fest + raus * -vz, y, laengs)
+                             : new Vector3(laengs, y, fest + raus * -vz);
+                Vector3 Skala(float laenge, float hoehe, float dicke)
+                    => xWand ? new Vector3(dicke, hoehe, laenge)
+                             : new Vector3(laenge, hoehe, dicke);
+
+                Deco($"Sockel_{p}", PrimitiveType.Cube, Pos(0f, 0.16f, 0.05f),
+                     Skala(H * 2f - 0.4f, 0.32f, 0.12f), sockel);
+
+                // Waagerechte Fugen auf Fertigteilhoehe.
+                var hoehen = new[] { 2.6f, 5.2f };
+                for (int i = 0; i < hoehen.Length; i++)
+                    Deco($"Fuge_{p}_h{i}", PrimitiveType.Cube, Pos(0f, hoehen[i], 0.02f),
+                         Skala(H * 2f - 0.4f, 0.06f, 0.06f), fuge);
+
+                // Senkrechte Fugen alle 7,5 m - die Breite einer Betonplatte.
+                int k = 0;
+                for (float l = -H + 7.5f; l < H - 1f; l += 7.5f, k++)
+                    Deco($"Fuge_{p}_v{k}", PrimitiveType.Cube, Pos(l, 3.5f, 0.02f),
+                         Skala(0.06f, 7f, 0.06f), fuge);
+            }
+
+            for (int seite = 0; seite < 4; seite++) Wand(seite);
         }
 
         static void BuildDetailWerk()
