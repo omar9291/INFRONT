@@ -625,8 +625,25 @@ namespace Infront.EditorTools
                 // Dach hat, ist da nichts mehr zu spiegeln, und die Kisten
                 // kamen tiefschwarz heraus. Lackierter Stahl, wie er in einem
                 // Werk wirklich steht, ist ohnehin ueberwiegend nicht metallisch.
+                // Grundton 0,95 statt der ueblichen 0,72.
+                //
+                // Gemessen am 2026-09-05 an HalleCont_2_B: Vorderseite Median
+                // 10, RGB (12,9,9), 100 % der Pixel unter der Lesbarkeits-
+                // schwelle - waehrend Wand und Boden im selben Bild bei 105
+                // und 111 lagen. Die Oberseite desselben Blocks war hell; das
+                // Verhaeltnis lag bei rund 20:1.
+                //
+                // Ursache ist die Richtung des Lichts, nicht die Textur: es
+                // kommt fast nur senkrecht aus den Dachbaendern, und eine
+                // senkrechte Flaeche bekommt davon kaum etwas ab. Mehr
+                // Hallenlicht behebt das zwar, flutet aber den ganzen Raum
+                // (gemessen: Median 99,7 auf 125,4 - Flutlicht statt Werk).
+                //
+                // Ein hoeherer Grundton wirkt dagegen NUR auf diesen Bauteiltyp:
+                // dieselbe schwache Beleuchtung, aber mehr davon kommt zurueck.
                 Surfaced(name, x, y, z, sx, sy, sz, "deckung_metall", new Vector2(1.5f, 1.5f),
-                         new Color(0.34f, 0.36f, 0.40f), metallic: 0.3f, smoothness: 0.38f);
+                         new Color(0.34f, 0.36f, 0.40f), metallic: 0.3f, smoothness: 0.38f,
+                         tintBasis: 0.95f);
             else
                 Surfaced(name, x, y, z, sx, sy, sz, "wand_beton", new Vector2(1.2f, 1.2f),
                          new Color(0.42f, 0.42f, 0.44f), metallic: 0f, smoothness: 0.15f);
@@ -734,7 +751,8 @@ namespace Infront.EditorTools
         /// <paramref name="key"/>) und pro-Objekt richtig eingestellter Kachelung.</summary>
         static void Surfaced(string name, float x, float y, float z, float sx, float sy, float sz,
                              string key, Vector2 tilePerUnit, Color fallbackTint,
-                             float metallic = -1f, float smoothness = -1f)
+                             float metallic = -1f, float smoothness = -1f,
+                             float tintBasis = 0.72f)
         {
             var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
             b.name = name;
@@ -822,9 +840,9 @@ namespace Infront.EditorTools
                     float hell = Mathf.Lerp(0.88f, 1.06f, a);
                     float warm = Mathf.Lerp(-0.03f, 0.03f, b2);
                     var t = new Color(
-                        Mathf.Clamp(0.72f * hell + warm, 0.45f, 1f),
-                        Mathf.Clamp(0.72f * hell, 0.45f, 1f),
-                        Mathf.Clamp(0.74f * hell - warm, 0.45f, 1f));
+                        Mathf.Clamp(tintBasis * hell + warm, 0.45f, 1f),
+                        Mathf.Clamp(tintBasis * hell, 0.45f, 1f),
+                        Mathf.Clamp((tintBasis + 0.02f) * hell - warm, 0.45f, 1f));
                     if (inst.HasProperty("_BaseColor")) inst.SetColor("_BaseColor", t);
                     inst.color = t;
                 }
@@ -1647,6 +1665,7 @@ namespace Infront.EditorTools
             BuildDecorationWerk();
             BuildDetailWerk();
             BuildWandDetail();
+            BuildHallenstrahler();
         }
 
         /// <summary>
@@ -1683,11 +1702,37 @@ namespace Infront.EditorTools
                 go.transform.position = new Vector3(ix * 30f, 4.5f, iz * 30f);
 
                 var s = go.AddComponent<ReflectionProbe>();
-                s.mode = UnityEngine.Rendering.ReflectionProbeMode.Realtime;
-                s.refreshMode = UnityEngine.Rendering.ReflectionProbeRefreshMode.OnAwake;
-                s.timeSlicingMode = UnityEngine.Rendering.ReflectionProbeTimeSlicingMode.NoTimeSlicing;
+                // Gebacken statt Realtime.
+                //
+                // Gemessen am 2026-09-05: der Deckungsblock HalleCont_2_B
+                // rendert mit Median 10, RGB (12,9,9) - 100 % seiner Pixel
+                // liegen unter der Lesbarkeitsschwelle, waehrend Wand, Boden
+                // und Nachbarbloecke im selben Bild bei 94 bis 111 liegen.
+                //
+                // Die Ursache ist nicht die Farbe, sondern das Material:
+                // deckung_metall traegt eine _MetallicGlossMap. Sobald die da
+                // ist, ist der _Metallic-Regler wirkungslos - der Wert kommt
+                // aus dem roten Kanal der Karte, und der sagt "voll
+                // metallisch". Eine voll metallische Flaeche hat KEINE
+                // diffuse Antwort. Sie zeigt ausschliesslich Spiegelung. Ist
+                // nichts zu spiegeln da, ist sie schwarz. Genau deshalb
+                // mussten die Kisten frueher schon von metallic 0,75 auf 0,3
+                // heruntergezogen werden - das war die Behandlung des
+                // Symptoms, nicht der Ursache.
+                //
+                // Realtime mit OnAwake rendert die Sonde EINMAL beim
+                // Szenenstart. Bei einer komplett statischen Karte mit
+                // gebackenem Licht ist das die unzuverlaessige Variante: die
+                // Aufnahme kann entstehen, bevor die Lichtkarten anliegen,
+                // und dann spiegelt das Metall eine dunkle Halle.
+                //
+                // Gebackene Sonden werden waehrend des Licht-Backens mit der
+                // fertigen Beleuchtung berechnet, sind zur Laufzeit gratis -
+                // und weil sie nichts mehr kosten, ist auch die hoehere
+                // Aufloesung frei.
+                s.mode = UnityEngine.Rendering.ReflectionProbeMode.Baked;
                 s.clearFlags = UnityEngine.Rendering.ReflectionProbeClearFlags.Skybox;
-                s.resolution = 128;
+                s.resolution = 256;
                 s.size = new Vector3(34f, 13f, 34f);   // ueberlappt die Nachbarn leicht
                 s.boxProjection = true;
                 s.importance = 1;
@@ -2533,6 +2578,78 @@ namespace Infront.EditorTools
             }
 
             for (int seite = 0; seite < 4; seite++) Wand(seite);
+        }
+
+        /// <summary>Wandstrahler in der Halle, die WAAGERECHT leuchten.
+        ///
+        /// Gemessen am 2026-09-05 am Deckungsblock HalleCont_2_B: Oberseite
+        /// hell, Vorderseite Median 10 (RGB 12,9,9), 100 % der Pixel unter der
+        /// Lesbarkeitsschwelle. Ein Verhaeltnis von rund 20:1 zwischen
+        /// waagerechter und senkrechter Flaeche desselben Bauteils.
+        ///
+        /// Zwei Vermutungen dazu waren falsch und sind gemessen widerlegt
+        /// worden, das gehoert hierher, damit es niemand erneut versucht:
+        ///  - "zu dunkle Grundfarbe" - nein, der Grundton ist 0,65 hellgrau.
+        ///  - "voll metallisch, deshalb keine diffuse Antwort" - nein. Bei
+        ///    fuenffacher Aufhellung ist die Textur des Blocks deutlich zu
+        ///    sehen; eine voll metallische Flaeche zeigt gar keine. Der
+        ///    Wechsel auf gebackene Reflexionssonden brachte entsprechend
+        ///    nur Median 10 auf 11.
+        ///
+        /// Es bleibt die einfache Erklaerung: das Licht kommt praktisch
+        /// ausschliesslich senkrecht von oben, aus den Lichtbaendern im Dach.
+        /// Eine senkrechte Flaeche bekommt davon fast nichts ab.
+        ///
+        /// Dieselbe Ursache hatte die pechschwarze Aussenwand in den Gassen,
+        /// und dort hat genau diese Loesung gemessen funktioniert. Deshalb
+        /// jetzt auch innen: Strahler auf halber Hoehe, die quer durch die
+        /// Halle leuchten statt von oben herunter.
+        ///
+        /// Ohne Schatten - der Schattenatlas ist laut Baulog bereits
+        /// ueberbelegt (30 Schattenkarten in 2048x2048), und 60 FPS sind die
+        /// harte Grenze.</summary>
+        static void BuildHallenstrahler()
+        {
+            foreach (float hx in new[] { -8.2f, 8.2f })
+            {
+                float einwaerts = hx < 0 ? 1f : -1f;
+                foreach (float hz in new[] { -30f, -18f, -6f, 6f, 18f, 30f })
+                {
+                    var kasten = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    kasten.name = $"HalleStrahler_{hx}_{hz}";
+                    kasten.transform.SetParent(_mapRoot, true);
+                    kasten.transform.position = new Vector3(hx, 4.3f, hz);
+                    kasten.transform.localScale = new Vector3(0.3f, 0.26f, 0.9f);
+                    var kc = kasten.GetComponent<Collider>();
+                    if (kc != null) Object.DestroyImmediate(kc);
+                    kasten.GetComponent<Renderer>().sharedMaterial =
+                        MapMat(new Color(0.21f, 0.21f, 0.23f));
+
+                    var glas = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    glas.name = $"HalleStrahlerglas_{hx}_{hz}";
+                    glas.transform.SetParent(_mapRoot, true);
+                    glas.transform.position = new Vector3(hx + 0.17f * einwaerts, 4.3f, hz);
+                    glas.transform.localScale = new Vector3(0.06f, 0.2f, 0.8f);
+                    var gc = glas.GetComponent<Collider>();
+                    if (gc != null) Object.DestroyImmediate(gc);
+                    glas.GetComponent<Renderer>().sharedMaterial =
+                        GlowMat(new Color(1f, 0.95f, 0.88f), 1.5f);
+
+                    // Etwas in den Raum gesetzt, damit der Kegel die Halle
+                    // quert statt an der eigenen Wand zu kleben.
+                    PointLightAt($"HalleStrahlerlicht_{hx}_{hz}",
+                                 new Vector3(hx + 1.6f * einwaerts, 4.1f, hz),
+                                 // 5,2 bei Reichweite 22 hat den schwarzen Block
+                                 // zwar behoben (Median 10 auf 24), aber die
+                                 // ganze Halle mitgerissen: Median 99,7 auf
+                                 // 125,4. Das ist Flutlicht, keine Werkhalle -
+                                 // und ein taktischer Shooter lebt vom
+                                 // Kontrast. Kuerzere Reichweite trifft die
+                                 // senkrechten Flaechen in der Naehe, ohne den
+                                 // ganzen Raum aufzuhellen.
+                                 new Color(1f, 0.94f, 0.86f), 16f, 3.6f);
+                }
+            }
         }
 
         static void BuildDetailWerk()
