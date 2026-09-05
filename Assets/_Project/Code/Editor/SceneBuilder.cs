@@ -706,6 +706,8 @@ namespace Infront.EditorTools
             return m;
         }
 
+        /// <summary>Eingefaerbter Quader OHNE Collider. Wird nur fuer die
+        /// aufgemalten Bombenplatz-Markierungen benutzt.</summary>
         static void Tinted(string name, float x, float y, float z, float sx, float sy, float sz, Color c)
         {
             var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -713,6 +715,18 @@ namespace Infront.EditorTools
             b.transform.SetParent(_mapRoot, true);
             b.transform.position = new Vector3(x, y, z);
             b.transform.localScale = new Vector3(sx, sy, sz);
+
+            // Farbe auf dem Boden ist kein Hindernis.
+            //
+            // Solange die Markierungen faelschlich 1,2 m in der Luft hingen,
+            // ist ihr Collider nie aufgefallen. Auf dem Boden liegend sind es
+            // 5 cm hohe Stufen quer ueber beide Bombenplaetze - genau dort, wo
+            // die Bots entlanglaufen. Der NavMesh bekam davon Loecher, und drei
+            // Bot-Tests sind daran gescheitert, ohne dass in ihrer Meldung
+            // etwas von Markierungen vorkam.
+            var col = b.GetComponent<Collider>();
+            if (col != null) Object.DestroyImmediate(col);
+
             b.GetComponent<Renderer>().sharedMaterial = MapMat(c);
         }
 
@@ -1051,7 +1065,10 @@ namespace Infront.EditorTools
 
         /// <summary>Farbige Bodenmarkierung fuer einen Bombenplatz mit grossem
         /// Buchstaben (A / B), aus flachen leuchtenden Balken.</summary>
-        static void SiteLetter(float x, float z, char letter, Color c)
+        /// <param name="flaeche">Oberkante der Flaeche, auf die der Buchstabe
+        /// gemalt wird. In der grossen Karte ist das der Hallenboden (0), in
+        /// der kleinen das Podest aus BuildSite (1,2).</param>
+        static void SiteLetter(float x, float z, char letter, Color c, float flaeche)
         {
             // Frueher leuchteten die Buchstaben. Von oben sah man dann zwei
             // riesige Neon-Lettern auf dem Hallenboden - das war der
@@ -1064,7 +1081,9 @@ namespace Infront.EditorTools
                 var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 b.name = $"Site{letter}_Bar";
                 b.transform.SetParent(_mapRoot, true);
-                b.transform.position = new Vector3(x + bx, 1.30f, z + bz);
+                // Auf der Flaeche, nicht darueber. Der Balken steckt zur
+                // Haelfte drin und liest sich damit als Farbe, nicht als Platte.
+                b.transform.position = new Vector3(x + bx, flaeche, z + bz);
                 b.transform.localScale = new Vector3(bw, 0.05f, bd);
                 var col = b.GetComponent<Collider>();
                 if (col != null) Object.DestroyImmediate(col);
@@ -1316,10 +1335,11 @@ namespace Infront.EditorTools
             BuildSite("Site_Rechts", 19f);
 
             // Bomben-Zonen (Bomben-Modus): A links, B rechts.
-            MakeBombSite("BombZone_A", 0, -19f);
-            MakeBombSite("BombZone_B", 1, 19f);
-            SiteLetter(-19f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
-            SiteLetter(19f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
+            // Kleine Karte: BuildSite hat oben ein Podest mit Oberkante 1,2 gebaut.
+            MakeBombSite("BombZone_A", 0, -19f, 1.2f);
+            MakeBombSite("BombZone_B", 1, 19f, 1.2f);
+            SiteLetter(-19f, 0f, 'A', new Color(1f, 0.75f, 0.15f), 1.2f);
+            SiteLetter(19f, 0f, 'B', new Color(0.35f, 0.75f, 1f), 1.2f);
             PointLightAt("SiteLight_A", new Vector3(-19f, 4.5f, 0f), new Color(1f, 0.86f, 0.70f), 20f, 8f);
             PointLightAt("SiteLight_B", new Vector3(19f, 4.5f, 0f), new Color(0.6f, 0.8f, 1f), 20f, 8f);
 
@@ -1629,8 +1649,10 @@ namespace Infront.EditorTools
             CoverHigh("MidTop_1", -3.5f, 1.2f, 2f, 1.8f, 1.8f);
             CoverHigh("MidTop_2", 3.5f, 1.2f, -2f, 1.8f, 1.8f);
             CoverLow("MidTop_3", 0f, 1.2f, 0f, 2.4f, 1f);
-            Stripe("MidEdge_B", 0f, 1.35f, 5f, 14f, 0.06f, 0.4f);
-            Stripe("MidEdge_A", 0f, 1.35f, -5f, 14f, 0.06f, 0.4f);
+            // 1,20 statt 1,35: das Mittelpodest hat seine Oberkante bei 1,20,
+            // die Leisten schwebten 13,8 cm darueber.
+            Stripe("MidEdge_B", 0f, 1.20f, 5f, 14f, 0.06f, 0.4f);
+            Stripe("MidEdge_A", 0f, 1.20f, -5f, 14f, 0.06f, 0.4f);
             PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.80f, 0.62f), 26f, 8f, shadows: true);
         }
 
@@ -1693,7 +1715,8 @@ namespace Infront.EditorTools
                 SlopeZ($"BalcRamp_B_{side}", bx, 14f, 0f, 12f, 2.6f, 5f, -1);
                 SlopeZ($"BalcRamp_A_{side}", bx, -14f, 0f, 12f, 2.6f, 5f, +1);
                 CoverMid($"BalcCov_{side}", bx, 2.6f, 0f, 2f, 2f);
-                Stripe($"BalcEdge_{side}", bx - 5f * sgn, 2.7f, 0f, 0.3f, 0.1f, 12f);
+                // 2,60 statt 2,70: Oberkante des Balkons. Schwebte 8 cm.
+                Stripe($"BalcEdge_{side}", bx - 5f * sgn, 2.60f, 0f, 0.3f, 0.1f, 12f);
             }
         }
 
@@ -1898,10 +1921,12 @@ namespace Infront.EditorTools
 
         static void BuildWerkSites()
         {
-            MakeBombSite("BombZone_A", 0, -20f);
-            MakeBombSite("BombZone_B", 1, 20f);
-            SiteLetter(-20f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
-            SiteLetter(20f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
+            // Werk: hier gibt es kein Podest, die Plaetze liegen auf dem
+            // Hallenboden. Deshalb 0 und nicht 1,2.
+            MakeBombSite("BombZone_A", 0, -20f, 0f);
+            MakeBombSite("BombZone_B", 1, 20f, 0f);
+            SiteLetter(-20f, 0f, 'A', new Color(1f, 0.75f, 0.15f), 0f);
+            SiteLetter(20f, 0f, 'B', new Color(0.35f, 0.75f, 1f), 0f);
             PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.84f, 0.66f), 15f, 4.5f, shadows: true);
             PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 15f, 4.5f, shadows: true);
 
@@ -2255,10 +2280,14 @@ namespace Infront.EditorTools
             }
 
             // Deko-Gelaender an der Mittelpodest-Kante und den Balkon-Innenkanten
-            DecoRail("MidRail_B", new Vector3(0f, 1.35f, 5f), 13f, true);
-            DecoRail("MidRail_A", new Vector3(0f, 1.35f, -5f), 13f, true);
+            // DecoRail setzt seine Pfosten von center.y bis center.y + 0,6 -
+            // center.y IST also die Standflaeche. Vorher stand hier 1,35 und
+            // 2,75, waehrend Podest und Balkon bei 1,20 und 2,60 aufhoeren:
+            // beide Gelaender schwebten 15 cm ueber dem Boden.
+            DecoRail("MidRail_B", new Vector3(0f, 1.20f, 5f), 13f, true);
+            DecoRail("MidRail_A", new Vector3(0f, 1.20f, -5f), 13f, true);
             foreach (int sgn in new[] { -1, 1 })
-                DecoRail($"BalcRailDeko_{sgn}", new Vector3(25f * sgn, 2.75f, 0f), 11f, false);
+                DecoRail($"BalcRailDeko_{sgn}", new Vector3(25f * sgn, 2.60f, 0f), 11f, false);
 
             // Truemmerhaufen an Wandfuessen und in den Ecken
             RubblePile("Truemmer_a", new Vector3(-42f, 0f, 20f), 11);
@@ -2304,7 +2333,9 @@ namespace Infront.EditorTools
             }
         }
 
-        static void MakeBombSite(string name, int siteId, float x)
+        /// <param name="flaeche">Oberkante der Flaeche, auf der der Platz
+        /// liegt - Hallenboden (0) oder Podest (1,2).</param>
+        static void MakeBombSite(string name, int siteId, float x, float flaeche)
         {
             var go = new GameObject(name);
             go.transform.SetParent(_mapRoot, true);
@@ -2321,10 +2352,20 @@ namespace Infront.EditorTools
             // Warngelb statt Rot: so sind Gefahrenbereiche in einer Halle
             // wirklich markiert, und es liest sich nicht als Spielfeldlinie.
             var edge = new Color(0.46f, 0.40f, 0.16f);
-            Tinted(name + "_MarkN", x, 1.28f, 4.8f, 9f, 0.05f, 0.4f, edge);
-            Tinted(name + "_MarkS", x, 1.28f, -4.8f, 9f, 0.05f, 0.4f, edge);
-            Tinted(name + "_MarkE", x + 4.3f, 1.28f, 0f, 0.4f, 0.05f, 10f, edge);
-            Tinted(name + "_MarkW", x - 4.3f, 1.28f, 0f, 0.4f, 0.05f, 10f, edge);
+            // Auf der Flaeche, nicht auf einer festen 1,28.
+            //
+            // Die 1,28 stammten aus der kleinen Karte, wo BuildSite unter dem
+            // Platz ein Podest von 1,2 m baut. Die grosse Karte "Werk" ruft
+            // BuildSite gar nicht auf - dort liegen die Bombenplaetze ebenerdig
+            // auf dem Hallenboden. Der Rahmen und die Buchstaben hingen deshalb
+            // frei in 1,2 m Hoehe in der Luft und schnitten quer durch die
+            // Kisten. Genau das war gemeint mit "die Punkte A und B sind in
+            // der Luft" - es waren nicht ein paar Zentimeter, es war ein
+            // ganzer Meter.
+            Tinted(name + "_MarkN", x, flaeche, 4.8f, 9f, 0.05f, 0.4f, edge);
+            Tinted(name + "_MarkS", x, flaeche, -4.8f, 9f, 0.05f, 0.4f, edge);
+            Tinted(name + "_MarkE", x + 4.3f, flaeche, 0f, 0.4f, 0.05f, 10f, edge);
+            Tinted(name + "_MarkW", x - 4.3f, flaeche, 0f, 0.4f, 0.05f, 10f, edge);
         }
 
         static void BuildSite(string name, float x)

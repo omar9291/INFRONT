@@ -42,6 +42,27 @@ namespace Infront
         static readonly int SpeedParam = Animator.StringToHash("Speed");
         static readonly int DeadParam = Animator.StringToHash("Dead");
 
+        /// <summary>
+        /// Um so viel sinkt die Figur waehrend des Sterbens.
+        ///
+        /// Die Sterbe-Animation legt den Koerper um die HUEFTE flach, und die
+        /// Huefte bleibt dabei auf der Hoehe, auf der sie im Stehen war. Der
+        /// Wurzel-Transform bleibt derweil am Boden - den bewegt der
+        /// CharacterController, nicht der Animator, denn die Wurzelbewegung der
+        /// Animation wird nicht uebernommen. Ergebnis: die Leiche liegt
+        /// waagerecht, aber in der Luft. Genau so wurde es gemeldet.
+        ///
+        /// Der Zweig ohne Animator kippt die Figur schon immer selbst um und
+        /// senkt sie dabei (Vector3.down * 0,55). Fuer das echte Modell fehlte
+        /// das Senken - es gab ja eine Animation, also schien nichts noetig.
+        ///
+        /// Gemessen mit LeichenTests: der tiefste Knochen lag bei y = 0,90, der
+        /// Boden bei 0,02 - also 0,88 m Luft. Um 0,78 gesenkt bleibt der
+        /// tiefste Knochen bei rund 0,10 m; der Koerper hat um ihn herum noch
+        /// Dicke, damit liegt er auf und steckt nicht im Boden.
+        /// </summary>
+        const float TotAbsenken = 0.78f;
+
         float _stride;
         Vector3 _lastPos;
         bool _hasLastPos;
@@ -262,6 +283,8 @@ namespace Infront
                     // Falls der Controller keine Sterbe-Animation hat: sichtbar wegkippen.
                     if (_animator == null)
                         _figure.localRotation = Quaternion.AngleAxis(_deathLean * 86f, _deathAxis);
+                    else
+                        _figure.localPosition = Vector3.down * (_deathLean * TotAbsenken);
                 }
                 return;
             }
