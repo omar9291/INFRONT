@@ -822,6 +822,115 @@ namespace Infront.EditorTools
             }
         }
 
+        // ---- Der Hallenboden ------------------------------------------------
+
+        /// <summary>Kantenlaenge einer Bodenplatte in Metern.</summary>
+        const float BodenPlatte = 20f;
+        /// <summary>Platten je Achse - 5 mal 20 m decken die 100 m der Karte.</summary>
+        const int BodenPlatten = 5;
+        /// <summary>Dicke der Platten. Frueher war der Boden eine Plane, also
+        /// unendlich duenn - von aussen sah die Karte aus wie ein Blatt Papier.</summary>
+        const float BodenDicke = 0.4f;
+
+        /// <summary>
+        /// Baut den Hallenboden als Raster aus Platten.
+        ///
+        /// Vorher war das EINE Plane von 100 mal 100 Metern, und sie hing als
+        /// eigenes Wurzelobjekt NEBEN der Karte statt darin. Beides war im
+        /// Rundgang zu sehen.
+        ///
+        /// Erstens bekam der Boden ueberhaupt kein gebackenes Licht.
+        /// MacheKarteBackfaehig laeuft ueber die Karte, und die Plane war nicht
+        /// Teil davon. Die groesste sichtbare Flaeche der ganzen Karte blieb
+        /// also beim flachen Umgebungslicht stehen, waehrend ringsum alles
+        /// indirektes Licht bekam. Der warme braune Schleier auf dem Boden war
+        /// genau das: nicht der Rueckwurf des Asphalts, sondern das Fehlen
+        /// jedes Rueckwurfs.
+        ///
+        /// Zweitens zeigt eine einzige Flaeche mit 30 Wiederholungen derselben
+        /// Asphaltkachel aus Augenhoehe nur noch gleichmaessiges Rauschen. Es
+        /// gibt keine grosse Form mehr: keine Flicken, keine Fugen, keine
+        /// Stelle, an der sich der Boden vom Boden daneben unterscheidet. Genau
+        /// so sah der herangezoomte Ausschnitt aus - feiner grauer Sand.
+        ///
+        /// Jetzt 25 Platten zu 20 mal 20 Metern. Jede bekommt einen eigenen
+        /// Ausschnitt der Textur und einen eigenen Hauch Helligkeit, ein Teil
+        /// bekommt statt Asphalt den Beton - das sind die ausgebesserten
+        /// Stellen, die es in jedem Werk gibt.
+        ///
+        /// Die Platten stossen genau aneinander, ohne Ueberlappung: zwei
+        /// Kastenkoerper mit gemeinsamer Kante sind fuer die Physik harmlos,
+        /// eine Ueberlappung waere dagegen ein z-Streit auf der Oberseite.
+        /// </summary>
+        static GameObject BaueBoden()
+        {
+            var wurzel = new GameObject("Ground");
+            float halb = BodenPlatte * (BodenPlatten - 1) * 0.5f;
+
+            for (int ix = 0; ix < BodenPlatten; ix++)
+            for (int iz = 0; iz < BodenPlatten; iz++)
+            {
+                string name = $"Boden_{ix}_{iz}";
+                var platte = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                platte.name = name;
+                platte.transform.SetParent(wurzel.transform, true);
+                // Oberkante genau auf y = 0, damit alles darauf steht wie bisher.
+                platte.transform.position = new Vector3(ix * BodenPlatte - halb,
+                                                        -BodenDicke * 0.5f,
+                                                        iz * BodenPlatte - halb);
+                platte.transform.localScale = new Vector3(BodenPlatte, BodenDicke, BodenPlatte);
+
+                int hash = Mathf.Abs(name.GetHashCode());
+                float a = (hash % 997) / 997f;
+                float b = ((hash / 997) % 991) / 991f;
+                bool flicken = (hash / 7) % 5 == 0;   // rund jede fuenfte Platte
+
+                platte.GetComponent<Renderer>().sharedMaterial =
+                    BodenMaterial(flicken ? "platte" : "boden", flicken ? 8f : 6f,
+                                  flicken ? 0.85f : 1f, a, b);
+            }
+            return wurzel;
+        }
+
+        /// <summary>Material einer einzelnen Bodenplatte: dieselbe Textur,
+        /// anderer Ausschnitt, anderer Hauch Helligkeit.</summary>
+        static Material BodenMaterial(string key, float kacheln, float grund, float a, float b)
+        {
+            var real = Infront.AssetLibrary.Surface(key);
+            if (real == null || !real.HasProperty("_BaseMap") || real.GetTexture("_BaseMap") == null)
+            {
+                var ersatz = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "GroundMat" };
+                var gc = Echt(new Color(0.30f, 0.31f, 0.33f));   // Beton, nicht Kohle
+                ersatz.color = gc;
+                if (ersatz.HasProperty("_BaseColor")) ersatz.SetColor("_BaseColor", gc);
+                if (ersatz.HasProperty("_Smoothness")) ersatz.SetFloat("_Smoothness", 0.12f);
+                return ersatz;
+            }
+
+            var m = new Material(real) { name = "GroundMat" };
+            var skala = new Vector2(kacheln, kacheln);
+            m.SetTextureScale("_BaseMap", skala);
+            if (m.HasProperty("_BumpMap")) m.SetTextureScale("_BumpMap", skala);
+
+            // Anderer Ausschnitt je Platte. Die Naht zwischen zwei Platten faellt
+            // dadurch nicht auf, aber das Muster wiederholt sich nicht mehr
+            // ueber die ganze Halle.
+            var versatz = new Vector2(a * 3.7f, b * 3.7f);
+            m.SetTextureOffset("_BaseMap", versatz);
+            if (m.HasProperty("_BumpMap")) m.SetTextureOffset("_BumpMap", versatz);
+
+            // Helligkeit plus/minus rund zehn Prozent um den Grundwert herum -
+            // im Mittel also genauso hell wie vorher. Nie Richtung Schwarz: das
+            // war hier schon zweimal der Fehler.
+            float hell = grund * Mathf.Lerp(0.90f, 1.08f, a);
+            float warm = Mathf.Lerp(-0.025f, 0.025f, b);
+            var t = new Color(Mathf.Clamp01(hell + warm), Mathf.Clamp01(hell),
+                              Mathf.Clamp01(hell - warm));
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", t);
+            m.color = t;
+            return m;
+        }
+
         static readonly System.Collections.Generic.Dictionary<(Color, float), Material> _glowMats = new();
 
         static Material GlowMat(Color c) => GlowMat(c, 3.2f);
@@ -836,7 +945,21 @@ namespace Infront.EditorTools
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
             m.color = c;
             m.EnableKeyword("_EMISSION");
-            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            // Gebacken statt in Echtzeit.
+            //
+            // RealtimeEmissive heisst in Unity 6 praktisch "traegt zu gar
+            // keiner Globalbeleuchtung bei": Echtzeit-GI (Enlighten) gibt es
+            // nicht mehr. Alle leuchtenden Flaechen der Karte - vor allem die
+            // vier Lichtbaender im Dach, zusammen rund 1800 Quadratmeter
+            // Decke - haben also ausgesehen wie eine Lichtquelle, ohne eine
+            // zu sein. Das Auge erwartet von einer leuchtenden Decke Licht im
+            // Raum; es kam keins.
+            //
+            // BakedEmissive macht daraus im Bake echte Flaechenlichter. Fuer
+            // bewegliche Objekte (Bombenspitze, Muendungsfeuer) aendert sich
+            // nichts: die sind nicht statisch und werden vom Backer ohnehin
+            // nicht angefasst.
+            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
             if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", c * emission);
             _glowMats[key] = m;
             return m;
@@ -1160,8 +1283,8 @@ namespace Infront.EditorTools
                 Stripe($"LaneGlow_R{seg}", 9f, 4.05f, cz, 1.3f, 0.12f, 10f);
             }
             // Licht in den Luecken zwischen den Trennwand-Segmenten
-            PointLightAt("LaneGapLight_L", new Vector3(-9f, 2.6f, -8f), new Color(1f, 0.55f, 0.25f), 14f, 6f);
-            PointLightAt("LaneGapLight_R", new Vector3(9f, 2.6f, 8f), new Color(1f, 0.55f, 0.25f), 14f, 6f);
+            PointLightAt("LaneGapLight_L", new Vector3(-9f, 2.6f, -8f), new Color(1f, 0.78f, 0.60f), 14f, 6f);
+            PointLightAt("LaneGapLight_R", new Vector3(9f, 2.6f, 8f), new Color(1f, 0.78f, 0.60f), 14f, 6f);
 
             // Sichtschutz direkt vor beiden Spawns
             BlockM("SpawnScreen_mid", 0f, 1.5f, 22f, 10f, 3f, 1f);
@@ -1179,7 +1302,7 @@ namespace Infront.EditorTools
             CrateM("MidLow2", 5f, 0.5f, 2f, 1.2f, 1f, 3f);
             Block("MidPillar", 0f, 2f, 0f, 1.5f, 4f, 1.5f);  // Saeule genau in der Mitte
             Stripe("MidPillarGlow", 0f, 4.1f, 0f, 1.6f, 0.16f, 1.6f);
-            PointLightAt("MidLight", new Vector3(0f, 5f, 0f), new Color(1f, 0.6f, 0.3f), 22f, 10f);
+            PointLightAt("MidLight", new Vector3(0f, 5f, 0f), new Color(1f, 0.80f, 0.62f), 22f, 10f);
 
             // Seitenbahnen: mehr Deckung, engere Kaempfe
             CrateM("LeftCrateA", -20f, 1f, 14f, 3f, 2f, 3f);
@@ -1197,7 +1320,7 @@ namespace Infront.EditorTools
             MakeBombSite("BombZone_B", 1, 19f);
             SiteLetter(-19f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
             SiteLetter(19f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
-            PointLightAt("SiteLight_A", new Vector3(-19f, 4.5f, 0f), new Color(1f, 0.8f, 0.4f), 20f, 8f);
+            PointLightAt("SiteLight_A", new Vector3(-19f, 4.5f, 0f), new Color(1f, 0.86f, 0.70f), 20f, 8f);
             PointLightAt("SiteLight_B", new Vector3(19f, 4.5f, 0f), new Color(0.6f, 0.8f, 1f), 20f, 8f);
 
             BuildDecoration();
@@ -1353,7 +1476,20 @@ namespace Infront.EditorTools
         /// hohe Fenster), einer je Bombenplatz, einer je Aussenweg.</summary>
         static void BuildLightShafts()
         {
-            var warm = new Color(1f, 0.86f, 0.62f);
+            // Warm heisst warmweiss, nicht Natriumdampf.
+            //
+            // Quer durch die Karte standen Lampenfarben wie (1 / 0,6 / 0,3).
+            // So sieht wirklich nur eine orange Strassenlaterne aus. Solange
+            // der Boden nicht am gebackenen Licht teilnahm, blieb das eine
+            // oertliche Faerbung. Seit er es tut, wird jede Lampe dreimal ueber
+            // den Boden weitergereicht und faerbt die ganze Halle: gemessen
+            // stieg der Rot-Blau-Abstand ueber alle 27 Bilder von +2,7 auf
+            // +20,1. Das Bild war sepia.
+            //
+            // Jetzt liegen die Hallenlampen bei etwa 3000 Kelvin - warm, wie
+            // eine Werkshalle sein soll, aber eine Farbe, die es gibt. Die
+            // roten Flackerlichter im Tunnel bleiben rot: die sind Absicht.
+            var warm = new Color(1f, 0.88f, 0.74f);
             var cool = new Color(0.72f, 0.82f, 1f);
             // Halle: von schraeg oben-seitlich herein
             ShaftLight("Shaft_Halle_1", new Vector3(-7f, 8.5f, 14f), new Vector3(58f, 62f, 0f), 20f, 34f, warm, 5.5f);
@@ -1495,7 +1631,7 @@ namespace Infront.EditorTools
             CoverLow("MidTop_3", 0f, 1.2f, 0f, 2.4f, 1f);
             Stripe("MidEdge_B", 0f, 1.35f, 5f, 14f, 0.06f, 0.4f);
             Stripe("MidEdge_A", 0f, 1.35f, -5f, 14f, 0.06f, 0.4f);
-            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.6f, 0.3f), 26f, 8f, shadows: true);
+            PointLightAt("MidGlow", new Vector3(0f, 6.5f, 0f), new Color(1f, 0.80f, 0.62f), 26f, 8f, shadows: true);
         }
 
         static void BuildWerkTunnels()
@@ -1522,7 +1658,7 @@ namespace Infront.EditorTools
                 // rotes Notlicht - flackert
                 FlickerLight($"TunLight_a_{side}", new Vector3(cx, 3.2f, 18f), new Color(1f, 0.35f, 0.2f), 13f, 6f);
                 FlickerLight($"TunLight_b_{side}", new Vector3(cx, 3.2f, -18f), new Color(1f, 0.35f, 0.2f), 13f, 6f);
-                PointLightAt($"TunLight_c_{side}", new Vector3(cx, 3.2f, 0f), new Color(1f, 0.5f, 0.3f), 15f, 7f);
+                PointLightAt($"TunLight_c_{side}", new Vector3(cx, 3.2f, 0f), new Color(1f, 0.76f, 0.60f), 15f, 7f);
             }
         }
 
@@ -1681,12 +1817,23 @@ namespace Infront.EditorTools
                     ShaftLight($"Dach_Tageslicht_{lx}_{lz}",
                                new Vector3(lx, deckUnten - 0.6f, lz),
                                new Vector3(90f, 0f, 0f), 34f, 116f,
-                               // Runter von 3,4: seit das Umgebungslicht den
-                               // Innenraum traegt, brannten die Lichtflecken auf
-                               // dem Boden zu reinem Weiss aus (gemessen 5,6 %
-                               // der Bildflaeche bei 255). Ein Lichtfleck soll
-                               // hell sein, aber noch Struktur zeigen.
-                               new Color(0.78f, 0.85f, 1f), 2.3f);
+                               // Erst runter von 3,4 auf 2,3, jetzt wieder
+                               // hoch auf 3,6 - und beide Male aus demselben
+                               // Grund, nur mit anderem Vorzeichen.
+                               //
+                               // Bei 3,4 trug das Umgebungslicht den Innenraum
+                               // mit, und die Lichtflecken auf dem Boden
+                               // brannten zu reinem Weiss aus (gemessen 5,6 %
+                               // der Bildflaeche bei 255). Das Umgebungslicht
+                               // kam damals allerdings zu einem grossen Teil
+                               // von UNTEN durch den fehlenden Boden herein -
+                               // die Halle stand fuer den Backer auf einem
+                               // Loch. Seit der Boden zugemacht ist, kommt von
+                               // dort nichts mehr, und die Lichtbaender im Dach
+                               // sind wirklich das, wonach sie aussehen: die
+                               // Hauptlichtquelle der Halle. Dann muessen sie
+                               // die Halle auch tragen koennen.
+                               new Color(0.78f, 0.85f, 1f), 4.8f);
                 // Kein Schatten an den Lichtbaendern. Ein Versuch mit vier
                 // weichen Schattenkegeln (34 m Reichweite, 116 Grad) sah zwar
                 // gut aus, kostete aber gemessen: 60 FPS / min 57 wurden zu
@@ -1755,7 +1902,7 @@ namespace Infront.EditorTools
             MakeBombSite("BombZone_B", 1, 20f);
             SiteLetter(-20f, 0f, 'A', new Color(1f, 0.75f, 0.15f));
             SiteLetter(20f, 0f, 'B', new Color(0.35f, 0.75f, 1f));
-            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.72f, 0.35f), 15f, 4.5f, shadows: true);
+            PointLightAt("SiteLight_A", new Vector3(-20f, 5f, 0f), new Color(1f, 0.84f, 0.66f), 15f, 4.5f, shadows: true);
             PointLightAt("SiteLight_B", new Vector3(20f, 5f, 0f), new Color(0.55f, 0.75f, 1f), 15f, 4.5f, shadows: true);
 
             foreach (int sgn in new[] { -1, 1 })
@@ -1878,10 +2025,10 @@ namespace Infront.EditorTools
         static void BuildWerkLights()
         {
             // warme Akzentlichter an den Knotenpunkten der Halle
-            PointLightAt("HalleLight_1", new Vector3(0f, 6f, 20f), new Color(1f, 0.7f, 0.42f), 20f, 10f, shadows: true);
-            PointLightAt("HalleLight_2", new Vector3(0f, 6f, -20f), new Color(1f, 0.7f, 0.42f), 20f, 10f, shadows: true);
-            PointLightAt("HalleLight_3", new Vector3(0f, 7f, 34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
-            PointLightAt("HalleLight_4", new Vector3(0f, 7f, -34f), new Color(1f, 0.6f, 0.34f), 18f, 8f);
+            PointLightAt("HalleLight_1", new Vector3(0f, 6f, 20f), new Color(1f, 0.84f, 0.70f), 20f, 10f, shadows: true);
+            PointLightAt("HalleLight_2", new Vector3(0f, 6f, -20f), new Color(1f, 0.84f, 0.70f), 20f, 10f, shadows: true);
+            PointLightAt("HalleLight_3", new Vector3(0f, 7f, 34f), new Color(1f, 0.80f, 0.64f), 18f, 8f);
+            PointLightAt("HalleLight_4", new Vector3(0f, 7f, -34f), new Color(1f, 0.80f, 0.64f), 18f, 8f);
         }
 
         /// <summary>
@@ -2185,8 +2332,17 @@ namespace Infront.EditorTools
             float y = 1.2f;
             // Gleiche Ursache wie bei Platform(): dunkle Toenung plus
             // smoothness 0.05 machte die Bombenplatz-Podeste pechschwarz.
+            // 0,82 ist keine Helligkeit, die Beton hat - das ist frischer
+            // Schnee. Im Rundgang war das Podest deshalb eine weisse Platte
+            // ohne erkennbare Textur, und es ist die Flaeche, auf der der
+            // ganze Bombenplatz steht. 0,62 liegt im echten Bereich fuer
+            // hellen Beton und laesst die Textur wieder durch.
+            //
+            // Nebenwirkung mit Absicht: unter 0,8 greift in Surfaced die
+            // Abnutzung, das Podest bekommt also auch seinen eigenen
+            // Ausschnitt und Farbton statt des Einheitsgraus.
             Surfaced(name + "_Platform", x, y * 0.5f, 0f, 11f, y, 12f, "platte",
-                     new Vector2(0.4f, 0.4f), new Color(0.82f, 0.82f, 0.84f),
+                     new Vector2(0.4f, 0.4f), new Color(0.62f, 0.62f, 0.64f),
                      metallic: 0f, smoothness: 0.32f);
 
             // Rampe von beiden Seiten (Alpha- und Bravo-Zugang)
@@ -2813,7 +2969,17 @@ namespace Infront.EditorTools
                     // Hauptlichtquelle im Innenraum und muss entsprechend tragen.
                     // Wirkt nur im Skybox-Modus; bleibt gesetzt, falls jemand
                     // zurueckschaltet.
-                    RenderSettings.ambientIntensity = 1.65f;
+                    // Hoch von 1,65. Der Wert stammt aus der Zeit, als der
+                    // Boden fuer den Backer ein Loch war: das Umgebungslicht
+                    // kam damals zum grossen Teil von unten herein und musste
+                    // gebremst werden. Jetzt kommt es nur noch dort herein, wo
+                    // die Halle wirklich offen ist - zwischen der 7 m hohen
+                    // Aussenwand und dem Dach. Das ist ein schmaler Streifen,
+                    // und der darf dafuer hell sein.
+                    // 2,2 und nicht mehr: BeleuchtungTests zieht dort die
+                    // Grenze, damit das Bild nicht flach wird. Die Grenze
+                    // bleibt stehen, der Wert geht bis an sie heran.
+                    RenderSettings.ambientIntensity = 2.2f;
                     light.intensity = 0.85f;                  // Sonne wieder etwas hoeher
                     DynamicGI.UpdateEnvironment();
                 }
@@ -2852,30 +3018,7 @@ namespace Infront.EditorTools
                 }
             }
 
-            var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            ground.name = "Ground";
-            ground.transform.localScale = new Vector3(10f, 1f, 10f);   // 100x100 m (Karte "Werk")
-            // Boden: echter Asphalt, sonst dunkler kuehler Farbton (wie bisher).
-            {
-                var real = Infront.AssetLibrary.Surface("boden");
-                if (real != null && real.HasProperty("_BaseMap") && real.GetTexture("_BaseMap") != null)
-                {
-                    var gm = new Material(real) { name = "GroundMat" };
-                    // Plane ist 10x10 Einheiten je Scale-Einheit -> hier 60x60 m.
-                    gm.SetTextureScale("_BaseMap", new Vector2(30f, 30f));
-                    if (gm.HasProperty("_BumpMap")) gm.SetTextureScale("_BumpMap", new Vector2(30f, 30f));
-                    ground.GetComponent<Renderer>().sharedMaterial = gm;
-                }
-                else
-                {
-                    var gm = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "GroundMat" };
-                    var gc = new Color(0.30f, 0.31f, 0.33f);   // Beton, nicht Kohle
-                    gm.color = gc;
-                    if (gm.HasProperty("_BaseColor")) gm.SetColor("_BaseColor", gc);
-                    if (gm.HasProperty("_Smoothness")) gm.SetFloat("_Smoothness", 0.12f);
-                    ground.GetComponent<Renderer>().sharedMaterial = gm;
-                }
-            }
+            var bodenWurzel = BaueBoden();
 
             // NavMesh-Flaeche: wird zur Laufzeit gebacken (NavMeshBaker)
             var navGo = new GameObject("Navigation");
@@ -2887,6 +3030,11 @@ namespace Infront.EditorTools
 
             BuildMap();
             BuildReflexionssonden();
+            // Der Boden gehoert IN die Karte, nicht daneben. Vorher hing er als
+            // eigenes Wurzelobjekt in der Szene - MacheKarteBackfaehig laeuft
+            // aber ueber die Karte, also blieb ausgerechnet die groesste
+            // sichtbare Flaeche ohne gebackenes Licht stehen.
+            bodenWurzel.transform.SetParent(_mapRoot, true);
             Backlicht.MacheKarteBackfaehig(_mapRoot);
 
             // Mehrere Spawn-Punkte

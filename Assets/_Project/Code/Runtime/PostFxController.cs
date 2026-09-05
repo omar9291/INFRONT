@@ -114,11 +114,19 @@ namespace Infront
             // haerter bleiben, da steht die Oberflaeche im Vordergrund.
             color.contrast.Override(_menuLook ? 16f : 5f);
             color.saturation.Override(_menuLook ? -10f : 4f);   // Menue entsaettigt = ernster
-            color.colorFilter.Override(_menuLook ? new Color(0.92f, 0.93f, 0.96f) : new Color(1f, 0.96f, 0.90f));
+            // Der warme Filter im Spiel wird halbiert (0,96/0,90 -> 0,98/0,95).
+            // Er stammt aus einer Zeit, in der die Halle selbst kuehl-grau war
+            // und Waerme von aussen dazukam. Seit der Boden am gebackenen Licht
+            // teilnimmt, bringen die Lampen ihre Waerme selbst mit - gemessen
+            // ueber alle 27 Rundgangbilder stieg der Rot-Blau-Abstand von +2,7
+            // auf +20,1. Ein zweites Mal Waerme obendrauf macht daraus Sepia.
+            color.colorFilter.Override(_menuLook ? new Color(0.92f, 0.93f, 0.96f) : new Color(1f, 0.98f, 0.95f));
             color.postExposure.Override(_menuLook ? -0.04f : 0f);   // im Spiel keine Extra-Belichtung (Screenshot-Test 2)
 
             var white = _profile.Add<WhiteBalance>(true);
-            white.temperature.Override(8f);   // leicht waermer
+            // Im Menue darf es warm bleiben, das ist Gestaltung. Im Spiel
+            // reicht die Haelfte - siehe die Begruendung beim Farbfilter.
+            white.temperature.Override(_menuLook ? 8f : 4f);
             white.tint.Override(-3f);
 
             var grain = _profile.Add<FilmGrain>(true);

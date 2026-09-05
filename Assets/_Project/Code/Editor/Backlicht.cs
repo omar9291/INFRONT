@@ -79,7 +79,14 @@ namespace Infront.EditorTools
                 // serialisierten Eigenschaft - deshalb der Umweg.
                 var b = r.bounds.size;
                 float flaeche = Mathf.Max(b.x * b.y, Mathf.Max(b.x * b.z, b.y * b.z));
-                float massstab = flaeche > 200f ? 0.35f : flaeche > 40f ? 0.6f : 1f;
+                // Der Boden ist die Flaeche, die der Spieler am laengsten
+                // ansieht, und er ist als Raster aus 20-m-Platten gebaut. Nach
+                // der reinen Flaechenregel landet jede davon bei 0,35 - das
+                // waeren 1,4 Texel je Meter, also grosse weiche Flecken statt
+                // Licht. Volle Aufloesung kostet fuer alle 25 Platten zusammen
+                // rund 160 000 Texel und passt locker in einen Atlas.
+                float massstab = go.name.StartsWith("Boden_") ? 1f
+                                 : flaeche > 200f ? 0.35f : flaeche > 40f ? 0.6f : 1f;
 
                 var so = new SerializedObject(r);
                 var sp = so.FindProperty("m_ScaleInLightmap");
@@ -129,7 +136,11 @@ namespace Infront.EditorTools
                 lightmapMaxSize        = 1024,
                 directSampleCount      = 16,
                 indirectSampleCount    = strahlen,
-                maxBounces             = 2,
+                // Drei statt zwei Sprüngen. In einem offenen Hof reichen
+                // zwei - da geht der Rest ohnehin in den Himmel. Eine
+                // geschlossene Halle ist ein Kasten: dort lebt das Licht in
+                // den Ecken erst vom dritten Sprung.
+                maxBounces             = 3,
                 // Der indirekte Anteil ersetzt das flache Umgebungslicht, das
                 // vorher ueberall gleich viel aufgehellt hat. Physikalisch
                 // richtig ist das dunkler - spielbar ist es erst mit einem
@@ -165,10 +176,10 @@ namespace Infront.EditorTools
 
         /// <summary>Probelauf: sehr grob, nur um zu sehen, ob der Weg ueberhaupt
         /// funktioniert und wie lange er dauert.</summary>
-        public static void BackeProbe() => Backe(1.5f, 64, 2.5f);
+        public static void BackeProbe() => Backe(1.5f, 64, 5.5f);
 
         /// <summary>Der richtige Durchlauf.</summary>
-        public static void BackeFein() => Backe(4f, 256, 2.5f);
+        public static void BackeFein() => Backe(4f, 256, 5.5f);
 
         static bool IstPrimitiv(string name)
             => name == "Cube" || name == "Cylinder" || name == "Capsule"

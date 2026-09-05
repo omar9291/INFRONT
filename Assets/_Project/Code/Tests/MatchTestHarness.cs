@@ -116,7 +116,22 @@ namespace Infront.Tests
             // Karte ausblenden und den NavMesh flach neu backen - Tests, die
             // freie Sicht brauchen, laufen dann auf leerem Boden.
             var map = GameObject.Find("Map");
-            if (map != null) map.SetActive(false);
+            if (map != null)
+            {
+                // Nur den INHALT der Karte ausblenden, nicht den Boden.
+                //
+                // Der Boden haengt seit dem Umbau in der Karte - er muss dort
+                // haengen, sonst laeuft MacheKarteBackfaehig nicht darueber und
+                // die groesste Flaeche der Karte bekommt kein gebackenes Licht.
+                // Ein map.SetActive(false) hat damit aber auch den Boden
+                // abgeschaltet, und die Tests standen ueber dem Nichts: die
+                // Spieler fielen (gemessen y = -19,3), der NavMesh war leer,
+                // Schuesse trafen nichts. Neunzehn Tests sind daran
+                // gescheitert - mit Meldungen, die nach Waffen- und
+                // Bot-Fehlern aussahen und keinen davon betrafen.
+                foreach (Transform teil in map.transform)
+                    if (teil.name != "Ground") teil.gameObject.SetActive(false);
+            }
             var surface = UnityEngine.Object.FindAnyObjectByType<Unity.AI.Navigation.NavMeshSurface>();
             if (surface != null) surface.BuildNavMesh();
 

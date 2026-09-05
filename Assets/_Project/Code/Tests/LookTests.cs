@@ -87,9 +87,21 @@ namespace Infront.Tests
 
             var ground = GameObject.Find("Ground");
             Assert.IsNotNull(ground);
-            var gm = ground.GetComponent<Renderer>().sharedMaterial;
-            Assert.IsNotNull(gm);
-            Assert.AreEqual("GroundMat", gm.name, "Der Boden hat noch das weisse Standardmaterial.");
+            // Der Boden ist seit dem Umbau ein Raster aus Platten, kein
+            // einzelnes Rechteck mehr, und er haengt IN der Karte - sonst
+            // laeuft MacheKarteBackfaehig nicht darueber und ausgerechnet die
+            // groesste Flaeche bekaeme kein gebackenes Licht.
+            Assert.IsNotNull(ground.transform.parent, "Der Boden haengt neben der Karte.");
+            Assert.AreEqual("Map", ground.transform.parent.name, "Der Boden haengt neben der Karte.");
+
+            var platten = ground.GetComponentsInChildren<Renderer>();
+            Assert.Greater(platten.Length, 8, "Der Boden ist kein Plattenraster.");
+            foreach (var platte in platten)
+            {
+                Assert.IsNotNull(platte.sharedMaterial);
+                Assert.AreEqual("GroundMat", platte.sharedMaterial.name,
+                                "Eine Bodenplatte hat noch das weisse Standardmaterial.");
+            }
         }
     }
 }
