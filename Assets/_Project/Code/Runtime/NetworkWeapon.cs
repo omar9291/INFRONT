@@ -58,7 +58,7 @@ namespace Infront
         public int MagazineSize => _stats != null ? _stats.MagazineSize : 0;
         public WeaponStats Stats => _stats;
         public int ActiveSlot => _activeSlot.Value;
-        public string WeaponName => _stats != null ? _stats.DisplayName : "-";
+        public string WeaponName => _stats != null ? _stats.LocalizedName : "-";
         /// <summary>Hat der Kaempfer gerade eine Primaerwaffe (Platz 1)? -1 = nur Pistole.</summary>
         public bool HasPrimary => _primaryIdx.Value >= 0;
         public int PrimaryIndex => _primaryIdx.Value;

@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/overhead_crane",
+  "filesSourceUrl": "https://api.polyhaven.com/files/overhead_crane",
+  "assetId": "overhead_crane",
+  "name": "Overhead Crane",
+  "authors": {
+    "Timothy3D": "All"
+  },
+  "filesHash": "2a3542eda64a36e958257ff4d679e743f0f67c2b",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/overhead_crane/overhead_crane_1k.fbx",
+      "localMd5": "042ff707962ac485bbfd8c2e84b108a7",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/overhead_crane/overhead_crane_1k.fbx",
+          "md5": "042ff707962ac485bbfd8c2e84b108a7",
+          "size": 3069260
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/overhead_crane/textures/overhead_crane_diff_1k.jpg",
+      "localMd5": "a065da8866bb9624921e3dc0aa3fae93",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/overhead_crane/overhead_crane_diff_1k.jpg",
+          "md5": "a065da8866bb9624921e3dc0aa3fae93",
+          "size": 630084
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/overhead_crane/textures/overhead_crane_nor_gl_1k.png",
+      "localMd5": "c68ff940ae44fe20ae2b7dc8ad3aafad",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/overhead_crane/overhead_crane_nor_gl_1k.png",
+          "md5": "c68ff940ae44fe20ae2b7dc8ad3aafad",
+          "size": 4743580
+        }
+      ]
+    }
+  ]
+}

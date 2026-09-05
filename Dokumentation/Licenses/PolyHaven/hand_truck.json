@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/hand_truck",
+  "filesSourceUrl": "https://api.polyhaven.com/files/hand_truck",
+  "assetId": "hand_truck",
+  "name": "Hand Truck",
+  "authors": {
+    "Mutanzom3D": "All"
+  },
+  "filesHash": "b169bd38206dbdde638e2bda547dab1ec7823c39",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/hand_truck/hand_truck_1k.fbx",
+      "localMd5": "961573344154a78c8c1676020d422a97",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/hand_truck/hand_truck_1k.fbx",
+          "md5": "961573344154a78c8c1676020d422a97",
+          "size": 402700
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/hand_truck/textures/hand_truck_diff_1k.jpg",
+      "localMd5": "e9c6cd9441438ab958a12dfb171b2e3c",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/hand_truck/hand_truck_diff_1k.jpg",
+          "md5": "e9c6cd9441438ab958a12dfb171b2e3c",
+          "size": 802329
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/hand_truck/textures/hand_truck_nor_gl_1k.png",
+      "localMd5": "bd4e72dc1c7ed3cff9fdb42b22a0fe2b",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/hand_truck/hand_truck_nor_gl_1k.png",
+          "md5": "bd4e72dc1c7ed3cff9fdb42b22a0fe2b",
+          "size": 5458062
+        }
+      ]
+    }
+  ]
+}

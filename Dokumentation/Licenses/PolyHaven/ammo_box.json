@@ -1,0 +1,76 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/ammo_box",
+  "filesSourceUrl": "https://api.polyhaven.com/files/ammo_box",
+  "assetId": "ammo_box",
+  "name": "Ammo Box",
+  "authors": {
+    "DanKit": "All"
+  },
+  "filesHash": "c16dc228b4994bc2235d053decc62dd84b0b37eb",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/muni_kiste/muni_kiste.fbx",
+      "localMd5": "03845a05a5c9e6af1184c810b54c6785",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/ammo_box/ammo_box_1k.fbx",
+          "md5": "03845a05a5c9e6af1184c810b54c6785",
+          "size": 169948
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_MetalSmooth.png",
+      "localMd5": "3e1907e1d580be0b60071b9abf21f0b7",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_diff_1k.jpg",
+      "localMd5": "03828f30d8fec4ea795eee903ec77dc3",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ammo_box/ammo_box_diff_1k.jpg",
+          "md5": "03828f30d8fec4ea795eee903ec77dc3",
+          "size": 461002
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_metal_1k.exr",
+      "localMd5": "d8f9f5f65c5e84199b36749147d7a9d8",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/ammo_box/ammo_box_metal_1k.exr",
+          "md5": "d8f9f5f65c5e84199b36749147d7a9d8",
+          "size": 5350
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_nor_gl_1k.exr",
+      "localMd5": "835ca6fda2f8175ade7524bae7f3843b",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/ammo_box/ammo_box_nor_gl_1k.exr",
+          "md5": "835ca6fda2f8175ade7524bae7f3843b",
+          "size": 496553
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_rough_1k.exr",
+      "localMd5": "a13259dcf4508adbbb4b517e8273a867",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/ammo_box/ammo_box_rough_1k.exr",
+          "md5": "a13259dcf4508adbbb4b517e8273a867",
+          "size": 5350
+        }
+      ]
+    }
+  ]
+}

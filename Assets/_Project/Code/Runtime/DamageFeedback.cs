@@ -203,7 +203,7 @@ namespace Infront
                 string who = _controller != null ? _controller.SpectatingName : null;
 
                 GUI.color = new Color(1f, 0.85f, 0.85f, 0.9f);
-                string headline = _killerName != null ? $"Killed by {_killerName}" : "Eliminated";
+                string headline = _killerName != null ? GameText.Format(GameText.Messages.KilledBy, _killerName) : GameText.Messages.Eliminated;
                 GUI.Label(new Rect(0, 22f, Screen.width, 28f), headline, _big);
                 GUI.color = prev;
 
@@ -211,10 +211,10 @@ namespace Infront
                 {
                     GUI.color = new Color(0.7f, 0.85f, 1f, 0.95f);
                     GUI.Label(new Rect(0, Screen.height - 90f, Screen.width, 30f),
-                        $"Spectating  {who}", _small);
+                        GameText.Format(GameText.Messages.Spectating, who), _small);
                     GUI.color = new Color(1f, 1f, 1f, 0.6f);
                     GUI.Label(new Rect(0, Screen.height - 62f, Screen.width, 22f),
-                        "Left click / right click  switches", _big);
+                        GameText.Messages.SwitchSpectatorHint, _big);
                     GUI.color = prev;
                 }
             }

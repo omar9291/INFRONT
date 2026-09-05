@@ -1,0 +1,98 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/hanging_industrial_lamp",
+  "filesSourceUrl": "https://api.polyhaven.com/files/hanging_industrial_lamp",
+  "assetId": "hanging_industrial_lamp",
+  "name": "Hanging Industrial Lamp",
+  "authors": {
+    "Kuutti Siitonen": "All"
+  },
+  "filesHash": "93bdeee802d5c557ec986ed728bf843b41ead1fb",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/haengelampe.fbx",
+      "localMd5": "53b2fc5decaecbe9aec2f05d393f05a1",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/hanging_industrial_lamp/hanging_industrial_lamp_1k.fbx",
+          "md5": "53b2fc5decaecbe9aec2f05d393f05a1",
+          "size": 329244
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_MetalSmooth.png",
+      "localMd5": "076c10d687ad678c77551e2d3934fd0f",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_diff_1k.jpg",
+      "localMd5": "9931801f2ff2533c891105c7a41af39d",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/hanging_industrial_lamp/hanging_industrial_lamp_diff_1k.jpg",
+          "md5": "9931801f2ff2533c891105c7a41af39d",
+          "size": 708934
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_emissive_1k.png",
+      "localMd5": "09e263e913e5f86d363e5b2eacf970d1",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/hanging_industrial_lamp/hanging_industrial_lamp_emissive_1k.png",
+          "md5": "09e263e913e5f86d363e5b2eacf970d1",
+          "size": 156166
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_glass_nor_gl_1k.png",
+      "localMd5": "3e5af718c8690a2682fd70700f1df0c7",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/hanging_industrial_lamp/hanging_industrial_lamp_glass_nor_gl_1k.png",
+          "md5": "3e5af718c8690a2682fd70700f1df0c7",
+          "size": 4514516
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_metal_1k.exr",
+      "localMd5": "2600fb4f963d014755ceda2b09aad28e",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/hanging_industrial_lamp/hanging_industrial_lamp_metal_1k.exr",
+          "md5": "2600fb4f963d014755ceda2b09aad28e",
+          "size": 851252
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_nor_gl_1k.exr",
+      "localMd5": "242218d74b0f59cc94ccebc8f784ae7b",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/hanging_industrial_lamp/hanging_industrial_lamp_nor_gl_1k.exr",
+          "md5": "242218d74b0f59cc94ccebc8f784ae7b",
+          "size": 1674583
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_rough_1k.exr",
+      "localMd5": "3150d27e1933dfa3846c88028336f6c8",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/hanging_industrial_lamp/hanging_industrial_lamp_rough_1k.exr",
+          "md5": "3150d27e1933dfa3846c88028336f6c8",
+          "size": 721615
+        }
+      ]
+    }
+  ]
+}

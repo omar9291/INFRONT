@@ -1,0 +1,76 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/service_pistol",
+  "filesSourceUrl": "https://api.polyhaven.com/files/service_pistol",
+  "assetId": "service_pistol",
+  "name": "Service Pistol",
+  "authors": {
+    "Mateusz Sadek": "All"
+  },
+  "filesHash": "86bdbd0d905e64817287588732c07588b09b980e",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_MetalSmooth.png",
+      "localMd5": "9857b3ae30a6df5bdce0711735c1fe11",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_diff_1k.jpg",
+      "localMd5": "9954be782e3d946c1c73d7d4f476687e",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/service_pistol/service_pistol_diff_1k.jpg",
+          "md5": "9954be782e3d946c1c73d7d4f476687e",
+          "size": 718216
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_metal_1k.exr",
+      "localMd5": "932e4ebdeb33dd1eb42c0cf3497c7cb4",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/service_pistol/service_pistol_metal_1k.exr",
+          "md5": "932e4ebdeb33dd1eb42c0cf3497c7cb4",
+          "size": 252842
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_nor_gl_1k.exr",
+      "localMd5": "ca611ba91eddd357c834a645d4aeea8d",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/service_pistol/service_pistol_nor_gl_1k.exr",
+          "md5": "ca611ba91eddd357c834a645d4aeea8d",
+          "size": 1201508
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_rough_1k.exr",
+      "localMd5": "68fcef8d4c039601382ec8dc76061c3a",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/service_pistol/service_pistol_rough_1k.exr",
+          "md5": "68fcef8d4c039601382ec8dc76061c3a",
+          "size": 872358
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_pistole/waffe_pistole.fbx",
+      "localMd5": "ece5f47e153232adcfc31a60c503bfaf",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/service_pistol/service_pistol_1k.fbx",
+          "md5": "ece5f47e153232adcfc31a60c503bfaf",
+          "size": 1095644
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1916 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-09-05",
+  "entries": [
+    {
+      "id": "polyhaven-barrel_01",
+      "name": "Barrel_01",
+      "author": "Jorge Camacho",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/Barrel_01",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "5/6 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/fass"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/Barrel_01.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/Barrel_01",
+          "sha256": "3f62304493bc37b83931938a2db61e98c346e76a266b17209453c23a044fdc48"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/fass/fass.fbx",
+          "sha256": "556ddbad76c46be47efe8923f560f65ed6c46c14218d0b0163ddc3cc922db9d9"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_diff_1k.png",
+          "sha256": "88a84d4a68aedb3ed31237564e9171314ef6292e3deba4e59749122fce6def4b"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_metallic_1k.png",
+          "sha256": "1b7ad313c8412dd9dd73138fd54e4563203ee8bf8a1821e10395ee17a39da1b8"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_nor_gl_1k.png",
+          "sha256": "47a06ee2baa8a0247528d33f683fdb7444c90f963a5743dc1e83c6b4204a9526"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_roughness_1k.png",
+          "sha256": "5249a7b870e9a029a585fcb266953788f108c61e27ff0fb4be86807e5fa05d62"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/fass/textures/barrel_01_explosive_MetalSmooth.png",
+          "sha256": "ed81440f84137229c69edab3ac0b39fc63faf0f62a739e7d2398f178609636af"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-ammo_box",
+      "name": "Ammo Box",
+      "author": "DanKit",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/ammo_box",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "5/6 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/muni_kiste"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/ammo_box.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/ammo_box",
+          "sha256": "9eb2823849b4adf25e6214e670845e0799ffb5684b172f1cf1321e8eb9156b61"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/muni_kiste/muni_kiste.fbx",
+          "sha256": "eec84b80f2c412ab8134dee8d937ac9b4d39de9e8a05a0358d4813dbc0b6acff"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_MetalSmooth.png",
+          "sha256": "9a821380faa1f7163ae7ae3b68fe3497132843c3e98b84b763474ba749968b0f"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_diff_1k.jpg",
+          "sha256": "6a21a1ca96526f97bd05b52808986152d3266a056d1dbe90204bf191697f0f56"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_metal_1k.exr",
+          "sha256": "0af9c8ea3417cd409a9d2fd1ae2975cd78a35869b8252e69f68ed4f9392919a5"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_nor_gl_1k.exr",
+          "sha256": "f894cb0c01ecd1be96eac7dc60ff263503170343e4ba109ec2a84920b9cd3fdb"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/muni_kiste/textures/ammo_box_rough_1k.exr",
+          "sha256": "59c4265ede2bc9639e70cdef1cdb5cbac18979c2e802a429c9f44cb5b1386c32"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-wooden_military_crate",
+      "name": "Wooden Military Crate",
+      "author": "Prabhjinder Singh",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/wooden_military_crate",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "5/6 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/holz_kiste"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/wooden_military_crate.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/wooden_military_crate",
+          "sha256": "9f0a36218dc615ce72bcc584e8bfd87ee5fb498631fd6227a21366d5db9b0277"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/holz_kiste/holz_kiste.fbx",
+          "sha256": "f42255aeab7ea1e82dc5b06a17a444264b47400da5327dbe589bb22e5e4ec85d"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_MetalSmooth.png",
+          "sha256": "cb2fc21c9e2a0ca17283b80bd0c366dc28f45510f276ec76e41e1be6a3eb69d8"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_diff_1k.jpg",
+          "sha256": "aa6ace45bef9947586c07283cd11a2d737fe0783a18df69a76f77f59d4fb776d"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_metal_1k.exr",
+          "sha256": "4b23b8f38a78f5058c2bb15d8b549d07f29a65454ee5a7aeedf66ee8bc696810"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_nor_gl_1k.exr",
+          "sha256": "9aab42f2a178c831ddbe43795e7d648675bbb4aa8609012e08607299a803cde4"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_rough_1k.exr",
+          "sha256": "269f9ada6fc0d43a144095024a0635ae47289b3507034edbf322309d9c5cbabd"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-metal_jerrycan_green",
+      "name": "Metal Jerrycan Green",
+      "author": "Ulan Cabanilla",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/metal_jerrycan_green",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "5/6 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/kanister"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/metal_jerrycan_green.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/metal_jerrycan_green",
+          "sha256": "c17c0a45165a5c9bb1e2eaea28f9044b05c08006050b2a6544bfade564b80814"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/kanister/kanister.fbx",
+          "sha256": "6a1f1e9ea7dbd5365e0f2cc2b11ce16491a8a632c43fe872a43c03ccec7f0424"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_MetalSmooth.png",
+          "sha256": "8d22206472c8fbd2c5f46dfffb98591457ab4095e8feda4d7c004caa024f711c"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_diff_1k.jpg",
+          "sha256": "c546d0c6e8ed295449e0bba587f15c5dd12ede40724ab1ef3ebe8e76b85b8661"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_metal_1k.exr",
+          "sha256": "1e1fe53fb675a64011f52be436733ebbf43e065b07547c7c332a6eeb99304123"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_nor_gl_1k.exr",
+          "sha256": "6b0fb72868aca4b2993a24f0b8eca69cca29e0b87dd89261db8bc4b29d798d34"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_rough_1k.exr",
+          "sha256": "caeb4e82fde966296a667b790cfd6a901aa0657943bacae489e238b34ea70744"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-modular_industrial_pipes_01",
+      "name": "Modular Industrial Pipes 01",
+      "author": "Jorge Camacho",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "9/11 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/rohre"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/modular_industrial_pipes_01.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/modular_industrial_pipes_01",
+          "sha256": "fba21309de67d550c410b4a6db255cd963bfd0474b381063f583aec6571024cc"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/rohre/rohre.fbx",
+          "sha256": "2d8249d6e5e8f2498490dc823aa3d90620276b248a4f73087386617a120576dc"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group01_MetalSmooth.png",
+          "sha256": "9e9e69977ccbec5e7b167d8a008cb70a153e09e3deb32bac7469310610b169c3"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group01_diff_1k.png",
+          "sha256": "3be640fe78415bf3ae4ea70b78d6775ed77a84dc9961d4f15622fcefb43de264"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group01_metal_1k.png",
+          "sha256": "cb4069cb26f96a2334ed17a513e3e1ea2352638e868a671f00af9a013d661ad0"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group01_nor_gl_1k.png",
+          "sha256": "c9e9b28ffb9ddb76ab7ff5e9ea366d5e973ca41d7340dcb9080a18cd30353884"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group01_rough_1k.png",
+          "sha256": "0a3b266bcd56c068393b2bc5c78d97fd22ef664a235d336a10180793e872293d"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group02_MetalSmooth.png",
+          "sha256": "e9d5c08430a1613cd251b39ebbabbab389be9d53aaf9a6864efdef8a8919ac5a"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group02_diff_1k.png",
+          "sha256": "43918d226e03d632d7c62eb0e13a0dc1c1d3ad13a32ede158fd4f34fa0d44b75"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group02_metal_1k.png",
+          "sha256": "d41358d2b4b48658bf65be8c81c6cde88beb82bc535a1beb4d00926546ae7fb0"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group02_nor_gl_1k.png",
+          "sha256": "fcd31243e9fa7169e892f5bcc12bc137d151986d43b1be35fc2773ebca7fc5d9"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rohre/textures/modular_industrial_pipes_01_group02_rough_1k.png",
+          "sha256": "b76e3cdbb4818ca68fa1b03b0822556d06206be78523dbc06942508ff7244a98"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-hanging_industrial_lamp",
+      "name": "Hanging Industrial Lamp",
+      "author": "Kuutti Siitonen",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/hanging_industrial_lamp",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "7/8 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/haengelampe"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/hanging_industrial_lamp.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/hanging_industrial_lamp",
+          "sha256": "de602cb336a2375985dc43eee75ca972376fe3d43b4c92606a6c41bfd7f916ba"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/haengelampe.fbx",
+          "sha256": "c18164a9bff969d1f80213fff1fddfe312c636854acafb06c71dca896d316a71"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_MetalSmooth.png",
+          "sha256": "231f24ae95b92cc5739a32f19990c87d34922245f9e6d35bac7cceaad53b722f"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_diff_1k.jpg",
+          "sha256": "22cafeccd4421495c860f8c522bb9e45eaa19fda6ec3a2365dcb5b1db66aad96"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_emissive_1k.png",
+          "sha256": "fbae5ad2dd8f9d8144d29f03002c8866dde4d09df71236e0c84e08005878d8f8"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_glass_nor_gl_1k.png",
+          "sha256": "898364f7dd733f327151a2ccd213d06827f3dfb62c8be68c940f251ff1b3ac23"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_metal_1k.exr",
+          "sha256": "6fdd2f04f5c7e4639cf8704158724cf9bc11b1e832e77b6f7d959e40e394245f"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_nor_gl_1k.exr",
+          "sha256": "f227deb21eb733e84d6430678854c51721a1eec7e314d61637c60baa1a3a8e57"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/haengelampe/textures/hanging_industrial_lamp_rough_1k.exr",
+          "sha256": "e34bc7109fbc635dc6875b3e785005657a71deb99f5bfe6bb4f453440784592f"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-cement_bag",
+      "name": "Cement Bag",
+      "author": "PierreB3D",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/cement_bag",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "4/5 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/sandsack"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/cement_bag.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/cement_bag",
+          "sha256": "58ce5e0013f4e9ad5a35b20beb193d4a1cc2dcb54e546f86460cd1b706ba64f3"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/sandsack/sandsack.fbx",
+          "sha256": "9603077917412aae3178d24ab709cf28545bbcbbd4d9fe4cc94b46f1c183908d"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_MetalSmooth.png",
+          "sha256": "eadf642228848b9e3062b9af9a19907fe657837a12ad8c70cbe157595b0e8354"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_diff_1k.jpg",
+          "sha256": "0f1a45ba37e569b744325976b0a4514bc9e0b073bc12f1adb4d3232f6e90ed3e"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_nor_gl_1k.exr",
+          "sha256": "271aaf21e3f20fe2bef28f32f56afc3fd8dfed9bcd918ae6b9b0e9a810e8c38f"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_rough_1k.exr",
+          "sha256": "8728cdfa876cc7aed70c3942e7c01a7414893569ff7b39af6c916db24802196e"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-service_pistol",
+      "name": "Service Pistol",
+      "author": "Mateusz Sadek",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/service_pistol",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "5/6 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/waffe_pistole"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/service_pistol.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/service_pistol",
+          "sha256": "0add53d75244ebdfb700d998a1706cf0a6fac9d5c78e1c1bf0fedf2c125e5107"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_MetalSmooth.png",
+          "sha256": "e14a7b3da933e0fbbf434c07a5de2d518ec8ab674cf6e94fd50998ece2e1f583"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_diff_1k.jpg",
+          "sha256": "34c536275a34438b578520531868fe4cd0b9b6825b39b30092029d79f33bd718"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_metal_1k.exr",
+          "sha256": "13e9dc1a8700fd4792675e5595c5a4ac14ecbf739254da8a0f6fb4a32f2802a8"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_nor_gl_1k.exr",
+          "sha256": "325422851186728c9fa18d2e44ce0a28a994464f12f7518f1983e082f6809c83"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_pistole/textures/service_pistol_rough_1k.exr",
+          "sha256": "54a1d78aa5f0bc57bf7774f895b23307b1e0255612ec91daa1d3bee5569df7bf"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_pistole/waffe_pistole.fbx",
+          "sha256": "f398d2d766f4df06a5a9b9836c329bfe0c715c40fac3b9efe435e302e639def0"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-bolt_action_rifle_7_62",
+      "name": "Bolt Action Rifle 7.62",
+      "author": "Mateusz Sadek",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/bolt_action_rifle_7_62",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "10/12 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/waffe_sniper"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/bolt_action_rifle_7_62.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/bolt_action_rifle_7_62",
+          "sha256": "173fabfc96429f17a6daae721a30c2763e2a902d1d3421a32b2a66b7c4251d36"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_MetalSmooth.png",
+          "sha256": "d0c4de58bd887382f17546fc861ccb1098c1afa5462324d05ac90743ee854ab1"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_MetalSmooth.png",
+          "sha256": "461f4510398e5b86dfd4f92c2598cd2bfb3eaa4f7ec0ed5a3b5fa77ca5b3ae4b"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_alpha_1k.png",
+          "sha256": "8ca58bb8cdf4ea8ed9d874e393ef3cb74a63467a011bd0acc393f359c24cde69"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_diff_1k.png",
+          "sha256": "ff89bd62640aeed4e8ad7d8690460243217da68a1b48b89833f411898cc00415"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_metal_1k.png",
+          "sha256": "6cf9412e510bd98b613a76219752d59ea53a67d3db439003d66d4996c5c15b7b"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_nor_gl_1k.png",
+          "sha256": "03d90d72c90ff6c75ae1bb3742002fc765f44228f4bb3ecde4b4d59032d49909"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_rough_1k.png",
+          "sha256": "afbfecccec69b5dc6d0e40bd23068ab8e0a88295c96c6687575baa1df444c722"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_diff_1k.jpg",
+          "sha256": "81a7a97770e7f8d5e19bb45b35d2ba97404d6bd44ab1d29487c3c3b431883c4a"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_metal_1k.exr",
+          "sha256": "66090220c252716e9c1785fcda34a0aa76e47895c9df07ebc271a3a7e041a305"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_nor_gl_1k.exr",
+          "sha256": "215b233b08752d87c2d8d2eb3086ede03364d4cd5980d4f5a5f0969471a67e66"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_rough_1k.exr",
+          "sha256": "53577859ab84c51c058319dcf392f1f1320a4a4398ac0d6e0ca5f37c333d8def"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/waffe_sniper/waffe_sniper.fbx",
+          "sha256": "540c5fbc3a1bd75e3955395fa2be5548d1933602a85d8e4d873f8182c639508e"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-concrete_road_barrier",
+      "name": "Concrete Road Barrier",
+      "author": "Amal Kumar",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/concrete_road_barrier",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/concrete_road_barrier"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/concrete_road_barrier.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/concrete_road_barrier",
+          "sha256": "27d141a8c523be7b5fc5fa17e54474e9fddd71cd58ee4b509513a7d730d30a96"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/concrete_road_barrier/concrete_road_barrier_1k.fbx",
+          "sha256": "dbc8bf56e85ccffc813625d948b01a5b38e9592eb0d3a1b4711ce24103be87f2"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/concrete_road_barrier/textures/concrete_road_barrier_diff_1k.jpg",
+          "sha256": "88b2d79829ffec7b11ac4d9c8554328f30b665d2c17f634197fde4f1ca8696fe"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/concrete_road_barrier/textures/concrete_road_barrier_nor_gl_1k.png",
+          "sha256": "0753d78f99362a9694536a56e4eba0873528358d1056b7bf2e7302f179e5195a"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-concrete_road_barrier_02",
+      "name": "Concrete Road Barrier 02",
+      "author": "Amal Kumar",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/concrete_road_barrier_02",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/concrete_road_barrier_02"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/concrete_road_barrier_02.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/concrete_road_barrier_02",
+          "sha256": "240a0e998aa62431a03893b0526eec48f4333a8042e679775a99ffca84b1c501"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/concrete_road_barrier_02/concrete_road_barrier_02_1k.fbx",
+          "sha256": "557b55baf7ba97dbbc131405f7b92a8e1c67b05b22974a691f1a98c2a136a259"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/concrete_road_barrier_02/textures/concrete_road_barrier_02_diff_1k.jpg",
+          "sha256": "9329260ebfc8632a5d47d9b344ab6f916e26604e73ebd2c495fee544df4bdefa"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/concrete_road_barrier_02/textures/concrete_road_barrier_02_nor_gl_1k.png",
+          "sha256": "c1ef615057ba21523a9b1701b9da920dd079bffda2a05469f96dbfd69cdb1983"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-metal_trash_can",
+      "name": "Metal Trash Can",
+      "author": "GurJas Studios",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/metal_trash_can",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/metal_trash_can"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/metal_trash_can.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/metal_trash_can",
+          "sha256": "29d52c4efee27c6a22107d30cbd5e006278c6befa29e2bc3733e2f614ec0ba8f"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/metal_trash_can/metal_trash_can_1k.fbx",
+          "sha256": "e5f5176cccf94a09b05350f2500f11ec7ffed191247f5ccf908f9936324ebca0"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/metal_trash_can/textures/metal_trash_can_diff_1k.jpg",
+          "sha256": "920c895a31b1cd2c000123c0592c70c33d46562752987da98070e7e0eebb662f"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/metal_trash_can/textures/metal_trash_can_nor_gl_1k.png",
+          "sha256": "da91736960b1525eb16b62e681c2abb2715124c2eb2f1ebf216d0c1165cbbe48"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-old_tyre",
+      "name": "Old Tyre",
+      "author": "MP",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/old_tyre",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/old_tyre"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/old_tyre.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/old_tyre",
+          "sha256": "1a4d29fffcb791278329eb8c1e4fa8525a21f214e2e71c8ee9d08323213295ef"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/old_tyre/old_tyre_1k.fbx",
+          "sha256": "b5b6e3f5f43739e450f18112155386fae456a9e2e86a1db395ef48654d0cff70"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/old_tyre/textures/old_tyre_diff_1k.jpg",
+          "sha256": "0e34ce658c0844c0c94022233226d495930d514c917a5fa15ffee4760567439e"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/old_tyre/textures/old_tyre_nor_gl_1k.png",
+          "sha256": "b28dceb893b406c31885ab4e81fd25030ed969f5479952521b8f5c26d4b0eb5e"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-hand_truck",
+      "name": "Hand Truck",
+      "author": "Mutanzom3D",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/hand_truck",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/hand_truck"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/hand_truck.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/hand_truck",
+          "sha256": "33b66d474b8c118e526b71782ee6cf130de98d6e816c8f9261acabc94f9a510e"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/hand_truck/hand_truck_1k.fbx",
+          "sha256": "08cc43e68379b9bf6956cd1a0f214b8932195e2712f385aa35367bd0e01ea495"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/hand_truck/textures/hand_truck_diff_1k.jpg",
+          "sha256": "a1c528e0c88a03a96b89215eab228083f9dd66a502174936bccc0fe427ce345a"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/hand_truck/textures/hand_truck_nor_gl_1k.png",
+          "sha256": "b0dbca1492b45bcff05fbe5428d611eb0a4c4093562166c5508d6ae4e9295feb"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-industrial_storage_cart",
+      "name": "Industrial Storage Cart",
+      "author": "Jule Bielitz",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/industrial_storage_cart",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/industrial_storage_cart"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/industrial_storage_cart.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/industrial_storage_cart",
+          "sha256": "807b34877633262c55586f0b98799c9d9966ecd4215a801787199eb0de12a0b2"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/industrial_storage_cart/industrial_storage_cart_1k.fbx",
+          "sha256": "032d6358f57a444f333018825d8b6fbca3188df653807361892d8be72d40310b"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/industrial_storage_cart/textures/industrial_storage_cart_diff_1k.jpg",
+          "sha256": "7e779d7f7385307ebb332aec41bafff10c21972aaf92382f30cacb16957e7d37"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/industrial_storage_cart/textures/industrial_storage_cart_nor_gl_1k.png",
+          "sha256": "8f6267a9afcc22c753cfeadfd55968578b064db82992af988d3166a0326463b9"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-caged_hanging_light",
+      "name": "Caged Hanging Light",
+      "author": "Ulan Cabanilla",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/caged_hanging_light",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/caged_hanging_light"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/caged_hanging_light.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/caged_hanging_light",
+          "sha256": "ad3b768f00bc757923aa08f761325fe45cd1299dae7ec7160f3352b275676501"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/caged_hanging_light/caged_hanging_light_1k.fbx",
+          "sha256": "26e1a842b6ab89a9e6be9dab3fb3c7b4f6af6401c718619b288656ebdbb6e5f0"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/caged_hanging_light/textures/caged_hanging_light_diff_1k.jpg",
+          "sha256": "2482e081dd05e7c9d2072f7f17bd01e5e4918838e37822941bc2dd2e284e0511"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/caged_hanging_light/textures/caged_hanging_light_nor_gl_1k.png",
+          "sha256": "8975fd3f3227c79717ad0f57b7546e6b158df5428012032d94040d6ffe81b599"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-security_light",
+      "name": "Security Light",
+      "author": "Maximilian Schuster",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/security_light",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/security_light"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/security_light.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/security_light",
+          "sha256": "83c8c60371b25689dfb62ade4514f39c1c0facdb10e42c2057d16e0bf0a9c8b9"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/security_light/security_light_1k.fbx",
+          "sha256": "23550495fff30afc13ed48a52029a4146a1986e2b2fb7099a13a0669436c1b36"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/security_light/textures/security_light_diff_1k.jpg",
+          "sha256": "2e7064d89f03ef51bffda6f78c86baac1edba3346f82f243aa0c33b20fa8b0e5"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/security_light/textures/security_light_nor_gl_1k.png",
+          "sha256": "3edb2e26c486d135201971f4d94da0d3298b8f531115a51df8d005a4f52cc656"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-mounted_fluorescent_lights",
+      "name": "Mounted Fluorescent Lights",
+      "author": "Ulan Cabanilla",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/mounted_fluorescent_lights",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/mounted_fluorescent_lights"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/mounted_fluorescent_lights.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/mounted_fluorescent_lights",
+          "sha256": "94269af3944bf1e3701705eb425eb966a7833ac91b4b11e3875bdf4fdfe5f122"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/mounted_fluorescent_lights/mounted_fluorescent_lights_1k.fbx",
+          "sha256": "8cf0af0effb8485a2b10dededf6ad073a1f26f5d4901ed54a807610e7b56e8f5"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/mounted_fluorescent_lights/textures/mounted_fluorescent_lights_diff_1k.jpg",
+          "sha256": "5b40d4da2a453b891de236023ddc79d49a8c4bc8ecd020c8cce7f124b25c094d"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/mounted_fluorescent_lights/textures/mounted_fluorescent_lights_nor_gl_1k.png",
+          "sha256": "73be1535e05f81f06e82dd1c60d036d5899e4e493a3f7a105027627c20f06d92"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-rollershutter_door",
+      "name": "Rollershutter Door",
+      "author": "MP",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/rollershutter_door",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/rollershutter_door"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/rollershutter_door.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/rollershutter_door",
+          "sha256": "6c92219c53d4a5c1335e87d973845526a00617b3ce08fb5e3cfb55a01c62b58a"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/rollershutter_door/rollershutter_door_1k.fbx",
+          "sha256": "24341d90cbf10632216b7b21e3ec499867244bf2dccb74a4f30407dfa81e8878"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rollershutter_door/textures/rollershutter_door_diff_1k.jpg",
+          "sha256": "b8cd7ad14fe5c691484fe240213c379bf18f21336afe6622bfa20c731eca010d"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/rollershutter_door/textures/rollershutter_door_nor_gl_1k.png",
+          "sha256": "2a233b9986b84c027e0dae68e656d430832dca60a1af3f6ce2015924ffed0536"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-overhead_crane",
+      "name": "Overhead Crane",
+      "author": "Timothy3D",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/overhead_crane",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "3/3 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Models/overhead_crane"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/overhead_crane.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/overhead_crane",
+          "sha256": "5cc0e05706d63a2403a5b36b751c3faa1511f8e9433d5d95294c3af433ac5ca3"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Models/overhead_crane/overhead_crane_1k.fbx",
+          "sha256": "2808ba64a3ed70fb62500af34394fb506299a51ba10fc63e051a65a05a66994a"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/overhead_crane/textures/overhead_crane_diff_1k.jpg",
+          "sha256": "2eadaa0c07a8543ca4ac33133260b1ed315cdff7fb88d7367f60f702937b8423"
+        },
+        {
+          "path": "Assets/_Project/Art/Models/overhead_crane/textures/overhead_crane_nor_gl_1k.png",
+          "sha256": "d19d16c39b7223cf139dd1cbdce6898c246a3d765c32ea4b0a2cb9935f0d5fe0"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-industrial_sunset_02",
+      "name": "Industrial Sunset 02",
+      "author": "Sergej Majboroda",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/industrial_sunset_02",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "0/1 local source/derived files match official download hashes. Generated MetalSmooth maps are local derivatives. Original download-internal licence evidence was not retained; provider policy supplies the CC0 claim.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Sky/industrial_sunset_02.hdr"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/industrial_sunset_02.json",
+          "kind": "official-api-file-hashes",
+          "sourceUrl": "https://api.polyhaven.com/info/industrial_sunset_02",
+          "sha256": "e9818f6e2c995afa53161d337fcf3c41e410a42ec47b77c077aaee901201ccaf"
+        },
+        {
+          "path": "Dokumentation/Licenses/PolyHaven/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://polyhaven.com/license",
+          "sha256": "b1d6df8848206a1fe7bfaa45283ce2639340f7a455d656424ac0000f83d1e409"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Sky/industrial_sunset_02.hdr",
+          "sha256": "439d7e99b34bd3727896d9a06247d4bd80d8276f208f4fdefce919ce74b602c3"
+        }
+      ]
+    },
+    {
+      "id": "ambientcg-concrete034",
+      "name": "Concrete 034",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://ambientcg.com/a/Concrete034",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "Source maps match the downloaded 1K-JPG archive; packed MetalSmooth images are project derivatives. The archive contains no standalone licence file. Attribution follows the provider, whose API has no per-asset author field.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Textures/wand_beton"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/ambientCG/Concrete034.json",
+          "kind": "official-archive-file-comparison",
+          "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Concrete034&include=downloadData",
+          "sha256": "ca7d13c9d5b118dbf146b70cc53ff5a0c130f67e6fd362dd2d0ab65c0c04339a"
+        },
+        {
+          "path": "Dokumentation/Licenses/ambientCG/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://docs.ambientcg.com/license/",
+          "sha256": "4b489a0aeb2467433923714e6fe1e5c555c1c00a7e1a0e38996949c18127df9e"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Textures/wand_beton/Concrete034_1K-JPG_Color.jpg",
+          "sha256": "8ceb9186d990b31fce785e06fdc6974c160f1d27c43f6160266f164deba713aa"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/wand_beton/Concrete034_1K-JPG_NormalGL.jpg",
+          "sha256": "e509eb9dfa978e780fbebfd2acacc2ce158b5b7ced722ddc0759039dd51e18ca"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/wand_beton/Concrete034_1K-JPG_Roughness.jpg",
+          "sha256": "a4a9e39857a19afd23a778e5abf44fcdf6bd7f93918f1cf6878b41933e553511"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/wand_beton/concrete034_1k-jpg_MetalSmooth.png",
+          "sha256": "f6f84cbe94148ccaa8c450017966bb9c76a1ba80d524a7065627329ebfca874e"
+        }
+      ]
+    },
+    {
+      "id": "ambientcg-concrete016",
+      "name": "Concrete 016",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://ambientcg.com/a/Concrete016",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "Source maps match the downloaded 1K-JPG archive; packed MetalSmooth images are project derivatives. The archive contains no standalone licence file. Attribution follows the provider, whose API has no per-asset author field.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Textures/platte"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/ambientCG/Concrete016.json",
+          "kind": "official-archive-file-comparison",
+          "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Concrete016&include=downloadData",
+          "sha256": "18e47744b3bc9c351d3c9d06a625147665d28889e5eb6dcbeefdab7b8a31c0e5"
+        },
+        {
+          "path": "Dokumentation/Licenses/ambientCG/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://docs.ambientcg.com/license/",
+          "sha256": "4b489a0aeb2467433923714e6fe1e5c555c1c00a7e1a0e38996949c18127df9e"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Textures/platte/Concrete016_1K-JPG_Color.jpg",
+          "sha256": "8c874515553c3cd1078911db8a73a8d3faefc862729ab6d2fd79d65aefc4d9c2"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platte/Concrete016_1K-JPG_NormalGL.jpg",
+          "sha256": "9c4f4097806a0f7117404a00f4e6ddfb4ee94589d7949e6cbe54d5e421356a9c"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platte/Concrete016_1K-JPG_Roughness.jpg",
+          "sha256": "e9a22435de41aff7b122f1b086bab39ea8442eb583e0b22537c8eff7433fb6ea"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platte/concrete016_1k-jpg_MetalSmooth.png",
+          "sha256": "cfee73ce3918b291e2f288a9c601575fbca0f92adbef290d3a5e75cac60853ca"
+        }
+      ]
+    },
+    {
+      "id": "ambientcg-asphalt031",
+      "name": "Asphalt 031",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://ambientcg.com/a/Asphalt031",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "Source maps match the downloaded 1K-JPG archive; packed MetalSmooth images are project derivatives. The archive contains no standalone licence file. Attribution follows the provider, whose API has no per-asset author field.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Textures/boden"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/ambientCG/Asphalt031.json",
+          "kind": "official-archive-file-comparison",
+          "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Asphalt031&include=downloadData",
+          "sha256": "cb6d32039db34ff5ae2b8e2e54896b36225def3b9fa7e6d16321a875680e7521"
+        },
+        {
+          "path": "Dokumentation/Licenses/ambientCG/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://docs.ambientcg.com/license/",
+          "sha256": "4b489a0aeb2467433923714e6fe1e5c555c1c00a7e1a0e38996949c18127df9e"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_AmbientOcclusion.jpg",
+          "sha256": "bf8ac1621f095bc99e6456edc7f846ba4ee82f81292d2c74bdd19e3af29cd40b"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_Color.jpg",
+          "sha256": "d8301ee35f486ba073bdd5fda3ea9ed7e40f768aa1def75c420bcc5c055e3534"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_NormalGL.jpg",
+          "sha256": "8afb3f4090793dc9055b861220f5ada95fce232c02e3b3095e2bb10e8fc69775"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_Roughness.jpg",
+          "sha256": "b6211415277cad253d6d41330ac1b4b8b3edf631ac56561f7193670935e3d200"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/boden/asphalt031_1k-jpg_MetalSmooth.png",
+          "sha256": "7be69767f13cb8b0371c6cb29e2862fc6e05a4640b33f3767a00261d4425dc20"
+        }
+      ]
+    },
+    {
+      "id": "ambientcg-metal046a",
+      "name": "Metal 046 A",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://ambientcg.com/a/Metal046A",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "Source maps match the downloaded 1K-JPG archive; packed MetalSmooth images are project derivatives. The archive contains no standalone licence file. Attribution follows the provider, whose API has no per-asset author field.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Textures/deckung_metall"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/ambientCG/Metal046A.json",
+          "kind": "official-archive-file-comparison",
+          "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Metal046A&include=downloadData",
+          "sha256": "77b2fb98025afac531f303ed6f6e8342f468f68ebaf1c2180a91c353441973a4"
+        },
+        {
+          "path": "Dokumentation/Licenses/ambientCG/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://docs.ambientcg.com/license/",
+          "sha256": "4b489a0aeb2467433923714e6fe1e5c555c1c00a7e1a0e38996949c18127df9e"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Textures/deckung_metall/Metal046A_1K-JPG_Color.jpg",
+          "sha256": "e7846a637fc634e53d174ae8fbfbdffa1de98771530a8a1fb26b711d3b4094e0"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/deckung_metall/Metal046A_1K-JPG_NormalGL.jpg",
+          "sha256": "8a87d33e7b67e6aa3a19ed904013669321b0592187995b06022f1ab1dbdbfb44"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/deckung_metall/Metal046A_1K-JPG_Roughness.jpg",
+          "sha256": "76dfe4518f375eb1f7bc10cab5b26121f1a46e9b82682e1e1e6143a80ae3c07f"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/deckung_metall/metal046a_1k-jpg_MetalSmooth.png",
+          "sha256": "1775d78dc454886e22e32f2a12a09e256d76ed99dc9ecc6a242b85eb7c501d52"
+        }
+      ]
+    },
+    {
+      "id": "ambientcg-pavingstones128",
+      "name": "Paving Stones 128",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://ambientcg.com/a/PavingStones128",
+      "provenanceStatus": "provider-metadata-only",
+      "notes": "Source maps match the downloaded 1K-JPG archive; packed MetalSmooth images are project derivatives. The archive contains no standalone licence file. Attribution follows the provider, whose API has no per-asset author field.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Art/Textures/platz"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/ambientCG/PavingStones128.json",
+          "kind": "official-archive-file-comparison",
+          "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=PavingStones128&include=downloadData",
+          "sha256": "6cb1b4d807abdf779fa43f932f6ab821fda3f9e9c63291becc4083140bdf2008"
+        },
+        {
+          "path": "Dokumentation/Licenses/ambientCG/provider-policy.md",
+          "kind": "provider-license-policy",
+          "sourceUrl": "https://docs.ambientcg.com/license/",
+          "sha256": "4b489a0aeb2467433923714e6fe1e5c555c1c00a7e1a0e38996949c18127df9e"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_AmbientOcclusion.jpg",
+          "sha256": "b2715c26986c68cec6236067c55b4d43e5541f803a06370f251ca965296296b9"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_Color.jpg",
+          "sha256": "eef877d5807627e97b0f1813b14ff4d1855836c9af4976df65e8503f2022d0a3"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_NormalGL.jpg",
+          "sha256": "406df32c554c7faa64c39bcd3b5c4eebc41527b4df9448a9a6e2b16c98c9fff3"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_Roughness.jpg",
+          "sha256": "19eca04e678297ee9662c33cac3e84e3f887d9fb9746e5b000f48073b0f3d497"
+        },
+        {
+          "path": "Assets/_Project/Art/Textures/platz/pavingstones128_1k-jpg_MetalSmooth.png",
+          "sha256": "285e4eff854bb70e8a4d369d0413207c427a85aab8e1390ddde2e2dbe6accdda"
+        }
+      ]
+    },
+    {
+      "id": "free-firearm-sound-library",
+      "name": "The Free Firearm Sound Library",
+      "author": "Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://opengameart.org/content/the-free-firearm-sound-library",
+      "provenanceStatus": "unresolved-package-provenance",
+      "notes": "Four edited gunshot recordings. The source page and earlier project record identify the library; original archive licence and edit-to-source-take mapping remain unverified.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Audio/Resources/schuss_gewehr.wav",
+        "Assets/_Project/Audio/Resources/schuss_mp.wav",
+        "Assets/_Project/Audio/Resources/schuss_sniper.wav",
+        "Assets/_Project/Audio/Resources/schuss_pistole.wav"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/FreeFirearmSoundLibrary/provenance.md",
+          "kind": "publisher-page-and-prior-project-record",
+          "sourceUrl": "https://opengameart.org/content/the-free-firearm-sound-library",
+          "sha256": "aad71d56377c378fd3b3efb1651314a45f19a4767e4648249696bdeaf9f8f45c"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Audio/Resources/schuss_gewehr.wav",
+          "sha256": "f064c6f2f779eeb51f68eaf3197096a75c48d1af204c78960e79baa00e949dad"
+        },
+        {
+          "path": "Assets/_Project/Audio/Resources/schuss_mp.wav",
+          "sha256": "a44afd4e2274e4ce1ddb70855357a8f1159f3da2b4234f82744f8ef94fbc327f"
+        },
+        {
+          "path": "Assets/_Project/Audio/Resources/schuss_sniper.wav",
+          "sha256": "f4277cc081f84b57cef2fa4d04c2dcf1ca76088e02c56f5986caa97a2ecdea5c"
+        },
+        {
+          "path": "Assets/_Project/Audio/Resources/schuss_pistole.wav",
+          "sha256": "25b3bd8ffe2f5ee0abfb71bb11d20c567675f7a30c078dc9b2911a04c4a3527a"
+        }
+      ]
+    },
+    {
+      "id": "mixamo-local",
+      "name": "Mixamo character and animations",
+      "author": "Adobe Mixamo; individual asset names not retained",
+      "license": "Adobe Mixamo terms (not CC0)",
+      "sourceUrl": "https://www.mixamo.com/",
+      "provenanceStatus": "unresolved-source-details",
+      "notes": "Optional local files: excluded from Git. Adobe FAQ covers use in games. Exact catalogue identities and complete redistribution terms are not established by this record.",
+      "optional": true,
+      "paths": [
+        "Assets/_Project/Art/Figures"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Mixamo/provenance.md",
+          "kind": "official-service-faq",
+          "sourceUrl": "https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html",
+          "sha256": "5cbdb1cb7eb914667ef204d33aa4ec5b23614be874b242f0601b2c3ea774bb90"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Art/Figures/basis.fbx",
+          "sha256": "7a14182a74264592cb75e90859fba1ff02350ddac6be6966fca82ee75634f7f9"
+        },
+        {
+          "path": "Assets/_Project/Art/Figures/death.fbx",
+          "sha256": "2db6c7d8adf946563e9e60e5b49f03f18d391f70521e547243891d281d2209f4"
+        },
+        {
+          "path": "Assets/_Project/Art/Figures/idle.fbx",
+          "sha256": "36d9abbe40b71af1aeb61988a935bfa7fbd1948a7e42df8bfb644f01f9e04c1d"
+        },
+        {
+          "path": "Assets/_Project/Art/Figures/run.fbx",
+          "sha256": "230516003648f5676b64c1831306f480fd2a8a2b4dd6e21afce2a5a6c58ce8b1"
+        },
+        {
+          "path": "Assets/_Project/Art/Figures/walk.fbx",
+          "sha256": "97149c17bc409355da15b7967ab66754b39eca0388af7fd4d3129855e2d257f3"
+        }
+      ]
+    },
+    {
+      "id": "driftlab-legacy-procedural-audio",
+      "name": "Archived procedural shot sounds",
+      "author": "Driftlab",
+      "license": "Project-created; no separate asset licence declared",
+      "sourceUrl": "https://github.com/omar9291/INFRONT/blob/main/Assets/_Project/Code/Runtime/ProceduralSfx.cs",
+      "provenanceStatus": "project-generated",
+      "notes": "Archived fallback sounds, outside Resources. These are synthesised, not recordings.",
+      "optional": false,
+      "paths": [
+        "Assets/_Project/Audio/Platzhalter_alt"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Driftlab/procedural-audio.md",
+          "kind": "project-provenance-record",
+          "sourceUrl": "https://github.com/omar9291/INFRONT/blob/main/Assets/_Project/Code/Runtime/ProceduralSfx.cs",
+          "sha256": "e39b0c9a76529ef5080d1a8c06b362ee2816fd5c4d7606e6d67e6e244abaf13f"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/_Project/Audio/Platzhalter_alt/schuss_gewehr.wav",
+          "sha256": "f8a13a37f80be850a9730d7bd263c7816eda3565635eb44c0cea38030009a48e"
+        },
+        {
+          "path": "Assets/_Project/Audio/Platzhalter_alt/schuss_mp.wav",
+          "sha256": "c44316767cd2c208a136ebb838bd1db771774ab8b29d13d3d8d8dc5056f575cc"
+        },
+        {
+          "path": "Assets/_Project/Audio/Platzhalter_alt/schuss_pistole.wav",
+          "sha256": "61d1cf3f29b64abc502e3f391175d37ec4ce695b58e0bbed86c2cf5bff837916"
+        },
+        {
+          "path": "Assets/_Project/Audio/Platzhalter_alt/schuss_sniper.wav",
+          "sha256": "19bb5174460bd1a450e84debbca7cf5c87dda7b2a786ab7794176d67e19b4cf1"
+        }
+      ]
+    },
+    {
+      "id": "kenney-impact-sounds",
+      "name": "Impact Sounds 1.0",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Original License.txt retained. Package available for integration; no runtime sound files assigned to this entry yet.",
+      "optional": true,
+      "paths": [],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Kenney/ImpactSounds-License.txt",
+          "kind": "package-license",
+          "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+          "sha256": "b49aa9c56b04528b95913de13e506a0f7c5e807b9925db9bfef86af1f91120db"
+        },
+        {
+          "path": "Dokumentation/Licenses/Kenney/ImpactSounds-archive.json",
+          "kind": "downloaded-archive-inventory",
+          "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+          "sha256": "e4e95bfc7942fe8d9effd74f6768cbf754ce795e44bad3c88aa903c06eab7ba3"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-ai.navigation",
+      "name": "AI Navigation 2.0.14",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.ai.navigation",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.ai.navigation"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.ai.navigation@2.0.14/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.ai.navigation",
+          "sha256": "2b2113e0522b3eaa9e701d70956f9affaccac7e79d99b6029903bcec7139590e"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.ai.navigation@2.0.14/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.ai.navigation",
+          "sha256": "4da884ff2bc72f47dc2996e22f1d3df84c9ee2282cb97d77fcd432cac12cd150"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-burst",
+      "name": "Burst 1.8.30",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License (source); Unity Package Distribution License (other content)",
+      "sourceUrl": "https://packages.unity.com/com.unity.burst",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.burst"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.burst@1.8.30/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.burst",
+          "sha256": "9bd567d6de754ab7396a8e3022758c617b78d7115bf1585bdb29ae0de464d059"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.burst@1.8.30/Third Party Notices.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.burst",
+          "sha256": "01b366462da89d104fc7db01309b69de07cee05400ec429e2ea9e4c23fa5f085"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.burst@1.8.30/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.burst",
+          "sha256": "e13367469222275c0f4772d9e9a981b4fb5dce2afa174db66a68b75df3a70770"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-collections",
+      "name": "Collections 6.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.collections",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.collections"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.collections@6.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.collections",
+          "sha256": "4947f647c031b0fec440237f8136386a606dd998089bb1df67316ee693f568f5"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.collections@6.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.collections",
+          "sha256": "9b51e37ba06f64487f56956fc84a3ad87acefa7a951f37eab9645ceb631eb1b6"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-ext.nunit",
+      "name": "Custom NUnit 2.1.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Package Distribution License",
+      "sourceUrl": "https://packages.unity.com/com.unity.ext.nunit",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.ext.nunit"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.ext.nunit@2.1.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.ext.nunit",
+          "sha256": "3622d79bb4de21087d36ba91bcc84816e6fc2ace098e17eb431b9e1dfb6dde32"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.ext.nunit@2.1.0/Third Party Notices.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.ext.nunit",
+          "sha256": "ef37b1ccbae5e9b641482cbd77a74ee96193a39d232cc8d856b9044f37db9244"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.ext.nunit@2.1.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.ext.nunit",
+          "sha256": "64e92ab76f1330e8fa26cddb062f520200c0babbf8de8017224f0fdbd289dedb"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-inputsystem",
+      "name": "Input System 1.20.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.inputsystem",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.inputsystem"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.inputsystem@1.20.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.inputsystem",
+          "sha256": "419718e59cd6c1f9c3ed80bd004394504bed368c23ad8665cce1792a33c8a02c"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.inputsystem@1.20.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.inputsystem",
+          "sha256": "530f2956afeb97412c633968e1f5dc4d7f442e1fd29c29d3fba645b05b0ab300"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-mathematics",
+      "name": "Mathematics 1.4.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.mathematics",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.mathematics"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.mathematics@1.4.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.mathematics",
+          "sha256": "5b1a26ff2ca6e6e7d9fd2b6df151e1a43c671fdf49c05dcee1227f20dcf25fde"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.mathematics@1.4.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.mathematics",
+          "sha256": "e75333779584c64632be02248d49d7f7394e027d2e5b5a9dfb3f316d5e42a6f1"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-multiplayer.center",
+      "name": "Multiplayer Center 1.0.1",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Package Distribution License",
+      "sourceUrl": "https://packages.unity.com/com.unity.multiplayer.center",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.multiplayer.center"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.multiplayer.center@1.0.1/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.multiplayer.center",
+          "sha256": "e6522fc3e87017b4950060c58fac8478ecc96ba84ce48f4678b73dc1289d6c03"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.multiplayer.center@1.0.1/Third Party Notices.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.multiplayer.center",
+          "sha256": "85105d078ca8cdcd75fbb5e7ddb75d5b569f0e20270d3b9f387f37c30130b720"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.multiplayer.center@1.0.1/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.multiplayer.center",
+          "sha256": "a3e96089e5c28acca3a4609a5ea94fa76093a5f951b77861b19e618cfb1025c6"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-netcode.gameobjects",
+      "name": "Netcode for GameObjects 2.13.2",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.netcode.gameobjects",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.netcode.gameobjects"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.netcode.gameobjects@2.13.2/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.netcode.gameobjects",
+          "sha256": "48fecd5f02a7a7fbd6a0a2d80f6e54c886d370fb9af101dfcc56b2f74af4663e"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.netcode.gameobjects@2.13.2/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.netcode.gameobjects",
+          "sha256": "508fb65c59dfca49cf629f6ca0cd9eb5a89c99633eaac70cb9c066d2b03a4b38"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-nuget.mono-cecil",
+      "name": "Mono Cecil 1.11.6",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.nuget.mono-cecil",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.nuget.mono-cecil"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.nuget.mono-cecil@1.11.6/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.nuget.mono-cecil",
+          "sha256": "76101254034fbea9afc4169e98ce15382b0f130e3bf15e7da1ca599d940e1cda"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.nuget.mono-cecil@1.11.6/Third Party Notices.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.nuget.mono-cecil",
+          "sha256": "99966d24b32096a2a1963d9ccec993cf1c729fafd359179ee727762b2dd2b4ba"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.nuget.mono-cecil@1.11.6/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.nuget.mono-cecil",
+          "sha256": "647ed65ad4746c7c6e11ac08e8c96e32912dd0b903f80da08c6899f0cb4e7bd8"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-render-pipelines.core",
+      "name": "Scriptable Render Pipeline Core 17.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.core",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.render-pipelines.core"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.core@17.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.core",
+          "sha256": "39691adc5fdaf614d951f53637e22501baf46fcc535a69ab8a21ebaa8b9e9cb4"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.core@17.5.0/THIRD PARTY NOTICES.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.core",
+          "sha256": "fdfacc9a242bda05b26eace324033b467b7d70e83a2761cd03337b612affc339"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.core@17.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.core",
+          "sha256": "0cfc06cb47b2f85061e32be6498aa1863ffba558da27804116afeb846a9b81e1"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-render-pipelines.universal-config",
+      "name": "Universal Render Pipeline Config 17.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal-config",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.render-pipelines.universal-config"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.universal-config@17.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal-config",
+          "sha256": "fa2dcbc8ff967f49342c6c61854909ba4bbcc70b27f07d25538b8eaf7be5be3c"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.universal-config@17.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal-config",
+          "sha256": "9474ed08af824a71fe0364b165a9c77dcf511ecc7b09ee376d20204ebce594c4"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-render-pipelines.universal",
+      "name": "Universal Render Pipeline 17.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.render-pipelines.universal"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.universal@17.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal",
+          "sha256": "4be520a425e06c8de56fa8aee1ce957cfe610406456278172a2d18b7c388c2cf"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.universal@17.5.0/Third Party Notices.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal",
+          "sha256": "0652509dfc81a1a3d9e037e59bd047b305155fc5c4abeef69e2fc078488035fd"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.render-pipelines.universal@17.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.render-pipelines.universal",
+          "sha256": "681944e01c37caaab45802a3622f6010b09a90a594b61eab947d4abdf8347a7a"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-searcher",
+      "name": "Searcher 4.9.5",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion Package License v1.0",
+      "sourceUrl": "https://packages.unity.com/com.unity.searcher",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.searcher"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.searcher@4.9.5/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.searcher",
+          "sha256": "73e67aa49be44b2b1e37d4244224bf111a82b79235324457bcc82ac4fb339f61"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.searcher@4.9.5/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.searcher",
+          "sha256": "baec17db8511ac6a8c9fbd345850d5b523bfce31fbea27ac6a34a36e1c387a97"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-shadergraph",
+      "name": "Shader Graph 17.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.shadergraph",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.shadergraph"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.shadergraph@17.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.shadergraph",
+          "sha256": "364b0c08b7fe15b70c4777dccb26fc21d02ae831c2f707dbe29879ac15ece353"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.shadergraph@17.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.shadergraph",
+          "sha256": "bfd7fcc8e47f9073d62f445460e4fb37f7ae263dfb60cdd2fbcf78c560951f50"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-test-framework.performance",
+      "name": "Performance testing API 3.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.test-framework.performance",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.test-framework.performance"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.test-framework.performance@3.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.test-framework.performance",
+          "sha256": "202adffac8b9d21d3b148a294d241894f3bcef85724c01b6a0bd52269a3798c8"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.test-framework.performance@3.5.0/Third Party Notices.md",
+          "kind": "installed-package-third-party-notices",
+          "sourceUrl": "https://packages.unity.com/com.unity.test-framework.performance",
+          "sha256": "361cdb83b8f7c4868ad5c61d8014ab423d9229919219f77bae1eb36084e0227a"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.test-framework.performance@3.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.test-framework.performance",
+          "sha256": "341d333b8c39097d5f0d57253fba53f515056fd216666fb96d8eb61f5bb43b11"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-test-framework",
+      "name": "Test Framework 1.7.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.test-framework",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.test-framework"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.test-framework@1.7.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.test-framework",
+          "sha256": "d3b09e9683afbc8d468a83000308f18e7133eaf7879af870747000a66e3c0693"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.test-framework@1.7.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.test-framework",
+          "sha256": "96a9484fb934b87bdc9f5de20986d82f4b8fb1f171064f2464eefdd019784d86"
+        }
+      ],
+      "content": []
+    },
+    {
+      "id": "unity-transport",
+      "name": "Unity Transport 6.5.0",
+      "author": "Unity Technologies and contributors listed in retained notices",
+      "license": "Unity Companion License",
+      "sourceUrl": "https://packages.unity.com/com.unity.transport",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.",
+      "optional": false,
+      "paths": [
+        "Packages/com.unity.transport"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.transport@6.5.0/LICENSE.md",
+          "kind": "installed-package-license",
+          "sourceUrl": "https://packages.unity.com/com.unity.transport",
+          "sha256": "bcbfa9a6e7d2e9d0e1b693246ff99203b986dbc6433a5437b6cc307c3a052af9"
+        },
+        {
+          "path": "Dokumentation/Licenses/UnityPackages/com.unity.transport@6.5.0/package-identity.json",
+          "kind": "installed-package-identity",
+          "sourceUrl": "https://packages.unity.com/com.unity.transport",
+          "sha256": "2852953e009b985d6b7e5b1ca13a5a110853868e9f0f20bc3d333299d81592ca"
+        }
+      ],
+      "content": []
+    }
+  ]
+}

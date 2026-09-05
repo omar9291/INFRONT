@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/metal_trash_can",
+  "filesSourceUrl": "https://api.polyhaven.com/files/metal_trash_can",
+  "assetId": "metal_trash_can",
+  "name": "Metal Trash Can",
+  "authors": {
+    "GurJas Studios": "All"
+  },
+  "filesHash": "3ecbee3adbcc53b4af3c8f010e76e10c5b7558a2",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/metal_trash_can/metal_trash_can_1k.fbx",
+      "localMd5": "dde180dd41cddaad272a54dcc45a0416",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/metal_trash_can/metal_trash_can_1k.fbx",
+          "md5": "dde180dd41cddaad272a54dcc45a0416",
+          "size": 431724
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/metal_trash_can/textures/metal_trash_can_diff_1k.jpg",
+      "localMd5": "55d375d8d51b268b6ed8a4308155959c",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/metal_trash_can/metal_trash_can_diff_1k.jpg",
+          "md5": "55d375d8d51b268b6ed8a4308155959c",
+          "size": 551939
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/metal_trash_can/textures/metal_trash_can_nor_gl_1k.png",
+      "localMd5": "89201f9dab84f2f783eee446a7663e8c",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/metal_trash_can/metal_trash_can_nor_gl_1k.png",
+          "md5": "89201f9dab84f2f783eee446a7663e8c",
+          "size": 5137809
+        }
+      ]
+    }
+  ]
+}

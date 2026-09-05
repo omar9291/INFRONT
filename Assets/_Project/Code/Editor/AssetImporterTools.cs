@@ -146,6 +146,16 @@ namespace Infront.EditorTools
                 if (mat.HasProperty("_BumpScale")) mat.SetFloat("_BumpScale", 1f);
             }
 
+            // AO wurde bisher nur als lineare Datenkarte importiert, aber nie
+            // an den Shader angeschlossen. URP liest die Verdeckung aus dem
+            // gruenen Kanal und braucht dazu auch das Shader-Schluesselwort.
+            // Beim erneuten Import ohne AO darf keine alte Karte aktiv bleiben.
+            var aoTex = ao != null ? AssetDatabase.LoadAssetAtPath<Texture2D>(ao) : null;
+            if (mat.HasProperty("_OcclusionMap")) mat.SetTexture("_OcclusionMap", aoTex);
+            if (mat.HasProperty("_OcclusionStrength")) mat.SetFloat("_OcclusionStrength", 1f);
+            if (aoTex != null) mat.EnableKeyword("_OCCLUSIONMAP");
+            else mat.DisableKeyword("_OCCLUSIONMAP");
+
             // --- Glanz: erst jetzt eine echte Karte ------------------------
             //
             // Bis hierher stand ueberall EIN fester Glanzwert (0,32) - vom
@@ -185,7 +195,7 @@ namespace Infront.EditorTools
 
             EditorUtility.SetDirty(mat);
             Debug.Log($"[Assets] Material '{matKey}': BaseMap={colorTex != null} Normal={normal != null} " +
-                      $"Glanz={glanz != null} ({Path.GetFileName(color)})");
+                      $"AO={aoTex != null} Glanz={glanz != null} ({Path.GetFileName(color)})");
             return true;
         }
 

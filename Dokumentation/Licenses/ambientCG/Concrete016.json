@@ -1,0 +1,39 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Concrete016&include=downloadData",
+  "assetId": "Concrete016",
+  "displayName": "Concrete 016",
+  "shortLink": "https://ambientcg.com/a/Concrete016",
+  "evidenceKind": "official-api-metadata",
+  "packageUrl": "https://ambientcg.com/get?file=Concrete016_1K-JPG.zip",
+  "packageSha256": "ec312de0cfa5ce8d97f5319a58551a8240dab1d9c3f045de54579796664aadc3",
+  "packageLicenseFiles": [],
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Textures/platte/Concrete016_1K-JPG_Color.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/platte/Concrete016_1K-JPG_NormalGL.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/platte/Concrete016_1K-JPG_Roughness.jpg",
+      "matchesDownloadedPackage": true
+    }
+  ],
+  "archiveEntries": [
+    "Concrete016_1K-JPG.usdc",
+    "Concrete016_1K-JPG_Color.jpg",
+    "Concrete016_1K-JPG_Displacement.jpg",
+    "Concrete016_1K-JPG_NormalDX.jpg",
+    "Concrete016_1K-JPG_NormalGL.jpg",
+    "Concrete016_1K-JPG_Roughness.jpg",
+    "Concrete016_1K-JPG.blend",
+    "Concrete016_1K-JPG.mtlx",
+    "Concrete016_1K-JPG.tres",
+    "Concrete016.png"
+  ],
+  "licenseSourceUrl": "https://docs.ambientcg.com/license/",
+  "limitation": "No standalone licence/readme file is present in the downloaded archive. CC0 comes from the official provider policy, not from an embedded licence."
+}

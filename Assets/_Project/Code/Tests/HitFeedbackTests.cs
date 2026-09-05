@@ -46,7 +46,7 @@ namespace Infront.Tests
         public IEnumerator Schuss_auf_den_Koerper_meldet_Koerper_Einschlag()
         {
             NetworkPlayerController player = null;
-            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            yield return MatchTestHarness.LoadReady((p, m) => player = p, withTrainingDummy: true);
             TargetDummy dummy = null;
             yield return MatchTestHarness.WaitUntil(() => (dummy = FindDummy()) != null, 6f, "Kein Dummy.");
 
@@ -111,7 +111,7 @@ namespace Infront.Tests
         public IEnumerator Toedlicher_Treffer_wird_als_lethal_gemeldet()
         {
             NetworkPlayerController player = null;
-            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            yield return MatchTestHarness.LoadReady((p, m) => player = p, withTrainingDummy: true);
             TargetDummy dummy = null;
             yield return MatchTestHarness.WaitUntil(() => (dummy = FindDummy()) != null, 6f, "Kein Dummy.");
 

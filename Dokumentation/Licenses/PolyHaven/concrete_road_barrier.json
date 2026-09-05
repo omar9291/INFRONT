@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/concrete_road_barrier",
+  "filesSourceUrl": "https://api.polyhaven.com/files/concrete_road_barrier",
+  "assetId": "concrete_road_barrier",
+  "name": "Concrete Road Barrier",
+  "authors": {
+    "Amal Kumar": "All"
+  },
+  "filesHash": "bc3dfafc1abfc83dfa19710745d6f0beba9d2368",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/concrete_road_barrier/concrete_road_barrier_1k.fbx",
+      "localMd5": "224210dc96ab0c8953cd5290b66f9cc1",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/concrete_road_barrier/concrete_road_barrier_1k.fbx",
+          "md5": "224210dc96ab0c8953cd5290b66f9cc1",
+          "size": 2887676
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/concrete_road_barrier/textures/concrete_road_barrier_diff_1k.jpg",
+      "localMd5": "0fc11541996e1ddbdb1875dff35bc1c9",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/concrete_road_barrier/concrete_road_barrier_diff_1k.jpg",
+          "md5": "0fc11541996e1ddbdb1875dff35bc1c9",
+          "size": 792641
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/concrete_road_barrier/textures/concrete_road_barrier_nor_gl_1k.png",
+      "localMd5": "ea9b68b55ea46305a847e037b245e2fa",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/concrete_road_barrier/concrete_road_barrier_nor_gl_1k.png",
+          "md5": "ea9b68b55ea46305a847e037b245e2fa",
+          "size": 6188403
+        }
+      ]
+    }
+  ]
+}

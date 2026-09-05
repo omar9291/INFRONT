@@ -76,6 +76,72 @@ namespace Infront.Tests
         }
 
         [Test]
+        public void AO_Karte_wirkt_im_Material_und_bleibt_linear()
+        {
+            string aoPath = TestFolder + "/Rock_AmbientOcclusion.png";
+            string glanzPath = TestFolder + "/Rock_MetalSmooth.png";
+            // Ein weisses Testbild wuerde den fehlenden Verdeckungseffekt
+            // verdecken. Dunkles AO muss als Datenkarte unveraendert ankommen.
+            WritePng(aoPath, new Color(0.25f, 0.25f, 0.25f, 1f));
+            WritePng(glanzPath, new Color(0.7f, 0.7f, 0.7f, 0.4f));
+
+            Assert.IsTrue(AssetImporterTools.BuildSurfaceMaterial(TestFolder, TestMatKey));
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(TestMatPath);
+            Assert.IsNotNull(mat);
+            var ao = AssetDatabase.LoadAssetAtPath<Texture2D>(aoPath);
+            Assert.IsNotNull(ao);
+            Assert.AreEqual(ao, mat.GetTexture("_OcclusionMap"),
+                "Die AO-Datei wurde gefunden, aber nicht an das Material angeschlossen.");
+            Assert.IsTrue(mat.IsKeywordEnabled("_OCCLUSIONMAP"),
+                "Ohne Shader-Schluesselwort ignoriert URP die Verdeckungskarte.");
+            Assert.AreEqual(1f, mat.GetFloat("_OcclusionStrength"), 0.001f);
+
+            var importer = AssetImporter.GetAtPath(aoPath) as TextureImporter;
+            Assert.IsNotNull(importer);
+            Assert.IsFalse(importer.sRGBTexture, "AO ist eine lineare Datenkarte.");
+            Assert.AreEqual(TextureImporterType.Default, importer.textureType);
+
+            // Die Erweiterung darf die vorhandene Normal-/Glanzkette nicht
+            // ersetzen oder deren Glanz-Multiplikator wieder herunterdrehen.
+            Assert.AreEqual(AssetDatabase.LoadAssetAtPath<Texture2D>(TestFolder + "/Rock_NormalGL.png"),
+                mat.GetTexture("_BumpMap"));
+            Assert.IsTrue(mat.IsKeywordEnabled("_NORMALMAP"));
+            Assert.AreEqual(AssetDatabase.LoadAssetAtPath<Texture2D>(glanzPath),
+                mat.GetTexture("_MetallicGlossMap"));
+            Assert.IsTrue(mat.IsKeywordEnabled("_METALLICSPECGLOSSMAP"));
+            Assert.AreEqual(1f, mat.GetFloat("_Smoothness"), 0.001f);
+        }
+
+        [Test]
+        public void Erneuter_Import_ohne_AO_entfernt_die_alte_Verdeckung()
+        {
+            string aoPath = TestFolder + "/Rock_AmbientOcclusion.png";
+            WritePng(aoPath, new Color(0.25f, 0.25f, 0.25f, 1f));
+            Assert.IsTrue(AssetImporterTools.BuildSurfaceMaterial(TestFolder, TestMatKey));
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(TestMatPath);
+            Assert.IsNotNull(mat);
+            Assert.IsNotNull(mat.GetTexture("_OcclusionMap"));
+
+            // Dieselbe Materialdatei mit einer neuen Quellliste bauen. Die
+            // vorige AO-Datei bleibt auf der Platte, gehoert aber nicht mehr dazu.
+            Assert.IsTrue(AssetImporterTools.BuildSurfaceMaterialFromMaps(new[]
+            {
+                TestFolder + "/Rock_Color.png",
+                TestFolder + "/Rock_NormalGL.png",
+                TestFolder + "/Rock_Roughness.png",
+            }, TestMatKey));
+
+            Assert.IsNull(mat.GetTexture("_OcclusionMap"),
+                "Eine AO-Karte aus einem frueheren Import ist noch verbunden.");
+            Assert.IsFalse(mat.IsKeywordEnabled("_OCCLUSIONMAP"),
+                "Ohne AO-Datei darf die Verdeckung nicht aktiv bleiben.");
+            Assert.IsNotNull(mat.GetTexture("_BaseMap"));
+            Assert.IsNotNull(mat.GetTexture("_BumpMap"));
+            Assert.AreEqual(0.32f, mat.GetFloat("_Smoothness"), 0.001f,
+                "Der Rueckfall auf skalaren Glanz bleibt unveraendert.");
+        }
+
+        [Test]
         public void Ohne_Farbkarte_wird_kein_Material_gebaut()
         {
             // leerer Ordner

@@ -55,7 +55,7 @@ namespace Infront
         /// <summary>Angezeigter Name. Leer heisst: noch nicht gesetzt.</summary>
         public static string DisplayName
         {
-            get => string.IsNullOrWhiteSpace(Data.Name) ? "PLAYER" : Data.Name.Trim();
+            get => string.IsNullOrWhiteSpace(Data.Name) ? GameText.Common.Player : Data.Name.Trim();
             set { Data.Name = value ?? ""; Save(); }
         }
 

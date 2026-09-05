@@ -101,29 +101,26 @@ namespace Infront
         /// <summary>Noch keine Runde gespielt.</summary>
         public static VisualElement KeineLaufbahn(Action spielen) => Panel(
             Kind.Leer,
-            "NO ROUNDS YET",
-            "Your wins, streaks and aces show up here once you have played.",
-            "START YOUR FIRST ROUND", spielen);
+            GameText.States.NoRoundsYet,
+            GameText.States.CareerDescription,
+            GameText.States.StartYourFirstRound, spielen);
 
         /// <summary>Es dauert gerade. Kein Ausweg-Knopf - warten ist die Aktion.</summary>
         public static VisualElement Laedt(string was) => Panel(
-            Kind.Laedt, "LOADING", was);
+            Kind.Laedt, GameText.Loading.Label, was);
 
         /// <summary>Etwas ist schiefgegangen.</summary>
         public static VisualElement Fehler(string grund, Action nochmal) => Panel(
             Kind.Fehler,
-            "THAT DID NOT WORK",
-            grund + "\n\nThis is not on you. Give it another try - " +
-            "if it happens again, the reason is in the crash report.",
-            "TRY AGAIN", nochmal);
+            GameText.States.ThatDidNotWork,
+            GameText.Format(GameText.States.RetryDescription, grund),
+            GameText.States.TryAgain, nochmal);
 
         /// <summary>Verbindung weg. Im Host-Modus heisst das: die Runde ist vorbei.</summary>
         public static VisualElement Netz(Action zurueck) => Panel(
             Kind.Netz,
-            "CONNECTION LOST",
-            "The game runs as its own host on this computer. If the " +
-            "connection drops, the running round cannot be saved - " +
-            "but your career progress stays saved.",
-            "BACK TO MENU", zurueck);
+            GameText.States.ConnectionLost,
+            GameText.States.ConnectionLostDescription,
+            GameText.Hud.BackToMenu, zurueck);
     }
 }

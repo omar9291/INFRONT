@@ -23,7 +23,7 @@ namespace Infront.Tests
         [UnityTest]
         public IEnumerator Server_Schaden_senkt_Leben_des_Dummys()
         {
-            yield return MatchTestHarness.LoadReady((p, m) => { }, expectedCombatants: 6);
+            yield return MatchTestHarness.LoadReady((p, m) => { }, expectedCombatants: 6, withTrainingDummy: true);
 
             // Dummy spawnt separat (DummySpawner) - kurz warten
             TargetDummy dummy = null;
@@ -41,7 +41,7 @@ namespace Infront.Tests
         [UnityTest]
         public IEnumerator Dummy_stirbt_bei_null_Leben_und_respawnt()
         {
-            yield return MatchTestHarness.LoadReady((p, m) => { });
+            yield return MatchTestHarness.LoadReady((p, m) => { }, withTrainingDummy: true);
             TargetDummy dummy = null;
             yield return MatchTestHarness.WaitUntil(() => (dummy = FindDummy()) != null, 6f, "Kein Dummy.");
             var health = dummy.GetComponent<Health>();
@@ -88,7 +88,7 @@ namespace Infront.Tests
         public IEnumerator Schuss_auf_Dummy_macht_Schaden()
         {
             NetworkPlayerController player = null;
-            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            yield return MatchTestHarness.LoadReady((p, m) => player = p, withTrainingDummy: true);
             TargetDummy dummy = null;
             yield return MatchTestHarness.WaitUntil(() => (dummy = FindDummy()) != null, 6f, "Kein Dummy.");
 
@@ -139,7 +139,7 @@ namespace Infront.Tests
         public IEnumerator Kopfschuss_toetet_mit_einem_Treffer()
         {
             NetworkPlayerController player = null;
-            yield return MatchTestHarness.LoadReady((p, m) => player = p);
+            yield return MatchTestHarness.LoadReady((p, m) => player = p, withTrainingDummy: true);
             TargetDummy dummy = null;
             yield return MatchTestHarness.WaitUntil(() => (dummy = FindDummy()) != null, 6f, "Kein Dummy.");
 

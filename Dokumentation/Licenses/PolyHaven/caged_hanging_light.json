@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/caged_hanging_light",
+  "filesSourceUrl": "https://api.polyhaven.com/files/caged_hanging_light",
+  "assetId": "caged_hanging_light",
+  "name": "Caged Hanging Light",
+  "authors": {
+    "Ulan Cabanilla": "All"
+  },
+  "filesHash": "316be9f62020b6d5765222ed3dff8bdc5392881a",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/caged_hanging_light/caged_hanging_light_1k.fbx",
+      "localMd5": "c6a58022a2b2073bcad3cd9fa64a6b86",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/caged_hanging_light/caged_hanging_light_1k.fbx",
+          "md5": "c6a58022a2b2073bcad3cd9fa64a6b86",
+          "size": 643612
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/caged_hanging_light/textures/caged_hanging_light_diff_1k.jpg",
+      "localMd5": "515df46082bd7a59f4cbfaca505e9f75",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/caged_hanging_light/caged_hanging_light_diff_1k.jpg",
+          "md5": "515df46082bd7a59f4cbfaca505e9f75",
+          "size": 615734
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/caged_hanging_light/textures/caged_hanging_light_nor_gl_1k.png",
+      "localMd5": "e31dbdcf8166d481c7a0c12b47e3f2f7",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/caged_hanging_light/caged_hanging_light_nor_gl_1k.png",
+          "md5": "e31dbdcf8166d481c7a0c12b47e3f2f7",
+          "size": 1290991
+        }
+      ]
+    }
+  ]
+}

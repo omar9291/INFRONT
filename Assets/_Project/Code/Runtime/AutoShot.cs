@@ -207,7 +207,7 @@ namespace Infront
         {
             var argv = System.Environment.GetCommandLineArgs();
             if (!argv.Contains("-autoshot") && !argv.Contains("-survey")
-                && !argv.Contains("-uishot")) return;
+                && !argv.Contains("-uishot") && !argv.Contains("-benchmark")) return;
 
             GameSettings.DisplayMode = GameSettings.Anzeige.Fenster;   // Fenster statt Vollbild
 
@@ -232,6 +232,7 @@ namespace Infront
 
         IEnumerator Start()
         {
+            bool benchmark = System.Environment.GetCommandLineArgs().Contains("-benchmark");
             bool istRundgang = System.Environment.GetCommandLineArgs().Contains("-survey");
             string outDir = Arg("-outdir", istRundgang ? SurveyOutDir : DefaultOutDir);
             int weather = int.TryParse(Arg("-weather", "-1"), out var w) ? w : -1;
@@ -250,7 +251,7 @@ namespace Infront
             }
 
             yield return new WaitForSecondsRealtime(2.5f);
-            Capture(outDir, $"{tag}00_menu");
+            if (!benchmark) Capture(outDir, $"{tag}00_menu");
 
             if (GameFlow.Instance != null) GameFlow.Instance.ToArena();
 
@@ -287,6 +288,14 @@ namespace Infront
                 if (vm != null) vm.enabled = false;
             }
             KameraSichern();
+
+            if (benchmark)
+            {
+                if (weather >= 0)
+                    Object.FindAnyObjectByType<WeatherDirector>()?.ForceWeatherForTests((WeatherKind)Mathf.Clamp(weather, 0, 4));
+                yield return Benchmark(outDir, weather);
+                yield break;
+            }
 
             // Leistungsanzeige einblenden.
             var perf = Object.FindAnyObjectByType<PerfOverlay>();
@@ -403,6 +412,87 @@ namespace Infront
 
             yield return new WaitForSecondsRealtime(1f);
             Debug.Log($"[Infront] AutoShot fertig -> {outDir}");
+            Application.Quit();
+        }
+
+        [System.Serializable]
+        sealed class BenchmarkView
+        {
+            public string name;
+            public FrameStatistics.Result statistics;
+        }
+
+        [System.Serializable]
+        sealed class BenchmarkReport
+        {
+            public string recordedUtc, unityVersion, gameVersion, gpu, graphicsApi, graphics, scene;
+            public int width, height, vSync, teamSize, weather;
+            public string mode;
+            public bool screenshotsDuringMeasurement;
+            public FrameStatistics.Result statistics;
+            public BenchmarkView[] views;
+        }
+
+        // Messung ohne Screenshots oder Dateizugriffe während der Aufnahme.
+        // Echte Runden und Bot-Ausrüstung bleiben aktiv; auch Rundenwechsel zählen.
+        IEnumerator Benchmark(string directory, int weather)
+        {
+            if (_cam == null || MatchManager.Instance == null ||
+                SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+            {
+                Debug.LogError("BENCHMARK_FAILED: rendered match required");
+                Application.Quit(2);
+                yield break;
+            }
+            string[] names = { "b0_mitte_n", "b2_mitte_o", "b4_mitte_s", "b6_mitte_w",
+                               "d0_site_a", "d1_site_b", "d4_rand_west", "d5_rand_ost" };
+            var route = SurveyStops.Where(p => names.Contains(p.Name)).ToArray();
+            var all = new System.Collections.Generic.List<float>(60000);
+            var reports = new System.Collections.Generic.List<BenchmarkView>();
+            float duration = float.TryParse(Arg("-benchmark-seconds", "10"),
+                System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
+                out var requested) ? Mathf.Clamp(requested, 5f, 120f) : 10f;
+            for (int i = 0; i < route.Length; i++)
+            {
+                var stop = route[i];
+                _flyPos = stop.Pos;
+                _flyRot = Quaternion.LookRotation(stop.Look - stop.Pos, Vector3.up);
+                _flying = true;
+                _cam.transform.SetPositionAndRotation(_flyPos, _flyRot);
+                yield return new WaitForSecondsRealtime(i == 0 ? 10f : 2f);
+                var samples = new System.Collections.Generic.List<float>(16000);
+                double end = Time.realtimeSinceStartupAsDouble + duration;
+                while (Time.realtimeSinceStartupAsDouble < end)
+                {
+                    yield return null;
+                    float frame = Time.unscaledDeltaTime;
+                    samples.Add(frame);
+                    all.Add(frame);
+                }
+                reports.Add(new BenchmarkView { name = stop.Name,
+                    statistics = FrameStatistics.Calculate(samples) });
+            }
+            var report = new BenchmarkReport
+            {
+                recordedUtc = System.DateTime.UtcNow.ToString("O"),
+                unityVersion = Application.unityVersion, gameVersion = Application.version,
+                gpu = SystemInfo.graphicsDeviceName, graphicsApi = SystemInfo.graphicsDeviceType.ToString(),
+                width = Screen.width, height = Screen.height, vSync = QualitySettings.vSyncCount,
+                graphics = GameSettings.GraphicsQuality == GameSettings.Graphics.Voll ? "Full" : "Basic",
+                scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                teamSize = GameSettings.TeamSize, mode = GameSettings.GameMode.ToString(), weather = weather,
+                screenshotsDuringMeasurement = false,
+                statistics = FrameStatistics.Calculate(all), views = reports.ToArray()
+            };
+            File.WriteAllText(Path.Combine(directory, "benchmark.json"), JsonUtility.ToJson(report, true));
+            using (var writer = new StreamWriter(Path.Combine(directory, "frametimes.csv")))
+            {
+                writer.WriteLine("frame,seconds");
+                for (int i = 0; i < all.Count; i++)
+                    writer.WriteLine(i + "," + all[i].ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+            }
+            Debug.Log($"BENCHMARK_COMPLETE frames={all.Count} avg={report.statistics.averageFps:F2} " +
+                      $"low1={report.statistics.onePercentLowFps:F2} out={directory}");
             Application.Quit();
         }
 

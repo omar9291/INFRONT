@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/concrete_road_barrier_02",
+  "filesSourceUrl": "https://api.polyhaven.com/files/concrete_road_barrier_02",
+  "assetId": "concrete_road_barrier_02",
+  "name": "Concrete Road Barrier 02",
+  "authors": {
+    "Amal Kumar": "All"
+  },
+  "filesHash": "fbcefc03483cf10e19d91653f3f1b10112be436d",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/concrete_road_barrier_02/concrete_road_barrier_02_1k.fbx",
+      "localMd5": "b71404d27a2602360deec91dfa6fbaab",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/concrete_road_barrier_02/concrete_road_barrier_02_1k.fbx",
+          "md5": "b71404d27a2602360deec91dfa6fbaab",
+          "size": 1972300
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/concrete_road_barrier_02/textures/concrete_road_barrier_02_diff_1k.jpg",
+      "localMd5": "f2f6eea94258691bc344441b9e6a15fc",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/concrete_road_barrier_02/concrete_road_barrier_02_diff_1k.jpg",
+          "md5": "f2f6eea94258691bc344441b9e6a15fc",
+          "size": 741673
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/concrete_road_barrier_02/textures/concrete_road_barrier_02_nor_gl_1k.png",
+      "localMd5": "22a11f82e76da7d6e06c0fadf892d8c1",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/concrete_road_barrier_02/concrete_road_barrier_02_nor_gl_1k.png",
+          "md5": "22a11f82e76da7d6e06c0fadf892d8c1",
+          "size": 5680494
+        }
+      ]
+    }
+  ]
+}

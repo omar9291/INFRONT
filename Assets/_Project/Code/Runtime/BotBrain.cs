@@ -163,7 +163,7 @@ namespace Infront
             if (_target == null && _state == State.Patrol)
             {
                 _state = State.Search;
-                Callout("Taking fire!", 0.5f);
+                Callout(GameText.Radio.TakingFire, 0.5f);
             }
         }
 
@@ -386,7 +386,7 @@ namespace Infront
                     _helpCalled = false;
                     if (freshSpot)
                     {
-                        Callout("Enemy spotted!", 0.5f);
+                        Callout(GameText.Radio.EnemySpotted, 0.5f);
                         // Und zwar so, dass die eigenen Leute wirklich etwas
                         // davon haben - nicht nur Text im Meldungsfenster.
                         if (_team != null)
@@ -421,7 +421,7 @@ namespace Infront
             {
                 _lastKnownPosition = heardPos;
                 _memoryTimer = _stats.MemoryTime;
-                if (_state != State.Search) Callout("I hear something!", 0.25f);
+                if (_state != State.Search) Callout(GameText.Radio.IHearSomething, 0.25f);
                 _state = State.Search;
             }
         }
@@ -441,7 +441,7 @@ namespace Infront
             if (!BotFunk.DarfRufen(teamId, text)) return;
 
             string tag = _team != null && !string.IsNullOrEmpty(_team.DisplayName)
-                ? _team.DisplayName : "Bot";
+                ? _team.DisplayName : GameText.Radio.Bot;
             MatchManager.Instance?.ServerReportCallout($"{tag}: {text}", teamId);
         }
 
@@ -583,7 +583,7 @@ namespace Infront
             if (!_helpCalled && _health != null && _health.Current <= _health.Max * 0.35f)
             {
                 _helpCalled = true;
-                Callout("Need help!", 0.4f);
+                Callout(GameText.Radio.NeedHelp, 0.4f);
             }
 
             _reactionTimer -= Time.deltaTime;

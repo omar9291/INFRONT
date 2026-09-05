@@ -173,12 +173,12 @@ namespace Infront
                 yield break;
             }
 
-            ov.Begin("INFRONT", "START");
+            ov.Begin("INFRONT", GameText.Loading.Start);
             float begonnen = Time.unscaledTime;
 
-            yield return Phase(ov, 0.12f, "READING PROFILE", () => PlayerProfile.Load());
-            yield return Phase(ov, 0.24f, "SETTINGS", () => GameSettings.Load());
-            yield return Phase(ov, 0.34f, "CAREER", () =>
+            yield return Phase(ov, 0.12f, GameText.Loading.ReadingProfile, () => PlayerProfile.Load());
+            yield return Phase(ov, 0.24f, GameText.Menu.Settings, () => GameSettings.Load());
+            yield return Phase(ov, 0.34f, GameText.Menu.Career, () =>
             {
                 var _ = CareerStats.Matches;
                 Spielstatistik.Laden();
@@ -191,8 +191,8 @@ namespace Infront
 
             // Auf das Menue warten. MainMenuUi baut sich selbst ueber mehrere
             // Frames auf; vorher waere das Ausblenden ein Sprung ins Leere.
-            ov.SetProgress(0.8f, "BUILDING MENU");
-            PhaseForTests = "BUILDING MENU";
+            ov.SetProgress(0.8f, GameText.Loading.BuildingMenu);
+            PhaseForTests = GameText.Loading.BuildingMenu;
             float wartenBis = Time.unscaledTime + Mathf.Min(8f, _hoechstDauer);
             while (Time.unscaledTime < wartenBis)
             {
@@ -201,8 +201,8 @@ namespace Infront
                 yield return null;
             }
 
-            ov.SetProgress(1f, "READY");
-            PhaseForTests = "READY";
+            ov.SetProgress(1f, GameText.Loading.Ready);
+            PhaseForTests = GameText.Loading.Ready;
 
             float ende = begonnen + Mathf.Min(_mindestDauer, _hoechstDauer);
             while (Time.unscaledTime < ende) yield return null;
@@ -223,7 +223,7 @@ namespace Infront
 
         IEnumerator PhaseToene(LoadingOverlay ov, float von, float bis)
         {
-            const string name = "PREPARING AUDIO";
+            const string name = GameText.Loading.PreparingAudio;
             PhaseForTests = name;
             ov.SetProgress(von, name);
 

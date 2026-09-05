@@ -29,6 +29,7 @@ namespace Infront
     public sealed class PerfOverlay : MonoBehaviour
     {
         const int HistoryLen = 120;          // ~2 s bei 60 fps
+        const int StatisticsLen = 3600;       // ca. eine Minute statt nur eines schlechtesten Frames
         const float SampleEvery = 0.5f;      // Sekunden zwischen Min/Max/1%-Neuberechnung
 
         bool _visible;
@@ -36,6 +37,11 @@ namespace Infront
         readonly float[] _history = new float[HistoryLen];
         int _historyHead;
         int _historyCount;
+
+        readonly float[] _statistics = new float[StatisticsLen];
+        readonly float[] _sortBuffer = new float[StatisticsLen];
+        int _statisticsHead;
+        int _statisticsCount;
 
         float _fpsMin = float.MaxValue;
         float _fpsMax;
@@ -107,6 +113,10 @@ namespace Infront
             _historyHead = (_historyHead + 1) % HistoryLen;
             if (_historyCount < HistoryLen) _historyCount++;
 
+            _statistics[_statisticsHead] = raw;
+            _statisticsHead = (_statisticsHead + 1) % StatisticsLen;
+            if (_statisticsCount < StatisticsLen) _statisticsCount++;
+
             _sampleTimer += raw;
             if (_sampleTimer >= SampleEvery)
             {
@@ -119,23 +129,18 @@ namespace Infront
         {
             if (_historyCount == 0) return;
 
-            // Frame-Zeiten -> FPS, sortieren für den 1%-Tiefpunkt.
-            var fps = new float[_historyCount];
-            for (int i = 0; i < _historyCount; i++)
-            {
-                float ft = _history[i];
-                fps[i] = ft > 0f ? 1f / ft : 0f;
-            }
-            System.Array.Sort(fps);
-
-            _fpsMin = fps[0];
-            _fpsMax = fps[_historyCount - 1];
-
-            // 1%-Tiefpunkt: Mittel der schlechtesten 1 % (mind. 1 Frame).
-            int worst = Mathf.Max(1, _historyCount / 100);
-            float sum = 0f;
-            for (int i = 0; i < worst; i++) sum += fps[i];
-            _fps1Low = sum / worst;
+            // Längeres Fenster, ohne periodische Speicherzuweisung. Das Diagramm
+            // behält seine zwei Sekunden; die Statistik erfasst bis zu 3600 Frames.
+            int n = _statisticsCount;
+            if (n == 0) return;
+            System.Array.Copy(_statistics, _sortBuffer, n);
+            System.Array.Sort(_sortBuffer, 0, n);
+            _fpsMin = 1f / _sortBuffer[n - 1];
+            _fpsMax = 1f / _sortBuffer[0];
+            int worst = Mathf.Max(1, Mathf.CeilToInt(n * 0.01f));
+            double total = 0;
+            for (int i = n - worst; i < n; i++) total += _sortBuffer[i];
+            _fps1Low = (float)(worst / total);
         }
 
         void OnGUI()
@@ -167,7 +172,7 @@ namespace Infront
             _sb.Append($"RAM {ram} / {ramReserved} MB\n");
             _sb.Append($"Audio  {voices} sources active\n");
             _sb.Append($"{Screen.width}x{Screen.height}   VSync {QualitySettings.vSyncCount}\n");
-            _sb.Append($"Graphics: {GameSettings.GraphicsQuality}\n");
+            _sb.Append($"Graphics: {(GameSettings.GraphicsQuality == GameSettings.Graphics.Voll ? "Full" : "Basic")}\n");
             _sb.Append(SystemInfo.graphicsDeviceName);
 
             const float w = 260f, x = 8f, y = 8f;

@@ -1,0 +1,76 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/wooden_military_crate",
+  "filesSourceUrl": "https://api.polyhaven.com/files/wooden_military_crate",
+  "assetId": "wooden_military_crate",
+  "name": "Wooden Military Crate",
+  "authors": {
+    "Prabhjinder Singh": "All"
+  },
+  "filesHash": "b9d3d18a67e72d739f6be8ffe564827fc8e25cdb",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/holz_kiste/holz_kiste.fbx",
+      "localMd5": "47779080ce0e26b792240addea2e9897",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/wooden_military_crate/wooden_military_crate_1k.fbx",
+          "md5": "47779080ce0e26b792240addea2e9897",
+          "size": 636716
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_MetalSmooth.png",
+      "localMd5": "d6ebf72db8621bf14aca98dc1b302fc5",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_diff_1k.jpg",
+      "localMd5": "042ee9d280238702cde679ea00bb37ec",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_military_crate/wooden_military_crate_diff_1k.jpg",
+          "md5": "042ee9d280238702cde679ea00bb37ec",
+          "size": 824093
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_metal_1k.exr",
+      "localMd5": "ef6d3cf7c2b60c81d200e64c6e188057",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/wooden_military_crate/wooden_military_crate_metal_1k.exr",
+          "md5": "ef6d3cf7c2b60c81d200e64c6e188057",
+          "size": 202882
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_nor_gl_1k.exr",
+      "localMd5": "d8bf1ab969e59b647a58c354171baf4f",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/wooden_military_crate/wooden_military_crate_nor_gl_1k.exr",
+          "md5": "d8bf1ab969e59b647a58c354171baf4f",
+          "size": 1718526
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/holz_kiste/textures/wooden_military_crate_rough_1k.exr",
+      "localMd5": "147b50c6734300cad706cc6e3901f021",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/wooden_military_crate/wooden_military_crate_rough_1k.exr",
+          "md5": "147b50c6734300cad706cc6e3901f021",
+          "size": 698192
+        }
+      ]
+    }
+  ]
+}

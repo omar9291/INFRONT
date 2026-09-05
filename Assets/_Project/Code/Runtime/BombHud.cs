@@ -50,12 +50,12 @@ namespace Infront
                 if (site >= 0)
                 {
                     float p = bomb.PlantProgress01;
-                    if (p > 0f) hud.SetBombPrompt("Planting bomb...", p, Orange);
-                    else hud.SetBombPrompt("Hold [E] to plant", 0f, Orange);
+                    if (p > 0f) hud.SetBombPrompt(GameText.Bomb.PlantingBomb, p, Orange);
+                    else hud.SetBombPrompt(GameText.Bomb.HoldEToPlant, 0f, Orange);
                 }
                 else
                 {
-                    hud.SetBombPrompt("You are carrying the bomb — head to site A or B", 0f, Orange);
+                    hud.SetBombPrompt(GameText.Bomb.CarryBomb, 0f, Orange);
                 }
                 return;
             }
@@ -64,9 +64,9 @@ namespace Infront
             if (iAmAttacker && !bomb.IsPlanted)
             {
                 if (bomb.CurrentState == Bomb.State.Dropped)
-                    hud.SetBombPrompt("Bomb is on the ground — pick it up!", 0f, Orange);
+                    hud.SetBombPrompt(GameText.Bomb.DroppedBomb, 0f, Orange);
                 else if (bomb.IsCarried)
-                    hud.SetBombPrompt("A teammate is carrying the bomb", 0f, Orange);
+                    hud.SetBombPrompt(GameText.Bomb.TeammateHasBomb, 0f, Orange);
                 else
                     hud.SetBombPrompt(null, 0f, Orange);
                 return;
@@ -79,8 +79,8 @@ namespace Infront
                 if (dist <= 3.5f)
                 {
                     float p = bomb.DefuseProgress01;
-                    if (p > 0f) hud.SetBombPrompt("Defusing...", p, Blue);
-                    else hud.SetBombPrompt("Hold [E] to defuse", 0f, Blue);
+                    if (p > 0f) hud.SetBombPrompt(GameText.Bomb.Defusing, p, Blue);
+                    else hud.SetBombPrompt(GameText.Bomb.HoldEToDefuse, 0f, Blue);
                 }
                 else hud.SetBombPrompt(null, 0f, Blue);
                 return;
@@ -89,7 +89,7 @@ namespace Infront
             // --- Angreifer ohne Bombe, gelegt ---
             if (iAmAttacker && bomb.IsPlanted)
             {
-                hud.SetBombPrompt("Bomb is planted — protect it!", 0f, Orange);
+                hud.SetBombPrompt(GameText.Bomb.ProtectBomb, 0f, Orange);
                 return;
             }
 

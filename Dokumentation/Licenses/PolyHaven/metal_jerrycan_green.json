@@ -1,0 +1,76 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/metal_jerrycan_green",
+  "filesSourceUrl": "https://api.polyhaven.com/files/metal_jerrycan_green",
+  "assetId": "metal_jerrycan_green",
+  "name": "Metal Jerrycan Green",
+  "authors": {
+    "Ulan Cabanilla": "All"
+  },
+  "filesHash": "266b5e7aac16e520190f3fed21a25dfa1efc9a51",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/kanister/kanister.fbx",
+      "localMd5": "3f530cef20f5c9faf8f05f3ed7718aa8",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/metal_jerrycan_green/metal_jerrycan_green_1k.fbx",
+          "md5": "3f530cef20f5c9faf8f05f3ed7718aa8",
+          "size": 316700
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_MetalSmooth.png",
+      "localMd5": "d4e8daca9a60912578bbfabca944591f",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_diff_1k.jpg",
+      "localMd5": "d3de597cd0a25710ed7dc78c08fa7789",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/metal_jerrycan_green/metal_jerrycan_green_diff_1k.jpg",
+          "md5": "d3de597cd0a25710ed7dc78c08fa7789",
+          "size": 578166
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_metal_1k.exr",
+      "localMd5": "8909090fa99894717bf8a58c09f62c93",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/metal_jerrycan_green/metal_jerrycan_green_metal_1k.exr",
+          "md5": "8909090fa99894717bf8a58c09f62c93",
+          "size": 962135
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_nor_gl_1k.exr",
+      "localMd5": "b1fd2719aea001b8f24e2cb6be958a87",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/metal_jerrycan_green/metal_jerrycan_green_nor_gl_1k.exr",
+          "md5": "b1fd2719aea001b8f24e2cb6be958a87",
+          "size": 1672324
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/kanister/textures/metal_jerrycan_green_rough_1k.exr",
+      "localMd5": "1f48af26c954ca7acdc7fea7b9561a6c",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/metal_jerrycan_green/metal_jerrycan_green_rough_1k.exr",
+          "md5": "1f48af26c954ca7acdc7fea7b9561a6c",
+          "size": 831159
+        }
+      ]
+    }
+  ]
+}

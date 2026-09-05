@@ -19,9 +19,9 @@ namespace Infront
 
         public static string Name(int team) => team switch
         {
-            Alpha => "Team Alpha",
-            Bravo => "Team Bravo",
-            _ => "No team",
+            Alpha => GameText.Common.TeamAlpha,
+            Bravo => GameText.Common.TeamBravo,
+            _ => GameText.Common.NoTeam,
         };
 
         /// <summary>Zwei Kaempfer sind Verbuendete, wenn sie dasselbe echte Team haben.</summary>

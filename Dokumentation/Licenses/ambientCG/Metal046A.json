@@ -1,0 +1,40 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Metal046A&include=downloadData",
+  "assetId": "Metal046A",
+  "displayName": "Metal 046 A",
+  "shortLink": "https://ambientcg.com/a/Metal046A",
+  "evidenceKind": "official-api-metadata",
+  "packageUrl": "https://ambientcg.com/get?file=Metal046A_1K-JPG.zip",
+  "packageSha256": "9b6ce754393bc7dd7899ce3874576ad504d33aa380098aa2751ce1f6e4981b37",
+  "packageLicenseFiles": [],
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Textures/deckung_metall/Metal046A_1K-JPG_Color.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/deckung_metall/Metal046A_1K-JPG_NormalGL.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/deckung_metall/Metal046A_1K-JPG_Roughness.jpg",
+      "matchesDownloadedPackage": true
+    }
+  ],
+  "archiveEntries": [
+    "Metal046A_1K-JPG.usdc",
+    "Metal046A_1K-JPG_Color.jpg",
+    "Metal046A_1K-JPG_Displacement.jpg",
+    "Metal046A_1K-JPG_Metalness.jpg",
+    "Metal046A_1K-JPG_NormalDX.jpg",
+    "Metal046A_1K-JPG_NormalGL.jpg",
+    "Metal046A_1K-JPG_Roughness.jpg",
+    "Metal046A_1K-JPG.blend",
+    "Metal046A_1K-JPG.mtlx",
+    "Metal046A_1K-JPG.tres",
+    "Metal046A.png"
+  ],
+  "licenseSourceUrl": "https://docs.ambientcg.com/license/",
+  "limitation": "No standalone licence/readme file is present in the downloaded archive. CC0 comes from the official provider policy, not from an embedded licence."
+}

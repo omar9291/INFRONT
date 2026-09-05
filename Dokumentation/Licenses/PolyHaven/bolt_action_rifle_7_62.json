@@ -1,0 +1,136 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/bolt_action_rifle_7_62",
+  "filesSourceUrl": "https://api.polyhaven.com/files/bolt_action_rifle_7_62",
+  "assetId": "bolt_action_rifle_7_62",
+  "name": "Bolt Action Rifle 7.62",
+  "authors": {
+    "Mateusz Sadek": "All"
+  },
+  "filesHash": "151d4108d40bfd38a062ac462e8b4ad7e3df2e98",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_MetalSmooth.png",
+      "localMd5": "5f297fb05f49c904efd50de516c65488",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_MetalSmooth.png",
+      "localMd5": "0b11e7ce14826f799ac816612e9cf2f4",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_alpha_1k.png",
+      "localMd5": "c7a2571b2727453c596fd763fbb1f392",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_accesories_alpha_1k.png",
+          "md5": "c7a2571b2727453c596fd763fbb1f392",
+          "size": 21207
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_diff_1k.png",
+      "localMd5": "d0a8f3ee637584c1b8de220e49443398",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_accesories_diff_1k.png",
+          "md5": "d0a8f3ee637584c1b8de220e49443398",
+          "size": 6258598
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_metal_1k.png",
+      "localMd5": "98fb3d72f0fbeac8bacc13a70c3098ad",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_accesories_metal_1k.png",
+          "md5": "98fb3d72f0fbeac8bacc13a70c3098ad",
+          "size": 800182
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_nor_gl_1k.png",
+      "localMd5": "5ad259651c64de2942408dd722f3168a",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_accesories_nor_gl_1k.png",
+          "md5": "5ad259651c64de2942408dd722f3168a",
+          "size": 5601639
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_accesories_rough_1k.png",
+      "localMd5": "d2de81304a2fcf50155ad7fa79072da6",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_accesories_rough_1k.png",
+          "md5": "d2de81304a2fcf50155ad7fa79072da6",
+          "size": 2452406
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_diff_1k.jpg",
+      "localMd5": "43bfcb606edaf9728d98db42e9b16f0a",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_diff_1k.jpg",
+          "md5": "43bfcb606edaf9728d98db42e9b16f0a",
+          "size": 856375
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_metal_1k.exr",
+      "localMd5": "67455506da2075f2bd87dae84d869cdf",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_metal_1k.exr",
+          "md5": "67455506da2075f2bd87dae84d869cdf",
+          "size": 396529
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_nor_gl_1k.exr",
+      "localMd5": "45622b510c749ae5570d9391154c24a7",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_nor_gl_1k.exr",
+          "md5": "45622b510c749ae5570d9391154c24a7",
+          "size": 1502942
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/textures/bolt_action_rifle_7_62_rough_1k.exr",
+      "localMd5": "5d8c1cb3f8e524e4475d0314f986730b",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_rough_1k.exr",
+          "md5": "5d8c1cb3f8e524e4475d0314f986730b",
+          "size": 808446
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/waffe_sniper/waffe_sniper.fbx",
+      "localMd5": "540877b7d1c8fcaaad2c025ad299c4af",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/bolt_action_rifle_7_62/bolt_action_rifle_7_62_1k.fbx",
+          "md5": "540877b7d1c8fcaaad2c025ad299c4af",
+          "size": 788876
+        }
+      ]
+    }
+  ]
+}

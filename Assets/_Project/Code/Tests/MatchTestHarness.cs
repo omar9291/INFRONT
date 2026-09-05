@@ -30,6 +30,7 @@ namespace Infront.Tests
 
         public static IEnumerator Teardown()
         {
+            DummySpawner.SpawnForTests = false;
             if (NetworkManager.Singleton != null)
             {
                 NetworkManager.Singleton.Shutdown();
@@ -49,9 +50,10 @@ namespace Infront.Tests
 
         /// <summary>Laedt die Arena und liefert einen stabilen Startzustand.</summary>
         public static IEnumerator LoadReady(Action<NetworkPlayerController, MatchManager> ready,
-                                            int expectedCombatants = 6)
+                                            int expectedCombatants = 6, bool withTrainingDummy = false)
         {
             BeginFreeze();
+            DummySpawner.SpawnForTests = withTrainingDummy;
 
             SceneManager.LoadScene("Arena");
             yield return null;

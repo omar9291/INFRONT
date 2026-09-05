@@ -495,7 +495,7 @@ namespace Infront
 
                 var m = _specList[_specIndex];
                 bool enemy = _teamMember != null && m.TeamId != _teamMember.TeamId;
-                return enemy ? $"Enemy {m.DisplayName}" : m.DisplayName;
+                return enemy ? GameText.Format(GameText.Messages.Enemy, m.DisplayName) : m.DisplayName;
             }
         }
 

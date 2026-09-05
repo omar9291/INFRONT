@@ -4,7 +4,8 @@ using UnityEngine;
 namespace Infront
 {
     /// <summary>
-    /// Erzeugt beim Host-Start die Trainings-Dummies an festen Stellen.
+    /// Erzeugt auf ausdruecklichen Test-Auftrag Trainings-Dummies.
+    /// Ein normales Match enthaelt keine Trainingsziele.
     /// Nur der Server spawnt sie; NGO verteilt sie an alle Clients.
     /// </summary>
     public sealed class DummySpawner : MonoBehaviour
@@ -12,10 +13,16 @@ namespace Infront
         [SerializeField] NetworkObject _dummyPrefab;
         [SerializeField] Vector3[] _positions =
         {
-            new(6f, 1f, 8f),
-            new(-6f, 1f, 10f),
-            new(0f, 1f, 14f),
+            new(6f, 0f, 8f),
+            new(-6f, 0f, 10f),
+            new(0f, 0f, 14f),
         };
+
+        /// <summary>Vor Szenenstart setzen; der Test-Harness setzt es danach zurueck.</summary>
+        public static bool SpawnForTests { get; set; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetTestRequest() => SpawnForTests = false;
 
         bool _done;
 
@@ -38,7 +45,7 @@ namespace Infront
 
         void SpawnAll()
         {
-            if (_done || _dummyPrefab == null)
+            if (!SpawnForTests || _done || _dummyPrefab == null)
                 return;
             _done = true;
 

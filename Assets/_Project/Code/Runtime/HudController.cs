@@ -244,8 +244,8 @@ namespace Infront
             bar.style.borderTopWidth = 0f;
             bar.style.borderTopLeftRadius = 0f; bar.style.borderTopRightRadius = 0f;
 
-            _badgeAlpha = TeamBadge("ALPHA", UiTheme.TeamMine);
-            _badgeBravo = TeamBadge("BRAVO", UiTheme.TeamFoe);
+            _badgeAlpha = TeamBadge(GameText.Hud.Alpha, UiTheme.TeamMine);
+            _badgeBravo = TeamBadge(GameText.Hud.Bravo, UiTheme.TeamFoe);
             _scoreAlpha = BigNum("0");
             _scoreBravo = BigNum("0");
 
@@ -279,7 +279,7 @@ namespace Infront
 
             _aliveAlpha = DotRow(true);
             _aliveBravo = DotRow(false);
-            var vs = new Label("VS");
+            var vs = new Label(GameText.Hud.Versus);
             vs.style.color = UiTheme.TextDim;
             vs.style.fontSize = UiTheme.FontXS;
             vs.style.marginLeft = 10f; vs.style.marginRight = 10f;
@@ -630,12 +630,12 @@ namespace Infront
             _roundOverSub.style.display = DisplayStyle.None;
             _roundOverPanel.Add(_roundOverSub);
 
-            _roundOverNext = MenuButton("CONTINUE NOW", () =>
+            _roundOverNext = MenuButton(GameText.Hud.ContinueNow, () =>
             {
                 var mm = MatchManager.Instance;
                 if (mm != null && mm.IsServer) mm.ServerStartNextRoundNow();
             });
-            _roundOverMenu = MenuButton("BACK TO MENU", () =>
+            _roundOverMenu = MenuButton(GameText.Hud.BackToMenu, () =>
             {
                 if (GameFlow.Instance != null) GameFlow.Instance.ToMenu();
             });
@@ -688,8 +688,8 @@ namespace Infront
 
             var cols = new VisualElement();
             cols.style.flexDirection = FlexDirection.Row;
-            _sbAlpha = SbColumn("ALPHA", UiTheme.TeamMine);
-            _sbBravo = SbColumn("BRAVO", UiTheme.TeamFoe);
+            _sbAlpha = SbColumn(GameText.Hud.Alpha, UiTheme.TeamMine);
+            _sbBravo = SbColumn(GameText.Hud.Bravo, UiTheme.TeamFoe);
             _sbAlpha.style.marginRight = 24f;
             cols.Add(_sbAlpha);
             cols.Add(_sbBravo);
@@ -715,7 +715,7 @@ namespace Infront
             hn.style.fontSize = UiTheme.FontM;
             hn.style.unityFontStyleAndWeight = FontStyle.Bold;
             hn.style.letterSpacing = 3f;
-            var hk = new Label("K  /  D");
+            var hk = new Label(GameText.Hud.KillsDeaths);
             hk.style.color = UiTheme.TextDim;
             hk.style.fontSize = UiTheme.FontXS;
             hk.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -761,7 +761,7 @@ namespace Infront
             corner.style.backgroundColor = UiTheme.Accent;
             _buyPanel.Add(corner);
 
-            _buyTitle = new Label("BUY MENU");
+            _buyTitle = new Label(GameText.Hud.BuyMenuHeading);
             _buyTitle.style.color = UiTheme.Text;
             _buyTitle.style.fontSize = UiTheme.FontL;
             _buyTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -775,17 +775,17 @@ namespace Infront
             _buyWeapons = new VisualElement();
             _buyWeapons.style.flexGrow = 1f; _buyWeapons.style.flexBasis = 0f;
             _buyWeapons.style.marginRight = 20f;
-            _buyWeapons.Add(UiTheme.Section("WEAPONS"));
+            _buyWeapons.Add(UiTheme.Section(GameText.Hud.Weapons));
 
             _buyGear = new VisualElement();
             _buyGear.style.flexGrow = 1f; _buyGear.style.flexBasis = 0f;
-            _buyGear.Add(UiTheme.Section("GEAR & ABILITIES"));
+            _buyGear.Add(UiTheme.Section(GameText.Hud.GearAbilities));
 
             cols.Add(_buyWeapons);
             cols.Add(_buyGear);
             _buyPanel.Add(cols);
 
-            _buyReady = MenuButton("READY  ·  END BUY TIME", () => BuyMenuHud.Local?.Ready());
+            _buyReady = MenuButton(GameText.Hud.ReadyEndBuyTime, () => BuyMenuHud.Local?.Ready());
             _buyReady.style.marginTop = 18f;
             _buyReady.style.minWidth = 0f;
             _buyPanel.Add(_buyReady);
@@ -807,7 +807,7 @@ namespace Infront
             if (bm.ShouldShowHint)
             {
                 _buyHint.style.display = DisplayStyle.Flex;
-                _buyHint.text = $"BUY TIME {secs}s   ·   [B] FOR BUY MENU";
+                _buyHint.text = GameText.Format(GameText.Hud.BuyMenuHint, secs);
             }
             else _buyHint.style.display = DisplayStyle.None;
 
@@ -815,7 +815,7 @@ namespace Infront
             _buyDim.style.display = DisplayStyle.Flex;
 
             int money = bm.Money;
-            _buyTitle.text = $"BUY MENU      $ {money}      {secs}s";
+            _buyTitle.text = GameText.Format(GameText.Hud.BuyMenuTitle, money, secs);
 
             // Signatur: was koennte die Zeilen aendern? Geld-Stufe, Besitz, Kit-Angebot
             int sig = money / 50;
@@ -850,19 +850,19 @@ namespace Infront
                 bool owned = bm.OwnsWeapon(i);
                 bool afford = money >= e.Price && !owned;
                 int idx = i;
-                _buyWeapons.Add(BuyRow($"{i + 1}", e.DisplayName,
-                    owned ? "owned" : $"$ {e.Price}", owned, afford,
+                _buyWeapons.Add(BuyRow($"{i + 1}", GameText.Equipment.BuyEntryName(cat, e),
+                    owned ? GameText.Hud.Owned : $"$ {e.Price}", owned, afford,
                     () => bm.BuyWeapon(idx)));
             }
 
-            _buyGear.Add(BuyRow("4", "Body Armor",
-                bm.OwnsArmor ? "owned" : $"$ {bm.Agent.ArmorPrice}",
+            _buyGear.Add(BuyRow("4", GameText.Hud.BodyArmor,
+                bm.OwnsArmor ? GameText.Hud.Owned : $"$ {bm.Agent.ArmorPrice}",
                 bm.OwnsArmor, money >= bm.Agent.ArmorPrice && !bm.OwnsArmor,
                 () => bm.BuyArmor()));
 
             if (bm.KitOffered)
-                _buyGear.Add(BuyRow("5", "Defuse Kit",
-                    bm.OwnsKit ? "owned" : $"$ {bm.Agent.KitPrice}",
+                _buyGear.Add(BuyRow("5", GameText.Hud.DefuseKit,
+                    bm.OwnsKit ? GameText.Hud.Owned : $"$ {bm.Agent.KitPrice}",
                     bm.OwnsKit, money >= bm.Agent.KitPrice && !bm.OwnsKit,
                     () => bm.BuyKit()));
 
@@ -878,8 +878,8 @@ namespace Infront
                 string slot = a.Slot == AbilitySlot.Q ? "Q" : a.Slot == AbilitySlot.F ? "F" : "G";
                 string key = i < 5 ? ((i + 6) % 10).ToString() : "";
                 int idx = i;
-                _buyGear.Add(BuyRow(key, $"{a.DisplayName}  ({slot})",
-                    have ? "owned" : $"$ {a.Price}", have,
+                _buyGear.Add(BuyRow(key, $"{a.LocalizedName}  ({slot})",
+                    have ? GameText.Hud.Owned : $"$ {a.Price}", have,
                     money >= a.Price && !have, () => bm.BuyAbility(idx)));
             }
         }
@@ -953,7 +953,7 @@ namespace Infront
             box.style.alignItems = Align.Center;
             _pausePanel.Add(box);
 
-            var title = new Label("PAUSE");
+            var title = new Label(GameText.Hud.PauseHeading);
             title.style.color = UiTheme.Text;
             title.style.fontSize = UiTheme.FontL;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -961,8 +961,8 @@ namespace Infront
             title.style.marginBottom = 18f;
             box.Add(title);
 
-            var resume = MenuButton("RESUME", () => PauseMenu.SetPausedExternally(false));
-            var quit = MenuButton("QUIT GAME", () =>
+            var resume = MenuButton(GameText.Hud.Resume, () => PauseMenu.SetPausedExternally(false));
+            var quit = MenuButton(GameText.Hud.QuitGame, () =>
             {
                 PauseMenu.ForceResume();
                 if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
@@ -1021,8 +1021,8 @@ namespace Infront
 
             var mm = MatchManager.Instance;
             _scoreboardTitle.text = mm != null
-                ? $"ALPHA  {mm.GetScore(Team.Alpha)}   :   {mm.GetScore(Team.Bravo)}  BRAVO"
-                : "SCOREBOARD";
+                ? GameText.Format(GameText.Hud.ScoreboardScore, mm.GetScore(Team.Alpha), mm.GetScore(Team.Bravo))
+                : GameText.Hud.Scoreboard;
 
             FillSbColumn(_sbAlpha, Team.Alpha);
             FillSbColumn(_sbBravo, Team.Bravo);
@@ -1059,7 +1059,7 @@ namespace Infront
                 bool alive = m.Health != null && m.Health.IsAlive;
                 var nm = r.Q<Label>("n");
                 var kd = r.Q<Label>("kd");
-                nm.text = m.DisplayName + (alive ? "" : "  (dead)");
+                nm.text = m.DisplayName + (alive ? "" : GameText.Hud.DeadSuffix);
                 nm.style.color = alive ? UiTheme.Text : UiTheme.TextDim;
                 kd.text = $"{m.Kills} / {m.Deaths}";
                 kd.style.color = alive ? UiTheme.Text : UiTheme.TextDim;
@@ -1091,7 +1091,7 @@ namespace Infront
             _clock.text = $"{secs / 60}:{secs % 60:00}";
             _clock.style.color = secs <= 10 && !match.IsFrozen ? UiTheme.Schlecht : UiTheme.Text;
 
-            _roundInfo.text = $"FIRST TO {match.RoundsToWin}";
+            _roundInfo.text = GameText.Format(GameText.Hud.FirstTo, match.RoundsToWin);
 
             // eigenes Team hervorheben
             _badgeAlpha.style.opacity = myTeam == Team.Alpha || myTeam == Team.None ? 1f : 0.45f;
@@ -1104,7 +1104,7 @@ namespace Infront
             {
                 bool attacker = myTeam == match.AttackingTeam;
                 _roleLine.style.display = DisplayStyle.Flex;
-                _roleLine.text = attacker ? "ATTACK" : "DEFENSE";
+                _roleLine.text = attacker ? GameText.Hud.Attack : GameText.Hud.Defense;
                 _roleLine.style.color = attacker ? UiTheme.Accent : UiTheme.Armor;
             }
             else _roleLine.style.display = DisplayStyle.None;
@@ -1116,15 +1116,15 @@ namespace Infront
             if (match.IsBombMode && bomb != null && bomb.IsPlanted)
             {
                 int t = Mathf.CeilToInt(bomb.FuseSecondsLeft);
-                status = $"BOMB PLANTED   {t}";
+                status = GameText.Format(GameText.Hud.BombTimer, t);
                 statusColor = UiTheme.Schlecht;
             }
             else if (match.IsFrozen || match.IsBuyTime)
             {
                 int fz = Mathf.Max(0, Mathf.CeilToInt((float)match.FreezeSecondsLeft));
                 status = match.IsBombMode && myTeam != Team.None
-                    ? (myTeam == match.AttackingTeam ? $"BUY TIME {fz} — YOU ATTACK" : $"BUY TIME {fz} — YOU DEFEND")
-                    : $"BUY TIME {fz}";
+                    ? (myTeam == match.AttackingTeam ? GameText.Format(GameText.Hud.BuyTimeAttack, fz) : GameText.Format(GameText.Hud.BuyTimeDefend, fz))
+                    : GameText.Format(GameText.Hud.BuyTime, fz);
             }
             if (status != null)
             {
@@ -1146,17 +1146,17 @@ namespace Infront
             {
                 string text;
                 if (match.MatchWinner != Team.None)
-                    text = Team.Name(match.MatchWinner) + " WINS THE MATCH";
+                    text = GameText.Format(GameText.Hud.MatchWon, Team.Name(match.MatchWinner));
                 else if (match.RoundWinner == Team.None)
-                    text = "ROUND DRAW";
+                    text = GameText.Hud.RoundDraw;
                 else
-                    text = Team.Name(match.RoundWinner) + " WINS THE ROUND";
+                    text = GameText.Format(GameText.Hud.RoundWon, Team.Name(match.RoundWinner));
                 _roundOverTitle.text = text;
 
                 bool halftime = match.IsBombMode && match.MatchWinner == Team.None
                                 && match.RoundsPlayed == match.RoundsPerHalf;
                 _roundOverSub.style.display = halftime ? DisplayStyle.Flex : DisplayStyle.None;
-                if (halftime) _roundOverSub.text = "HALFTIME — SIDES SWAPPED, MONEY RESET";
+                if (halftime) _roundOverSub.text = GameText.Hud.HalftimeMessage;
 
                 bool matchOver = match.MatchWinner != Team.None;
                 _roundOverNext.style.display = matchOver ? DisplayStyle.None : DisplayStyle.Flex;
@@ -1354,7 +1354,7 @@ namespace Infront
                 // Ladung gesunken -> Kachel blitzt (Faehigkeit eingesetzt)
                 if (cell.LastCharges >= 0 && charges < cell.LastCharges) cell.FlashT = 1f;
                 cell.LastCharges = charges;
-                cell.Value.text = cd > 0.1f ? $"{cd:0.0}s" : "";
+                cell.Value.text = cd > 0.1f ? GameText.Format(GameText.Hud.CooldownSeconds, cd) : "";
                 cell.CooldownVeil.style.height = Length.Percent(
                     cd > 0.1f ? Mathf.Clamp01(cd / 8f) * 100f : 0f);
 
@@ -1396,12 +1396,13 @@ namespace Infront
 
         static string AbilityShortName(AbilityKind k) => k switch
         {
-            AbilityKind.Rauchwand => "SMOKE",
-            AbilityKind.Blendgranate => "FLASH",
-            AbilityKind.Splittergranate => "FRAG",
-            AbilityKind.ScanPuls => "SCAN",
-            AbilityKind.Brandwand => "FIRE",
-            AbilityKind.Stolperdraht => "WIRE",
+            AbilityKind.Rauchwand => GameText.Hud.Smoke,
+            AbilityKind.Blendgranate => GameText.Hud.Flash,
+            AbilityKind.Splittergranate => GameText.Hud.Frag,
+            AbilityKind.ScanPuls => GameText.Hud.Scan,
+            AbilityKind.Brandwand => GameText.Hud.Fire,
+            AbilityKind.Stolperdraht => GameText.Hud.Wire,
+            AbilityKind.Verbandspaket => GameText.Hud.MedKit,
             _ => "-",
         };
 

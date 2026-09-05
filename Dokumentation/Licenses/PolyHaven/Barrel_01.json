@@ -1,0 +1,76 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/Barrel_01",
+  "filesSourceUrl": "https://api.polyhaven.com/files/Barrel_01",
+  "assetId": "Barrel_01",
+  "name": "Barrel_01",
+  "authors": {
+    "Jorge Camacho": "All"
+  },
+  "filesHash": "45ce352c4416845813a00e478950b500796b0a60",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/fass/fass.fbx",
+      "localMd5": "c493537e374d417e976f7509fded43da",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/Barrel_01/Barrel_01_1k.fbx",
+          "md5": "c493537e374d417e976f7509fded43da",
+          "size": 97052
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_diff_1k.png",
+      "localMd5": "3226b7797c876525160ebebe0c6f97bb",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/Barrel_01/Barrel_01_explosive_diff_1k.png",
+          "md5": "3226b7797c876525160ebebe0c6f97bb",
+          "size": 1377390
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_metallic_1k.png",
+      "localMd5": "c5f9a570f37d8320e80b3313a8fb767a",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/Barrel_01/Barrel_01_explosive_metallic_1k.png",
+          "md5": "c5f9a570f37d8320e80b3313a8fb767a",
+          "size": 333303
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_nor_gl_1k.png",
+      "localMd5": "8b6cf9bee1f227c9afe40cf181104de7",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/Barrel_01/Barrel_01_explosive_nor_gl_1k.png",
+          "md5": "8b6cf9bee1f227c9afe40cf181104de7",
+          "size": 1631810
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/fass/textures/Barrel_01_explosive_roughness_1k.png",
+      "localMd5": "d5ce4574587ce46bd1e788fd72b3e463",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/Barrel_01/Barrel_01_explosive_roughness_1k.png",
+          "md5": "d5ce4574587ce46bd1e788fd72b3e463",
+          "size": 584713
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/fass/textures/barrel_01_explosive_MetalSmooth.png",
+      "localMd5": "97674925fcce60bfe77c8f7dabd71dbd",
+      "matchingProviderFiles": []
+    }
+  ]
+}

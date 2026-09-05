@@ -19,14 +19,14 @@ namespace Infront
 
         static readonly string[] Tips =
         {
-            "Hold E to plant or defuse the bomb.",
-            "Headshots do double damage.",
-            "If you die, you stay dead - there is no respawn mid-round.",
-            "Survivors carry their weapon and armor into the next round.",
-            "Sides are swapped after 15 rounds.",
-            "When dead, left and right click switch which teammate you watch.",
-            "Press B at the start of a round to open the buy menu.",
-            "Body armor absorbs half of all body damage.",
+            GameText.Menu.BombInteractionTip,
+            GameText.Menu.HeadshotTip,
+            GameText.Loading.RoundDeathTip,
+            GameText.Loading.SurvivorGearTip,
+            GameText.Menu.HalftimeTip,
+            GameText.Loading.SpectatorTip,
+            GameText.Menu.BuyMenuTip,
+            GameText.Menu.ArmorTip,
         };
 
         UIDocument _doc;
@@ -57,7 +57,7 @@ namespace Infront
 
         bool _pendingBegin;
         string _pendingMode = "";
-        string _pendingContext = "ARENA";
+        string _pendingContext = GameText.Loading.Arena;
 
         // ---- Test-Schnittstelle ----
         public bool ReadyForTests => _ready;
@@ -123,7 +123,7 @@ namespace Infront
         // ------------------------------------------------------------------
 
         /// <summary>Ladebildschirm einblenden. modeLabel steht unten rechts.</summary>
-        public void Begin(string modeLabel) => Begin(modeLabel, "ARENA");
+        public void Begin(string modeLabel) => Begin(modeLabel, GameText.Loading.Arena);
 
         /// <summary>
         /// Wie <see cref="Begin(string)"/>, aber mit eigenem Kontext links vom
@@ -138,13 +138,13 @@ namespace Infront
             _shownProgress = 0f;
             _targetProgress = 0.02f;
             _scanT = 0f;
-            _phase = "PREPARING";
+            _phase = GameText.Loading.Preparing;
             if (_phaseLabel != null) _phaseLabel.text = _phase;
             _tipTimer = 0f;
             _tipIndex = Random.Range(0, Tips.Length);
             if (_tip != null) _tip.text = Tips[_tipIndex];
             if (_mode != null)
-                _mode.text = (string.IsNullOrEmpty(context) ? "ARENA" : context)
+                _mode.text = (string.IsNullOrEmpty(context) ? GameText.Loading.Arena : context)
                              + "   ·   " + (string.IsNullOrEmpty(modeLabel) ? "-" : modeLabel);
 
             _visible = true;
@@ -359,7 +359,7 @@ namespace Infront
             brandRow.Add(title);
             center.Add(brandRow);
 
-            var subtitle = new Label("TACTICAL TEAM SHOOTER");
+            var subtitle = new Label(GameText.Loading.Tagline);
             subtitle.style.color = UiTheme.TextDim;
             subtitle.style.fontSize = 11f;
             subtitle.style.letterSpacing = 5f;
@@ -390,7 +390,7 @@ namespace Infront
             var loadingWrap = new VisualElement();
             loadingWrap.style.flexDirection = FlexDirection.Row;
 
-            var loadingLabel = new Label("LOADING");
+            var loadingLabel = new Label(GameText.Loading.Label);
             loadingLabel.style.color = UiTheme.TextDim;
             loadingLabel.style.fontSize = 12f;
             loadingLabel.style.letterSpacing = 3f;
@@ -436,7 +436,7 @@ namespace Infront
             _screen.Add(center);
 
             // Fusszeilen
-            var footL = new Label("DRIFTLAB");
+            var footL = new Label(GameText.Loading.Driftlab);
             footL.style.position = Position.Absolute;
             footL.style.left = 48f; footL.style.bottom = 30f;
             footL.style.color = UiTheme.TextDim;
@@ -445,7 +445,7 @@ namespace Infront
             footL.style.unityFontStyleAndWeight = FontStyle.Bold;
             _screen.Add(footL);
 
-            _mode = new Label("ARENA   ·   -");
+            _mode = new Label(GameText.Loading.EmptyContext);
             _mode.style.position = Position.Absolute;
             _mode.style.right = 48f; _mode.style.bottom = 30f;
             _mode.style.color = UiTheme.TextDim;

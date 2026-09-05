@@ -36,22 +36,16 @@ namespace Infront
         public static readonly Karte[] Karten =
         {
             new Karte {
-                Titel = "YOU ARE HEAVY",
-                Text  = "You walk and turn slower than in most shooters. "
-                      + "That is on purpose. Accelerating, braking and landing all cost time - "
-                      + "plan your route instead of twitching around.",
+                Titel = GameText.Onboarding.YouAreHeavy,
+                Text  = GameText.Onboarding.MovementDescription,
             },
             new Karte {
-                Titel = "YOUR BREATHING MATTERS",
-                Text  = "After sprinting your breathing gets heavy and the view drifts. "
-                      + "While aiming you can hold your breath with Shift - "
-                      + "but only for a few seconds, after that it gets worse than before.",
+                Titel = GameText.Onboarding.YourBreathingMatters,
+                Text  = GameText.Onboarding.BreathingDescription,
             },
             new Karte {
-                Titel = "NOT ALL HITS ARE EQUAL",
-                Text  = "Head, torso, arms and legs count separately. Leg hits slow you down, "
-                      + "arm hits make your aim shaky, and wounds keep bleeding "
-                      + "until you use a med kit.",
+                Titel = GameText.Onboarding.NotAllHitsAreEqual,
+                Text  = GameText.Onboarding.HitZonesDescription,
             },
         };
 
@@ -142,13 +136,13 @@ namespace Infront
             reihe.style.justifyContent = Justify.SpaceBetween;
             reihe.style.marginTop = 22f;
 
-            var ueber = new Button(Ueberspringen) { text = "SKIP" };
+            var ueber = new Button(Ueberspringen) { text = GameText.Onboarding.Skip };
             ueber.name = "firstrun-skip";
             Schmuecke(ueber, leise: true);
 
             var weiter = new Button(Weiter)
             {
-                text = _index >= Karten.Length - 1 ? "LET'S GO" : "NEXT",
+                text = _index >= Karten.Length - 1 ? GameText.Onboarding.LetsGo : GameText.Onboarding.Next,
             };
             weiter.name = "firstrun-next";
             Schmuecke(weiter, leise: false);

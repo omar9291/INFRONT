@@ -1,0 +1,65 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/cement_bag",
+  "filesSourceUrl": "https://api.polyhaven.com/files/cement_bag",
+  "assetId": "cement_bag",
+  "name": "Cement Bag",
+  "authors": {
+    "PierreB3D": "All"
+  },
+  "filesHash": "5904dc1835a413b66e756f67f8561b82fa5fcdcf",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/sandsack/sandsack.fbx",
+      "localMd5": "1fa3fa1302d85604b1ece59f801649e6",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/cement_bag/cement_bag_1k.fbx",
+          "md5": "1fa3fa1302d85604b1ece59f801649e6",
+          "size": 47596
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_MetalSmooth.png",
+      "localMd5": "cce5836a561eae1d2dae49161b8bb457",
+      "matchingProviderFiles": []
+    },
+    {
+      "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_diff_1k.jpg",
+      "localMd5": "68ce7268114b04a53547350c4356e6fa",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/cement_bag/cement_bag_diff_1k.jpg",
+          "md5": "68ce7268114b04a53547350c4356e6fa",
+          "size": 616339
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_nor_gl_1k.exr",
+      "localMd5": "2d8e85aee47c8e78fac8d4b74f6f45e1",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/cement_bag/cement_bag_nor_gl_1k.exr",
+          "md5": "2d8e85aee47c8e78fac8d4b74f6f45e1",
+          "size": 766555
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/sandsack/textures/cement_bag_rough_1k.exr",
+      "localMd5": "9620ba30bcc8045b103cc77ec56aea96",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/cement_bag/cement_bag_rough_1k.exr",
+          "md5": "9620ba30bcc8045b103cc77ec56aea96",
+          "size": 436405
+        }
+      ]
+    }
+  ]
+}

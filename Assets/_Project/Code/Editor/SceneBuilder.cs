@@ -1361,6 +1361,7 @@ namespace Infront.EditorTools
         // ==================================================================
 
         const float WerkHalf = 45f;   // Aussenwand bei +/- 45
+        const float MidRampWidth = 6f;
 
         // ---- Deckung in drei Klassen (fy = Fussboden-Höhe, meist 0) ----
         //   Hoch   (~1.9 m): komplett gedeckt, blockt Sicht
@@ -1467,7 +1468,7 @@ namespace Infront.EditorTools
         }
 
         /// <summary>Rampe entlang Z. dir=+1 steigt Richtung +Z, dir=-1 Richtung -Z.
-        /// Steigung bleibt flach (unter 15°) damit das NavMesh sie sicher mitnimmt.</summary>
+        /// Die begehbare Oberseite verbindet die beiden Endpunkte ohne Stufe.</summary>
         static void SlopeZ(string n, float x, float zLow, float fy, float run, float rise, float width, int dir)
         {
             var r = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1475,7 +1476,11 @@ namespace Infront.EditorTools
             r.transform.SetParent(_mapRoot, true);
             float ang = Mathf.Atan2(rise, run) * Mathf.Rad2Deg;
             r.transform.rotation = Quaternion.Euler(-ang * dir, 0f, 0f);
-            r.transform.position = new Vector3(x, fy + rise * 0.5f, zLow + dir * run * 0.5f);
+            // Die Endpunkte beschreiben die LAUFFLAECHE, nicht die Mitte des
+            // Quaders. Ohne diesen Versatz steht die 30-cm-Platte an beiden
+            // Enden rund 15 cm ueber Boden und Podest.
+            r.transform.position = new Vector3(x, fy + rise * 0.5f, zLow + dir * run * 0.5f)
+                                   - r.transform.up * 0.15f;
             r.transform.localScale = new Vector3(width, 0.3f, Mathf.Sqrt(run * run + rise * rise));
             r.GetComponent<Renderer>().sharedMaterial =
                 RoleMat("platte", new Vector2(0.4f, 0.4f), new Color(0.16f, 0.18f, 0.24f));
@@ -1738,8 +1743,8 @@ namespace Infront.EditorTools
 
             // Mittelpodest auf z=0 - hohes High Ground, von beiden Seiten per Rampe
             Platform("MidDais", 0f, 1.2f, 0f, 14f, 10f);
-            SlopeZ("MidRamp_B", 0f, 13f, 0f, 8f, 1.2f, 6f, -1);
-            SlopeZ("MidRamp_A", 0f, -13f, 0f, 8f, 1.2f, 6f, +1);
+            SlopeZ("MidRamp_B", 0f, 13f, 0f, 8f, 1.2f, MidRampWidth, -1);
+            SlopeZ("MidRamp_A", 0f, -13f, 0f, 8f, 1.2f, MidRampWidth, +1);
             CoverHigh("MidTop_1", -3.5f, 1.2f, 2f, 1.8f, 1.8f);
             CoverHigh("MidTop_2", 3.5f, 1.2f, -2f, 1.8f, 1.8f);
             CoverLow("MidTop_3", 0f, 1.2f, 0f, 2.4f, 1f);
@@ -1806,8 +1811,11 @@ namespace Infront.EditorTools
                 // bleibt offen - von dort schiesst man auf den Platz hinunter.
                 // Die Stirnseiten bleiben frei, dort münden die Rampen.
                 Rail($"BalcRail_out_{side}", bx + 5f * sgn, 2.6f, 0f, 0.4f, 12f);
-                SlopeZ($"BalcRamp_B_{side}", bx, 14f, 0f, 12f, 2.6f, 5f, -1);
-                SlopeZ($"BalcRamp_A_{side}", bx, -14f, 0f, 12f, 2.6f, 5f, +1);
+                // Balkon beginnt bei z +/-6. Die alte 12-m-Rampe endete erst
+                // bei +/-2 und stiess weit unter der Laufhoehe in die Stirnwand.
+                // Der Einstieg bleibt bei +/-14, die Rampe endet an der Kante.
+                SlopeZ($"BalcRamp_B_{side}", bx, 14f, 0f, 8f, 2.6f, 5f, -1);
+                SlopeZ($"BalcRamp_A_{side}", bx, -14f, 0f, 8f, 2.6f, 5f, +1);
                 CoverMid($"BalcCov_{side}", bx, 2.6f, 0f, 2f, 2f);
                 // 2,60 statt 2,70: Oberkante des Balkons. Schwebte 8 cm.
                 Stripe($"BalcEdge_{side}", bx - 5f * sgn, 2.60f, 0f, 0.3f, 0.1f, 12f);
@@ -2428,18 +2436,30 @@ namespace Infront.EditorTools
         }
 
         /// <summary>Deko-Gelaender (kein Collider) an einer Kante entlang X oder Z.</summary>
-        static void DecoRail(string name, Vector3 center, float length, bool alongX)
+        static void DecoRail(string name, Vector3 center, float length, bool alongX,
+                             float openingWidth = 0f)
         {
-            Vector3 barS = alongX ? new Vector3(length, 0.05f, 0.05f) : new Vector3(0.05f, 0.05f, length);
-            Deco(name + "_top", PrimitiveType.Cube, center + Vector3.up * 0.55f, barS, _steel);
-            Deco(name + "_mid", PrimitiveType.Cube, center + Vector3.up * 0.30f, barS, _steel);
-            int posts = Mathf.Max(2, Mathf.RoundToInt(length / 1.5f));
-            for (int i = 0; i <= posts; i++)
+            void Segment(string suffix, Vector3 at, float span)
             {
-                float f = (i / (float)posts - 0.5f) * length;
-                Vector3 p = center + (alongX ? new Vector3(f, 0.3f, 0f) : new Vector3(0f, 0.3f, f));
-                Deco(name + "_p" + i, PrimitiveType.Cube, p, new Vector3(0.06f, 0.6f, 0.06f), _steel);
+                Vector3 barS = alongX ? new Vector3(span, 0.05f, 0.05f) : new Vector3(0.05f, 0.05f, span);
+                Deco(name + "_top" + suffix, PrimitiveType.Cube, at + Vector3.up * 0.55f, barS, _steel);
+                Deco(name + "_mid" + suffix, PrimitiveType.Cube, at + Vector3.up * 0.30f, barS, _steel);
+                int posts = Mathf.Max(2, Mathf.RoundToInt(span / 1.5f));
+                for (int i = 0; i <= posts; i++)
+                {
+                    float f = (i / (float)posts - 0.5f) * span;
+                    Vector3 p = at + (alongX ? new Vector3(f, 0.3f, 0f) : new Vector3(0f, 0.3f, f));
+                    Deco(name + "_p" + suffix + i, PrimitiveType.Cube, p, new Vector3(0.06f, 0.6f, 0.06f), _steel);
+                }
             }
+
+            if (openingWidth <= 0f) { Segment("", center, length); return; }
+            float segmentLength = (length - openingWidth) * 0.5f;
+            if (segmentLength <= 0f) return;
+            Vector3 offset = (alongX ? Vector3.right : Vector3.forward)
+                             * (openingWidth + segmentLength) * 0.5f;
+            Segment("L", center - offset, segmentLength);
+            Segment("R", center + offset, segmentLength);
         }
 
         static void SandbagStack(string name, Vector3 at, int seed)
@@ -2488,8 +2508,10 @@ namespace Infront.EditorTools
             // center.y IST also die Standflaeche. Vorher stand hier 1,35 und
             // 2,75, waehrend Podest und Balkon bei 1,20 und 2,60 aufhoeren:
             // beide Gelaender schwebten 15 cm ueber dem Boden.
-            DecoRail("MidRail_B", new Vector3(0f, 1.20f, 5f), 13f, true);
-            DecoRail("MidRail_A", new Vector3(0f, 1.20f, -5f), 13f, true);
+            // Der Durchgang muss auch sichtbar offen sein: durchgehende
+            // kollisionslose Holme liessen Spieler und Bots durchs Metall gehen.
+            DecoRail("MidRail_B", new Vector3(0f, 1.20f, 5f), 13f, true, MidRampWidth + 0.2f);
+            DecoRail("MidRail_A", new Vector3(0f, 1.20f, -5f), 13f, true, MidRampWidth + 0.2f);
             foreach (int sgn in new[] { -1, 1 })
                 DecoRail($"BalcRailDeko_{sgn}", new Vector3(25f * sgn, 2.60f, 0f), 11f, false);
 
@@ -3372,7 +3394,7 @@ namespace Infront.EditorTools
                 soSpawner.FindProperty("_dummyPrefab").objectReferenceValue = dummyPrefab.GetComponent<NetworkObject>();
                 var positions = soSpawner.FindProperty("_positions");
                 positions.arraySize = 1;
-                positions.GetArrayElementAtIndex(0).vector3Value = new Vector3(0f, 1f, 16f);
+                positions.GetArrayElementAtIndex(0).vector3Value = new Vector3(0f, 0f, 16f);
                 soSpawner.ApplyModifiedPropertiesWithoutUndo();
             }
 

@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/mounted_fluorescent_lights",
+  "filesSourceUrl": "https://api.polyhaven.com/files/mounted_fluorescent_lights",
+  "assetId": "mounted_fluorescent_lights",
+  "name": "Mounted Fluorescent Lights",
+  "authors": {
+    "Ulan Cabanilla": "All"
+  },
+  "filesHash": "47e0238ee984af1f5f02ec5251efcc27a1894f63",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/mounted_fluorescent_lights/mounted_fluorescent_lights_1k.fbx",
+      "localMd5": "775d98b7352ce0dba05162dfa0841fa8",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/mounted_fluorescent_lights/mounted_fluorescent_lights_1k.fbx",
+          "md5": "775d98b7352ce0dba05162dfa0841fa8",
+          "size": 501356
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/mounted_fluorescent_lights/textures/mounted_fluorescent_lights_diff_1k.jpg",
+      "localMd5": "8ce6bcb2b15119a3621cb7c9e7af2359",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/mounted_fluorescent_lights/mounted_fluorescent_lights_diff_1k.jpg",
+          "md5": "8ce6bcb2b15119a3621cb7c9e7af2359",
+          "size": 311521
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/mounted_fluorescent_lights/textures/mounted_fluorescent_lights_nor_gl_1k.png",
+      "localMd5": "4feb623a16813cafa5062e6a30c93700",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/mounted_fluorescent_lights/mounted_fluorescent_lights_nor_gl_1k.png",
+          "md5": "4feb623a16813cafa5062e6a30c93700",
+          "size": 975553
+        }
+      ]
+    }
+  ]
+}

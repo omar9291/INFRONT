@@ -164,11 +164,11 @@ namespace Infront
 
         public static string Title(HighlightKind kind) => kind switch
         {
-            HighlightKind.Doppelkill => "DOUBLE KILL",
-            HighlightKind.Dreifachkill => "TRIPLE KILL",
-            HighlightKind.Ace => "ACE!",
-            HighlightKind.Clutch => "CLUTCH!",
-            HighlightKind.BesteDerRunde => "ROUND MVP",
+            HighlightKind.Doppelkill => GameText.Messages.DoubleKill,
+            HighlightKind.Dreifachkill => GameText.Messages.TripleKill,
+            HighlightKind.Ace => GameText.Messages.Ace,
+            HighlightKind.Clutch => GameText.Messages.Clutch,
+            HighlightKind.BesteDerRunde => GameText.Messages.RoundMvp,
             _ => "",
         };
     }

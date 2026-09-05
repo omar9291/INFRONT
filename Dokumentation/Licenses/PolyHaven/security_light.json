@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/security_light",
+  "filesSourceUrl": "https://api.polyhaven.com/files/security_light",
+  "assetId": "security_light",
+  "name": "Security Light",
+  "authors": {
+    "Maximilian Schuster": "All"
+  },
+  "filesHash": "a69a104e2e8084c8a68646165e0b8ae65021f37d",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/security_light/security_light_1k.fbx",
+      "localMd5": "6b9ebe2c6591e4b6e3a08de9695d3c3c",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/security_light/security_light_1k.fbx",
+          "md5": "6b9ebe2c6591e4b6e3a08de9695d3c3c",
+          "size": 176620
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/security_light/textures/security_light_diff_1k.jpg",
+      "localMd5": "b7c8f67d7a5b0db24d578eb9154fd1bf",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/security_light/security_light_diff_1k.jpg",
+          "md5": "b7c8f67d7a5b0db24d578eb9154fd1bf",
+          "size": 588463
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/security_light/textures/security_light_nor_gl_1k.png",
+      "localMd5": "b7e39fa80fad3fcab5e12f65c15c6226",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/security_light/security_light_nor_gl_1k.png",
+          "md5": "b7e39fa80fad3fcab5e12f65c15c6226",
+          "size": 5419435
+        }
+      ]
+    }
+  ]
+}

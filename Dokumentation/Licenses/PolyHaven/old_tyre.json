@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/old_tyre",
+  "filesSourceUrl": "https://api.polyhaven.com/files/old_tyre",
+  "assetId": "old_tyre",
+  "name": "Old Tyre",
+  "authors": {
+    "MP": "All"
+  },
+  "filesHash": "8b7362724dd9d54081fe99703e32f434f75d1f0e",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/old_tyre/old_tyre_1k.fbx",
+      "localMd5": "f43fdca9ad17ee17eda237136bee7270",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/old_tyre/old_tyre_1k.fbx",
+          "md5": "f43fdca9ad17ee17eda237136bee7270",
+          "size": 96780
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/old_tyre/textures/old_tyre_diff_1k.jpg",
+      "localMd5": "f52b712b8373b1d1a7c46702613f76cb",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/old_tyre/old_tyre_diff_1k.jpg",
+          "md5": "f52b712b8373b1d1a7c46702613f76cb",
+          "size": 650708
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/old_tyre/textures/old_tyre_nor_gl_1k.png",
+      "localMd5": "7e122daf89ba8fb20a8bc03ef8af4a61",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/old_tyre/old_tyre_nor_gl_1k.png",
+          "md5": "7e122daf89ba8fb20a8bc03ef8af4a61",
+          "size": 1619159
+        }
+      ]
+    }
+  ]
+}

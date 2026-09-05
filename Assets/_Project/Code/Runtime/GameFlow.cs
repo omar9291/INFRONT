@@ -50,10 +50,10 @@ namespace Infront
             if (overlay != null)
             {
                 string label = scene == ArenaScene
-                    ? (GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMB" : "ELIMINATION")
-                    : "MAIN MENU";
+                    ? (GameSettings.GameMode == GameSettings.Mode.Bombe ? GameText.Menu.Bomb : GameText.Menu.Elimination)
+                    : GameText.Loading.MainMenu;
                 overlay.Begin(label);
-                overlay.SetProgress(0.05f, "PREPARING");
+                overlay.SetProgress(0.05f, GameText.Loading.Preparing);
             }
             float startedAt = Time.unscaledTime;
 
@@ -76,7 +76,7 @@ namespace Infront
                 yield return null;
             }
 
-            if (overlay != null) overlay.SetProgress(0.25f, "DISCONNECTING");
+            if (overlay != null) overlay.SetProgress(0.25f, GameText.Loading.Disconnecting);
 
             BotBrain.GloballyFrozen = false;
             Combatants.Reset();
@@ -85,17 +85,17 @@ namespace Infront
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            if (overlay != null) overlay.SetProgress(0.35f, "LOADING MAP");
+            if (overlay != null) overlay.SetProgress(0.35f, GameText.Loading.LoadingMap);
 
             var op = SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
             while (op != null && !op.isDone)
             {
                 if (overlay != null)
                     overlay.SetProgress(0.35f + 0.6f * Mathf.Clamp01(op.progress / 0.9f),
-                                        op.progress < 0.5f ? "LOADING MAP" : "PLACING ENEMIES");
+                                        op.progress < 0.5f ? GameText.Loading.LoadingMap : GameText.Loading.PlacingEnemies);
                 yield return null;
             }
-            if (overlay != null) overlay.SetProgress(1f, "READY");
+            if (overlay != null) overlay.SetProgress(1f, GameText.Loading.Ready);
 
             // Mindestanzeige, damit der Ladebildschirm nicht nur aufblitzt.
             // Im Testlauf (batchmode) faellt das weg, damit die Ablauf-Tests

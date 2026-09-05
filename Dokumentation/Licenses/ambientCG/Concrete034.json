@@ -1,0 +1,39 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Concrete034&include=downloadData",
+  "assetId": "Concrete034",
+  "displayName": "Concrete 034",
+  "shortLink": "https://ambientcg.com/a/Concrete034",
+  "evidenceKind": "official-api-metadata",
+  "packageUrl": "https://ambientcg.com/get?file=Concrete034_1K-JPG.zip",
+  "packageSha256": "5839d284d94ffb8d2a56df742ec522b13dd311c52dbd42b8fd33f0409ceedb81",
+  "packageLicenseFiles": [],
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Textures/wand_beton/Concrete034_1K-JPG_Color.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/wand_beton/Concrete034_1K-JPG_NormalGL.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/wand_beton/Concrete034_1K-JPG_Roughness.jpg",
+      "matchesDownloadedPackage": true
+    }
+  ],
+  "archiveEntries": [
+    "Concrete034_1K-JPG.usdc",
+    "Concrete034_1K-JPG_Color.jpg",
+    "Concrete034_1K-JPG_Displacement.jpg",
+    "Concrete034_1K-JPG_NormalDX.jpg",
+    "Concrete034_1K-JPG_NormalGL.jpg",
+    "Concrete034_1K-JPG_Roughness.jpg",
+    "Concrete034_1K-JPG.blend",
+    "Concrete034_1K-JPG.mtlx",
+    "Concrete034_1K-JPG.tres",
+    "Concrete034.png"
+  ],
+  "licenseSourceUrl": "https://docs.ambientcg.com/license/",
+  "limitation": "No standalone licence/readme file is present in the downloaded archive. CC0 comes from the official provider policy, not from an embedded licence."
+}

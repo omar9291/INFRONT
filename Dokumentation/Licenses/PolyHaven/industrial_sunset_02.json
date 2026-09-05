@@ -1,0 +1,21 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/industrial_sunset_02",
+  "filesSourceUrl": "https://api.polyhaven.com/files/industrial_sunset_02",
+  "assetId": "industrial_sunset_02",
+  "name": "Industrial Sunset 02",
+  "authors": {
+    "Sergej Majboroda": "All"
+  },
+  "filesHash": "8593e520c783ee08c98d582e029d63d84f408f1b",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Sky/industrial_sunset_02.hdr",
+      "localMd5": "b54af864f1868a59cdc391744532776c",
+      "matchingProviderFiles": []
+    }
+  ]
+}

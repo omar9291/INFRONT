@@ -11,7 +11,8 @@ namespace Infront
     {
         public enum Slot { Primaer = 0, Pistole = 1 }
 
-        public string DisplayName = "Assault Rifle";
+        public string DisplayName = GameText.Equipment.AssaultRifle;
+        public string LocalizedName => GameText.Equipment.WeaponName(this);
         [Tooltip("Auf welchem Platz die Waffe gefuehrt wird.")]
         public Slot SlotKind = Slot.Primaer;
         [Tooltip("Welcher Schuss-Ton beim Feuern gespielt wird.")]

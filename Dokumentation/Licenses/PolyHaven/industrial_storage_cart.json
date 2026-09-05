@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/industrial_storage_cart",
+  "filesSourceUrl": "https://api.polyhaven.com/files/industrial_storage_cart",
+  "assetId": "industrial_storage_cart",
+  "name": "Industrial Storage Cart",
+  "authors": {
+    "Jule Bielitz": "All"
+  },
+  "filesHash": "1885782cd204ad6fed4d96111bd713aee14fd4bf",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/industrial_storage_cart/industrial_storage_cart_1k.fbx",
+      "localMd5": "361b9191b00c9cbf9afb0b078023b3e6",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/industrial_storage_cart/industrial_storage_cart_1k.fbx",
+          "md5": "361b9191b00c9cbf9afb0b078023b3e6",
+          "size": 426508
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/industrial_storage_cart/textures/industrial_storage_cart_diff_1k.jpg",
+      "localMd5": "ed9ac3076458572e50418a76b8742e9f",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_storage_cart/industrial_storage_cart_diff_1k.jpg",
+          "md5": "ed9ac3076458572e50418a76b8742e9f",
+          "size": 553691
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/industrial_storage_cart/textures/industrial_storage_cart_nor_gl_1k.png",
+      "localMd5": "b644aa44ac2acbc07c0611a2c1a9c551",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/industrial_storage_cart/industrial_storage_cart_nor_gl_1k.png",
+          "md5": "b644aa44ac2acbc07c0611a2c1a9c551",
+          "size": 4384595
+        }
+      ]
+    }
+  ]
+}

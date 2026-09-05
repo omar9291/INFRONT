@@ -1,0 +1,44 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=PavingStones128&include=downloadData",
+  "assetId": "PavingStones128",
+  "displayName": "Paving Stones 128",
+  "shortLink": "https://ambientcg.com/a/PavingStones128",
+  "evidenceKind": "official-api-metadata",
+  "packageUrl": "https://ambientcg.com/get?file=PavingStones128_1K-JPG.zip",
+  "packageSha256": "0a507f47fa86318ded7c128c1b7548ac5d6a50ae233905c2015dc2f704ac0d35",
+  "packageLicenseFiles": [],
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_AmbientOcclusion.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_Color.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_NormalGL.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/platz/PavingStones128_1K-JPG_Roughness.jpg",
+      "matchesDownloadedPackage": true
+    }
+  ],
+  "archiveEntries": [
+    "PavingStones128_1K-JPG.usdc",
+    "PavingStones128_1K-JPG_AmbientOcclusion.jpg",
+    "PavingStones128_1K-JPG_Color.jpg",
+    "PavingStones128_1K-JPG_Displacement.jpg",
+    "PavingStones128_1K-JPG_NormalDX.jpg",
+    "PavingStones128_1K-JPG_NormalGL.jpg",
+    "PavingStones128_1K-JPG_Roughness.jpg",
+    "PavingStones128_1K-JPG.blend",
+    "PavingStones128_1K-JPG.mtlx",
+    "PavingStones128_1K-JPG.tres",
+    "PavingStones128.png"
+  ],
+  "licenseSourceUrl": "https://docs.ambientcg.com/license/",
+  "limitation": "No standalone licence/readme file is present in the downloaded archive. CC0 comes from the official provider policy, not from an embedded licence."
+}

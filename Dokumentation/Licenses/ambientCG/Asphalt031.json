@@ -1,0 +1,44 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://ambientcg.com/api/v2/full_json?id=Asphalt031&include=downloadData",
+  "assetId": "Asphalt031",
+  "displayName": "Asphalt 031",
+  "shortLink": "https://ambientcg.com/a/Asphalt031",
+  "evidenceKind": "official-api-metadata",
+  "packageUrl": "https://ambientcg.com/get?file=Asphalt031_1K-JPG.zip",
+  "packageSha256": "f98114b8fb083fc65925c3b4568b131e37c9a23357d432a16e59676dbc69f964",
+  "packageLicenseFiles": [],
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_AmbientOcclusion.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_Color.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_NormalGL.jpg",
+      "matchesDownloadedPackage": true
+    },
+    {
+      "path": "Assets/_Project/Art/Textures/boden/Asphalt031_1K-JPG_Roughness.jpg",
+      "matchesDownloadedPackage": true
+    }
+  ],
+  "archiveEntries": [
+    "Asphalt031_1K-JPG.usdc",
+    "Asphalt031_1K-JPG_AmbientOcclusion.jpg",
+    "Asphalt031_1K-JPG_Color.jpg",
+    "Asphalt031_1K-JPG_Displacement.jpg",
+    "Asphalt031_1K-JPG_NormalDX.jpg",
+    "Asphalt031_1K-JPG_NormalGL.jpg",
+    "Asphalt031_1K-JPG_Roughness.jpg",
+    "Asphalt031_1K-JPG.blend",
+    "Asphalt031_1K-JPG.mtlx",
+    "Asphalt031_1K-JPG.tres",
+    "Asphalt031.png"
+  ],
+  "licenseSourceUrl": "https://docs.ambientcg.com/license/",
+  "limitation": "No standalone licence/readme file is present in the downloaded archive. CC0 comes from the official provider policy, not from an embedded licence."
+}

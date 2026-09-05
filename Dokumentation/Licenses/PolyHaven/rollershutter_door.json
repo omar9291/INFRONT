@@ -1,0 +1,49 @@
+{
+  "retrievedOn": "2026-09-05",
+  "sourceUrl": "https://api.polyhaven.com/info/rollershutter_door",
+  "filesSourceUrl": "https://api.polyhaven.com/files/rollershutter_door",
+  "assetId": "rollershutter_door",
+  "name": "Rollershutter Door",
+  "authors": {
+    "MP": "All"
+  },
+  "filesHash": "4f4b3b132d12aa4253364b988714f8185ed45e19",
+  "licenseSourceUrl": "https://polyhaven.com/license",
+  "evidenceKind": "official-api-metadata-and-download-hash-comparison",
+  "limitation": "The provider license policy states CC0. No license file from the original download was retained in this project; this metadata is not package-internal license evidence.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Models/rollershutter_door/rollershutter_door_1k.fbx",
+      "localMd5": "4faf1b2386bfc05fe41be42d8333efcd",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/rollershutter_door/rollershutter_door_1k.fbx",
+          "md5": "4faf1b2386bfc05fe41be42d8333efcd",
+          "size": 60412
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/rollershutter_door/textures/rollershutter_door_diff_1k.jpg",
+      "localMd5": "2903cbe74c5d9d434951ec8625725458",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/rollershutter_door/rollershutter_door_diff_1k.jpg",
+          "md5": "2903cbe74c5d9d434951ec8625725458",
+          "size": 600354
+        }
+      ]
+    },
+    {
+      "path": "Assets/_Project/Art/Models/rollershutter_door/textures/rollershutter_door_nor_gl_1k.png",
+      "localMd5": "e6a50aadb693416e3ad1d008f86c5b68",
+      "matchingProviderFiles": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/rollershutter_door/rollershutter_door_nor_gl_1k.png",
+          "md5": "e6a50aadb693416e3ad1d008f86c5b68",
+          "size": 1656483
+        }
+      ]
+    }
+  ]
+}

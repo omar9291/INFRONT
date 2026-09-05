@@ -46,18 +46,18 @@ namespace Infront
         // Kurze Hinweise, die in der Navigation langsam durchwechseln.
         static readonly string[] Tips =
         {
-            "Headshots do double damage.",
-            "Hold E to plant or defuse the bomb.",
-            "If you die, you stay dead for the round - no respawn.",
-            "Survivors keep their weapon and armor.",
-            "Press B at the start of a round to open the buy menu.",
-            "Body armor absorbs half of all body damage.",
-            "Sides are swapped after 15 rounds.",
+            GameText.Menu.HeadshotTip,
+            GameText.Menu.BombInteractionTip,
+            GameText.Menu.RoundDeathTip,
+            GameText.Menu.SurvivorGearTip,
+            GameText.Menu.BuyMenuTip,
+            GameText.Menu.ArmorTip,
+            GameText.Menu.HalftimeTip,
         };
 
         // Rufnamen fuer die Aufstellung. Platz 0 bist immer du selbst.
         static readonly string[] TeamNames =
-            { "YOU", "FALCON", "WOLF", "LYNX", "RAVEN", "BEAR", "OTTER", "PIKE", "VULTURE", "BADGER" };
+            { GameText.Menu.You, "FALCON", "WOLF", "LYNX", "RAVEN", "BEAR", "OTTER", "PIKE", "VULTURE", "BADGER" };
         static readonly string[] FoeNames =
             { "COBRA", "ADDER", "SCORPION", "HORNET", "RAM", "PIRANHA", "MONITOR", "BUZZARD", "MARTEN", "POLECAT" };
 
@@ -444,7 +444,7 @@ namespace Infront
                 title.style.letterSpacing = 14f;
             }).StartingIn(120);
 
-            var tagline = new Label("TACTICAL SHOOTER   ·   ROUND-BASED   ·   HOST MODE");
+            var tagline = new Label(GameText.Menu.Tagline);
             tagline.style.color = UiTheme.TextDim;
             tagline.style.fontSize = 11f;
             tagline.style.letterSpacing = 5f;
@@ -457,7 +457,7 @@ namespace Infront
             brand.Add(tick);
             brand.Add(titleCol);
 
-            var version = new Label("DRIFTLAB   ·   " + VersionText());
+            var version = new Label(GameText.Menu.StudioPrefix + VersionText());
             version.style.color = UiTheme.TextDim;
             version.style.fontSize = 12f;
             version.style.letterSpacing = 2f;
@@ -486,7 +486,7 @@ namespace Infront
             box.style.paddingTop = 12f; box.style.paddingBottom = 12f;
             SoftPanel(box, 0.30f);
 
-            box.Add(UiTheme.Section("CAREER"));
+            box.Add(UiTheme.Section(GameText.Menu.Career));
 
             // Neuer Spieler: vier Nullen sehen aus wie ein Fehler. Der
             // Leer-Zustand aus UiStates sagt stattdessen, was hier stehen wird
@@ -528,10 +528,10 @@ namespace Infront
                 rowIdx++;
             }
 
-            Row("Matches", CareerStats.Matches);
-            Row("Wins", CareerStats.Wins);
-            Row("Aces", CareerStats.Aces);
-            Row("Best Streak", CareerStats.BestStreak);
+            Row(GameText.Menu.Matches, CareerStats.Matches);
+            Row(GameText.Menu.Wins, CareerStats.Wins);
+            Row(GameText.Menu.Aces, CareerStats.Aces);
+            Row(GameText.Menu.BestStreak, CareerStats.BestStreak);
             return box;
         }
 
@@ -569,12 +569,12 @@ namespace Infront
             nav.style.width = 264f;
             nav.style.flexShrink = 0f;
             nav.style.marginRight = 44f;
-            nav.Add(NavButton("PLAY", Page.Spielen));
-            nav.Add(NavButton("SETTINGS", Page.Einstellungen));
-            nav.Add(NavButton("ACCESSIBILITY", Page.Zugaenglichkeit));
-            nav.Add(NavButton("YOUR DATA", Page.Daten));
-            nav.Add(NavButton("CONTROLS", Page.Steuerung));
-            nav.Add(NavButton("CREDITS", Page.Quellen));
+            nav.Add(NavButton(GameText.Menu.Play, Page.Spielen));
+            nav.Add(NavButton(GameText.Menu.Settings, Page.Einstellungen));
+            nav.Add(NavButton(GameText.Menu.Accessibility, Page.Zugaenglichkeit));
+            nav.Add(NavButton(GameText.Menu.YourData, Page.Daten));
+            nav.Add(NavButton(GameText.Menu.Controls, Page.Steuerung));
+            nav.Add(NavButton(GameText.Menu.Credits, Page.Quellen));
 
             var sep = new VisualElement();
             sep.style.height = 1f;
@@ -582,7 +582,7 @@ namespace Infront
             sep.style.marginTop = 6f; sep.style.marginBottom = 10f;
             nav.Add(sep);
 
-            nav.Add(NavButton("Quit", Page.Beenden, minor: true));
+            nav.Add(NavButton(GameText.Menu.Quit, Page.Beenden, minor: true));
             nav.Add(BuildCareer());
 
             var navSpacer = new VisualElement();
@@ -664,7 +664,7 @@ namespace Infront
             box.style.borderLeftColor = UiTheme.Ice;
             UiTheme.Pad(box, 12f);
 
-            var head = new Label("TIP");
+            var head = new Label(GameText.Menu.Tip);
             head.style.color = UiTheme.Ice;
             head.style.fontSize = 10f;
             head.style.letterSpacing = 3f;
@@ -712,7 +712,7 @@ namespace Infront
             bool on = true;
             dot.schedule.Execute(() => { on = !on; dot.style.opacity = on ? 1f : 0.3f; }).Every(1400);
 
-            var label = new Label("SYSTEM READY   ·   HOST");
+            var label = new Label(GameText.Menu.HostReady);
             label.style.color = UiTheme.TextDim;
             label.style.fontSize = 10f;
             label.style.letterSpacing = 2f;
@@ -731,12 +731,12 @@ namespace Infront
             footer.style.paddingLeft = 72f; footer.style.paddingRight = 72f;
             footer.style.paddingBottom = 18f;
 
-            var left = new Label("F10  –  LEGACY MENU");
+            var left = new Label(GameText.Menu.LegacyMenuHint);
             left.style.color = UiTheme.TextDim;
             left.style.fontSize = 11f;
             left.style.letterSpacing = 2f;
 
-            var right = new Label("HOST MODE  ·  SINGLE PLAYER VS BOTS");
+            var right = new Label(GameText.Menu.HostModeHint);
             right.style.color = UiTheme.TextDim;
             right.style.fontSize = 11f;
             right.style.letterSpacing = 2f;
@@ -914,7 +914,7 @@ namespace Infront
             left.style.marginRight = 30f;
 
             // --- Einsatzart: zwei grosse Karten ---
-            left.Add(UiTheme.Section("GAME MODE"));
+            left.Add(UiTheme.Section(GameText.Menu.GameMode));
 
             var modeRow = new VisualElement();
             modeRow.style.flexDirection = FlexDirection.Row;
@@ -993,10 +993,10 @@ namespace Infront
                 return card;
             }
 
-            modeRow.Add(MakeModeCard(0, "ELIMINATION",
-                "Wipe out the enemy team and the round is yours."));
-            modeRow.Add(MakeModeCard(1, "BOMB",
-                "Plant the bomb and hold the site - or stop the plant and defuse."));
+            modeRow.Add(MakeModeCard(0, GameText.Menu.Elimination,
+                GameText.Menu.EliminationDescription));
+            modeRow.Add(MakeModeCard(1, GameText.Menu.Bomb,
+                GameText.Menu.BombDescription));
             left.Add(modeRow);
             PaintModes();
 
@@ -1009,7 +1009,7 @@ namespace Infront
             var colA = new VisualElement();
             colA.style.flexGrow = 1f; colA.style.flexBasis = 0f;
             colA.style.marginRight = 20f;
-            colA.Add(UiTheme.Section("TEAM SIZE"));
+            colA.Add(UiTheme.Section(GameText.Menu.TeamSize));
             colA.Add(Segmented("seg-team", new[] { "2", "3", "4", "5" },
                 Mathf.Clamp(GameSettings.TeamSize - 2, 0, 3), i =>
                 {
@@ -1021,8 +1021,8 @@ namespace Infront
 
             var colB = new VisualElement();
             colB.style.flexGrow = 1f; colB.style.flexBasis = 0f;
-            colB.Add(UiTheme.Section("BOT SKILL"));
-            colB.Add(Segmented("seg-diff", new[] { "EASY", "NORMAL", "HARD" },
+            colB.Add(UiTheme.Section(GameText.Menu.BotSkill));
+            colB.Add(Segmented("seg-diff", new[] { GameText.Menu.Easy, GameText.Menu.Normal, GameText.Menu.Hard },
                 (int)GameSettings.Difficulty, i =>
                 {
                     GameSettings.Difficulty = (GameSettings.Level)i;
@@ -1059,7 +1059,7 @@ namespace Infront
 
             // --- Breiter Startbalken unten: die einzige orange Flaeche im Menue ---
             var start = new Button(() => { Click(SoundId.RundeStart, 0.6f); StartRound(); })
-                { text = "▶   START ROUND" };
+                { text = GameText.Menu.StartRound };
             start.name = "btn-start";
             start.style.height = 62f;
             start.style.marginTop = 14f;
@@ -1122,7 +1122,7 @@ namespace Infront
             card.style.paddingTop = 16f; card.style.paddingBottom = 16f;
             SoftPanel(card, 0.34f);
 
-            card.Add(UiTheme.Section("LINEUP"));
+            card.Add(UiTheme.Section(GameText.Menu.Lineup));
 
             _lineup = new VisualElement();
             _lineup.style.flexDirection = FlexDirection.Column;
@@ -1143,9 +1143,9 @@ namespace Infront
             card.Add(spacer);
 
             // kleine "Readout"-Zeilen ganz unten - reine Deko, fuellt die Hoehe
-            card.Add(ReadoutRow("NETCODE", "HOST-AUTHORITATIVE"));
-            card.Add(ReadoutRow("TICKRATE", "64"));
-            card.Add(ReadoutRow("REGION", "LOCAL"));
+            card.Add(ReadoutRow(GameText.Menu.Netcode, GameText.Menu.HostAuthoritative));
+            card.Add(ReadoutRow(GameText.Menu.Tickrate, "64"));
+            card.Add(ReadoutRow(GameText.Menu.Region, GameText.Menu.Local));
 
             RefreshBriefing();
             return card;
@@ -1228,40 +1228,40 @@ namespace Infront
                 _lineup.Clear();
                 int n = Mathf.Clamp(GameSettings.TeamSize, 1, 10);
 
-                _lineup.Add(RosterHead("YOUR TEAM", UiTheme.Ice));
+                _lineup.Add(RosterHead(GameText.Menu.YourTeam, UiTheme.Ice));
                 for (int i = 0; i < n; i++)
                     _lineup.Add(RosterRow(TeamNames[i % TeamNames.Length], UiTheme.Ice, i));
 
-                _lineup.Add(RosterHead("ENEMY", UiTheme.Foe));
+                _lineup.Add(RosterHead(GameText.Menu.Enemy, UiTheme.Foe));
                 for (int i = 0; i < n; i++)
                     _lineup.Add(RosterRow(FoeNames[i % FoeNames.Length], UiTheme.Foe, n + i));
             }
 
             if (_briefLine != null)
             {
-                string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMB" : "ELIMINATION";
+                string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? GameText.Menu.Bomb : GameText.Menu.Elimination;
                 string diff = GameSettings.Difficulty switch
                 {
-                    GameSettings.Level.Leicht => "EASY",
-                    GameSettings.Level.Schwer => "HARD",
-                    _ => "NORMAL"
+                    GameSettings.Level.Leicht => GameText.Menu.Easy,
+                    GameSettings.Level.Schwer => GameText.Menu.Hard,
+                    _ => GameText.Menu.Normal
                 };
-                _briefLine.text = mode + "   ·   BOTS: " + diff;
+                _briefLine.text = GameText.Format(GameText.Menu.Briefing, mode, diff);
             }
         }
 
         void RefreshSummary()
         {
             if (_summary == null) return;
-            string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? "BOMB" : "ELIMINATION";
+            string mode = GameSettings.GameMode == GameSettings.Mode.Bombe ? GameText.Menu.Bomb : GameText.Menu.Elimination;
             string diff = GameSettings.Difficulty switch
             {
-                GameSettings.Level.Leicht => "EASY",
-                GameSettings.Level.Schwer => "HARD",
-                _ => "NORMAL"
+                GameSettings.Level.Leicht => GameText.Menu.Easy,
+                GameSettings.Level.Schwer => GameText.Menu.Hard,
+                _ => GameText.Menu.Normal
             };
             int n = GameSettings.TeamSize;
-            _summary.text = $"{mode}   ·   {n} VS {n}   ·   BOTS {diff}";
+            _summary.text = GameText.Format(GameText.Menu.MatchSummary, mode, n, diff);
         }
 
         void StartRound()
@@ -1290,18 +1290,15 @@ namespace Infront
         void BuildDaten(VisualElement host)
         {
             Hinweis(host,
-                "INFRONT sends nothing anywhere. No account, no server, no sign-in. "
-                + "Everything the game knows about you sits in files on this "
-                + "computer - and you can look at them and delete them.");
+                GameText.Menu.DataDescription);
 
             // --- Was liegt wo -------------------------------------------------
             host.Add(UiTheme.Gap(20f));
-            host.Add(UiTheme.Section("WHAT IS SAVED"));
-            Punkt(host, "profil.json", "Your name and whether the intro is done.");
-            Punkt(host, "statistik.json", "Totals: matches, shots, hits, time played.");
-            Punkt(host, "abstuerze/", "Crash reports, if the game ever crashes. "
-                                      + $"Currently: {Absturzbericht.Anzahl}.");
-            Punkt(host, "Settings", "Volume, sensitivity, accessibility.");
+            host.Add(UiTheme.Section(GameText.Menu.WhatIsSaved));
+            Punkt(host, "profil.json", GameText.Menu.ProfileDescription);
+            Punkt(host, "statistik.json", GameText.Menu.StatisticsDescription);
+            Punkt(host, "abstuerze/", GameText.Format(GameText.Menu.CrashReportsDescription, Absturzbericht.Anzahl));
+            Punkt(host, GameText.Menu.SettingsLabel, GameText.Menu.SettingsDescription);
 
             var pfad = new Label(Application.persistentDataPath);
             pfad.style.color = UiTheme.TextDim;
@@ -1310,37 +1307,37 @@ namespace Infront
             pfad.style.whiteSpace = WhiteSpace.Normal;
             host.Add(pfad);
 
-            var oeffnen = FlacherKnopf("OPEN FOLDER", "btn-ordner", () =>
+            var oeffnen = FlacherKnopf(GameText.Menu.OpenFolder, "btn-ordner", () =>
                 Application.OpenURL("file://" + Application.persistentDataPath));
             oeffnen.style.marginTop = 8f;
             host.Add(oeffnen);
 
             // --- Was NICHT gespeichert wird -----------------------------------
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("WHAT IS NOT SAVED"));
-            Punkt(host, "No email address", "There is no sign-in.");
-            Punkt(host, "No password", "Not even one to reset.");
-            Punkt(host, "No timestamps", "Totals only, no record of single matches.");
-            Punkt(host, "No transmission", "The game opens no outbound connection.");
+            host.Add(UiTheme.Section(GameText.Menu.WhatIsNotSaved));
+            Punkt(host, GameText.Menu.NoEmailAddress, GameText.Menu.ThereIsNoSignIn);
+            Punkt(host, GameText.Menu.NoPassword, GameText.Menu.NotEvenOneToReset);
+            Punkt(host, GameText.Menu.NoTimestamps, GameText.Menu.TotalsOnlyNoRecordOfSingleMatches);
+            Punkt(host, GameText.Menu.NoTransmission, GameText.Menu.TheGameOpensNoOutboundConnection);
 
             // --- Deine Zahlen --------------------------------------------------
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("YOUR NUMBERS"));
+            host.Add(UiTheme.Section(GameText.Menu.YourNumbers));
             var d = Spielstatistik.Daten;
-            Wert(host, "MATCHES", d.Spiele.ToString());
-            Wert(host, "OF THOSE WON", d.Siege.ToString());
-            Wert(host, "ROUNDS", d.Runden.ToString());
-            Wert(host, "SHOTS", d.Schuesse.ToString());
-            Wert(host, "ACCURACY", (Spielstatistik.Trefferquote * 100f).ToString("0.0") + " %");
-            Wert(host, "OF THOSE HEADSHOTS", (Spielstatistik.Kopfquote * 100f).ToString("0.0") + " %");
-            Wert(host, "KILLS PER DEATH", Spielstatistik.Verhaeltnis.ToString("0.00"));
-            Wert(host, "TIME PLAYED", Dauer(d.SekundenGespielt));
+            Wert(host, GameText.Menu.MatchesHeading, d.Spiele.ToString());
+            Wert(host, GameText.Menu.OfThoseWon, d.Siege.ToString());
+            Wert(host, GameText.Menu.Rounds, d.Runden.ToString());
+            Wert(host, GameText.Menu.Shots, d.Schuesse.ToString());
+            Wert(host, GameText.Menu.Accuracy, (Spielstatistik.Trefferquote * 100f).ToString("0.0") + " %");
+            Wert(host, GameText.Menu.OfThoseHeadshots, (Spielstatistik.Kopfquote * 100f).ToString("0.0") + " %");
+            Wert(host, GameText.Menu.KillsPerDeath, Spielstatistik.Verhaeltnis.ToString("0.00"));
+            Wert(host, GameText.Menu.TimePlayed, Dauer(d.SekundenGespielt));
 
             // --- Loeschen -------------------------------------------------------
             host.Add(UiTheme.Gap(22f));
-            host.Add(UiTheme.Section("DELETE"));
+            host.Add(UiTheme.Section(GameText.Menu.Delete));
 
-            var weg = FlacherKnopf("DELETE CRASH REPORTS", "btn-berichte-weg", () =>
+            var weg = FlacherKnopf(GameText.Menu.DeleteCrashReports, "btn-berichte-weg", () =>
             {
                 Absturzbericht.AllesLoeschen();
                 ShowPage(Page.Daten);   // Seite neu zeichnen, damit die Zahl stimmt
@@ -1349,7 +1346,7 @@ namespace Infront
             host.Add(weg);
 
             var alles = FlacherKnopf(
-                _loeschenBestaetigt ? "REALLY DELETE EVERYTHING?" : "DELETE EVERYTHING",
+                _loeschenBestaetigt ? GameText.Menu.ReallyDeleteEverything : GameText.Menu.DeleteEverything,
                 "btn-alles-weg", () =>
                 {
                     if (!_loeschenBestaetigt)
@@ -1366,9 +1363,8 @@ namespace Infront
             host.Add(alles);
 
             Hinweis(host, _loeschenBestaetigt
-                ? "Press again to delete profile, numbers, career and reports. "
-                  + "This cannot be undone."
-                : "Deletes profile, numbers, career and crash reports.");
+                ? GameText.Menu.DeleteConfirmation
+                : GameText.Menu.DeleteDescription);
         }
 
         /// <summary>Aufzaehlungspunkt: fetter Titel, grauer Text daneben.</summary>
@@ -1450,77 +1446,72 @@ namespace Infront
         void BuildZugaenglichkeit(VisualElement host)
         {
             Hinweis(host,
-                "These settings do not change the difficulty. "
-                + "They only change how the game looks and how it is operated.");
+                GameText.Menu.AccessibilityDescription);
 
             // --- Schriftgroesse ---------------------------------------------
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section("INTERFACE SIZE"));
+            host.Add(UiTheme.Section(GameText.Menu.InterfaceSize));
             host.Add(Regler("slider-uiscale", 0.8f, 1.6f, GameSettings.UiScale, "0.00", v =>
             {
                 GameSettings.UiScale = v;
                 GameSettings.Save();
                 Zugaenglichkeit.UiGroesseAnwenden();
             }));
-            Hinweis(host, "Scales the menu and the in-game display together.");
+            Hinweis(host, GameText.Menu.InterfaceScaleDescription);
 
             // --- Fadenkreuz --------------------------------------------------
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section("CROSSHAIR"));
+            host.Add(UiTheme.Section(GameText.Menu.Crosshair));
             host.Add(Regler("slider-crosshair", 0.6f, 2f, GameSettings.CrosshairScale, "0.00", v =>
             {
                 GameSettings.CrosshairScale = v;
                 GameSettings.Save();
             }));
-            Hinweis(host, "Bigger and thicker. A crosshair you cannot see "
-                          + "makes the whole game unplayable.");
+            Hinweis(host, GameText.Menu.CrosshairDescription);
 
             // --- Farben ------------------------------------------------------
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("COLORS"));
+            host.Add(UiTheme.Section(GameText.Menu.Colors));
             host.Add(Segmented("seg-farbe",
-                new[] { "DEFAULT", "RED-GREEN", "BLUE-YELLOW", "CONTRAST" },
+                new[] { GameText.Menu.Default, GameText.Menu.RedGreen, GameText.Menu.BlueYellow, GameText.Menu.Contrast },
                 (int)GameSettings.ColorMode, i =>
                 {
                     GameSettings.ColorMode = (GameSettings.Farbmodus)i;
                     GameSettings.Save();
                 }));
             Hinweis(host,
-                "Mainly affects the health bar. Green-yellow-red runs together with "
-                + "red-green color blindness; it then becomes blue-yellow-magenta.");
+                GameText.Menu.ColorsDescription);
 
             // --- Bewegung ----------------------------------------------------
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("REDUCE MOTION"));
-            host.Add(Segmented("seg-motion", new[] { "OFF", "ON" },
+            host.Add(UiTheme.Section(GameText.Menu.ReduceMotion));
+            host.Add(Segmented("seg-motion", new[] { GameText.Menu.Off, GameText.Menu.On },
                 GameSettings.ReduceMotion ? 1 : 0, i =>
                 {
                     GameSettings.ReduceMotion = i == 1;
                     GameSettings.Save();
                 }));
             Hinweis(host,
-                "Strongly damps breathing sway and weapon bob. If the picture "
-                + "makes you feel sick, that is not on you - switch this on.");
+                GameText.Menu.MotionDescription);
 
             // --- Halten oder Umschalten --------------------------------------
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("HOLD OR TOGGLE"));
+            host.Add(UiTheme.Section(GameText.Menu.HoldOrToggle));
 
-            host.Add(Zeile("AIM", "seg-toggleaim", GameSettings.ToggleAim, v =>
+            host.Add(Zeile(GameText.Menu.Aim, "seg-toggleaim", GameSettings.ToggleAim, v =>
             {
                 GameSettings.ToggleAim = v; GameSettings.Save();
             }));
-            host.Add(Zeile("CROUCH", "seg-togglecrouch", GameSettings.ToggleCrouch, v =>
+            host.Add(Zeile(GameText.Menu.Crouch, "seg-togglecrouch", GameSettings.ToggleCrouch, v =>
             {
                 GameSettings.ToggleCrouch = v; GameSettings.Save();
             }));
-            host.Add(Zeile("SPRINT", "seg-togglesprint", GameSettings.ToggleSprint, v =>
+            host.Add(Zeile(GameText.Menu.Sprint, "seg-togglesprint", GameSettings.ToggleSprint, v =>
             {
                 GameSettings.ToggleSprint = v; GameSettings.Save();
             }));
             Hinweis(host,
-                "Holding a key down forever hurts after a while, and with one hand "
-                + "it does not work at all. The keys stay the same.");
+                GameText.Menu.ToggleDescription);
         }
 
         /// <summary>Beschriftete Zeile mit HALTEN/UMSCHALTEN.</summary>
@@ -1538,7 +1529,7 @@ namespace Infront
             l.style.width = 130f;
             reihe.Add(l);
 
-            var seg = Segmented(name, new[] { "HOLD", "TOGGLE" }, an ? 1 : 0,
+            var seg = Segmented(name, new[] { GameText.Menu.Hold, GameText.Menu.Toggle }, an ? 1 : 0,
                                 i => setzen(i == 1));
             seg.style.flexGrow = 1f;
             reihe.Add(seg);
@@ -1587,8 +1578,8 @@ namespace Infront
 
         void BuildEinstellungen(VisualElement host)
         {
-            host.Add(UiTheme.Section("DISPLAY"));
-            host.Add(Segmented("seg-anzeige", new[] { "FULLSCREEN", "WINDOWED" },
+            host.Add(UiTheme.Section(GameText.Menu.Display));
+            host.Add(Segmented("seg-anzeige", new[] { GameText.Menu.Fullscreen, GameText.Menu.Windowed },
                 (int)GameSettings.DisplayMode, i =>
                 {
                     var next = (GameSettings.Anzeige)i;
@@ -1600,8 +1591,7 @@ namespace Infront
                 }));
 
             var anzeigeHint = new Label(
-                "Fullscreen: borderless window at screen size. Windowed: 1280×720, "
-                + "in case you want to switch to the desktop quickly.");
+                GameText.Menu.DisplayDescription);
             anzeigeHint.style.color = UiTheme.TextDim;
             anzeigeHint.style.fontSize = 11f;
             anzeigeHint.style.marginTop = 6f;
@@ -1609,8 +1599,8 @@ namespace Infront
             host.Add(anzeigeHint);
 
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("GRAPHICS"));
-            host.Add(Segmented("seg-grafik", new[] { "FULL", "PLAIN" },
+            host.Add(UiTheme.Section(GameText.Menu.Graphics));
+            host.Add(Segmented("seg-grafik", new[] { GameText.Menu.Full, GameText.Menu.Plain },
                 (int)GameSettings.GraphicsQuality, i =>
                 {
                     GameSettings.GraphicsQuality = (GameSettings.Graphics)i;
@@ -1618,8 +1608,7 @@ namespace Infront
                 }));
 
             var bildHint = new Label(
-                "Full: with depth of field, bloom, vignette and fog. "
-                + "Plain: everything off, in case it stutters or smears.");
+                GameText.Menu.GraphicsDescription);
             bildHint.style.color = UiTheme.TextDim;
             bildHint.style.fontSize = 11f;
             bildHint.style.marginTop = 6f;
@@ -1627,7 +1616,7 @@ namespace Infront
             host.Add(bildHint);
 
             host.Add(UiTheme.Gap(24f));
-            host.Add(UiTheme.Section("MOUSE SENSITIVITY"));
+            host.Add(UiTheme.Section(GameText.Menu.MouseSensitivity));
 
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
@@ -1657,7 +1646,7 @@ namespace Infront
             host.Add(row);
 
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section("VOLUME"));
+            host.Add(UiTheme.Section(GameText.Menu.Volume));
 
             var volRow = new VisualElement();
             volRow.style.flexDirection = FlexDirection.Row;
@@ -1693,26 +1682,26 @@ namespace Infront
 
         void BuildSteuerung(VisualElement host)
         {
-            host.Add(UiTheme.Section("KEY BINDINGS"));
+            host.Add(UiTheme.Section(GameText.Menu.KeyBindings));
 
             var list = new VisualElement();
             list.style.marginTop = 4f;
-            AddKey(list, "Move", "W", "A", "S", "D");
-            AddKey(list, "Look", "Mouse");
-            AddKey(list, "Fire", "Left mouse button");
-            AddKey(list, "Aim (hold)", "Right mouse button");
-            AddKey(list, "Crouch (hold)", "Ctrl");
-            AddKey(list, "Walk quietly (hold)", "Alt");
-            AddKey(list, "Reload", "R");
-            AddKey(list, "Jump", "Space");
-            AddKey(list, "Sprint (hold)", "Shift");
-            AddKey(list, "Hold breath (while scoped)", "Shift");
-            AddKey(list, "Switch weapon", "1", "2");
-            AddKey(list, "Plant / defuse bomb (hold)", "E");
-            AddKey(list, "Buy menu", "B");
-            AddKey(list, "Scoreboard (hold)", "Tab");
-            AddKey(list, "Pause", "Esc");
-            AddKey(list, "Switch spectator target (dead)", "Left click", "Right click");
+            AddKey(list, GameText.Menu.Move, "W", "A", "S", "D");
+            AddKey(list, GameText.Menu.Look, GameText.Menu.Mouse);
+            AddKey(list, GameText.Menu.Fire, GameText.Menu.LeftMouseButton);
+            AddKey(list, GameText.Menu.AimHold, GameText.Menu.RightMouseButton);
+            AddKey(list, GameText.Menu.CrouchHold, "Ctrl");
+            AddKey(list, GameText.Menu.WalkQuietlyHold, "Alt");
+            AddKey(list, GameText.Menu.Reload, "R");
+            AddKey(list, GameText.Menu.Jump, "Space");
+            AddKey(list, GameText.Menu.SprintHold, "Shift");
+            AddKey(list, GameText.Menu.HoldBreathWhileScoped, "Shift");
+            AddKey(list, GameText.Menu.SwitchWeapon, "1", "2");
+            AddKey(list, GameText.Menu.PlantDefuseBombHold, "E");
+            AddKey(list, GameText.Menu.BuyMenu, "B");
+            AddKey(list, GameText.Menu.ScoreboardHold, "Tab");
+            AddKey(list, GameText.Menu.Pause, "Esc");
+            AddKey(list, GameText.Menu.SwitchSpectatorTargetDead, GameText.Menu.LeftClick, GameText.Menu.RightClick);
             host.Add(list);
         }
 
@@ -1914,7 +1903,7 @@ namespace Infront
 
         void BuildBeenden(VisualElement host)
         {
-            var q = new Label("Really quit the game?");
+            var q = new Label(GameText.Menu.ReallyQuitTheGame);
             q.style.color = UiTheme.Text;
             q.style.fontSize = 18f;
             q.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -1924,12 +1913,12 @@ namespace Infront
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
 
-            var yes = new Button(Quit) { text = "YES, QUIT" };
+            var yes = new Button(Quit) { text = GameText.Menu.YesQuit };
             yes.name = "btn-quit";
             StyleChoice(yes, danger: true);
             _actions["btn-quit"] = Quit;
 
-            var no = new Button(() => ShowPage(Page.Spielen)) { text = "BACK" };
+            var no = new Button(() => ShowPage(Page.Spielen)) { text = GameText.Menu.Back };
             no.name = "btn-quit-cancel";
             StyleChoice(no, danger: false);
             no.style.marginLeft = 12f;
