@@ -31,6 +31,18 @@ Studio-Marke: Driftlab.
   (Bauen + `Backlicht.BackeFein`, zusammen rund eine Minute). `BacklichtTests`
   macht den Testlauf rot, wenn in der Arena keine Lichtkarte liegt.
   Reihenfolge immer: Szene bauen -> backen -> App bauen.
+- **Alles Sichtbare gehoert unter `Map`** (Stand 2026-09-05): `MacheKarteBackfaehig`
+  laeuft nur ueber die Karte. Was daneben in der Szene haengt, bekommt kein
+  gebackenes Licht - und schlimmer: fehlt eine grosse Flaeche im Backen, ist
+  sie fuer den Backer ein LOCH, durch das Himmelslicht hereinstroemt und alles
+  andere falsch aufhellt. Der Boden war so gebaut; ihn hineinzunehmen kostete
+  28 Punkte Helligkeit, die vorher aus dem Leck kamen. Wer etwas nach `Map`
+  umhaengt, prueft ausserdem `MatchTestHarness.ClearArena` - das schaltet den
+  Inhalt der Karte fuer Tests ab.
+- **Helligkeit allein reicht als Mass nicht** (Stand 2026-09-05): Median,
+  Streuung und schwarzer Anteil koennen alle besser werden, waehrend das Bild
+  sepia wird. Immer auch den Farbstich messen (Mittelwert R minus B ueber alle
+  Rundgangbilder). Neutral liegt bei etwa +3, ab +15 sieht man den Stich.
 - Modellwechsel: denkende Arbeit auf Opus/hoher Effort, umsetzende auf
   Sonnet/Auto. STOPP-Zeilen vor Diagnose/Planung und nach bestaetigtem Plan.
 - Rueckfragen immer mit Auswahlmoeglichkeiten stellen (AskUserQuestion),
