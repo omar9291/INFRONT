@@ -3,7 +3,54 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-03
+Letzte Aktualisierung: 2026-09-05
+
+## STAND 2026-09-05
+
+Etappe 2 (Optik) ist im Wesentlichen durch. Die Karte hat ein Dach, echte
+PBR-Oberflächen, gebackenes Licht mit Bounce, gebackene Reflexionssonden,
+Kontaktverdunklung über SSAO und Wanddetail. 291 Tests grün.
+
+**Commits dieser Sitzung, alle gepusht:**
+
+| Commit | Inhalt |
+|---|---|
+| `aed8cc0` | Leichen und Bombenplatz-Markierungen hingen in der Luft |
+| `28bca1d` | Dachverglasung in Einzelscheiben, Gassenlicht, schwarze Brüstung |
+| `886fe7d` | Bots waren keine Plastikpuppen — TeamTint hat sie dazu gemacht |
+| `ec150a6` | Kartenmitte, zentrale Sprachdatei, Credits (aus Parallelsitzung übernommen) |
+| `2dce4a2` | Kontaktschatten über SSAO |
+| `66481da` | Wanddetail: Sockelleisten und Plattenfugen |
+| `5a392f9` | Der schwarze Deckungsblock |
+
+**Neue Werkzeuge, die ab jetzt zur Verfügung stehen:**
+
+- `-benchmark` schreibt `Screenshots/auto/benchmark.json` mit Durchschnitt,
+  1-%-Tiefpunkt und Bildzeiten je Standpunkt. Damit ist die Vorgabe
+  „60 FPS, 1 % nicht unter 50" zum ersten Mal messbar statt behauptet.
+  Aktuell: 59,9 / 51,8.
+- `Diagnose.WasStehtDa` sagt, WAS an einer Stelle der Karte steht, mit
+  echten Weltkoordinaten. Bereich über `DIAG_BOX` einstellbar.
+  **Wichtig:** in der `.unity`-Datei steht `m_LocalPosition`, also die
+  Position relativ zum Elternobjekt. Für alles unter `Map`, `Deko` oder
+  `Dach` ist das nicht die Weltposition — drei Fehlversuche kamen daher.
+
+**Offene Punkte, nach Wichtigkeit:**
+
+1. **Ton (Etappe 5).** 30 von 34 Klängen synthetisch, keine Musik. Grösster
+   verbleibender Brocken, und der einzige, der nicht selbst prüfbar ist.
+2. **Zweite Karte (Etappe 6).** Braucht eine Entscheidung des Nutzers:
+   zweite Halle, Aussenhof, oder Hof mit Gebäuden.
+3. **Leistungsreserve.** Der 1-%-Tiefpunkt ist von 54,5 auf 51,8 gefallen,
+   nachdem zwölf Hallenstrahler dazukamen. Prüfen, ob der höhere Grundton
+   der Metall-Deckungen allein reicht.
+4. **Wanddetail auf die Hallentrennwände** (x = ±9) ausdehnen — die
+   Aussenwände haben Fugen, die auffälligsten Flächen noch nicht.
+5. **Rauch** ist eine gleichmässige weisse Wolke ohne Bodenkontakt.
+6. **`SchwarzflaechenTests` hat eine Lücke:** die Prüfung misst die
+   Grundfarbe des Materials, nicht das Ergebnis im Bild. Texturierte
+   Materialien haben eine weisse Grundfarbe und fallen deshalb nie auf —
+   der schwarze Deckungsblock ist an ihr vorbeigelaufen.
 
 ## ERLEDIGT — der alte Offen-Stand vom 2026-09-03 (nur noch als Geschichte)
 
