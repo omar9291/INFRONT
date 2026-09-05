@@ -22,6 +22,10 @@ namespace Infront.EditorTools
         [MenuItem("Infront/Diagnose/Was steht in der Westgasse")]
         public static void WasStehtDa()
         {
+            // Der Bereich laesst sich ueber Umgebungsvariablen setzen, damit
+            // dasselbe Werkzeug fuer jede Stelle der Karte taugt:
+            //   DIAG_BOX="xmin,ymin,zmin,xmax,ymax,zmax"
+
             var pfad = "Assets/_Project/Scenes/Arena.unity";
             var szene = EditorSceneManager.OpenScene(pfad, OpenSceneMode.Single);
             if (!szene.IsValid()) { Debug.Log("DIAG_FEHLER Szene nicht geladen"); return; }
@@ -29,8 +33,21 @@ namespace Infront.EditorTools
             // Der Bildausschnitt, um den es geht: Westgasse, vom Boden bis
             // knapp ueber Kopfhoehe, im Blickfeld der Kamera d4_rand_west
             // (steht bei x=-30, y=4.25, z=-8 und schaut nach Norden).
+            var min = new Vector3(-46f, -0.6f, -12f);
+            var max = new Vector3(-32f, 3.2f, 42f);
+            var roh = System.Environment.GetEnvironmentVariable("DIAG_BOX");
+            if (!string.IsNullOrEmpty(roh))
+            {
+                var t = roh.Split(',');
+                if (t.Length == 6)
+                {
+                    min = new Vector3(float.Parse(t[0]), float.Parse(t[1]), float.Parse(t[2]));
+                    max = new Vector3(float.Parse(t[3]), float.Parse(t[4]), float.Parse(t[5]));
+                }
+            }
+            Debug.Log($"DIAG_BEREICH min({min.x},{min.y},{min.z}) max({max.x},{max.y},{max.z})");
             var kasten = new Bounds();
-            kasten.SetMinMax(new Vector3(-46f, -0.6f, -12f), new Vector3(-32f, 3.2f, 42f));
+            kasten.SetMinMax(min, max);
 
             var treffer = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude,
                                                              FindObjectsSortMode.None)
