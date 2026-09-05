@@ -5,6 +5,23 @@ Sitzung ZUERST gelesen.
 
 Letzte Aktualisierung: 2026-09-05
 
+## Codex-Abgleich und Credits-Menü — 2026-09-05
+
+Arbeitskopie verlustfrei auf Claudes `4f29c2e` aktualisiert. Alle zuvor
+ungesicherten neuen Dateien sind inzwischen im Hauptzweig enthalten.
+
+Die Credits im Spiel lesen jetzt dieselben 47 Einträge wie `CREDITS.md`:
+einzelne Werke, Autoren, Lizenzen und anklickbare Quelladressen. Die alte
+Anbieter-Kurzliste war noch nicht mit dem ausführlichen Katalog verbunden.
+9/9 EditMode-Prüfungen und 14/14 Menü-/Sprachprüfungen bestanden; separater
+Mac-Testbuild erfolgreich. Automatische Bilder von Menü, Credits und HUD
+wurden erstellt; die Credits-Darstellung wurde tatsächlich angesehen.
+Die Lizenzbelege und noch offenen Herkunftsdetails bleiben im Katalog.
+
+Der Bildlauf zeigt außerdem einen vorhandenen Layoutfehler bei 1600 × 784:
+Unterzeile und INFRONT-Schriftzug überlappen. Die Menü-Abnahme ist daher
+trotz grüner Inhaltstests noch offen.
+
 ## STAND 2026-09-05
 
 Etappe 2 (Optik) ist im Wesentlichen durch. Die Karte hat ein Dach, echte

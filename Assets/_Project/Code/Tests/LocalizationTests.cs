@@ -144,6 +144,23 @@ namespace Infront.Tests
                 Assert.IsTrue(menu.ClickForTests("nav-" + page), $"Menue-Seite {page} fehlt.");
                 for (int i = 0; i < 20; i++) yield return null;
                 AssertEnglishTree(menu.RootForTests, "Menue/" + page);
+                if (page == "quellen")
+                {
+                    var scroll = menu.RootForTests.Q<ScrollView>("credits-scroll");
+                    Assert.IsNotNull(scroll, "Lange Credits muessen scrollbar bleiben.");
+                    foreach (var credit in AssetCredits.All)
+                    {
+                        var row = scroll.Q<VisualElement>("credit-" + credit.Id);
+                        Assert.IsNotNull(row, "Credit fehlt im echten Menue: " + credit.Id);
+                        AssertContains(row, credit.Name);
+                        AssertContains(row, credit.Author);
+                        AssertContains(row, credit.License);
+                        Assert.AreEqual(credit.SourceUrl, row.Q<Button>("credit-source").text);
+                    }
+                    scroll.ScrollTo(scroll.contentContainer.Children().Last());
+                    for (int i = 0; i < 20; i++) yield return null;
+                    Assert.Greater(scroll.scrollOffset.y, 0f, "Die letzten Credits muessen erreichbar sein.");
+                }
             }
 
             var loading = LoadingOverlay.Instance;

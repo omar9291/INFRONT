@@ -47,6 +47,11 @@ namespace Infront
             public const string YourData = "YOUR DATA";
             public const string Controls = "CONTROLS";
             public const string Credits = "CREDITS";
+            public const string CreditsGame = "GAME";
+            public const string CreditsAssets = "ASSETS AND CONTRIBUTORS";
+            public const string CreditsTools = "TOOLS AND LIBRARIES";
+            public const string CreditsGameDescription = "Code and game design. All rights reserved.";
+            public const string CreditsDescription = "Thank you to the creators whose work is part of INFRONT. Select a source address to visit its original page.";
             public const string Quit = "Quit";
             public const string Tip = "TIP";
             public const string HostReady = "SYSTEM READY   ·   HOST";

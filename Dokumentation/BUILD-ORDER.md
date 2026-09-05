@@ -22,6 +22,32 @@ das Hauptprojekt dessen aktuellen Commit und ungesicherte Änderungen prüfen, d
 gleichzeitige Arbeit mit Claude erhalten bleibt. Änderungen je abgeschlossener
 Einheit prüfen und getrennt committen.
 
+## Abgleich mit Claude am 2026-09-05
+
+Claudes Hauptzweig `4f29c2e` enthält die vorherige Codex-Arbeit seit `ec150a6`:
+Kartenmitte, Sprachkatalog, Quellenkatalog, AO-Anbindung und Leistungsmessung.
+Danach kamen SSAO, äußere Wanddetails und die Korrektur schwarzer Metalldeckungen.
+Die isolierte Arbeitskopie wurde verlustfrei auf diesen Stand vorgezogen;
+die ursprünglichen Änderungen bleiben zusätzlich im Git-Stash gesichert.
+
+Der gespeicherte M1-Lauf von 18:10 UTC misst bei 1600 × 782 Pixeln, Full,
+5 gegen 5, klarem Wetter und Ausscheiden insgesamt 59,94 FPS und 51,80 FPS
+beim 1-%-Tiefpunkt. Drei einzelne Blickfenster liegen unter 50 FPS.
+Das ist ein belastbarer Ausgangswert, noch keine Abnahme aller Situationen.
+Die von Claude gemeldeten 291 Tests sind im Projektprotokoll dokumentiert;
+der frühere eigene Ausgangslauf mit 274 Tests bleibt unten als Verlauf erhalten.
+
+Die Credits-Seite zeigte weiterhin die alte Anbieter-Kurzliste. Sie liest nun
+alle 47 Einträge des gemeinsamen Katalogs mit Name, Autor, Lizenz und anklickbarer
+Quelladresse. 9/9 EditMode-Prüfungen für Import und Quellen sowie 14/14 Menü- und
+Sprachprüfungen bestehen, einschließlich Erreichbarkeit des letzten Credits-Eintrags.
+Offene Herkunftsdetails in einzelnen Bestandsassets werden dadurch nicht als
+geklärt ausgegeben; die Hinweise im Katalog bleiben erhalten.
+
+Größte Restarbeit: aufgenommene Alltagsgeräusche und Musik, zweite Karte,
+Spielbalance und abschließende Bild-/Leistungs-/Hör- und Einsteigertests.
+Wanddetails der inneren Trennwände, Rauch und Leistungsreserve bleiben offen.
+
 ## Verifizierter Ausgangspunkt
 
 - Original: `/Users/user/UnityProjects/INFRONT`, Commit `886fe7d`.
@@ -42,9 +68,9 @@ Einheit prüfen und getrennt committen.
 
 | Phase | Tatsächlicher Restumfang | Stand |
 |---|---|---|
-| 0 – Diagnose | Rampenzugänge durch sichtbare Geländer versperrt; Rampenoberseiten falsch ausgerichtet; Trainingsziel erscheint schwebend im Match. Das genaue vom Nutzer beobachtete Symptom ist nicht beschrieben. | Belegt; Korrekturen werden getestet |
-| 1 – Englisch | Gemeinsamer Textkatalog und Tests für echte UI-Zustände/Anzeigen; keine Kennungen umbenennen. | In Arbeit |
-| 2 – Credits | Einzelne Assets, Autoren, präzise Quellen, gespeicherte Lizenzbelege; gemeinsames Verzeichnis für Spiel und CREDITS.md; neue ungenannte Dateien müssen Tests scheitern lassen. | In Arbeit |
+| 0 – Diagnose | Rampenzugänge durch sichtbare Geländer versperrt; Rampenoberseiten falsch ausgerichtet; Trainingsziel erscheint schwebend im Match. Das genaue vom Nutzer beobachtete Symptom ist nicht beschrieben. | Korrekturen getestet und im Hauptzweig |
+| 1 – Englisch | Gemeinsamer Textkatalog und Tests für echte UI-Zustände/Anzeigen; keine Kennungen umbenennen. | Im Hauptzweig; Menü-/Sprachtests erneut grün |
+| 2 – Credits | Einzelne Assets, Autoren, präzise Quellen, gespeicherte Lizenzbelege; gemeinsames Verzeichnis für Spiel und CREDITS.md; neue ungenannte Dateien müssen Tests scheitern lassen. | Menü angebunden und Tests grün; offene Bestandsherkunft separat dokumentiert |
 | 3 – Materialien/Licht | Fehlende AO-Verknüpfung, geeignete AO-Dateien, kontrollierte Bild-/Leistungsvergleiche; Material- und Lichtbasis existiert bereits. | In Arbeit |
 | 4 – Details | Vorhandene Trim-/Rohr-/Dachbibliothek ergänzen, auffällige kahle Flächen und unplausible Übergänge prüfen. | Offen |
 | 5 – Ton/Musik | Aufnahmen für Schritte und Oberflächen, Einschläge, Mechanik, Atmung/Raumton; Menü- und Spannungsebene; Herkunft oder begründete Synthese je SoundId. | Quellenprüfung |
