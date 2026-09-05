@@ -78,6 +78,48 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Credits_lassen_Kopf_und_Fuss_bei_drei_Fenstergroessen_lesbar()
+        {
+            yield return MenuUiHarness.LadeMenue();
+            var ui = Ui();
+            var root = ui.RootForTests;
+            var oldWidth = root.style.width;
+            var oldHeight = root.style.height;
+            var oldGrow = root.style.flexGrow;
+            try
+            {
+                root.style.flexGrow = 0f;
+                foreach (var size in new[] { new Vector2(1280, 720), new Vector2(1600, 784), new Vector2(1920, 1080) })
+                {
+                    root.style.width = size.x;
+                    root.style.height = size.y;
+                    Assert.IsTrue(ui.ClickForTests("nav-quellen"));
+                    yield return new WaitForSecondsRealtime(1.2f);
+                    var header = root.Q("menu-header").worldBound;
+                    var title = root.Q<Label>("menu-title").worldBound;
+                    var tagline = root.Q<Label>("menu-tagline").worldBound;
+                    var footer = root.Q("menu-footer");
+                    Assert.Greater(title.height, 40f, "Der Titel darf nicht zusammengequetscht werden: " + size);
+                    Assert.GreaterOrEqual(tagline.yMin, title.yMax, "Unterzeile ueberlappt den Titel: " + size);
+                    Assert.LessOrEqual(tagline.yMax, header.yMax, "Unterzeile ragt aus der Kopfzeile: " + size);
+                    // Der unsichtbare untere Innenabstand darf sich mit der
+                    // Maus-Parallaxe bewegen. Entscheidend ist sichtbarer Text.
+                    foreach (var label in footer.Query<Label>().ToList())
+                        Assert.LessOrEqual(label.worldBound.yMax, root.worldBound.yMax,
+                            "Fusszeilentext ragt aus dem Fenster: " + size);
+                    var credits = root.Q<ScrollView>("credits-scroll");
+                    Assert.Greater(credits.contentViewport.worldBound.height, 100f, "Credits haben keinen nutzbaren Ausschnitt.");
+                }
+            }
+            finally
+            {
+                root.style.width = oldWidth;
+                root.style.height = oldHeight;
+                root.style.flexGrow = oldGrow;
+            }
+        }
+
+        [UnityTest]
         public IEnumerator Altes_Menue_bleibt_als_Rueckfallebene_erhalten()
         {
             Assert.IsNotNull(Object.FindAnyObjectByType<MainMenu>(),

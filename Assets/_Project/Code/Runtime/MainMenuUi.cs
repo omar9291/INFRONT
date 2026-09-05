@@ -410,7 +410,10 @@ namespace Infront
 
         VisualElement BuildHeader()
         {
-            var header = new VisualElement();
+            var header = new VisualElement { name = "menu-header" };
+            // Kopf und Fuss behalten ihre Texthoehe. Nur der Inhalt dazwischen
+            // darf kuerzer werden; sonst druecken lange Credits den Titel platt.
+            header.style.flexShrink = 0f;
             header.style.flexDirection = FlexDirection.Row;
             header.style.alignItems = Align.FlexEnd;
             header.style.justifyContent = Justify.SpaceBetween;
@@ -429,7 +432,8 @@ namespace Infront
 
             var titleCol = new VisualElement();
 
-            var title = new Label("INFRONT");
+            var title = new Label("INFRONT") { name = "menu-title" };
+            title.style.flexShrink = 0f;
             title.style.color = UiTheme.Text;
             title.style.fontSize = 60f;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -444,7 +448,8 @@ namespace Infront
                 title.style.letterSpacing = 14f;
             }).StartingIn(120);
 
-            var tagline = new Label(GameText.Menu.Tagline);
+            var tagline = new Label(GameText.Menu.Tagline) { name = "menu-tagline" };
+            tagline.style.flexShrink = 0f;
             tagline.style.color = UiTheme.TextDim;
             tagline.style.fontSize = 11f;
             tagline.style.letterSpacing = 5f;
@@ -557,15 +562,20 @@ namespace Infront
 
         VisualElement BuildBody()
         {
-            var body = new VisualElement();
+            var body = new VisualElement { name = "menu-body" };
             body.style.flexDirection = FlexDirection.Row;
             body.style.flexGrow = 1f;
+            body.style.flexBasis = 0f;
+            body.style.minHeight = 0f;
             body.style.alignItems = Align.Stretch;
             body.style.paddingLeft = 72f; body.style.paddingRight = 72f;
             body.style.paddingTop = 30f; body.style.paddingBottom = 22f;
 
             // ---- Navigation links ----
-            var nav = new VisualElement();
+            var nav = new ScrollView(ScrollViewMode.Vertical) { name = "menu-navigation" };
+            nav.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            nav.contentContainer.style.flexGrow = 1f;
+            SchlankeRolle(nav);
             nav.style.width = 264f;
             nav.style.flexShrink = 0f;
             nav.style.marginRight = 44f;
@@ -725,7 +735,8 @@ namespace Infront
 
         VisualElement BuildFooter()
         {
-            var footer = new VisualElement();
+            var footer = new VisualElement { name = "menu-footer" };
+            footer.style.flexShrink = 0f;
             footer.style.flexDirection = FlexDirection.Row;
             footer.style.justifyContent = Justify.SpaceBetween;
             footer.style.paddingLeft = 72f; footer.style.paddingRight = 72f;

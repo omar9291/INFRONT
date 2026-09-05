@@ -18,9 +18,18 @@ Mac-Testbuild erfolgreich. Automatische Bilder von Menü, Credits und HUD
 wurden erstellt; die Credits-Darstellung wurde tatsächlich angesehen.
 Die Lizenzbelege und noch offenen Herkunftsdetails bleiben im Katalog.
 
-Der Bildlauf zeigt außerdem einen vorhandenen Layoutfehler bei 1600 × 784:
-Unterzeile und INFRONT-Schriftzug überlappen. Die Menü-Abnahme ist daher
-trotz grüner Inhaltstests noch offen.
+Der erste Bildlauf zeigte bei 1600 × 784 einen vorhandenen Layoutfehler:
+Unterzeile und INFRONT-Schriftzug überlappten. Lange Seiten drückten die
+Kopfzeile zusammen. Kopf und Fuß behalten jetzt ihre Texthöhe; der Mittelteil
+nutzt den verfügbaren Platz und die Navigation bleibt bei wenig Platz scrollbar.
+15/15 Menü-/Sprachtests bestehen, einschließlich Prüfung der Textabstände bei
+1280 × 720, 1600 × 784 und 1920 × 1080 logischen UI-Größen. Die vollständige
+Abnahme aller Seiten mit verschiedenen Schriftgrößen und Farbmodi bleibt offen.
+Der erste neue Test bewertete fälschlich auch den unsichtbaren Fuß-Innenabstand;
+korrekt werden die tatsächlichen Textgrenzen geprüft (die Maus-Parallaxe darf
+den Rand bewegen, solange der Text sichtbar bleibt).
+Der erneute automatische Bildlauf des Mac-Testbuilds bei 1600 × 784 wurde
+angesehen: Titel und Unterzeile stehen getrennt, Fußzeilentexte bleiben sichtbar.
 
 ## STAND 2026-09-05
 
@@ -54,7 +63,7 @@ Kontaktverdunklung über SSAO und Wanddetail. 291 Tests grün.
 
 **Offene Punkte, nach Wichtigkeit:**
 
-1. **Ton (Etappe 5).** 30 von 34 Klängen synthetisch, keine Musik. Grösster
+1. **Ton (Etappe 5).** 31 von 35 SoundIds noch mit synthetischem Fallback, keine Musik. Grösster
    verbleibender Brocken, und der einzige, der nicht selbst prüfbar ist.
 2. **Zweite Karte (Etappe 6).** Braucht eine Entscheidung des Nutzers:
    zweite Halle, Aussenhof, oder Hof mit Gebäuden.
