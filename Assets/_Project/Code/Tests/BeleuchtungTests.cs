@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -130,5 +131,47 @@ namespace Infront.Tests
                     "Das Umgebungslicht (Trilight) ist zu dunkel.");
             }
         }
+
+        [UnityTest]
+        public IEnumerator Die_Aussengassen_sind_beleuchtet()
+        {
+            // Gefunden am 2026-09-05 auf den Rundgangsbildern w0_22 und w0_23:
+            // das untere Drittel beider Aussenwaende war pechschwarz, gemessen
+            // RGB (7,8,10). Ursache war kein dunkles Material, sondern ein
+            // Loch in der Beleuchtung: die Lichtbaender im Dach liegen bei
+            // x = +-30 und +-10, die Gassen bei x = +-36 bis +-45. Darueber
+            // ist geschlossenes Blech.
+            //
+            // Das ist auch ein Spielproblem - vor einer schwarzen Wand ist ein
+            // Gegner in dunkler Ausruestung unsichtbar. Deshalb eine Pruefung
+            // und nicht nur ein Kommentar.
+            MatchTestHarness.BeginFreeze();
+            yield return MatchTestHarness.LoadReady((player, match) => { });
+
+            foreach (int seite in new[] { -1, 1 })
+            {
+                float gx = 42.5f * seite;
+                var inDerGasse = Object.FindObjectsByType<Light>(FindObjectsSortMode.None)
+                    .Where(l => l.isActiveAndEnabled
+                                && Mathf.Abs(l.transform.position.x - gx) < 6f)
+                    .ToArray();
+
+                Assert.GreaterOrEqual(inDerGasse.Length, 4,
+                    "In der Aussengasse bei x = " + gx + " brennen nur "
+                    + inDerGasse.Length + " Lichter. Die Gasse ist 90 m lang; mit "
+                    + "weniger bleibt das untere Wanddrittel schwarz.");
+
+                // Ueber die Laenge verteilt, nicht alle an einer Stelle.
+                float vorn = inDerGasse.Min(l => l.transform.position.z);
+                float hinten = inDerGasse.Max(l => l.transform.position.z);
+                Assert.Greater(hinten - vorn, 50f,
+                    "Die Lichter der Gasse bei x = " + gx + " stehen alle auf "
+                    + (hinten - vorn).ToString("0") + " m zusammen. Dann ist der Rest "
+                    + "der 90 m langen Gasse weiter unbeleuchtet.");
+            }
+
+            yield return MatchTestHarness.Teardown();
+        }
+
     }
 }

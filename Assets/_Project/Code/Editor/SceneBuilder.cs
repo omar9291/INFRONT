@@ -1426,6 +1426,20 @@ namespace Infront.EditorTools
 
         /// <summary>Hüfthohe Brüstung MIT Collider - hält Spieler und Bots oben
         /// auf dem Balkon, man schiesst aber darüber hinweg nach unten.</summary>
+        /// <summary>Die feste Bruestung an der Aussenkante des Balkons. Sie ist
+        /// KEINE Deko: der Collider haelt den Spieler oben. Deshalb bleibt der
+        /// Quader ein Quader - nur sein Aussehen aendert sich.
+        ///
+        /// Vorher stand hier ein untexturierter Wuerfel in (0.09, 0.10, 0.12),
+        /// also praktisch Schwarz. Auf den Rundgangsbildern w0_22 und w0_23 war
+        /// das die auffaelligste Flaeche im Bild: gemessen RGB (7,8,10), voellig
+        /// flach, mit harter gerader Oberkante - sie las sich als Loch in der
+        /// Wand. Die Kamera d4_rand_west steht nur fuenf Meter davor, deshalb
+        /// fuellte dieses eine Objekt die halbe Bildbreite.
+        ///
+        /// Drei Anlaeufe, das Objekt aus der Szenendatei zu erraten, gingen
+        /// daneben - siehe Diagnose.cs, warum. Gefunden hat es erst die Abfrage
+        /// nach echten Weltkoordinaten.</summary>
         static void Rail(string n, float x, float y, float z, float sx, float sz)
         {
             var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1433,7 +1447,23 @@ namespace Infront.EditorTools
             b.transform.SetParent(_mapRoot, true);
             b.transform.position = new Vector3(x, y + 0.55f, z);
             b.transform.localScale = new Vector3(sx, 1.1f, sz);
-            b.GetComponent<Renderer>().sharedMaterial = MapMat(new Color(0.09f, 0.10f, 0.12f));
+            // Geriffeltes Blech statt Farbe: eine Bruestung ist im Werk ein
+            // Blechpaneel, kein Schatten.
+            b.GetComponent<Renderer>().sharedMaterial =
+                RoleMat("deckung_metall", new Vector2(1.4f, 1.4f),
+                        new Color(0.34f, 0.35f, 0.38f));
+
+            // Handlauf oben drauf. Er bricht die harte gerade Oberkante, die
+            // das Ding vorher wie eine ausgeschnittene Flaeche aussehen liess.
+            var lauf = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            lauf.name = n + "_Handlauf";
+            lauf.transform.SetParent(_mapRoot, true);
+            lauf.transform.position = new Vector3(x, y + 1.13f, z);
+            lauf.transform.localScale = new Vector3(sx + 0.12f, 0.09f, sz + 0.12f);
+            var lc = lauf.GetComponent<Collider>();
+            if (lc != null) Object.DestroyImmediate(lc);   // der Quader darunter haelt
+            lauf.GetComponent<Renderer>().sharedMaterial =
+                MapMat(new Color(0.46f, 0.47f, 0.50f));
         }
 
         /// <summary>Rampe entlang Z. dir=+1 steigt Richtung +Z, dir=-1 Richtung -Z.
@@ -1520,6 +1550,70 @@ namespace Infront.EditorTools
             // Aussenwege
             ShaftLight("Shaft_LaneL", new Vector3(-36f, 9f, 8f), new Vector3(60f, 30f, 0f), 22f, 38f, cool, 4.5f);
             ShaftLight("Shaft_LaneR", new Vector3(36f, 9f, -8f), new Vector3(60f, -30f, 0f), 22f, 38f, cool, 4.5f);
+
+            // ---- Wandlampen in den beiden Aussengassen
+            //
+            // Gefunden am 2026-09-05 auf w0_22 und w0_23: das untere Drittel
+            // der Aussenwaende war pechschwarz. Gemessen RGB (7,8,10) - und
+            // leicht BLAU, also nur noch ein Rest Himmels-Umgebungslicht, kein
+            // direktes und kein zurueckgeworfenes. Kein dunkles Material,
+            // sondern ein Loch in der Beleuchtung.
+            //
+            // Der Grund ist die Dachaufteilung: die Lichtbaender liegen bei
+            // x = +-30 und +-10, die Gassen dagegen bei x = +-36 bis +-45.
+            // Darueber ist geschlossenes Blech. Von oben kommt dort also
+            // nichts an, und die zwei Kegel Shaft_LaneL/R decken mit 22 m
+            // Reichweite nur einen Bruchteil der 90 m langen Gasse ab.
+            //
+            // Das ist nicht nur haesslich, es ist ein Spielproblem: vor einer
+            // schwarzen Flaeche ist ein Gegner in dunkler Ausruestung
+            // unsichtbar.
+            //
+            // Bewusst OHNE Schatten. Der Schattenatlas ist laut Baulog schon
+            // voll ("30 shadow maps in the 2048x2048 shadow atlas"), und 60
+            // FPS sind die harte Grenze.
+            for (int gs = -1; gs <= 1; gs += 2)
+            {
+                float gx = 42.5f * gs;
+                foreach (float gz in new[] { -36f, -18f, 0f, 18f, 36f })
+                {
+                    // Gehaeuse, damit das Licht eine sichtbare Quelle hat -
+                    // Helligkeit ohne Lampe sieht immer nach Fehler aus.
+                    var kasten = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    kasten.name = $"Gasse_Lampe_{gs}_{gz}";
+                    kasten.transform.SetParent(_mapRoot, true);
+                    kasten.transform.position = new Vector3(gx, 4.9f, gz);
+                    kasten.transform.localScale = new Vector3(0.5f, 0.28f, 1.5f);
+                    var kc = kasten.GetComponent<Collider>();
+                    if (kc != null) Object.DestroyImmediate(kc);
+                    kasten.GetComponent<Renderer>().sharedMaterial =
+                        MapMat(new Color(0.22f, 0.22f, 0.24f));
+
+                    // Die leuchtende Unterseite, knapp unter dem Gehaeuse.
+                    var scheibe = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    scheibe.name = $"Gasse_Lampenglas_{gs}_{gz}";
+                    scheibe.transform.SetParent(_mapRoot, true);
+                    scheibe.transform.position = new Vector3(gx, 4.74f, gz);
+                    scheibe.transform.localScale = new Vector3(0.38f, 0.06f, 1.3f);
+                    var sc2 = scheibe.GetComponent<Collider>();
+                    if (sc2 != null) Object.DestroyImmediate(sc2);
+                    scheibe.GetComponent<Renderer>().sharedMaterial =
+                        GlowMat(new Color(0.88f, 0.93f, 1f), 1.6f);
+
+                    // Etwas nach innen versetzt, damit die Wand von schraeg
+                    // oben getroffen wird und eine Struktur bekommt statt
+                    // flach angestrahlt zu werden.
+                    // Kaltes Licht, mit Absicht: die Halle wird von warmen
+                    // Lampen getragen, die Gassen von kalten Leuchtstoffroehren.
+                    // Das ist in einem Werk der Normalfall, es setzt die Gassen
+                    // vom Hallenraum ab - und es haelt den Farbstich unten,
+                    // statt ihn wie die erste Fassung (1, 0.88, 0.74) weiter
+                    // ins Sepia zu schieben.
+                    PointLightAt($"Gasse_Licht_{gs}_{gz}",
+                                 new Vector3(gx - 1.2f * gs, 4.5f, gz),
+                                 new Color(0.84f, 0.91f, 1f), 24f, 6f);
+                }
+            }
         }
 
         static void BuildMap()
@@ -1808,21 +1902,94 @@ namespace Infront.EditorTools
             Feld("E", 38.75f, 12.5f);
 
             // ---- Lichtbaender: milchige Scheiben, von aussen beschienen
-            var glasMat = GlowMat(new Color(0.82f, 0.88f, 1f), 1.35f);
+            //
+            // Frueher war jedes Band EINE 90 m lange Leuchtplatte mit Emission
+            // 1.35. Auf den Rundgangsbildern (Screenshots/fertig, w0_24 und
+            // w0_25) waren das reinweisse Rechtecke ohne jede Struktur - wie
+            // Loecher im Dach, hinter denen Papier klebt. Der Anteil
+            // ausgebrannter Pixel (>245) war die einzige Messgroesse, die sich
+            // in der Boden-Runde verschlechtert hat: 1,1 % auf 1,7 %.
+            //
+            // Jetzt ist jedes Band in Felder zerlegt, jedes Feld mit eigener
+            // Helligkeit und eigenem Farbton. Echte Werkverglasung ist nie
+            // gleichmaessig: Staub, Moos und Regenschlieren sitzen auf jeder
+            // Scheibe anders. Genau diese Ungleichmaessigkeit liest das Auge
+            // als Glas - eine perfekt gleichmaessige Flaeche liest es als
+            // Fehler.
+            const int BandFelder = 12;                       // 90 m / 12 = 7,5 m
+            const float FeldLaenge = H * 2f / BandFelder;
             foreach (float lx in new[] { -30f, -10f, 10f, 30f })
             {
-                var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                g.name = $"Dach_Lichtband_{lx}";
-                g.transform.SetParent(_mapRoot, true);
-                g.transform.position = new Vector3(lx, deckUnten + 0.1f, 0f);
-                g.transform.localScale = new Vector3(5f, 0.12f, H * 2f);
-                g.GetComponent<Renderer>().sharedMaterial = glasMat;
-
-                // Sprossen quer, sonst ist es eine leuchtende Platte
-                for (float sz = -H + 4f; sz < H; sz += 8f)
+                for (int i = 0; i < BandFelder; i++)
                 {
+                    float cz = -H + FeldLaenge * (i + 0.5f);
+                    string fname = $"Dach_Lichtband_{lx}_{i}";
+
+                    // Aus dem Namen abgeleitet, damit dasselbe Feld bei jedem
+                    // Bauen gleich aussieht. Ein Random() gaebe bei jedem
+                    // SceneBuilder.Build ein anderes Dach - und damit waeren
+                    // zwei Rundgangsbilder nie mehr vergleichbar.
+                    int hash = Mathf.Abs(fname.GetHashCode());
+                    float a = (hash % 997) / 997f;
+                    bool dreckig = (hash / 13) % 6 == 0;     // rund jedes sechste Feld
+
+                    // Zweiter Anlauf, nach Messung.
+                    //
+                    // Erst standen hier 0,62..0,92 (dreckig 0,34..0,46). Das
+                    // hat den Ausbrand sauber erledigt (1,7 % auf 0,3 %) -
+                    // aber die Halle wurde dabei deutlich dunkler: Median
+                    // 99,7 auf 84,4, schwarz 8,5 % auf 12,0 %.
+                    //
+                    // Der Ausgleichsversuch darauf ist gescheitert und das ist
+                    // das eigentlich Lehrreiche: Tageslichtkegel von 4,8 auf
+                    // 6,4 UND Indirekt-Staerke von 5,5 auf 7 zusammen brachten
+                    // gemessen +0,5 Median - nichts. Die leuchtende Decke ist
+                    // in dieser Halle nicht EINE Lichtquelle, sie ist praktisch
+                    // DIE Lichtquelle; kein anderer Regler holt das auf.
+                    //
+                    // Also zurueck nach oben, aber nicht auf den alten Zustand.
+                    // Was das Band frueher wie Papier aussehen liess, war nicht
+                    // die Helligkeit, sondern die Gleichfoermigkeit: eine
+                    // einzige 90-m-Platte, ueberall derselbe Wert. Mit
+                    // Feldern, Schmutz und Rahmen bleibt die Struktur auch
+                    // dann lesbar, wenn die saubersten Scheiben oben anstossen
+                    // - so wie echte Verglasung im Gegenlicht eben aussieht.
+                    float leucht = dreckig ? Mathf.Lerp(0.52f, 0.72f, a)
+                                           : Mathf.Lerp(0.95f, 1.35f, a);
+                    // Sauberes Glas ist kuehl - es zeigt den Himmel.
+                    // Verschmutztes zieht ins Graugruene.
+                    //
+                    // Nachgemessen am 2026-09-05: die erste Fassung dieser
+                    // Toene war zu warm. Der Farbstich der Innenbilder stieg
+                    // von +13,6 auf +18,6 (R minus B) - ueber die Schwelle,
+                    // ab der das Bild sichtbar sepia wird. Die Decke ist die
+                    // Hauptlichtquelle der Halle; wird sie waermer, wird die
+                    // ganze Halle waermer. Also wieder deutlich ins Blaue.
+                    var ton = dreckig
+                        ? new Color(0.74f, 0.79f, 0.82f)
+                        : Color.Lerp(new Color(0.72f, 0.83f, 1f),
+                                     new Color(0.80f, 0.88f, 1f), a);
+
+                    var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    g.name = fname;
+                    g.transform.SetParent(_mapRoot, true);
+                    g.transform.position = new Vector3(lx, deckUnten + 0.1f, cz);
+                    // Schmale Luecke zum Nachbarfeld, damit die Sprosse
+                    // dazwischen als echte Trennung liest und nicht als
+                    // aufgemalter Strich.
+                    g.transform.localScale = new Vector3(5f, 0.12f, FeldLaenge - 0.12f);
+                    g.GetComponent<Renderer>().sharedMaterial = GlowMat(ton, leucht);
+                }
+
+                // Sprossen quer - jetzt genau auf den Feldgrenzen. Vorher
+                // lagen sie in einem eigenen 8-m-Raster quer ueber einer
+                // durchgehenden Platte; Sprosse und Scheibenkante trafen sich
+                // nirgends, und von unten sah das aus wie ein Aufkleber.
+                for (int i = 0; i <= BandFelder; i++)
+                {
+                    float sz = -H + FeldLaenge * i;
                     var sp = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    sp.name = $"Dach_Sprosse_{lx}_{sz}";
+                    sp.name = $"Dach_Sprosse_{lx}_{i}";
                     sp.transform.SetParent(_mapRoot, true);
                     sp.transform.position = new Vector3(lx, deckUnten - 0.02f, sz);
                     sp.transform.localScale = new Vector3(5.2f, 0.16f, 0.3f);
@@ -1830,6 +1997,24 @@ namespace Infront.EditorTools
                     if (spc != null) Object.DestroyImmediate(spc);
                     sp.GetComponent<Renderer>().sharedMaterial =
                         MapMat(new Color(0.18f, 0.19f, 0.20f));
+                }
+
+                // Laengsrahmen an beiden Bandkanten. Ohne ihn stiess das
+                // leuchtende Feld ohne Uebergang ans Blech - eine Kante, die
+                // es an einem echten Dach nicht gibt, weil Glas immer in
+                // einem Profil sitzt.
+                for (int seite = 0; seite < 2; seite++)
+                {
+                    float rx = lx + (seite == 0 ? -2.55f : 2.55f);
+                    var r = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    r.name = $"Dach_Bandrahmen_{lx}_{seite}";
+                    r.transform.SetParent(_mapRoot, true);
+                    r.transform.position = new Vector3(rx, deckUnten - 0.02f, 0f);
+                    r.transform.localScale = new Vector3(0.34f, 0.2f, H * 2f);
+                    var rc = r.GetComponent<Collider>();
+                    if (rc != null) Object.DestroyImmediate(rc);
+                    r.GetComponent<Renderer>().sharedMaterial =
+                        MapMat(new Color(0.19f, 0.20f, 0.21f));
                 }
 
                 // Das Tageslicht, das durch das Band faellt. Breit, ohne
@@ -1856,7 +2041,26 @@ namespace Infront.EditorTools
                                // sind wirklich das, wonach sie aussehen: die
                                // Hauptlichtquelle der Halle. Dann muessen sie
                                // die Halle auch tragen koennen.
-                               new Color(0.78f, 0.85f, 1f), 4.8f);
+                               // Und jetzt wieder hoch von 4,8 auf 6,4 - zum
+                               // dritten Mal an dieser Zahl, zum dritten Mal
+                               // aus einem anderen Grund.
+                               //
+                               // Diesmal: die Lichtbaender selbst sind von
+                               // Emission 1,35 auf rund 0,7 heruntergegangen,
+                               // damit sie nicht mehr flaechig auf 255
+                               // ausbrennen. Gemessen hat das genau das
+                               // gebracht (ausgebrannt 1,7 % auf 0,3 %) - aber
+                               // die Halle wurde dabei deutlich dunkler
+                               // (Median 99,7 auf 84,4, schwarz 8,5 % auf
+                               // 12,0 %). Rund 1800 Quadratmeter leuchtende
+                               // Decke sind seit dem geschlossenen Boden die
+                               // Hauptlichtquelle; halbiert man sie, fehlt das
+                               // Licht im Raum.
+                               //
+                               // Die Kegel ersetzen dieses Licht, ohne dass
+                               // die Scheiben wieder heller werden: sie sind
+                               // selbst keine sichtbare Flaeche.
+                               new Color(0.78f, 0.85f, 1f), 6.4f);
                 // Kein Schatten an den Lichtbaendern. Ein Versuch mit vier
                 // weichen Schattenkegeln (34 m Reichweite, 116 Grad) sah zwar
                 // gut aus, kostete aber gemessen: 60 FPS / min 57 wurden zu

@@ -5,7 +5,25 @@ Sitzung ZUERST gelesen.
 
 Letzte Aktualisierung: 2026-09-03
 
-## OFFEN / gerade in Arbeit (Stand 2026-09-03, nach Commit 74f7ef2)
+## ERLEDIGT — der alte Offen-Stand vom 2026-09-03 (nur noch als Geschichte)
+
+Die folgende Liste stand hier bis zum 2026-09-05 als „offen". Sie ist es nicht
+mehr. Was aus jedem Punkt geworden ist, steht in eckigen Klammern dahinter.
+Die Liste bleibt stehen, weil die Begründungen weiterhin erklären, warum die
+Karte heute so aussieht, wie sie aussieht.
+
+**Erledigt:** 1. Podeste schwarz [Materialkette + gebackenes Licht],
+2. kein Dach [`BuildWerkDach`, die Halle ist zu], 3. Partikel wie Pappkarton
+[weiche Partikeltextur, `DachTests`], 4. graue Kistensammlung [PBR-Oberflächen
+aus echten Texturen], 5. Arcade-Markierungen [dunkle Kantenleisten statt
+Neonstreifen], 6. harte Schatten [gebackenes Licht mit 3 Bounces],
+7. unaufgeklärte helle Balken [waren der fehlende Boden — die Halle stand für
+den Backer auf einem Loch]. Auch die Bots benutzen inzwischen den
+`NetworkPlayerController`.
+
+**Der alte Wortlaut, unverändert:**
+
+### (historisch) OFFEN / gerade in Arbeit (Stand 2026-09-03, nach Commit 74f7ef2)
 
 **Etappe 1 "Realistisches Spielgefuehl" ist KOMPLETT.** Alle sieben Schritte
 gebaut, 164/164 Tests gruen. Einzelheiten im MORGENBERICHT-10.md.

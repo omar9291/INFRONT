@@ -79,6 +79,78 @@ namespace Infront.Tests
             yield return MatchTestHarness.Teardown();
         }
 
+        [UnityTest]
+        public IEnumerator Die_Lichtbaender_sind_verglast_und_brennen_nicht_aus()
+        {
+            // Vorgeschichte: jedes Lichtband war EINE 90 m lange Leuchtplatte
+            // mit Emission 1,35. Auf den Rundgangsbildern war das ein
+            // reinweisses Rechteck ohne Struktur, und der Anteil ausgebrannter
+            // Pixel stieg von 1,1 % auf 1,7 %. Diese Pruefung haelt beides
+            // fest: das Band ist in Felder zerlegt, und kein Feld leuchtet so
+            // hell, dass die Tonwertkurve keine Zeichnung mehr uebrig laesst.
+            MatchTestHarness.BeginFreeze();
+            yield return MatchTestHarness.LoadReady((player, match) => { });
+
+            var felder = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                               .Where(t => t.name.StartsWith("Dach_Lichtband_"))
+                               .Select(t => t.GetComponent<Renderer>())
+                               .Where(r => r != null && r.sharedMaterial != null)
+                               .ToArray();
+
+            Assert.Greater(felder.Length, 20,
+                "Die vier Lichtbaender muessten in einzelne Scheibenfelder zerlegt sein "
+                + "(12 je Band). Gefunden: " + felder.Length + ". Bei 4 ist die alte "
+                + "durchgehende Leuchtplatte zurueck.");
+
+            var leucht = felder
+                .Select(r => r.sharedMaterial.GetColor("_EmissionColor"))
+                .Select(c => Mathf.Max(c.r, Mathf.Max(c.g, c.b)))
+                .ToArray();
+
+            // Diese Pruefung stand hier zuerst als "kein Feld heller als 1,0".
+            // Das war der falsche Massstab, und die Messung hat ihn widerlegt:
+            // dunkler machen hat den Ausbrand zwar beseitigt (1,7 % auf 0,3 %),
+            // aber die Halle mitgerissen (Median 99,7 auf 84,4) - und weder
+            // staerkere Tageslichtkegel noch mehr Indirekt-Anteil konnten das
+            // aufholen (zusammen +0,5 Median).
+            //
+            // Papierartig aussehen liess das Band nicht seine Helligkeit,
+            // sondern seine Gleichfoermigkeit. Also wird jetzt genau das
+            // geprueft: Struktur, nicht Dunkelheit.
+            Assert.Greater(leucht.Max() - leucht.Min(), 0.4f,
+                "Alle Scheiben leuchten praktisch gleich hell (Spanne "
+                + (leucht.Max() - leucht.Min()).ToString("0.00") + "). Echte "
+                + "Werkverglasung ist ungleichmaessig verschmutzt; ohne diese Spanne "
+                + "liest das Auge die Flaeche als Fehler statt als Glas.");
+
+            int schmutzig = leucht.Count(v => v < leucht.Max() * 0.75f);
+            Assert.GreaterOrEqual(schmutzig, felder.Length / 10,
+                "Nur " + schmutzig + " von " + felder.Length + " Scheiben sind deutlich "
+                + "dunkler als die hellsten. Ohne verschmutzte Felder hat das Band "
+                + "keinen Rhythmus und wird wieder zur gleichmaessigen Flaeche.");
+
+            Assert.Less(leucht.Max(), 1.6f,
+                "Das hellste Scheibenfeld leuchtet mit " + leucht.Max().ToString("0.00")
+                + ". So weit oben verschwindet auch der Unterschied zwischen sauberen "
+                + "und verschmutzten Scheiben im Ausbrand.");
+
+            // Die Sprossen muessen auf den Feldgrenzen sitzen, sonst treffen
+            // sich Scheibenkante und Sprosse nirgends und es sieht von unten
+            // aus wie ein aufgemalter Strich.
+            int sprossen = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                                 .Count(t => t.name.StartsWith("Dach_Sprosse_"));
+            Assert.GreaterOrEqual(sprossen, 4 * 13,
+                "Je Band muessten 13 Sprossen die 12 Felder trennen. Gefunden: " + sprossen);
+
+            int rahmen = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                               .Count(t => t.name.StartsWith("Dach_Bandrahmen_"));
+            Assert.AreEqual(8, rahmen,
+                "Jedes der vier Baender braucht an beiden Laengskanten ein Rahmenprofil - "
+                + "ohne stoesst die leuchtende Scheibe ohne Uebergang ans Blech.");
+
+            yield return MatchTestHarness.Teardown();
+        }
+
         // --- Partikel -------------------------------------------------------
 
         [Test]

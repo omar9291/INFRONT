@@ -176,10 +176,17 @@ namespace Infront.EditorTools
 
         /// <summary>Probelauf: sehr grob, nur um zu sehen, ob der Weg ueberhaupt
         /// funktioniert und wie lange er dauert.</summary>
-        public static void BackeProbe() => Backe(1.5f, 64, 5.5f);
+        public static void BackeProbe() => Backe(1.5f, 64, 7f);
 
         /// <summary>Der richtige Durchlauf.</summary>
-        public static void BackeFein() => Backe(4f, 256, 5.5f);
+        // Indirekt-Staerke von 5,5 auf 7: die Lichtbaender im Dach leuchten
+        // seit der Verglasungs-Runde nur noch halb so stark (sie brannten
+        // sonst flaechig auf 255 aus). Der Kegel-Anteil ist separat
+        // nachgezogen worden; dieser Wert holt den ANDEREN Teil zurueck, den
+        // die grosse leuchtende Decke getragen hat: die Aufhellung der
+        // Schattenseiten. Gemessen war dort der Verlust am groessten
+        // (schwarz 8,5 % auf 12,0 %, unlesbar 24,4 % auf 28,3 %).
+        public static void BackeFein() => Backe(4f, 256, 7f);
 
         static bool IstPrimitiv(string name)
             => name == "Cube" || name == "Cylinder" || name == "Capsule"
