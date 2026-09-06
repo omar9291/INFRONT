@@ -156,6 +156,11 @@ namespace Infront.Tests
                         AssertContains(row, credit.Author);
                         AssertContains(row, credit.License);
                         Assert.AreEqual(credit.SourceUrl, row.Q<Button>("credit-source").text);
+                        if (!string.IsNullOrEmpty(credit.LicenseUrl))
+                            Assert.AreEqual(credit.LicenseUrl, row.Q<Button>("credit-license")?.text,
+                                "Lizenzlink fehlt im echten Menue: " + credit.Id);
+                        if (!string.IsNullOrEmpty(credit.AttributionNote))
+                            AssertContains(row, credit.AttributionNote);
                     }
                     scroll.ScrollTo(scroll.contentContainer.Children().Last());
                     for (int i = 0; i < 20; i++) yield return null;

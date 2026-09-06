@@ -49,6 +49,7 @@ namespace Infront
         const string KeySensitivity = "infront.sensitivity";
         const string KeyMode = "infront.mode";
         const string KeySfxVolume = "infront.sfxVolume";
+        const string KeyMusicVolume = "infront.musicVolume";
         const string KeyGraphics = "infront.graphics";
         const string KeyDisplay = "infront.display";
         const string KeyColorMode = "infront.colorMode";
@@ -68,6 +69,7 @@ namespace Infront
 
         /// <summary>Gesamtlautstärke aller Töne, 0..1. Der <see cref="AudioService"/> multipliziert damit.</summary>
         public static float SfxVolume { get; set; } = 0.85f;
+        public static float MusicVolume { get; set; } = 0.35f;
 
         // ------------------------------------------------------------------
         //  Zugaenglichkeit
@@ -116,6 +118,7 @@ namespace Infront
             MouseSensitivity = Mathf.Clamp(PlayerPrefs.GetFloat(KeySensitivity, 0.1f), 0.02f, 0.5f);
             GameMode = (Mode)Mathf.Clamp(PlayerPrefs.GetInt(KeyMode, 0), 0, 1);
             SfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(KeySfxVolume, 0.85f));
+            MusicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(KeyMusicVolume, 0.35f));
             GraphicsQuality = (Graphics)Mathf.Clamp(PlayerPrefs.GetInt(KeyGraphics, 0), 0, 1);
             DisplayMode = (Anzeige)Mathf.Clamp(PlayerPrefs.GetInt(KeyDisplay, 0), 0, 1);
             ColorMode = (Farbmodus)Mathf.Clamp(PlayerPrefs.GetInt(KeyColorMode, 0), 0, 3);
@@ -134,6 +137,7 @@ namespace Infront
             PlayerPrefs.SetFloat(KeySensitivity, MouseSensitivity);
             PlayerPrefs.SetInt(KeyMode, (int)GameMode);
             PlayerPrefs.SetFloat(KeySfxVolume, SfxVolume);
+            PlayerPrefs.SetFloat(KeyMusicVolume, MusicVolume);
             PlayerPrefs.SetInt(KeyGraphics, (int)GraphicsQuality);
             PlayerPrefs.SetInt(KeyDisplay, (int)DisplayMode);
             PlayerPrefs.SetInt(KeyColorMode, (int)ColorMode);

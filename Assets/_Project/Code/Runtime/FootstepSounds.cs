@@ -64,13 +64,29 @@ namespace Infront
             // Die eigenen Schritte etwas leiser - das Ohr sitzt direkt darüber.
             bool mine = _netObject != null && _netObject.IsOwner;
             float vol = mine ? 0.35f : 1f;
-            // Schritt 7: der Untergrund faerbt den Schritt. Es gibt keine
-            // eigenen Aufnahmen je Belag - stattdessen aendern sich Tonhoehe,
-            // Lautstaerke und Streuung. Das reicht, um Metall von Beton zu
-            // unterscheiden, ohne neue Dateien zu brauchen.
             var boden = UntergrundUnter(transform.position);
-            audio.PlayAt(TierFor(speed), transform.position,
-                vol * LautstaerkeFaktor(boden), StreuungFuer(boden));
+            audio.PlayAt(SoundFor(speed, boden), transform.position,
+                vol * StepGain(speed) * LautstaerkeFaktor(boden), StreuungFuer(boden));
+        }
+
+        public static SoundId SoundFor(float speed, Untergrund surface) => surface switch
+        {
+            Untergrund.Metall => SoundId.SchrittMetall,
+            Untergrund.Schutt => SoundId.SchrittSchutt,
+            _ => TierFor(speed),
+        };
+
+        public static float StepGain(float speed) => speed >= SprintFrom ? 1f : speed >= NormalFrom ? .65f : .35f;
+
+        public static bool IsMetal(Collider collider)
+        {
+            if (collider == null) return false;
+            string n = collider.name.ToLowerInvariant();
+            if (n.Contains("metal") || n.Contains("pipe") || n.Contains("gitter")) return true;
+            var renderer = collider.GetComponent<Renderer>();
+            var material = renderer != null ? renderer.sharedMaterial : null;
+            return material != null && (material.name.ToLowerInvariant().Contains("metal")
+                || (material.HasProperty("_Metallic") && material.GetFloat("_Metallic") >= .5f));
         }
 
         /// <summary>Welche Schritt-Lautstärke zu diesem Tempo passt.</summary>
@@ -96,7 +112,7 @@ namespace Infront
                 return Untergrund.Beton;
 
             string n = hit.collider.name;
-            if (n.Contains("Platform") || n.Contains("Dais") || n.Contains("Ramp")
+            if (IsMetal(hit.collider) || n.Contains("Platform") || n.Contains("Dais") || n.Contains("Ramp")
                 || n.Contains("Balc") || n.Contains("Steg") || n.Contains("Gitter"))
                 return Untergrund.Metall;
             if (n.Contains("Fleck") || n.Contains("Schutt") || n.Contains("Rubble")
@@ -116,9 +132,9 @@ namespace Infront
         /// <summary>Schutt klingt unregelmaessig, Metall gleichmaessig hart.</summary>
         public static float StreuungFuer(Untergrund u) => u switch
         {
-            Untergrund.Metall => 0.05f,
-            Untergrund.Schutt => 0.22f,
-            _ => 0.08f,
+            Untergrund.Metall => 0.025f,
+            Untergrund.Schutt => 0.07f,
+            _ => 0.035f,
         };
 
         public static float StepIntervalFor(float speed)

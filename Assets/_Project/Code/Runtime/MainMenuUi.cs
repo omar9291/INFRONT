@@ -1589,6 +1589,12 @@ namespace Infront
 
         void BuildEinstellungen(VisualElement host)
         {
+            var scroll = new ScrollView(ScrollViewMode.Vertical) { name = "settings-scroll" };
+            scroll.style.flexGrow = 1f;
+            scroll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            SchlankeRolle(scroll);
+            host.Add(scroll);
+            host = scroll.contentContainer;
             host.Add(UiTheme.Section(GameText.Menu.Display));
             host.Add(Segmented("seg-anzeige", new[] { GameText.Menu.Fullscreen, GameText.Menu.Windowed },
                 (int)GameSettings.DisplayMode, i =>
@@ -1657,7 +1663,7 @@ namespace Infront
             host.Add(row);
 
             host.Add(UiTheme.Gap(18f));
-            host.Add(UiTheme.Section(GameText.Menu.Volume));
+            host.Add(UiTheme.Section(GameText.Menu.SoundEffects));
 
             var volRow = new VisualElement();
             volRow.style.flexDirection = FlexDirection.Row;
@@ -1685,6 +1691,13 @@ namespace Infront
             volRow.Add(_volSlider);
             volRow.Add(_volValue);
             host.Add(volRow);
+            host.Add(UiTheme.Gap(18f));
+            host.Add(UiTheme.Section(GameText.Menu.Music));
+            host.Add(Regler("slider-music", 0f, 1f, GameSettings.MusicVolume, "0.00", value =>
+            {
+                GameSettings.MusicVolume = value;
+                GameSettings.Save();
+            }));
         }
 
         // ------------------------------------------------------------------
@@ -1738,7 +1751,7 @@ namespace Infront
                 {
                     if (credit.Id.StartsWith("unity-", StringComparison.Ordinal) != tools) continue;
                     AddQuelle(roll, credit.Name, credit.Author, credit.License,
-                        credit.Id, credit.SourceUrl);
+                        credit.Id, credit.SourceUrl, credit.LicenseUrl, credit.AttributionNote);
                 }
             }
         }
@@ -1793,7 +1806,7 @@ namespace Infront
         }
 
         void AddQuelle(VisualElement list, string was, string wer, string hinweis,
-                       string creditId = null, string sourceUrl = null)
+                       string creditId = null, string sourceUrl = null, string licenseUrl = null, string attributionNote = null)
         {
             var r = new VisualElement { name = creditId == null ? "credit-game" : "credit-" + creditId };
             r.style.flexShrink = 0f;          // nicht zusammendruecken lassen
@@ -1823,6 +1836,19 @@ namespace Infront
                 r.Add(c);
             }
 
+            if (!string.IsNullOrEmpty(attributionNote)) Hinweis(r, attributionNote);
+            if (!string.IsNullOrEmpty(licenseUrl))
+            {
+                var license = new Button(() => Application.OpenURL(licenseUrl))
+                    { text = licenseUrl, name = "credit-license", tooltip = licenseUrl };
+                license.style.fontSize = 11f;
+                license.style.color = UiTheme.Ice;
+                license.style.backgroundColor = Color.clear;
+                license.style.whiteSpace = WhiteSpace.Normal;
+                license.style.unityTextAlign = TextAnchor.MiddleLeft;
+                UiTheme.Border(license, 0f, Color.clear);
+                r.Add(license);
+            }
             if (!string.IsNullOrEmpty(sourceUrl))
             {
                 var source = new Button(() => Application.OpenURL(sourceUrl))

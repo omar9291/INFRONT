@@ -5,6 +5,32 @@ Letzte Aktualisierung: 2026-08-29
 Jedes importierte Asset-Paket wird hier eingetragen, BEVOR es benutzt wird:
 Name, Quelle, Lizenztyp, ob kommerzielle Nutzung erlaubt ist.
 
+## Audio-Erweiterung 2026-09-06
+
+Neue Dateien unter `Assets/ThirdParty/Audio/`; Einzeldateien und Belege stehen
+im gemeinsamen Quellenkatalog und in `CREDITS.md`. Kommerzielle Nutzung ist
+unter den jeweils genannten Bedingungen erlaubt. Bei CC-BY werden Originaltitel,
+Urheber, Bearbeiter, Lizenzlink und Bearbeitungsvermerk mitgeführt.
+
+| Paket | Urheber | Lizenz | Nutzung |
+|---|---|---|---|
+| footstep-concrete.wav | swuing, bearbeitet von congusbongus | CC-BY 3.0 | Betonschritte, 9 Varianten |
+| fboots on aluminum ladder 01 | Eelke, bearbeitet von congusbongus | CC-BY 3.0 | Metallschritte, 8 Varianten |
+| Gravel Footsteps | Ali_6868, bearbeitet von congusbongus | CC0 | Schuttschritte, 10 Varianten |
+| Impact Sounds 1.0 | Kenney | CC0 | Wand-, Körper- und Metalleinschläge, 15 Varianten |
+| Gun reload sounds | SpringySpringo | CC0 | Nachladen aus einer Airsoft-Aufnahme; frühere Waffenmechanik als ungenutzte Alternative behalten |
+| Equipment clicks III | LFA | CC0 | Drei trockene Waffenmechanik-Ausschnitte aus echten mechanischen Aufnahmen |
+| 25 CC0 bang / firework SFX | Rubberduck | CC0 | Drei bearbeitete Kanonenschläge für die Bombenexplosion |
+| 68 Workshop Sounds | bart | CC0 | Drei Metall-Schleif- und Knarzvarianten, in einer Werkstatt aufgenommen |
+| Breathing tired | mikeask | CC0 | Vier kurze Atemausschnitte |
+| The Shop, kostenlose OGA-Dateien | LEGIT Audio | CC0 | Lüftungsbett aus aufgenommenem Kühlschrankgeräusch |
+| Factory ambiance | yd | CC0 | Elektronische Menümusik, Spannung und Rundenauftakt |
+
+Die Quellenpakete für Schritte und Kenney enthalten Lizenzdateien, die gelesen
+und unverändert behalten wurden. Die einzelnen WAV/OGG-Downloads und das
+Raumtonarchiv enthalten keine Lizenzdatei; dort ist der Anbieterbeleg ausdrücklich
+als solcher dokumentiert. Keine Aufnahme wurde als hörgeprüft bezeichnet.
+
 ## Regel
 
 Vor Nutzung pruefen: Erlaubt die Lizenz kommerzielle Nutzung? Das Spiel

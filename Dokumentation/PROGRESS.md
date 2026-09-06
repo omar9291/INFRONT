@@ -3,7 +3,75 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-05
+Letzte Aktualisierung: 2026-09-06
+
+## Tonaufnahmen und Musik — 2026-09-06
+
+61 neue Audiodateien eingebunden: 27 Schrittvarianten für Beton, Metall und Schutt,
+15 Materialeinschläge, fünf Mechanikaufnahmen, vier Atemausschnitte, drei
+aufgenommene Explosionen, drei Werkstatt-Metallgeräusche, aufgenommener Innenraumton
+und drei Musikbearbeitungen. 42 stabile SoundIds, davon 24 mit Audiodateien und
+18 mit ausdrücklich dokumentiertem Synthesegrund.
+Aufnahme, gesampeltes Foley und elektronische Musik werden getrennt ausgewiesen.
+Die bestehenden vier Schussdateien und bisherigen Enum-Werte bleiben erhalten.
+
+Schritte wählen Material und Tempo, Einschläge übertragen die getroffene Oberfläche.
+Innenräume blenden einen aufgenommenen Lüftungston ein. Menümusik, Rundenauftakt
+und die letzten 30 Sekunden haben eine eigene Lautstärke; Pause und Rundenende
+beenden die Spannung. Der Musikregler speichert sofort und kann stumm schalten.
+Die Einstellungsseite ist scrollbar, damit er auch bei 1280 × 720 erreichbar ist.
+
+57 Credits-Einträge. Die beiden CC-BY-Schrittpakete zeigen zusätzlich Lizenzlink
+und Bearbeitungsvermerk im Spiel. Originale Paketlizenzen bleiben erhalten;
+fehlende eingebettete Lizenztexte werden ausdrücklich als Anbieterbelege geführt.
+Das Originalarchiv der alten Schüsse wurde beschafft und sein Inhalt geprüft:
+keine eigenständige Lizenzdatei. Hash und Inhaltsliste sind gespeichert; die genaue
+Zuordnung der damaligen Schnitte zu Originaltakes bleibt offen.
+
+Prüfstand: 294/295 im ersten vollständigen PlayMode-Lauf. Der einzige Fehler war
+die alte Credits-Prüfung auf eine Anbieterüberschrift statt der jetzt sichtbaren
+Einzelwerke und Quelllinks. Nach Korrektur 30/30 betroffene PlayMode-Prüfungen grün,
+einschließlich tatsächlich laufender/stummgeschalteter Musik, Quellenpflichtangaben
+und Erreichbarkeit des Reglers. 11/11 EditMode-Prüfungen für Inhalt und Quellen grün.
+Mac-Testbuild erfolgreich (301,5 MB). Die automatischen Bilder der Einstellungsseite
+und des HUD bei 1600 × 786 wurden angesehen; Musikregler und Texte sind sichtbar.
+Nach der Hörerkorrektur: 296/296 im vollständigen PlayMode-Schlusslauf grün
+(2026-09-06, 14:02–14:09 UTC), erneuter Mac-Build ebenfalls erfolgreich.
+
+Verworfener Versuch: ADPCM erhöhte eine Mechanikspitze von .60 auf .884, auch nach
+korrigiertem Neuimport. Kurze Effekte bleiben deshalb PCM (58 Dateien, 3,8 MB),
+Musik wird als Vorbis gestreamt. AudioImportSettings.GetVersion muss bei künftigen
+Importänderungen erhöht werden, sonst bleiben alte Importdaten im Unity-Cache.
+AudioImporter.normalize ist keine öffentliche API dieser Unity-Version; bereits
+vorbereitete Mono-Dateien brauchen keinen erneuten Unity-Downmix.
+
+Der erste neue Benchmark (3 gegen 3, Wetter nicht erzwungen, ältere Spielinstanz
+lief zusätzlich) ergab 59,75 FPS / 41,01 FPS 1-%-Tiefpunkt. Kein sauberer Vorher-
+nachher-Vergleich. Dabei entdeckt: EarRinging legte bei Explosionen einen Filter
+auf eine freie Kamera ohne AudioListener und warf eine NullReferenceException.
+Die Rundgangkamera erhält jetzt selbst den Hörstandpunkt; alte Listener werden
+stillgelegt. Explosionsdämpfung berücksichtigt nur aktive Hörer. Die automatische
+Messung setzt künftig Full, klares Wetter und 5 gegen 5 als nachvollziehbare Basis
+(Teamgröße mit -teamsize überschreibbar). Der Nutzer hat das Schließen der alten
+Spielinstanz erlaubt; sie wurde beendet. Der endgültige Lauf mit Full, klarem
+Wetter und 5 gegen 5 misst bei 1600 × 786 über 4.800 Bilder 59,94 FPS im Mittel
+und 51,44 FPS beim 1-%-Tiefpunkt. Die Vorgabe von mindestens 50 ist erfüllt.
+Der erste korrekte 5-gegen-5-Lauf lag bei 45,85; 61 erst bei Benutzung geladene
+Dateien verursachten Laufzeitspitzen. Sie werden nun beim Spielstart vorgeladen.
+Danach fielen die Bilder über 20 ms von 14 auf 4. Der optimierte Build ist
+erfolgreich (302,7 MB), 7/7 betroffene Hörfiltertests bestehen.
+
+Hör-Rückmeldung des Nutzers: „Soll rauer und realistischer klingen“. Die erste
+Vorschau ist damit ausdrücklich nicht klanglich abgenommen. Die zweite Fassung
+reduziert künstliche Tonhöhenvariation und Musikpegel; Waffenmechanik, Explosion
+und Strukturknarzen stammen jetzt aus bearbeiteten Aufnahmen. Die zugehörigen
+3/3 EditMode- und 3/3 PlayMode-Zielprüfungen bestehen. Vorhandene Quellen bleiben
+als nachvollziehbare Alternativen erhalten.
+
+**Noch offen:** Hör-Abnahme, aufgenommener Außenwind, ferne Gefechte/Artillerie
+und Rotorgeräusch. Menü-Klicks,
+Trefferbestätigungen und Bombenpiepen bleiben bewusst elektronisch. Details und
+alle 42 Gründe/Quellen stehen in AUDIO-STATUS.md. Tonphase noch nicht abgenommen.
 
 ## Codex-Abgleich und Credits-Menü — 2026-09-05
 
@@ -63,8 +131,8 @@ Kontaktverdunklung über SSAO und Wanddetail. 291 Tests grün.
 
 **Offene Punkte, nach Wichtigkeit:**
 
-1. **Ton (Etappe 5).** 31 von 35 SoundIds noch mit synthetischem Fallback, keine Musik. Grösster
-   verbleibender Brocken, und der einzige, der nicht selbst prüfbar ist.
+1. **Ton (Etappe 5).** Seit 2026-09-06 neue Aufnahmen und Musik eingebunden;
+   verbleibende Außengeräusche/Explosionen und Hör-Abnahme siehe aktuellen Abschnitt oben.
 2. **Zweite Karte (Etappe 6).** Braucht eine Entscheidung des Nutzers:
    zweite Halle, Aussenhof, oder Hof mit Gebäuden.
 3. **Leistungsreserve.** Der 1-%-Tiefpunkt ist von 54,5 auf 51,8 gefallen,

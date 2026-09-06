@@ -47,6 +47,8 @@ namespace Infront
             public const string YourData = "YOUR DATA";
             public const string Controls = "CONTROLS";
             public const string Credits = "CREDITS";
+            public const string SoundEffects = "SOUND EFFECTS";
+            public const string Music = "MUSIC";
             public const string CreditsGame = "GAME";
             public const string CreditsAssets = "ASSETS AND CONTRIBUTORS";
             public const string CreditsTools = "TOOLS AND LIBRARIES";

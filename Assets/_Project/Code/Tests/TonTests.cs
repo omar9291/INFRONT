@@ -22,6 +22,52 @@ namespace Infront.Tests
     public sealed class TonTests
     {
         [Test]
+        public void Freie_Kamera_ohne_Hoerer_bekommt_keinen_Tonfilter()
+        {
+            var listeners = Object.FindObjectsByType<AudioListener>();
+            var enabled = new bool[listeners.Length];
+            for (int i = 0; i < listeners.Length; i++)
+            {
+                enabled[i] = listeners[i].enabled;
+                listeners[i].enabled = false;
+            }
+            var cameras = Object.FindObjectsByType<Camera>();
+            var tags = new string[cameras.Length];
+            for (int i = 0; i < cameras.Length; i++)
+            {
+                tags[i] = cameras[i].tag;
+                cameras[i].tag = "Untagged";
+            }
+            var camera = new GameObject("Freie_Kamera", typeof(Camera));
+            camera.tag = "MainCamera";
+            var listenerObject = new GameObject("Aktiver_Hoerer", typeof(AudioListener));
+            var inactive = new GameObject("Stillgelegter_Hoerer", typeof(AudioListener));
+            inactive.GetComponent<AudioListener>().enabled = false;
+            var inactiveRinging = inactive.AddComponent<EarRinging>();
+            try
+            {
+                EarRinging.ExplosionAt(listenerObject.transform.position);
+                Assert.IsNull(camera.GetComponent<AudioLowPassFilter>());
+                Assert.IsNull(camera.GetComponent<EarRinging>());
+                var ringing = listenerObject.GetComponent<EarRinging>();
+                Assert.IsNotNull(ringing);
+                Assert.Greater(ringing.Level01, .5f, "Die Explosion muss den echten Hoerer erreichen.");
+                Assert.AreEqual(0f, inactiveRinging.Level01,
+                    "Ein stillgelegter Spielerhoerer darf nicht mehr auf Explosionen reagieren.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(camera);
+                Object.DestroyImmediate(listenerObject);
+                Object.DestroyImmediate(inactive);
+                for (int i = 0; i < listeners.Length; i++)
+                    if (listeners[i] != null) listeners[i].enabled = enabled[i];
+                for (int i = 0; i < cameras.Length; i++)
+                    if (cameras[i] != null) cameras[i].tag = tags[i];
+            }
+        }
+
+        [Test]
         public void Ferne_Toene_werden_dumpfer()
         {
             float nah = AudioService.CutoffFuerEntfernung(5f);

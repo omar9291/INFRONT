@@ -1,6 +1,6 @@
 # INFRONT – Fertigstellung
 
-Stand: 2026-09-05. Ergänzt den Auftrag vom 2026-09-04 anhand des tatsächlichen
+Stand: 2026-09-06. Ergänzt den Auftrag vom 2026-09-04 anhand des tatsächlichen
 Repositories; ältere Etappenlisten in PROGRESS.md bleiben als Geschichte erhalten.
 
 ## Auftrag und Zusammenarbeit
@@ -44,13 +44,23 @@ Sprachprüfungen bestehen, einschließlich Erreichbarkeit des letzten Credits-Ei
 Offene Herkunftsdetails in einzelnen Bestandsassets werden dadurch nicht als
 geklärt ausgegeben; die Hinweise im Katalog bleiben erhalten.
 
-Größte Restarbeit: aufgenommene Alltagsgeräusche und Musik, zweite Karte,
+Seit 2026-09-06 sind 61 neue Audiodateien mit Varianten, Materialwahl, Raumton
+und drei Musikbearbeitungen eingebunden; der Katalog umfasst 57 Credits.
+296/296 im vollständigen Spieltest nach der Hörerkorrektur und 11/11 Import-/
+Quellenprüfungen bestanden. Die gewünschte rauere Fassung nutzt jetzt aufgenommene
+Waffenmechanik, Explosion und Strukturgeräusche; ihre 3/3 EditMode- und 3/3
+PlayMode-Zielprüfungen bestehen. Hör-Abnahme und ergänzende Außenaufnahmen bleiben offen.
+Der fertige Mac-Build erreicht auf dem M1 bei Full, klarem Wetter und 5 gegen 5
+59,94 FPS im Mittel sowie 51,44 FPS beim 1-%-Tiefpunkt. Klangvarianten werden
+beim Start vorgeladen, damit ihre erste Benutzung das Gefecht nicht ausbremst.
+
+Größte Restarbeit: ergänzende Aufnahmen und Hör-Abnahme, zweite Karte,
 Spielbalance und abschließende Bild-/Leistungs-/Hör- und Einsteigertests.
 Wanddetails der inneren Trennwände, Rauch und Leistungsreserve bleiben offen.
 
 ## Verifizierter Ausgangspunkt
 
-- Original: `/Users/user/UnityProjects/INFRONT`, Commit `886fe7d`.
+- Original: `/Users/user/UnityProjects/INFRONT`, zuletzt geprüft bei Commit `5d8747c`.
 - Unity: 6000.5.8f1; nicht aktualisieren.
 - Frischer Ausgangstest: 274/274 PlayMode-Tests bestanden, 2026-09-05,
   16:17–16:23 UTC. Ausgeführt in einer Kopie mit eigener Company-ID, weil
@@ -73,7 +83,7 @@ Wanddetails der inneren Trennwände, Rauch und Leistungsreserve bleiben offen.
 | 2 – Credits | Einzelne Assets, Autoren, präzise Quellen, gespeicherte Lizenzbelege; gemeinsames Verzeichnis für Spiel und CREDITS.md; neue ungenannte Dateien müssen Tests scheitern lassen. | Menü angebunden und Tests grün; offene Bestandsherkunft separat dokumentiert |
 | 3 – Materialien/Licht | Fehlende AO-Verknüpfung, geeignete AO-Dateien, kontrollierte Bild-/Leistungsvergleiche; Material- und Lichtbasis existiert bereits. | In Arbeit |
 | 4 – Details | Vorhandene Trim-/Rohr-/Dachbibliothek ergänzen, auffällige kahle Flächen und unplausible Übergänge prüfen. | Offen |
-| 5 – Ton/Musik | Aufnahmen für Schritte und Oberflächen, Einschläge, Mechanik, Atmung/Raumton; Menü- und Spannungsebene; Herkunft oder begründete Synthese je SoundId. | Quellenprüfung |
+| 5 – Ton/Musik | Aufnahmen, Varianten, Raumton, leisere Musik und getrennte Lautstärke eingebunden. Ergänzende Außenaufnahmen und Hör-Abnahme bleiben offen. | Technische Schlussprüfung |
 | 6 – Zweite Karte | Nach Abnahme der ersten Grafikbasis: eigenständiges Layout, Auswahl im Menü, Spawns/Bombenplätze/NavMesh, Durchlauf beider Modi. | Offen |
 | 7 – Abschluss | Balance, Schwierigkeit, drei Fenstergrößen und Farbmodi, vollständige Tests, Startbarkeit, Release-Unterlagen. | Offen |
 

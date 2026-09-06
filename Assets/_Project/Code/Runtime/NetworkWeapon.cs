@@ -368,6 +368,7 @@ namespace Infront
 
             // 0 = nichts getroffen, 1 = Wand/Umgebung, 2 = Körper
             byte impact = 0;
+            SoundId impactSound = SoundId.EinschlagWand;
             Vector3 hitNormal = -direction;
 
             foreach (var hit in hits)
@@ -388,6 +389,8 @@ namespace Infront
                 endPoint = hit.point;
                 hitNormal = hit.normal;
                 impact = targetHealth != null ? (byte)2 : (byte)1;
+                impactSound = targetHealth != null ? SoundId.EinschlagKoerper
+                    : FootstepSounds.IsMetal(hit.collider) ? SoundId.EinschlagMetall : SoundId.EinschlagWand;
 
                 if (targetHealth != null && targetHealth.IsAlive)
                 {
@@ -423,7 +426,7 @@ namespace Infront
             ReportBulletWhiz(rayOrigin, direction, endPoint);
 
             Vector3 tracerOrigin = _muzzle != null ? _muzzle.position : rayOrigin;
-            ShowFireEffectRpc(tracerOrigin, endPoint, hitNormal, impact, (int)_stats.ShotSound);
+            ShowFireEffectRpc(tracerOrigin, endPoint, hitNormal, impact, (int)_stats.ShotSound, (int)impactSound);
             return true;
         }
 
@@ -453,7 +456,7 @@ namespace Infront
         void HitConfirmedRpc(bool head, bool lethal) => LocalHitConfirmed?.Invoke(head, lethal);
 
         [Rpc(SendTo.Everyone)]
-        void ShowFireEffectRpc(Vector3 origin, Vector3 endPoint, Vector3 normal, byte impact, int shotSound)
+        void ShowFireEffectRpc(Vector3 origin, Vector3 endPoint, Vector3 normal, byte impact, int shotSound, int impactSound)
         {
             var fx = new ShotFx(origin, endPoint, normal, impact);
             FireVisual?.Invoke(fx);
@@ -463,8 +466,8 @@ namespace Infront
             if (audio != null)
             {
                 audio.PlayAt((SoundId)shotSound, origin, 1f, 0.06f);
-                if (impact == 2) audio.PlayAt(SoundId.EinschlagKoerper, endPoint, 0.9f, 0.1f);
-                else if (impact == 1) audio.PlayAt(SoundId.EinschlagWand, endPoint, 0.7f, 0.15f);
+                if (impact != 0) audio.PlayAt((SoundId)impactSound, endPoint,
+                    impact == 2 ? .9f : .7f, .1f);
 
                 // Weit entfernter Schuss: der tiefe Hall rollt verzoegert an
                 // (Schallgeschwindigkeit ~340 m/s) - klingt nach Gefecht in der Ferne.

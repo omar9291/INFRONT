@@ -18,6 +18,8 @@ namespace Infront
     /// Optionale Parameter:
     ///   -weather N   erzwingt eine Wetterlage (0..4: Klar/Dunst/Staubwind/Bodennebel/Rauch)
     ///   -outdir PFAD Zielordner (Standard: &lt;Projekt&gt;/Screenshots/auto)
+    ///   -benchmark  Bildzeitmessung: Full, klares Wetter, 5 gegen 5
+    ///   -teamsize N Teamgroesse im Benchmark (1..5, Standard 5)
     ///
     /// Ablauf: ein Menue-Bild -> Match starten -> Kaufzeit sofort beenden ->
     /// eine freie Kamera fliegt an feste Punkte der Karte (Spawn-Blick, Podest,
@@ -166,6 +168,11 @@ namespace Infront
                 c.farClipPlane = 400f;
             }
             c.depth = 100f;
+            // Bild und räumlicher Ton müssen vom selben Standpunkt kommen.
+            // Der alte Spieler-Listener bleibt erhalten, wird nur stillgelegt.
+            foreach (var listener in Object.FindObjectsByType<AudioListener>())
+                listener.enabled = false;
+            go.AddComponent<AudioListener>();
 
             // WICHTIG: In URP haengt die Bildaufwertung an der KAMERA, nicht am
             // Volume. Eine frisch erzeugte Kamera hat renderPostProcessing =
@@ -216,6 +223,12 @@ namespace Infront
             GameSettings.GameMode = argv.Contains("-uishot")
                 ? GameSettings.Mode.Bombe
                 : GameSettings.Mode.Ausscheiden;                       // sauberes Gefecht fuer die Fotos
+            if (argv.Contains("-benchmark"))
+            {
+                GameSettings.TeamSize = int.TryParse(Arg("-teamsize", "5"), out var teamSize)
+                    ? Mathf.Clamp(teamSize, 1, 5) : 5;
+                GameSettings.GraphicsQuality = GameSettings.Graphics.Voll;
+            }
 
             var go = new GameObject("AutoShot");
             go.AddComponent<AutoShot>();
@@ -235,7 +248,7 @@ namespace Infront
             bool benchmark = System.Environment.GetCommandLineArgs().Contains("-benchmark");
             bool istRundgang = System.Environment.GetCommandLineArgs().Contains("-survey");
             string outDir = Arg("-outdir", istRundgang ? SurveyOutDir : DefaultOutDir);
-            int weather = int.TryParse(Arg("-weather", "-1"), out var w) ? w : -1;
+            int weather = int.TryParse(Arg("-weather", benchmark ? "0" : "-1"), out var w) ? w : -1;
             string tag = weather >= 0 ? $"w{weather}_" : "";
 
             bool istOberflaeche = System.Environment.GetCommandLineArgs().Contains("-uishot");

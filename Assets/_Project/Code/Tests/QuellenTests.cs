@@ -8,8 +8,8 @@ using UnityEngine.UIElements;
 namespace Infront.Tests
 {
     /// <summary>
-    /// Die Quellen-Seite im Hauptmenue. Rechtlich noetig ist eine Nennung bei
-    /// CC0 nicht - bei Mixamo schon, und ausserdem gehoert es sich.
+    /// Die Quellen-Seite im Hauptmenue nennt Werke, Urheber und Quellen.
+    /// Lizenzpflichten werden je Eintrag im Quellenkatalog dokumentiert.
     ///
     /// NICHT pruefbar: ob die Seite gut aussieht. Geprueft wird, dass es sie
     /// gibt und dass die Quellen, bei denen es rechtlich zaehlt, wirklich
@@ -102,14 +102,13 @@ namespace Infront.Tests
 
             string text = AllerText(doc.rootVisualElement);
 
-            // Mixamo MUSS genannt werden - das ist die einzige Quelle im
-            // Projekt, die nicht CC0 ist.
+            // Die ausfuehrlichen Credits nennen die einzelnen Werke und
+            // Urheber; der Anbieter steht auch in der anklickbaren Quelladresse.
             Assert.IsTrue(text.Contains("Mixamo"),
-                "Mixamo fehlt auf der Quellen-Seite. Das ist die einzige Quelle, " +
-                "die nicht CC0 ist - sie gehoert dort zwingend hin.");
+                "Mixamo fehlt auf der Quellen-Seite.");
 
-            Assert.IsTrue(text.Contains("Poly Haven"), "Poly Haven fehlt.");
-            Assert.IsTrue(text.Contains("ambientCG"), "ambientCG fehlt.");
+            Assert.IsTrue(text.Contains("https://polyhaven.com/a/"), "Poly-Haven-Quelladressen fehlen.");
+            Assert.IsTrue(text.Contains("https://ambientcg.com/a/"), "ambientCG-Quelladressen fehlen.");
             Assert.IsTrue(text.Contains("Firearm"),
                 "Die Schussaufnahmen fehlen auf der Quellen-Seite.");
         }

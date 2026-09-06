@@ -1,0 +1,490 @@
+[
+  {
+    "resource": "InfrontAudio/schritt_boots_0",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.062091106208442916,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_1",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06303726342870805,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_2",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06410366870848612,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_3",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06054017800063886,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_4",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.0638806168175837,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_5",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.05997675260040107,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_6",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06785921862641926,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_7",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.059738081432145464,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_boots_8",
+    "seconds": 0.1346485260770975,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06695893451295902,
+    "credit": "footsteps-boots"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_0",
+    "seconds": 0.3006041666666667,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.048784249131296406,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_1",
+    "seconds": 0.34820833333333334,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.05291565325302703,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_2",
+    "seconds": 0.32564583333333336,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.0440278704533748,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_3",
+    "seconds": 0.185375,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.06820488887518643,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_4",
+    "seconds": 0.14029166666666668,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.06915387306380151,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_5",
+    "seconds": 0.28558333333333336,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.059324658479797836,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_6",
+    "seconds": 0.2505,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.054932791249799315,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_metal_7",
+    "seconds": 0.17033333333333334,
+    "rate": 48000,
+    "peak": 0.55,
+    "rms": 0.06626417495581854,
+    "credit": "footsteps-metal"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_0",
+    "seconds": 0.18857142857142858,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.05555586846788647,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_1",
+    "seconds": 0.10646258503401361,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.11962664528909563,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_2",
+    "seconds": 0.22621315192743763,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.08728552710157055,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_3",
+    "seconds": 0.1579138321995465,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.0610226259935467,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_4",
+    "seconds": 0.2439455782312925,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.05480776117166752,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_5",
+    "seconds": 0.22938775510204082,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06938656913564281,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_6",
+    "seconds": 0.19104308390022676,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.07206792570644703,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_7",
+    "seconds": 0.23244897959183675,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.06328696432368675,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_8",
+    "seconds": 0.19537414965986394,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.08460173343281241,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/schritt_gravel_9",
+    "seconds": 0.2073469387755102,
+    "rate": 44100,
+    "peak": 0.55,
+    "rms": 0.0886593693200309,
+    "credit": "footsteps-gravel"
+  },
+  {
+    "resource": "InfrontAudio/wall_0",
+    "seconds": 0.937437641723356,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.06592630086775021,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/wall_1",
+    "seconds": 0.8694104308390023,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.06254173392515569,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/wall_2",
+    "seconds": 0.8046712018140589,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.049752483555019704,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/wall_3",
+    "seconds": 0.9917233560090702,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.04821560624397413,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/wall_4",
+    "seconds": 0.8302947845804989,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.07358264121904018,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/metal-hit_0",
+    "seconds": 0.35147392290249435,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.07026715451057564,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/metal-hit_1",
+    "seconds": 0.2518367346938776,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.07576735830821325,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/metal-hit_2",
+    "seconds": 0.23578231292517007,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.07028987337786805,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/metal-hit_3",
+    "seconds": 0.4820408163265306,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.0746916940357895,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/metal-hit_4",
+    "seconds": 0.21340136054421768,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.07176845500071288,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/body_0",
+    "seconds": 0.43054421768707485,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.10220057735390217,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/body_1",
+    "seconds": 0.4046031746031746,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.10589361309307961,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/body_2",
+    "seconds": 0.54140589569161,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.08306140082996274,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/body_3",
+    "seconds": 0.4552607709750567,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.08890145670935336,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/body_4",
+    "seconds": 0.5429251700680272,
+    "rate": 44100,
+    "peak": 0.65,
+    "rms": 0.08596128486693859,
+    "credit": "kenney-impact-sounds"
+  },
+  {
+    "resource": "InfrontAudio/nachladen",
+    "seconds": 1.555736961451247,
+    "rate": 44100,
+    "peak": 0.6,
+    "rms": 0.037080495458758564,
+    "credit": "springyspringo-mechanics"
+  },
+  {
+    "resource": "InfrontAudio/waffe_wechsel",
+    "seconds": 0.47383219954648526,
+    "rate": 44100,
+    "peak": 0.6,
+    "rms": 0.1520397438322821,
+    "credit": "springyspringo-mechanics"
+  },
+  {
+    "resource": "InfrontAudio/waffe_wechsel_0",
+    "seconds": 0.47,
+    "rate": 44100,
+    "peak": 0.62,
+    "rms": 0.03990687243706156,
+    "credit": "lfa-equipment-clicks"
+  },
+  {
+    "resource": "InfrontAudio/waffe_wechsel_1",
+    "seconds": 0.43002267573696146,
+    "rate": 44100,
+    "peak": 0.62,
+    "rms": 0.06082504716574453,
+    "credit": "lfa-equipment-clicks"
+  },
+  {
+    "resource": "InfrontAudio/waffe_wechsel_2",
+    "seconds": 0.5,
+    "rate": 44100,
+    "peak": 0.62,
+    "rms": 0.03972716346827085,
+    "credit": "lfa-equipment-clicks"
+  },
+  {
+    "resource": "InfrontAudio/bombe_explosion_0",
+    "seconds": 1.2382708333333334,
+    "rate": 48000,
+    "peak": 0.72,
+    "rms": 0.06544080221976115,
+    "credit": "rubberduck-bangs"
+  },
+  {
+    "resource": "InfrontAudio/bombe_explosion_1",
+    "seconds": 1.7950833333333334,
+    "rate": 48000,
+    "peak": 0.72,
+    "rms": 0.06408768498585167,
+    "credit": "rubberduck-bangs"
+  },
+  {
+    "resource": "InfrontAudio/bombe_explosion_2",
+    "seconds": 0.8642708333333333,
+    "rate": 48000,
+    "peak": 0.7200000000000001,
+    "rms": 0.03681916054272152,
+    "credit": "rubberduck-bangs"
+  },
+  {
+    "resource": "InfrontAudio/metall_knarzen_0",
+    "seconds": 2.3000226757369613,
+    "rate": 44100,
+    "peak": 0.58,
+    "rms": 0.06779881634365834,
+    "credit": "bart-workshop"
+  },
+  {
+    "resource": "InfrontAudio/metall_knarzen_1",
+    "seconds": 2.4,
+    "rate": 44100,
+    "peak": 0.58,
+    "rms": 0.05122704262665538,
+    "credit": "bart-workshop"
+  },
+  {
+    "resource": "InfrontAudio/metall_knarzen_2",
+    "seconds": 2.5,
+    "rate": 44100,
+    "peak": 0.58,
+    "rms": 0.09230846759235854,
+    "credit": "bart-workshop"
+  },
+  {
+    "resource": "InfrontAudio/atem_ein",
+    "seconds": 0.54,
+    "rate": 44100,
+    "peak": 0.39999999999999997,
+    "rms": 0.07909756718604795,
+    "credit": "mikeask-breathing"
+  },
+  {
+    "resource": "InfrontAudio/atem_aus",
+    "seconds": 0.62,
+    "rate": 44100,
+    "peak": 0.4,
+    "rms": 0.06352304198212032,
+    "credit": "mikeask-breathing"
+  },
+  {
+    "resource": "InfrontAudio/atem_keuchen",
+    "seconds": 0.57,
+    "rate": 44100,
+    "peak": 0.4,
+    "rms": 0.07172422203944973,
+    "credit": "mikeask-breathing"
+  },
+  {
+    "resource": "InfrontAudio/atem_schnappen",
+    "seconds": 0.37,
+    "rate": 44100,
+    "peak": 0.4000000000000001,
+    "rms": 0.0929072567932388,
+    "credit": "mikeask-breathing"
+  },
+  {
+    "resource": "InfrontAudio/raumton",
+    "seconds": 10.9373125,
+    "rate": 48000,
+    "peak": 0.25,
+    "rms": 0.0672360390617063,
+    "credit": "legit-audio-room"
+  },
+  {
+    "resource": "InfrontAudio/musik_menue",
+    "seconds": 122.5,
+    "rate": 44100,
+    "peak": 0.35,
+    "rms": 0.052588659219665705,
+    "credit": "yd-factory-music"
+  },
+  {
+    "resource": "InfrontAudio/musik_spannung",
+    "seconds": 31.5,
+    "rate": 44100,
+    "peak": 0.35,
+    "rms": 0.05908563818795079,
+    "credit": "yd-factory-music"
+  },
+  {
+    "resource": "InfrontAudio/musik_rundenstart",
+    "seconds": 3.0,
+    "rate": 44100,
+    "peak": 0.35,
+    "rms": 0.10296077780711994,
+    "credit": "yd-factory-music"
+  }
+]

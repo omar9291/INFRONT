@@ -8,7 +8,7 @@ namespace Infront
     /// Platzhalter-Tons. Der Dateiname ist die Kleinschreibung des Eintrags,
     /// zum Beispiel <c>schuss_gewehr.wav</c> für <see cref="SchussGewehr"/>.
     ///
-    /// Reihenfolge egal - hier steht kein Netz-Index drin.
+    /// Bestehende Werte nicht umsortieren: Schuss-RPCs übertragen die Kennung als Zahl.
     /// </summary>
     public enum SoundId
     {
@@ -62,5 +62,13 @@ namespace Infront
         Artillerie,           // ferner Einschlag mit Pfeif-Anflug
         Hubschrauber,         // vorbeiziehender Rotor
         MetallKnarzen,        // knarzendes Metall in der Naehe
+        // Neue Kennungen nur anhaengen; bestehende Netzwerkwerte bleiben gleich.
+        SchrittMetall,
+        SchrittSchutt,
+        EinschlagMetall,
+        Raumton,
+        MusikMenue,
+        MusikSpannung,
+        MusikRundenstart,
     }
 }

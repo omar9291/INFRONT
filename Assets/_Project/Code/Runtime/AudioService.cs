@@ -10,10 +10,11 @@ namespace Infront
     /// Ablauf:
     ///  - Spiel-Code ruft <see cref="PlayAt"/> (3D, am Ort) oder
     ///    <see cref="Play2D"/> (direkt am Ohr) mit einer <see cref="SoundId"/>.
-    ///  - Beim ersten Mal wird der Clip geladen: liegt eine echte Datei in
-    ///    <c>Assets/_Project/Audio/Resources/&lt;name&gt;</c>, wird die genommen;
-    ///    sonst baut <see cref="ProceduralSfx"/> einen Platzhalter. Danach ist
-    ///    der Clip zwischengespeichert.
+    ///  - Beim Start werden die Varianten aus dem AudioCatalog geladen, damit
+    ///    im Gefecht kein Dateiladen ein Einzelbild ausbremst.
+    ///    Ohne Katalogdateien gilt weiter der alte Ressourcen-Dateiname,
+    ///    danach der Platzhalter aus <see cref="ProceduralSfx"/>. Geladene
+    ///    Clips bleiben im Zwischenspeicher.
     ///  - Für 3D-Töne gibt es einen kleinen Ring wiederverwendeter
     ///    AudioSources, damit nicht ständig Objekte entstehen und vergehen.
     ///
@@ -74,6 +75,12 @@ namespace Infront
                 _pool[i] = MakeSource($"Sfx3D_{i}", spatial: true);
 
             _flat = MakeSource("Sfx2D", spatial: false);
+
+            // 61 kleine Dateien plus drei gestreamte Musikstücke sind ein
+            // überschaubarer Startpreis. Im Match wären dieselben Ladevorgänge
+            // als harte Einzelbildspitzen sichtbar.
+            foreach (SoundId id in System.Enum.GetValues(typeof(SoundId)))
+                Clip(id);
         }
 
         void OnDestroy()
@@ -133,8 +140,30 @@ namespace Infront
         float Master => Mathf.Clamp01(GameSettings.SfxVolume)
                         * Mathf.Lerp(1f, 0.18f, Mathf.Clamp01(Deafness));
 
-        AudioClip Clip(SoundId id)
+        readonly Dictionary<SoundId, AudioClip[]> _variants = new();
+        readonly Dictionary<SoundId, int> _lastVariant = new();
+
+        AudioClip Clip(SoundId id, bool vary = false)
         {
+            var entry = AudioCatalog.For(id);
+            if (entry?.clips != null && entry.clips.Length > 0)
+            {
+                if (!_variants.TryGetValue(id, out var choices))
+                {
+                    choices = new AudioClip[entry.clips.Length];
+                    for (int i = 0; i < choices.Length; i++)
+                        choices[i] = Resources.Load<AudioClip>(entry.clips[i]);
+                    _variants[id] = choices;
+                }
+                int chosen = vary ? AudioCatalog.NextVariant(choices.Length,
+                    _lastVariant.TryGetValue(id, out int last) ? last : -1) : 0;
+                _lastVariant[id] = chosen;
+                if (choices[chosen] != null)
+                {
+                    _clips[id] = choices[0];
+                    return choices[chosen];
+                }
+            }
             if (_clips.TryGetValue(id, out var cached) && cached != null)
                 return cached;
 
@@ -149,7 +178,7 @@ namespace Infront
         /// so rollt der Nachhall eines fernen Schusses verzoegert an.</summary>
         public void PlayAt(SoundId id, Vector3 position, float volume = 1f, float pitchJitter = 0f, float delay = 0f)
         {
-            float v = Mathf.Clamp01(volume * Master);
+            float v = Mathf.Clamp01(volume * Master * (AudioCatalog.For(id)?.gain ?? 1f));
             LastPlayedForTests = id;
             PlayCountForTests++;
             LastVolumeForTests = v;
@@ -162,7 +191,7 @@ namespace Infront
             _next = (_next + 1) % PoolSize;
 
             src.transform.position = position;
-            src.clip = Clip(id);
+            src.clip = Clip(id, true);
             src.volume = v;
             src.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
 
@@ -182,7 +211,7 @@ namespace Infront
         /// <summary>Ton direkt am Ohr (2D), z.B. Trefferbestätigung, Rundenmeldung.</summary>
         public void Play2D(SoundId id, float volume = 1f)
         {
-            float v = Mathf.Clamp01(volume * Master);
+            float v = Mathf.Clamp01(volume * Master * (AudioCatalog.For(id)?.gain ?? 1f));
             LastPlayedForTests = id;
             PlayCountForTests++;
             LastVolumeForTests = v;
@@ -190,7 +219,7 @@ namespace Infront
             if (v <= 0.0001f || _flat == null) return;
 
             _flat.pitch = 1f;
-            _flat.PlayOneShot(Clip(id), v);
+            _flat.PlayOneShot(Clip(id, true), v);
         }
 
         /// <summary>Enum-Name in den Dateinamen zum Austauschen: SchussGewehr -> schuss_gewehr.</summary>

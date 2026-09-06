@@ -1,0 +1,446 @@
+{
+  "entries": [
+    {
+      "id": "SchussGewehr",
+      "clips": [
+        "schuss_gewehr"
+      ],
+      "kind": "recording",
+      "credit": "free-firearm-sound-library",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchussMp",
+      "clips": [
+        "schuss_mp"
+      ],
+      "kind": "recording",
+      "credit": "free-firearm-sound-library",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchussSniper",
+      "clips": [
+        "schuss_sniper"
+      ],
+      "kind": "recording",
+      "credit": "free-firearm-sound-library",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchussPistole",
+      "clips": [
+        "schuss_pistole"
+      ],
+      "kind": "recording",
+      "credit": "free-firearm-sound-library",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchussFern",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Designed low-frequency tail for distance propagation; layered with the actual recorded shot rather than replacing it.",
+      "gain": 1.0
+    },
+    {
+      "id": "Zischen",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Designed near-miss cue with controlled duration and stereo position, kept distinct from environmental recordings.",
+      "gain": 1.0
+    },
+    {
+      "id": "Nachladen",
+      "clips": [
+        "InfrontAudio/nachladen"
+      ],
+      "kind": "recording",
+      "credit": "springyspringo-mechanics",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "WaffeWechsel",
+      "clips": [
+        "InfrontAudio/waffe_wechsel_0",
+        "InfrontAudio/waffe_wechsel_1",
+        "InfrontAudio/waffe_wechsel_2"
+      ],
+      "kind": "recording",
+      "credit": "lfa-equipment-clicks",
+      "reason": "",
+      "gain": 0.92
+    },
+    {
+      "id": "TrefferMarke",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Short non-diegetic hit confirmation; deliberately electronic for clear feedback.",
+      "gain": 1.0
+    },
+    {
+      "id": "TrefferKopf",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Electronic head-hit confirmation, distinct from the recorded impact foley.",
+      "gain": 1.0
+    },
+    {
+      "id": "Abschuss",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Non-diegetic elimination confirmation, kept electronic for consistent feedback.",
+      "gain": 1.0
+    },
+    {
+      "id": "EigenerTod",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Non-diegetic defeat cue; no human death recording is needed.",
+      "gain": 1.0
+    },
+    {
+      "id": "OhrenPfeifen",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Tinnitus effect requires a controlled synthetic tone and envelope.",
+      "gain": 1.0
+    },
+    {
+      "id": "EinschlagWand",
+      "clips": [
+        "InfrontAudio/wall_0",
+        "InfrontAudio/wall_1",
+        "InfrontAudio/wall_2",
+        "InfrontAudio/wall_3",
+        "InfrontAudio/wall_4"
+      ],
+      "kind": "sampled-foley",
+      "credit": "kenney-impact-sounds",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "EinschlagKoerper",
+      "clips": [
+        "InfrontAudio/body_0",
+        "InfrontAudio/body_1",
+        "InfrontAudio/body_2",
+        "InfrontAudio/body_3",
+        "InfrontAudio/body_4"
+      ],
+      "kind": "sampled-foley",
+      "credit": "kenney-impact-sounds",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "AtemEin",
+      "clips": [
+        "InfrontAudio/atem_ein"
+      ],
+      "kind": "recording",
+      "credit": "mikeask-breathing",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "AtemAus",
+      "clips": [
+        "InfrontAudio/atem_aus"
+      ],
+      "kind": "recording",
+      "credit": "mikeask-breathing",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "AtemKeuchen",
+      "clips": [
+        "InfrontAudio/atem_keuchen"
+      ],
+      "kind": "recording",
+      "credit": "mikeask-breathing",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "AtemSchnappen",
+      "clips": [
+        "InfrontAudio/atem_schnappen"
+      ],
+      "kind": "recording",
+      "credit": "mikeask-breathing",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchrittLeise",
+      "clips": [
+        "InfrontAudio/schritt_boots_0",
+        "InfrontAudio/schritt_boots_1",
+        "InfrontAudio/schritt_boots_2",
+        "InfrontAudio/schritt_boots_3",
+        "InfrontAudio/schritt_boots_4",
+        "InfrontAudio/schritt_boots_5",
+        "InfrontAudio/schritt_boots_6",
+        "InfrontAudio/schritt_boots_7",
+        "InfrontAudio/schritt_boots_8"
+      ],
+      "kind": "recording",
+      "credit": "footsteps-boots",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchrittNormal",
+      "clips": [
+        "InfrontAudio/schritt_boots_0",
+        "InfrontAudio/schritt_boots_1",
+        "InfrontAudio/schritt_boots_2",
+        "InfrontAudio/schritt_boots_3",
+        "InfrontAudio/schritt_boots_4",
+        "InfrontAudio/schritt_boots_5",
+        "InfrontAudio/schritt_boots_6",
+        "InfrontAudio/schritt_boots_7",
+        "InfrontAudio/schritt_boots_8"
+      ],
+      "kind": "recording",
+      "credit": "footsteps-boots",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchrittLaut",
+      "clips": [
+        "InfrontAudio/schritt_boots_0",
+        "InfrontAudio/schritt_boots_1",
+        "InfrontAudio/schritt_boots_2",
+        "InfrontAudio/schritt_boots_3",
+        "InfrontAudio/schritt_boots_4",
+        "InfrontAudio/schritt_boots_5",
+        "InfrontAudio/schritt_boots_6",
+        "InfrontAudio/schritt_boots_7",
+        "InfrontAudio/schritt_boots_8"
+      ],
+      "kind": "recording",
+      "credit": "footsteps-boots",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "RundeStart",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Short interface confirmation; the separate musical round-start sting uses the credited composition.",
+      "gain": 1.0
+    },
+    {
+      "id": "RundeSieg",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Electronic round-win confirmation, deliberately distinct from combat audio.",
+      "gain": 1.0
+    },
+    {
+      "id": "RundeNiederlage",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Electronic round-loss confirmation, deliberately distinct from combat audio.",
+      "gain": 1.0
+    },
+    {
+      "id": "KaufzeitVorbei",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Electronic buy-time confirmation supports precise event timing.",
+      "gain": 1.0
+    },
+    {
+      "id": "BombePiep",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "A bomb timer is an electronic beep, so synthesis is intentional.",
+      "gain": 1.0
+    },
+    {
+      "id": "BombeGelegt",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Electronic arming confirmation, not a simulation of a mechanical recording.",
+      "gain": 1.0
+    },
+    {
+      "id": "BombeEntschaerft",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Electronic defuse confirmation, kept distinct from the timer beep.",
+      "gain": 1.0
+    },
+    {
+      "id": "BombeExplosion",
+      "clips": [
+        "InfrontAudio/bombe_explosion_0",
+        "InfrontAudio/bombe_explosion_1",
+        "InfrontAudio/bombe_explosion_2"
+      ],
+      "kind": "recording",
+      "credit": "rubberduck-bangs",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "Wind",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Seamless synthesized outdoor weather bed retained; actual recorded ventilation now supplies the indoor room tone. Recorded outdoor wind remains open.",
+      "gain": 1.0
+    },
+    {
+      "id": "FernesFeuergefecht",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Designed distant battle layer retained pending a suitable field recording; nearby weapon shots use recordings.",
+      "gain": 1.0
+    },
+    {
+      "id": "Artillerie",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Designed distant whistle and blast retained pending a suitable credited composite or recording.",
+      "gain": 1.0
+    },
+    {
+      "id": "Hubschrauber",
+      "clips": [],
+      "kind": "synthetic",
+      "credit": "",
+      "reason": "Designed distant rotor bed retained; downloaded alternative still requires provenance and listening checks.",
+      "gain": 1.0
+    },
+    {
+      "id": "MetallKnarzen",
+      "clips": [
+        "InfrontAudio/metall_knarzen_0",
+        "InfrontAudio/metall_knarzen_1",
+        "InfrontAudio/metall_knarzen_2"
+      ],
+      "kind": "recording",
+      "credit": "bart-workshop",
+      "reason": "",
+      "gain": 0.82
+    },
+    {
+      "id": "SchrittMetall",
+      "clips": [
+        "InfrontAudio/schritt_metal_0",
+        "InfrontAudio/schritt_metal_1",
+        "InfrontAudio/schritt_metal_2",
+        "InfrontAudio/schritt_metal_3",
+        "InfrontAudio/schritt_metal_4",
+        "InfrontAudio/schritt_metal_5",
+        "InfrontAudio/schritt_metal_6",
+        "InfrontAudio/schritt_metal_7"
+      ],
+      "kind": "recording",
+      "credit": "footsteps-metal",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "SchrittSchutt",
+      "clips": [
+        "InfrontAudio/schritt_gravel_0",
+        "InfrontAudio/schritt_gravel_1",
+        "InfrontAudio/schritt_gravel_2",
+        "InfrontAudio/schritt_gravel_3",
+        "InfrontAudio/schritt_gravel_4",
+        "InfrontAudio/schritt_gravel_5",
+        "InfrontAudio/schritt_gravel_6",
+        "InfrontAudio/schritt_gravel_7",
+        "InfrontAudio/schritt_gravel_8",
+        "InfrontAudio/schritt_gravel_9"
+      ],
+      "kind": "recording",
+      "credit": "footsteps-gravel",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "EinschlagMetall",
+      "clips": [
+        "InfrontAudio/metal-hit_0",
+        "InfrontAudio/metal-hit_1",
+        "InfrontAudio/metal-hit_2",
+        "InfrontAudio/metal-hit_3",
+        "InfrontAudio/metal-hit_4"
+      ],
+      "kind": "sampled-foley",
+      "credit": "kenney-impact-sounds",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "Raumton",
+      "clips": [
+        "InfrontAudio/raumton"
+      ],
+      "kind": "recording",
+      "credit": "legit-audio-room",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "MusikMenue",
+      "clips": [
+        "InfrontAudio/musik_menue"
+      ],
+      "kind": "music",
+      "credit": "yd-factory-music",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "MusikSpannung",
+      "clips": [
+        "InfrontAudio/musik_spannung"
+      ],
+      "kind": "music",
+      "credit": "yd-factory-music",
+      "reason": "",
+      "gain": 1.0
+    },
+    {
+      "id": "MusikRundenstart",
+      "clips": [
+        "InfrontAudio/musik_rundenstart"
+      ],
+      "kind": "music",
+      "credit": "yd-factory-music",
+      "reason": "",
+      "gain": 1.0
+    }
+  ]
+}

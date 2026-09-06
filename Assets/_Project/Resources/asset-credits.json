@@ -1251,7 +1251,7 @@
       "license": "CC0-1.0",
       "sourceUrl": "https://opengameart.org/content/the-free-firearm-sound-library",
       "provenanceStatus": "unresolved-package-provenance",
-      "notes": "Four edited gunshot recordings. The source page and earlier project record identify the library; original archive licence and edit-to-source-take mapping remain unverified.",
+      "notes": "Four edited gunshot recordings. Original archive downloaded and inspected on 2026-09-06; no standalone licence file found. The provider supplies CC0 and creator statements. Exact edit-to-source-take mapping remains unverified.",
       "optional": false,
       "paths": [
         "Assets/_Project/Audio/Resources/schuss_gewehr.wav",
@@ -1264,7 +1264,13 @@
           "path": "Dokumentation/Licenses/FreeFirearmSoundLibrary/provenance.md",
           "kind": "publisher-page-and-prior-project-record",
           "sourceUrl": "https://opengameart.org/content/the-free-firearm-sound-library",
-          "sha256": "aad71d56377c378fd3b3efb1651314a45f19a4767e4648249696bdeaf9f8f45c"
+          "sha256": "b24edb07da367f3ad9e94013fb66e1861add813fc722f43d077b193b7ee489b1"
+        },
+        {
+          "path": "Dokumentation/Licenses/FreeFirearmSoundLibrary/archive-inspection.json",
+          "kind": "archive-inspection",
+          "sourceUrl": "https://opengameart.org/content/the-free-firearm-sound-library",
+          "sha256": "d22c45763ffb6aa98ba24afd027fbc067bd82832845620001ed68fafdb697494"
         }
       ],
       "content": [
@@ -1373,26 +1379,91 @@
       "name": "Impact Sounds 1.0",
       "author": "Kenney",
       "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Selected impact foley; mono conversion, level adjustment and edge fades by Driftlab.",
       "sourceUrl": "https://kenney.nl/assets/impact-sounds",
       "provenanceStatus": "package-license-verified",
-      "notes": "Original License.txt retained. Package available for integration; no runtime sound files assigned to this entry yet.",
-      "optional": true,
-      "paths": [],
+      "notes": "Licence inside the package retained verbatim.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/kenney-impact-sounds"
+      ],
       "evidence": [
         {
-          "path": "Dokumentation/Licenses/Kenney/ImpactSounds-License.txt",
+          "path": "Dokumentation/Licenses/Audio/kenney-impact-sounds.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+          "sha256": "e9c3bca28de6767b620086bf18199ce6911dee5837219ae984f4dfcfde19da77"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/LICENSE.txt",
           "kind": "package-license",
           "sourceUrl": "https://kenney.nl/assets/impact-sounds",
           "sha256": "b49aa9c56b04528b95913de13e506a0f7c5e807b9925db9bfef86af1f91120db"
-        },
-        {
-          "path": "Dokumentation/Licenses/Kenney/ImpactSounds-archive.json",
-          "kind": "downloaded-archive-inventory",
-          "sourceUrl": "https://kenney.nl/assets/impact-sounds",
-          "sha256": "e4e95bfc7942fe8d9effd74f6768cbf754ce795e44bad3c88aa903c06eab7ba3"
         }
       ],
-      "content": []
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/wall_0.wav",
+          "sha256": "8f82d0e278fd19fd87f3f2722e460b029a932e7cc4b52631f7f9024cd6f9ce81"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/wall_1.wav",
+          "sha256": "aee9192645faa645365329de510c6f642c70c8855a471cc9e5967d7d7069a9da"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/wall_2.wav",
+          "sha256": "44638e8d8abf3c730905e7044aec90e1c2a022490f88143826313a7ad54d9fff"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/wall_3.wav",
+          "sha256": "7ae58a8deba2198c77093093dc020bb4a15bccd9191618bb9524abfb1cdd5313"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/wall_4.wav",
+          "sha256": "38ff1380a889f1edef6581f3a9bcaea6eb5a1ea8f8be9f49d0eccb5b0921c6f3"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/metal-hit_0.wav",
+          "sha256": "b6bed800d9a7afa579f99e037d45c187ae0dfc3e7405f6ccb1a87e66073b2aba"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/metal-hit_1.wav",
+          "sha256": "2433fecbedc34ce6cb11ea8720b52f121faef5a7da3193b43f2857bf629989ba"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/metal-hit_2.wav",
+          "sha256": "5b2b32f3243163ffce7a7b6829dfc0caba3dac874f73da705c6f5b86c5f460b6"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/metal-hit_3.wav",
+          "sha256": "4ed4ef855bf72672579e1013fff991ee7cf8856fac9a824180fcae55bb0fa7b1"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/metal-hit_4.wav",
+          "sha256": "9ff24f2747d363513c1c3c5331b1138319130ba177fb9142a65863c82658a0df"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/body_0.wav",
+          "sha256": "e83dd14e3ebc6d630050e34a5901d65362f0a56db2efeb07b1c9f14c0728b16a"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/body_1.wav",
+          "sha256": "addfc7d797d4d56a184cb16114598f6d2624c266b79fd1e582758d792215d657"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/body_2.wav",
+          "sha256": "39bb919e562a4a585139ba350849bef88aed8670059a4d09ef0b6133a1a7b533"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/body_3.wav",
+          "sha256": "c20a629ac91d44557f56f363dab0a7b099a23a3f71c16a4fb9d57533f540981c"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/kenney-impact-sounds/Resources/InfrontAudio/body_4.wav",
+          "sha256": "1f21d594369afff76b1b4ba63cfaaa2880527baad91fb65f55a854a1d649c59f"
+        }
+      ]
     },
     {
       "id": "unity-ai.navigation",
@@ -1911,6 +1982,458 @@
         }
       ],
       "content": []
+    },
+    {
+      "id": "footsteps-boots",
+      "name": "footstep-concrete.wav",
+      "author": "swuing; mastered by congusbongus",
+      "license": "CC-BY-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "attributionNote": "Extracted from Footsteps on different surfaces by congusbongus. Mono conversion, level adjustment and short edge fades by Driftlab.",
+      "sourceUrl": "https://freesound.org/people/swuing/sounds/38873/",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Licence inside the package retained verbatim.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/footsteps-boots"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/footsteps-boots.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://freesound.org/people/swuing/sounds/38873/",
+          "sha256": "583c1b8606a7183c205dacbe2b975bcbeee48741b8d0df9e368791d7f0366af8"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/LICENSE.txt",
+          "kind": "package-license",
+          "sourceUrl": "https://freesound.org/people/swuing/sounds/38873/",
+          "sha256": "c123ed9d342b62cfe886f95fac8ec6d4f5ba30fcdff2387d8a4890e8a4f08bb4"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_0.wav",
+          "sha256": "fed714190de8f8c66334ac63c6d1f8c75f003b55ba6d34201f2af60051b88ecf"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_1.wav",
+          "sha256": "d9e3177678b4b2471ca6b5bc8b636541b9d327c15e99a460413f8b01005bc1d7"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_2.wav",
+          "sha256": "0b5b8162ac33889563962b05abf3231943d645b2fbe56072f53410b36a217331"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_3.wav",
+          "sha256": "2554d5f68e4b3259bc50b121e0eafce7729a85b58ba4580781cc5cf79999d5dc"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_4.wav",
+          "sha256": "f7c16a034efb658b97a46afa5d44cdd808a05e52d6b52d302c594418e1d0275f"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_5.wav",
+          "sha256": "910d29513da423ff1c7ce4022e7398970675acff389622f1f57b6e152d02304f"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_6.wav",
+          "sha256": "d1e7d464c8291a3d1b47e06ba2e028ec61de331771a6b5a4f92a7cae0fb73863"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_7.wav",
+          "sha256": "4bd5acf63a9b0932dff3f513653edc6a1fb2592e138a32fcc61e2c1d371d3612"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-boots/Resources/InfrontAudio/schritt_boots_8.wav",
+          "sha256": "9c4251117f6f23220e6b9ed82ae056144b155dfcf55b40e6e06df84f8a510394"
+        }
+      ]
+    },
+    {
+      "id": "footsteps-metal",
+      "name": "fboots on aluminum ladder 01",
+      "author": "Eelke; mastered by congusbongus",
+      "license": "CC-BY-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "attributionNote": "Extracted from Footsteps on different surfaces by congusbongus. Mono conversion, level adjustment and short edge fades by Driftlab.",
+      "sourceUrl": "https://freesound.org/people/Eelke/sounds/462598/",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Licence inside the package retained verbatim.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/footsteps-metal"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/footsteps-metal.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://freesound.org/people/Eelke/sounds/462598/",
+          "sha256": "e7b6c9215ed9c4ef84706d3b730209c090770e7f414c29f5c3e28e3eff1c20cf"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/LICENSE.txt",
+          "kind": "package-license",
+          "sourceUrl": "https://freesound.org/people/Eelke/sounds/462598/",
+          "sha256": "b2f0c186d108ebe8c6452ba6b21c580a81071bc91b66a07938c796372dd72f41"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_0.wav",
+          "sha256": "8ca809924b3e29c5a1e82ba46dc3eadaeb213551a8c72ae32f554a5e10a3f16d"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_1.wav",
+          "sha256": "ab40ec6cb27b2bb90a9048d23b551f9e996587d233921c628b96a6bf08a67d47"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_2.wav",
+          "sha256": "7d06a3245ac215ba49a373753618ace13972c42447e9b3ead817ca2054d0b32e"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_3.wav",
+          "sha256": "dcaa128b6fafb86a81ee2dc174b8e7ce63a9868c3c82828fac746f325b63b3f9"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_4.wav",
+          "sha256": "69c6f57f10bc7308d66fa35aca691979effcb507974801dd37b69f7663780e84"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_5.wav",
+          "sha256": "e1f73daab1f2f02ac10360fb7ddf6a32d4d0f693a11125d3f2220d6be9be1d3f"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_6.wav",
+          "sha256": "fe016998e883e6293439ec8552ae888efe6272d5d256d68a932c00bc458b9617"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-metal/Resources/InfrontAudio/schritt_metal_7.wav",
+          "sha256": "e04b0dc7b7a7f8b26af87a828f8b1013f1d67972bfa3a3a3f6d79c6c44a22fd3"
+        }
+      ]
+    },
+    {
+      "id": "footsteps-gravel",
+      "name": "Gravel Footsteps",
+      "author": "Ali_6868; mastered by congusbongus",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Extracted from Footsteps on different surfaces by congusbongus. Mono conversion, level adjustment and short edge fades by Driftlab.",
+      "sourceUrl": "https://freesound.org/people/Ali_6868/packs/21608/",
+      "provenanceStatus": "package-license-verified",
+      "notes": "Licence inside the package retained verbatim.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/footsteps-gravel"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/footsteps-gravel.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://freesound.org/people/Ali_6868/packs/21608/",
+          "sha256": "eef783e0f5af9f1ad0f6c136c468a2e37e437b841e938f6a4077554ea1be5551"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/LICENSE.txt",
+          "kind": "package-license",
+          "sourceUrl": "https://freesound.org/people/Ali_6868/packs/21608/",
+          "sha256": "05fef5d151cc0986dda641868296e794cbd0ebc60aa956500366cb6a9d5becf1"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_0.wav",
+          "sha256": "2816aa27193f3c237e8f8a87777dcdd17a1e0538ffd75f86dc241ae9ff8318ef"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_1.wav",
+          "sha256": "4c2b93761a620ba04e3f110c41f38af1930171d2cbc8c23ead4ab254fc69e5e1"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_2.wav",
+          "sha256": "2e44837a539ffebcaf118fefc3d0b8d96971a5c4b6d884e19940bb2658e95fb7"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_3.wav",
+          "sha256": "d390a795dc333ff5a231f96fd0391821e855a7ef13ed8a33d9b2d4bc00911a5e"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_4.wav",
+          "sha256": "a3f070b3330c569c73787495a5e10092499bb45cf16610f9b0bf3c6c7998e98c"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_5.wav",
+          "sha256": "9e353ca22371bd20a11f7252c08164affcdf93b8e9e5e19160e61ff2c503dc24"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_6.wav",
+          "sha256": "cb5788e3aa63a3a588dfa356c0d1752479981d2affd07e9feb634c569639f307"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_7.wav",
+          "sha256": "a3ce1a9bdd044a743e85f90975f286029d5d7c96c095735b59f32c85330068e7"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_8.wav",
+          "sha256": "3ce3f848ffc7639754d7a36c51b6c8406390dfd7decb024505cba4da5eb9cb1b"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/footsteps-gravel/Resources/InfrontAudio/schritt_gravel_9.wav",
+          "sha256": "4c8a791adf7ac4ae51b79298345fa9579dc5a4b3573273f00d76a4e75c476908"
+        }
+      ]
+    },
+    {
+      "id": "springyspringo-mechanics",
+      "name": "Gun reload sounds",
+      "author": "SpringySpringo",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Airsoft weapon recordings; mono conversion, level adjustment and edge fades by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/gun-reload-sounds",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence. Source assault-reload.wav: SHA-256 efb2d724d634eabe6ba8d3065686abca848bb7497d4d43a5e4aed5e5ea23016f. Unused alternate weapon-action.wav retained: SHA-256 33e007321ba83301c861aef573f2c40b70bc62f8f24c0164877e6dd123e24371.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/springyspringo-mechanics"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/springyspringo-mechanics.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/gun-reload-sounds",
+          "sha256": "48a3ac0f5267b9c5e8e6efe403ceed2c682a0099a04997ce19cc9b92d43bd440"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/springyspringo-mechanics/Resources/InfrontAudio/nachladen.wav",
+          "sha256": "d2f5e84c280c404cb4fdd469a00cc6a43488f9c1b509682a09fa74ff0346e654"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/springyspringo-mechanics/Resources/InfrontAudio/waffe_wechsel.wav",
+          "sha256": "abfb6e86e9782f7a2bf90f89f00b2ca32a3e7c66f35e2f39caaf05b9646e3038"
+        }
+      ]
+    },
+    {
+      "id": "mikeask-breathing",
+      "name": "Breathing tired",
+      "author": "mikeask",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Human breathing recording; short excerpts, mono conversion, level adjustment and edge fades by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/breathing-tired",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/mikeask-breathing"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/mikeask-breathing.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/breathing-tired",
+          "sha256": "abaf866f3c1ffed69b00a71e09a734670cf0dd438291ae75f383fc8026fac133"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/mikeask-breathing/Resources/InfrontAudio/atem_ein.wav",
+          "sha256": "9f346c5a5a0452d188490d0dca20d379dbf5be3f638c3a26d6eaaedaa4e95575"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/mikeask-breathing/Resources/InfrontAudio/atem_aus.wav",
+          "sha256": "5ff7c180061249020d30e2144c7ea691788591a9fdfb3276f1ac5a196ae568bc"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/mikeask-breathing/Resources/InfrontAudio/atem_keuchen.wav",
+          "sha256": "489645daf266a87718786b7a4c9b2e783a60885fc11ce70e14126a17e92f736a"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/mikeask-breathing/Resources/InfrontAudio/atem_schnappen.wav",
+          "sha256": "ec075c413ff4f4ba94cba960e210c5bbf846603bc7624f0788735ab766f5687a"
+        }
+      ]
+    },
+    {
+      "id": "legit-audio-room",
+      "name": "The Shop — refrigerator room tone",
+      "author": "LEGIT Audio",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Recorded appliance drone used as hall ventilation. Mono conversion, resampling, loop crossfade and level adjustment by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/the-shop",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/legit-audio-room"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/legit-audio-room.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/the-shop",
+          "sha256": "d7aa2b27e624c79f12c0deb50d7831b90227d01e4965783542fa201c88dd540b"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/legit-audio-room/Resources/InfrontAudio/raumton.wav",
+          "sha256": "7996fd5bf300bf28ce9df75ac5b676e6a73151f971d8b9d379a6ffedf3bda23f"
+        }
+      ]
+    },
+    {
+      "id": "yd-factory-music",
+      "name": "Factory ambiance",
+      "author": "yd",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Electronic composition. Menu edit, tension excerpt, short round-start edit, fades and level adjustment by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/factory-ambiance",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/yd-factory-music"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/yd-factory-music.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/factory-ambiance",
+          "sha256": "044190d22915f11e62e8715f59df89a5359f763dc1d8250b6e624ae60a50d9e8"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/yd-factory-music/Resources/InfrontAudio/musik_menue.wav",
+          "sha256": "0000eb4dfca82ef05bf7f468825061b5a6bd0d09ed6604358d6ddd6d388bdf9c"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/yd-factory-music/Resources/InfrontAudio/musik_spannung.wav",
+          "sha256": "9950bb722e55360e311c12227fd7c40c58f2d84ca9a174ced329d25925a2cbe3"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/yd-factory-music/Resources/InfrontAudio/musik_rundenstart.wav",
+          "sha256": "9e6444a216730338a0f1d74af661599d61118c6a773fe3b2fd814eb47881aeed"
+        }
+      ]
+    },
+    {
+      "id": "lfa-equipment-clicks",
+      "name": "Equipment clicks III",
+      "author": "LFA",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "The source set records a real bolt-action rifle alongside other mechanical objects. Three isolated excerpts, mono conversion, level adjustment and edge fades by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/equipment-clicks-iii",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/lfa-equipment-clicks"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/lfa-equipment-clicks.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/equipment-clicks-iii",
+          "sha256": "5e5a3de0f68da23aba20dc0c02f9643011d0e1342d5f1b81a80eaef129b6eed6"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/lfa-equipment-clicks/Resources/InfrontAudio/waffe_wechsel_0.wav",
+          "sha256": "0b740a59c1d68320edcbdd1c29fa42073f30ecc091ad06ef0f715892bf9bf306"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/lfa-equipment-clicks/Resources/InfrontAudio/waffe_wechsel_1.wav",
+          "sha256": "8659d2fc2bdfdda84dd6584189c125bc69c71a143d3b42b2e248cbc14326ab9b"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/lfa-equipment-clicks/Resources/InfrontAudio/waffe_wechsel_2.wav",
+          "sha256": "8557c12821f5cf6b04b2e336d3ec7a57455d5e275e714564058d1c5078b2043d"
+        }
+      ]
+    },
+    {
+      "id": "rubberduck-bangs",
+      "name": "25 CC0 bang / firework SFX",
+      "author": "Rubberduck",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Recorded firework and cannon reports used for the bomb blast. Bass reinforcement, mono conversion, level adjustment and edge fades by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/25-cc0-bang-firework-sfx",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/rubberduck-bangs"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/rubberduck-bangs.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/25-cc0-bang-firework-sfx",
+          "sha256": "51ed71c7e88a2b3323a5bf68faa45d78d10ad25306fdf3a3522ad05ff1649acb"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/rubberduck-bangs/Resources/InfrontAudio/bombe_explosion_0.wav",
+          "sha256": "280805841d7491d4e46b681c1d0374eff19cb9914bba8520169d47fea84df96f"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/rubberduck-bangs/Resources/InfrontAudio/bombe_explosion_1.wav",
+          "sha256": "b126eeb740c3e58c4d2f018bf6fbec0cbd19cfa26717a49a94f679772de26462"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/rubberduck-bangs/Resources/InfrontAudio/bombe_explosion_2.wav",
+          "sha256": "92370913fd73e1caf9b0262b40540cd3ff3235439c91dfd14aa4cbedb5b2ff65"
+        }
+      ]
+    },
+    {
+      "id": "bart-workshop",
+      "name": "68 Workshop Sounds",
+      "author": "bart",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionNote": "Garage tool recordings made with a Tascam DR-05. Short metal-drag and scrape excerpts, mono conversion, level adjustment and edge fades by Driftlab.",
+      "sourceUrl": "https://opengameart.org/content/68-workshop-sounds",
+      "provenanceStatus": "provider-license-verified",
+      "notes": "No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.",
+      "optional": false,
+      "paths": [
+        "Assets/ThirdParty/Audio/bart-workshop"
+      ],
+      "evidence": [
+        {
+          "path": "Dokumentation/Licenses/Audio/bart-workshop.json",
+          "kind": "download-and-provider-evidence",
+          "sourceUrl": "https://opengameart.org/content/68-workshop-sounds",
+          "sha256": "c377c6f5b999cd23007b4cd7951b15dab9490261dc0594ef2b7777f5bb1f6d7f"
+        }
+      ],
+      "content": [
+        {
+          "path": "Assets/ThirdParty/Audio/bart-workshop/Resources/InfrontAudio/metall_knarzen_0.wav",
+          "sha256": "525f57289541598cc934aa3b0160d9e987115ee4d90422d0f75729808ccceb89"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/bart-workshop/Resources/InfrontAudio/metall_knarzen_1.wav",
+          "sha256": "7fd95eeb7f46620c069dd2310d8cedbbc50b2c5958ffe6b37fc263315c4f58dd"
+        },
+        {
+          "path": "Assets/ThirdParty/Audio/bart-workshop/Resources/InfrontAudio/metall_knarzen_2.wav",
+          "sha256": "27176fd2cb0e7806159309609616cc5a1d60e6f73ab9dd3b07847c57bffd1cc8"
+        }
+      ]
     }
   ]
 }

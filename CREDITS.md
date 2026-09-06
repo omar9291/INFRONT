@@ -1,13 +1,13 @@
 # INFRONT credits
 
 This file mirrors `Assets/_Project/Resources/asset-credits.json`, the offline source for the in-game credits.
-Reviewed 2026-09-05. The code licence remains the existing repository `LICENSE`.
+Reviewed 2026-09-06. The code licence remains the existing repository `LICENSE`.
 
 Evidence status is explicit. `package-license-verified` means a licence or notice was read from the actual package; it does not certify all release obligations. `provider-metadata-only` means the provider policy and asset identity were checked, while package-internal licence text is unavailable. Unresolved source details stay visible. SHA-256 fingerprints identify the reviewed local files and retained evidence.
 
 Imported model/texture/HDRI files, archived and live audio files, and optional local Mixamo files are inventoried individually in the JSON. Generated materials, prefabs and packed maps inherit the corresponding source attribution; project code and generated geometry remain Driftlab work.
 
-Open provenance items: missing original firearm archive/edit mapping; unnamed local Mixamo catalogue entries and complete redistribution terms; Poly Haven original download licence files not retained; ambientCG inspected archives contain no standalone licence file. Source hashes and official provider pages are retained without relabelling them as embedded licence evidence.
+Open provenance items: exact original firearm edit mapping (archive inspected, no standalone licence found); unnamed local Mixamo catalogue entries and complete redistribution terms; Poly Haven original download licence files not retained; ambientCG inspected archives contain no standalone licence file. Source hashes and official provider pages are retained without relabelling them as embedded licence evidence.
 
 <!-- credit:polyhaven-barrel_01 -->
 ## Barrel_01
@@ -329,9 +329,9 @@ Source maps match the downloaded 1K-JPG archive; packed MetalSmooth images are p
 - **Source:** [https://opengameart.org/content/the-free-firearm-sound-library](https://opengameart.org/content/the-free-firearm-sound-library)
 - **Evidence status:** unresolved-package-provenance
 - **Scope:** `Assets/_Project/Audio/Resources/schuss_gewehr.wav`, `Assets/_Project/Audio/Resources/schuss_mp.wav`, `Assets/_Project/Audio/Resources/schuss_sniper.wav`, `Assets/_Project/Audio/Resources/schuss_pistole.wav`
-- **Retained evidence:** [provenance.md](<Dokumentation/Licenses/FreeFirearmSoundLibrary/provenance.md>)
+- **Retained evidence:** [provenance.md](<Dokumentation/Licenses/FreeFirearmSoundLibrary/provenance.md>), [archive-inspection.json](<Dokumentation/Licenses/FreeFirearmSoundLibrary/archive-inspection.json>)
 
-Four edited gunshot recordings. The source page and earlier project record identify the library; original archive licence and edit-to-source-take mapping remain unverified.
+Four edited gunshot recordings. Original archive downloaded and inspected on 2026-09-06; no standalone licence file found. The provider supplies CC0 and creator statements. Exact edit-to-source-take mapping remains unverified.
 
 <!-- credit:mixamo-local -->
 ## Mixamo character and animations
@@ -364,10 +364,12 @@ Archived fallback sounds, outside Resources. These are synthesised, not recordin
 - **Licence:** CC0-1.0
 - **Source:** [https://kenney.nl/assets/impact-sounds](https://kenney.nl/assets/impact-sounds)
 - **Evidence status:** package-license-verified
-- **Scope:** Available package; runtime selection pending.
-- **Retained evidence:** [ImpactSounds-License.txt](<Dokumentation/Licenses/Kenney/ImpactSounds-License.txt>), [ImpactSounds-archive.json](<Dokumentation/Licenses/Kenney/ImpactSounds-archive.json>)
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Selected impact foley; mono conversion, level adjustment and edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/kenney-impact-sounds`
+- **Retained evidence:** [kenney-impact-sounds.json](<Dokumentation/Licenses/Audio/kenney-impact-sounds.json>), [LICENSE.txt](<Assets/ThirdParty/Audio/kenney-impact-sounds/LICENSE.txt>)
 
-Original License.txt retained. Package available for integration; no runtime sound files assigned to this entry yet.
+Licence inside the package retained verbatim.
 
 <!-- credit:unity-ai.navigation -->
 ## AI Navigation 2.0.14
@@ -573,3 +575,142 @@ Version read from the installed package, not assumed from the requested manifest
 
 Version read from the installed package, not assumed from the requested manifest version. Retained third-party notices, where present, carry additional attribution and terms.
 
+<!-- credit:footsteps-boots -->
+## footstep-concrete.wav
+
+- **Author:** swuing; mastered by congusbongus
+- **Licence:** CC-BY-3.0
+- **Source:** [https://freesound.org/people/swuing/sounds/38873/](https://freesound.org/people/swuing/sounds/38873/)
+- **Evidence status:** package-license-verified
+- **Licence text:** [https://creativecommons.org/licenses/by/3.0/](https://creativecommons.org/licenses/by/3.0/)
+- **Adaptation:** Extracted from Footsteps on different surfaces by congusbongus. Mono conversion, level adjustment and short edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/footsteps-boots`
+- **Retained evidence:** [footsteps-boots.json](<Dokumentation/Licenses/Audio/footsteps-boots.json>), [LICENSE.txt](<Assets/ThirdParty/Audio/footsteps-boots/LICENSE.txt>)
+
+Licence inside the package retained verbatim.
+
+<!-- credit:footsteps-metal -->
+## fboots on aluminum ladder 01
+
+- **Author:** Eelke; mastered by congusbongus
+- **Licence:** CC-BY-3.0
+- **Source:** [https://freesound.org/people/Eelke/sounds/462598/](https://freesound.org/people/Eelke/sounds/462598/)
+- **Evidence status:** package-license-verified
+- **Licence text:** [https://creativecommons.org/licenses/by/3.0/](https://creativecommons.org/licenses/by/3.0/)
+- **Adaptation:** Extracted from Footsteps on different surfaces by congusbongus. Mono conversion, level adjustment and short edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/footsteps-metal`
+- **Retained evidence:** [footsteps-metal.json](<Dokumentation/Licenses/Audio/footsteps-metal.json>), [LICENSE.txt](<Assets/ThirdParty/Audio/footsteps-metal/LICENSE.txt>)
+
+Licence inside the package retained verbatim.
+
+<!-- credit:footsteps-gravel -->
+## Gravel Footsteps
+
+- **Author:** Ali_6868; mastered by congusbongus
+- **Licence:** CC0-1.0
+- **Source:** [https://freesound.org/people/Ali_6868/packs/21608/](https://freesound.org/people/Ali_6868/packs/21608/)
+- **Evidence status:** package-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Extracted from Footsteps on different surfaces by congusbongus. Mono conversion, level adjustment and short edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/footsteps-gravel`
+- **Retained evidence:** [footsteps-gravel.json](<Dokumentation/Licenses/Audio/footsteps-gravel.json>), [LICENSE.txt](<Assets/ThirdParty/Audio/footsteps-gravel/LICENSE.txt>)
+
+Licence inside the package retained verbatim.
+
+<!-- credit:springyspringo-mechanics -->
+## Gun reload sounds
+
+- **Author:** SpringySpringo
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/gun-reload-sounds](https://opengameart.org/content/gun-reload-sounds)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Airsoft weapon recordings; mono conversion, level adjustment and edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/springyspringo-mechanics`
+- **Retained evidence:** [springyspringo-mechanics.json](<Dokumentation/Licenses/Audio/springyspringo-mechanics.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence. Source assault-reload.wav: SHA-256 efb2d724d634eabe6ba8d3065686abca848bb7497d4d43a5e4aed5e5ea23016f. Source weapon-action.wav: SHA-256 33e007321ba83301c861aef573f2c40b70bc62f8f24c0164877e6dd123e24371.
+
+<!-- credit:mikeask-breathing -->
+## Breathing tired
+
+- **Author:** mikeask
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/breathing-tired](https://opengameart.org/content/breathing-tired)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Human breathing recording; short excerpts, mono conversion, level adjustment and edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/mikeask-breathing`
+- **Retained evidence:** [mikeask-breathing.json](<Dokumentation/Licenses/Audio/mikeask-breathing.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.
+
+<!-- credit:lfa-equipment-clicks -->
+## Equipment clicks III
+
+- **Author:** LFA
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/equipment-clicks-iii](https://opengameart.org/content/equipment-clicks-iii)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** The source set records a real bolt-action rifle alongside other mechanical objects. Three isolated excerpts, mono conversion, level adjustment and edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/lfa-equipment-clicks`
+- **Retained evidence:** [lfa-equipment-clicks.json](<Dokumentation/Licenses/Audio/lfa-equipment-clicks.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.
+
+<!-- credit:rubberduck-bangs -->
+## 25 CC0 bang / firework SFX
+
+- **Author:** Rubberduck
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/25-cc0-bang-firework-sfx](https://opengameart.org/content/25-cc0-bang-firework-sfx)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Recorded firework and cannon reports used for the bomb blast. Bass reinforcement, mono conversion, level adjustment and edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/rubberduck-bangs`
+- **Retained evidence:** [rubberduck-bangs.json](<Dokumentation/Licenses/Audio/rubberduck-bangs.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.
+
+<!-- credit:bart-workshop -->
+## 68 Workshop Sounds
+
+- **Author:** bart
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/68-workshop-sounds](https://opengameart.org/content/68-workshop-sounds)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Garage tool recordings made with a Tascam DR-05. Short metal-drag and scrape excerpts, mono conversion, level adjustment and edge fades by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/bart-workshop`
+- **Retained evidence:** [bart-workshop.json](<Dokumentation/Licenses/Audio/bart-workshop.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.
+
+<!-- credit:legit-audio-room -->
+## The Shop — refrigerator room tone
+
+- **Author:** LEGIT Audio
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/the-shop](https://opengameart.org/content/the-shop)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Recorded appliance drone used as hall ventilation. Mono conversion, resampling, loop crossfade and level adjustment by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/legit-audio-room`
+- **Retained evidence:** [legit-audio-room.json](<Dokumentation/Licenses/Audio/legit-audio-room.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.
+
+<!-- credit:yd-factory-music -->
+## Factory ambiance
+
+- **Author:** yd
+- **Licence:** CC0-1.0
+- **Source:** [https://opengameart.org/content/factory-ambiance](https://opengameart.org/content/factory-ambiance)
+- **Evidence status:** provider-license-verified
+- **Licence text:** [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Adaptation:** Electronic composition. Menu edit, tension excerpt, short round-start edit, fades and level adjustment by Driftlab.
+- **Scope:** `Assets/ThirdParty/Audio/yd-factory-music`
+- **Retained evidence:** [yd-factory-music.json](<Dokumentation/Licenses/Audio/yd-factory-music.json>)
+
+No licence file inside this download. Licence and author checked on the source page; this is provider evidence, not a package licence.

@@ -30,6 +30,10 @@ namespace Infront
         const float WindBase = 0.16f;
 
         AudioSource _wind;
+        AudioSource _room;
+        float _roomGain;
+        float _roofCheckIn;
+        bool _indoors;
         WeatherDirector _weather;
         MatchManager _match;
 
@@ -60,6 +64,16 @@ namespace Infront
             _wind.playOnAwake = false;
             _wind.Play();
 
+            var room = new GameObject("HallRoomTone");
+            room.transform.SetParent(transform, false);
+            _room = room.AddComponent<AudioSource>();
+            _room.playOnAwake = false;
+            _room.clip = AudioService.Instance != null ? AudioService.Instance.Resolve(SoundId.Raumton) : null;
+            _room.loop = true;
+            _room.spatialBlend = 0f;
+            _room.volume = 0f;
+            if (_room.clip != null) _room.Play();
+
             _nextEventIn = Random.Range(9f, 16f);   // erstes Ereignis nicht sofort
         }
 
@@ -87,7 +101,17 @@ namespace Infront
             float targetGain = (buyTime ? 0.6f : 1f) * weatherMul;
             _windGain = Mathf.MoveTowards(_windGain, targetGain, dt * 1.2f);
             float master = Mathf.Clamp01(GameSettings.SfxVolume);
-            if (_wind != null) _wind.volume = WindBase * _windGain * master;
+            _roofCheckIn -= dt;
+            if (_roofCheckIn <= 0f)
+            {
+                _roofCheckIn = .5f;
+                var camera = Camera.main;
+                _indoors = camera != null && Physics.Raycast(camera.transform.position,
+                    Vector3.up, 25f, 1 << 0, QueryTriggerInteraction.Ignore);
+            }
+            _roomGain = Mathf.MoveTowards(_roomGain, _indoors ? 1f : 0f, dt);
+            if (_wind != null) _wind.volume = WindBase * _windGain * master * Mathf.Lerp(1f, .35f, _roomGain);
+            if (_room != null) _room.volume = .20f * _roomGain * master;
 
             // --- Ferne Ereignisse --------------------------------------
             bool eventsAllowed = _match == null || !_match.SuspendedForTests;

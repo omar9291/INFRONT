@@ -55,6 +55,8 @@ namespace Infront
             public string name;
             public string author;
             public string license;
+            public string licenseUrl;
+            public string attributionNote;
             public string sourceUrl;
             public string provenanceStatus;
             public string notes;
@@ -87,6 +89,8 @@ namespace Infront
         public string Name { get; }
         public string Author { get; }
         public string License { get; }
+        public string LicenseUrl { get; }
+        public string AttributionNote { get; }
         public string SourceUrl { get; }
         public string ProvenanceStatus { get; }
         public string Notes { get; }
@@ -101,6 +105,8 @@ namespace Infront
             Name = data.name ?? "";
             Author = data.author ?? "";
             License = data.license ?? "";
+            LicenseUrl = data.licenseUrl ?? "";
+            AttributionNote = data.attributionNote ?? "";
             SourceUrl = data.sourceUrl ?? "";
             ProvenanceStatus = data.provenanceStatus ?? "";
             Notes = data.notes ?? "";

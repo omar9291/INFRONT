@@ -16,6 +16,7 @@ namespace Infront
     /// einer nahen Explosion, faellt danach wieder, und weit entfernte
     /// Explosionen loesen sie nicht aus.
     /// </summary>
+    [RequireComponent(typeof(AudioListener))]
     public sealed class EarRinging : MonoBehaviour
     {
         [Header("Ausloesen")]
@@ -40,6 +41,8 @@ namespace Infront
 
         float _level;
         AudioLowPassFilter _filter;
+        AudioListener _listener;
+        bool Hoert => isActiveAndEnabled && _listener != null && _listener.isActiveAndEnabled;
 
         public float Level01 => Mathf.Clamp01(_level);
         public float MaxEntfernungForTests => _maxEntfernung;
@@ -71,6 +74,7 @@ namespace Infront
             for (int i = _alle.Count - 1; i >= 0; i--)
             {
                 if (_alle[i] == null) { _alle.RemoveAt(i); continue; }
+                if (!_alle[i].Hoert) continue;
                 _alle[i].Explosion(position);
             }
         }
@@ -83,19 +87,13 @@ namespace Infront
         {
             EarRinging ergebnis = null;
 
-            // Der AudioListener ist das Ohr...
-            var listener = Object.FindAnyObjectByType<AudioListener>();
-            if (listener != null) ergebnis = AnObjekt(listener.gameObject);
-
-            // ...aber der Tiefpass muss auch auf der Kamera liegen, durch die
-            // gespielt wird. Im Testlauf waren das zwei verschiedene Objekte,
-            // und der Filter auf der Kamera blieb dadurch auf einem alten Wert
-            // stehen, den niemand mehr zurueckgesetzt hat.
-            var cam = Camera.main;
-            if (cam != null && (listener == null || cam.gameObject != listener.gameObject))
+            // Nur ein aktiver AudioListener hört. Eine freie Renderkamera
+            // kann ohne Listener existieren; dort ist ein Audiofilter ungültig.
+            foreach (var listener in Object.FindObjectsByType<AudioListener>())
             {
-                var anKamera = AnObjekt(cam.gameObject);
-                if (ergebnis == null) ergebnis = anKamera;
+                if (!listener.isActiveAndEnabled) continue;
+                var ohr = AnObjekt(listener.gameObject);
+                if (ergebnis == null) ergebnis = ohr;
             }
 
             return ergebnis;
@@ -113,6 +111,7 @@ namespace Infront
         void Awake()
         {
             if (!_alle.Contains(this)) _alle.Add(this);
+            _listener = GetComponent<AudioListener>();
             _filter = GetComponent<AudioLowPassFilter>();
             if (_filter == null) _filter = gameObject.AddComponent<AudioLowPassFilter>();
             _filter.cutoffFrequency = 22000f;
@@ -155,7 +154,7 @@ namespace Infront
                 // sicher, dass das Gehoer wirklich wieder unveraendert ist -
                 // ein Tiefpass bei 21 kHz waere zwar unhoerbar, aber eben auch
                 // nicht "aus".
-                bool spuerbar = _level > 0.05f;
+                bool spuerbar = Hoert && _level > 0.05f;
                 _filter.enabled = spuerbar;
                 _filter.cutoffFrequency = spuerbar
                     ? Mathf.Lerp(22000f, _cutoffTaub, _level)
@@ -169,7 +168,8 @@ namespace Infront
             {
                 float staerkster = 0f;
                 for (int i = 0; i < _alle.Count; i++)
-                    if (_alle[i] != null) staerkster = Mathf.Max(staerkster, _alle[i]._level);
+                    if (_alle[i] != null && _alle[i].Hoert)
+                        staerkster = Mathf.Max(staerkster, _alle[i]._level);
                 AudioService.Instance.Deafness = staerkster;
             }
         }
