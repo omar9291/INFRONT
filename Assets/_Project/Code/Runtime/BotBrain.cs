@@ -251,7 +251,11 @@ namespace Infront
             if (platz > 0)
             {
                 int stufe = (platz + 1) / 2;
-                seite = (platz % 2 == 1 ? -1f : 1f) * stufe * 13f;
+                // Die Spawn-Lanes liegen bereits 15 m auseinander. 13 m
+                // wendeten diese Verteilung für den zweiten Bot fast wieder
+                // um (z.B. -8 m -> -21 m neben dem ersten bei -23 m). 7 m
+                // bewahrt die eigene Lane und gibt trotzdem eine eigene Route.
+                seite = (platz % 2 == 1 ? -1f : 1f) * stufe * 7f;
             }
 
             Vector3 ahead = transform.position + transform.forward * _advanceDistance

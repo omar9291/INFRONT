@@ -141,6 +141,9 @@ namespace Infront
         {
             var go = new GameObject("Wolke");
             go.transform.SetParent(transform, false);
+            // Der Wurfpunkt liegt auf Augenhöhe. Rauch beginnt aber am Boden;
+            // die Absenkung verhindert die bisherige schwebende, helle Kugel.
+            go.transform.localPosition = Vector3.down * Mathf.Min(0.85f, _radius * 0.2f);
             _sphere = go.transform;
 
             _ps = go.AddComponent<ParticleSystem>();
@@ -148,12 +151,12 @@ namespace Infront
 
             _main = _ps.main;
             _main.loop = true;
-            _main.startLifetime = new ParticleSystem.MinMaxCurve(2.2f, 4.2f);
-            _main.startSpeed = new ParticleSystem.MinMaxCurve(0.15f, 0.7f);
-            _main.startSize = new ParticleSystem.MinMaxCurve(_radius * 0.85f, _radius * 1.5f);
-            _main.startColor = new Color(0.78f, 0.79f, 0.81f, 0.34f);
+            _main.startLifetime = new ParticleSystem.MinMaxCurve(2.6f, 4.4f);
+            _main.startSpeed = new ParticleSystem.MinMaxCurve(0.08f, 0.32f);
+            _main.startSize = new ParticleSystem.MinMaxCurve(_radius * 0.68f, _radius * 1.12f);
+            _main.startColor = new Color(0.48f, 0.49f, 0.52f, 0.30f);
             _main.startRotation = new ParticleSystem.MinMaxCurve(0f, 2f * Mathf.PI);
-            _main.maxParticles = 260;
+            _main.maxParticles = 220;
             _main.simulationSpace = ParticleSystemSimulationSpace.World;
             _main.gravityModifier = -0.012f;   // steigt ganz leicht, wie echter Rauch
 
@@ -163,9 +166,16 @@ namespace Infront
 
             var shape = _ps.shape;
             shape.enabled = true;
-            shape.shapeType = ParticleSystemShapeType.Sphere;
-            shape.radius = _radius * 0.55f;
-            shape.randomDirectionAmount = 1f;
+            shape.shapeType = ParticleSystemShapeType.Box;
+            shape.scale = new Vector3(_radius * 1.1f, 0.38f, _radius * 1.1f);
+            shape.randomDirectionAmount = 0.18f;
+
+            var velocity = _ps.velocityOverLifetime;
+            velocity.enabled = true;
+            velocity.space = ParticleSystemSimulationSpace.World;
+            velocity.x = new ParticleSystem.MinMaxCurve(-0.16f, 0.16f);
+            velocity.y = new ParticleSystem.MinMaxCurve(0.20f, 0.48f);
+            velocity.z = new ParticleSystem.MinMaxCurve(-0.16f, 0.16f);
 
             var rot = _ps.rotationOverLifetime;
             rot.enabled = true;
@@ -175,7 +185,8 @@ namespace Infront
             col2.enabled = true;
             var grad = new Gradient();
             grad.SetKeys(
-                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                new[] { new GradientColorKey(new Color(0.68f, 0.69f, 0.72f), 0f),
+                        new GradientColorKey(new Color(0.58f, 0.60f, 0.63f), 1f) },
                 new[]
                 {
                     new GradientAlphaKey(0f, 0f),
@@ -187,7 +198,7 @@ namespace Infront
 
             var groesse = _ps.sizeOverLifetime;
             groesse.enabled = true;
-            groesse.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 0.55f, 1f, 1f));
+            groesse.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 0.62f, 1f, 1f));
 
             var shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Sprites/Default");
@@ -228,10 +239,11 @@ namespace Infront
             if (_ps != null)
             {
                 var shape = _ps.shape;
-                shape.radius = Mathf.Max(0.2f, r * 0.55f);
-                _main.startSize = new ParticleSystem.MinMaxCurve(r * 0.85f, r * 1.5f);
-                _main.startColor = new Color(0.78f, 0.79f, 0.81f, 0.34f * fade);
-                _emission.rateOverTime = 60f * grow * fade;
+                shape.scale = new Vector3(Mathf.Max(0.4f, r * 1.1f), 0.38f,
+                    Mathf.Max(0.4f, r * 1.1f));
+                _main.startSize = new ParticleSystem.MinMaxCurve(r * 0.68f, r * 1.12f);
+                _main.startColor = new Color(0.48f, 0.49f, 0.52f, 0.30f * fade);
+                _emission.rateOverTime = 52f * grow * fade;
                 if (fade <= 0.02f) _emission.rateOverTime = 0f;
             }
 

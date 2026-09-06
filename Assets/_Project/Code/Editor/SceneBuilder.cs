@@ -1665,6 +1665,7 @@ namespace Infront.EditorTools
             BuildDecorationWerk();
             BuildDetailWerk();
             BuildWandDetail();
+            BuildHallenwandDetail();
             BuildHallenstrahler();
         }
 
@@ -2578,6 +2579,54 @@ namespace Infront.EditorTools
             }
 
             for (int seite = 0; seite < 4; seite++) Wand(seite);
+        }
+
+        /// <summary>Gibt den Trennwänden zwischen Halle und Tunnel dieselbe
+        /// Konstruktion wie der Außenhülle: Sockel, Paneelfugen, Stützen und
+        /// Kabeltrassen. Die Wände sind spielerisch wichtige Sichtachsen; die
+        /// Ergänzungen bleiben daher reine Deko ohne Collider.</summary>
+        static void BuildHallenwandDetail()
+        {
+            var sockel = new Color(0.24f, 0.25f, 0.27f);
+            var fuge = new Color(0.11f, 0.12f, 0.14f);
+            var rahmen = new Color(0.17f, 0.18f, 0.20f);
+            var kabel = new Color(0.08f, 0.085f, 0.095f);
+
+            foreach (int seite in new[] { -1, 1 })
+            foreach (int spiegel in new[] { -1, 1 })
+            foreach (int segment in new[] { 0, 1 })
+            {
+                float z = spiegel * (segment == 0 ? 9f : 25f);
+                // Die sichtbare Innenseite liegt bei x = +/-8,3; die Deko
+                // sitzt 3 cm davor und berührt weder Karte noch NavMesh.
+                float x = seite * 8.27f;
+                string id = $"{seite}_{spiegel}_{segment}";
+
+                Deco($"HallenSockel_{id}", PrimitiveType.Cube, new Vector3(x, 0.17f, z),
+                    new Vector3(0.09f, 0.34f, 11.84f), sockel);
+                Deco($"HallenFugeUnten_{id}", PrimitiveType.Cube, new Vector3(x, 2.55f, z),
+                    new Vector3(0.05f, 0.055f, 11.86f), fuge);
+                Deco($"HallenFugeOben_{id}", PrimitiveType.Cube, new Vector3(x, 5.18f, z),
+                    new Vector3(0.05f, 0.055f, 11.86f), fuge);
+
+                for (int rib = -2; rib <= 2; rib++)
+                {
+                    float rz = z + rib * 2.15f;
+                    Deco($"HallenRippe_{id}_{rib}", PrimitiveType.Cube, new Vector3(x, 3.55f, rz),
+                        new Vector3(0.12f, 6.9f, 0.13f), rahmen);
+                }
+
+                // Doppelte Kabeltrasse oben an der Wand; die kurzen Halter
+                // geben ihr Tiefe, ohne in den Korridor hineinzuragen.
+                Deco($"HallenKabelOben_{id}", PrimitiveType.Cube, new Vector3(x, 6.32f, z),
+                    new Vector3(0.16f, 0.10f, 11.7f), kabel);
+                Deco($"HallenKabelUnten_{id}", PrimitiveType.Cube, new Vector3(x, 6.08f, z),
+                    new Vector3(0.12f, 0.07f, 11.7f), kabel);
+                for (int holder = -2; holder <= 2; holder++)
+                    Deco($"HallenKabelHalter_{id}_{holder}", PrimitiveType.Cube,
+                        new Vector3(x - seite * 0.08f, 6.2f, z + holder * 2.15f),
+                        new Vector3(0.14f, 0.28f, 0.07f), rahmen);
+            }
         }
 
         /// <summary>Wandstrahler in der Halle, die WAAGERECHT leuchten.

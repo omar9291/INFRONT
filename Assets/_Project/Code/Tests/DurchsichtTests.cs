@@ -112,6 +112,14 @@ namespace Infront.Tests
             Assert.IsTrue(UrpMaterial.IstDurchsichtigForTests(r.sharedMaterial),
                 "Eine Rauchwolke, durch die man nicht hindurchsieht, ist keine.");
 
+            var shape = ps.shape;
+            Assert.AreEqual(ParticleSystemShapeType.Box, shape.shapeType,
+                "Rauch muss als niedrige Bodenschicht ausströmen, nicht als helle Kugel.");
+            Assert.Less(shape.scale.y, .5f,
+                "Die Rauchquelle ist zu hoch und lässt die Wolke wieder schweben.");
+            Assert.Less(ps.main.startColor.color.r, .6f,
+                "Der Rauch ist zu weiß; Industrie-Rauch braucht einen grauen Grundton.");
+
             Object.DestroyImmediate(go);
         }
     }

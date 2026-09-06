@@ -56,7 +56,9 @@ beim Start vorgeladen, damit ihre erste Benutzung das Gefecht nicht ausbremst.
 
 Größte Restarbeit: ergänzende Aufnahmen und Hör-Abnahme, zweite Karte,
 Spielbalance und abschließende Bild-/Leistungs-/Hör- und Einsteigertests.
-Wanddetails der inneren Trennwände, Rauch und Leistungsreserve bleiben offen.
+Die inneren Trennwände und der Rauch sind ergänzt; die Leistungsreserve bleibt
+offen, weil vier saubere M1-Läufe beim 1-%-Tiefpunkt zwischen 47,44 und
+49,90 FPS lagen.
 
 ## Verifizierter Ausgangspunkt
 
@@ -82,7 +84,7 @@ Wanddetails der inneren Trennwände, Rauch und Leistungsreserve bleiben offen.
 | 1 – Englisch | Gemeinsamer Textkatalog und Tests für echte UI-Zustände/Anzeigen; keine Kennungen umbenennen. | Im Hauptzweig; Menü-/Sprachtests erneut grün |
 | 2 – Credits | Einzelne Assets, Autoren, präzise Quellen, gespeicherte Lizenzbelege; gemeinsames Verzeichnis für Spiel und CREDITS.md; neue ungenannte Dateien müssen Tests scheitern lassen. | Menü angebunden und Tests grün; offene Bestandsherkunft separat dokumentiert |
 | 3 – Materialien/Licht | Fehlende AO-Verknüpfung, geeignete AO-Dateien, kontrollierte Bild-/Leistungsvergleiche; Material- und Lichtbasis existiert bereits. | In Arbeit |
-| 4 – Details | Vorhandene Trim-/Rohr-/Dachbibliothek ergänzen, auffällige kahle Flächen und unplausible Übergänge prüfen. | Offen |
+| 4 – Details | Innere Trennwände mit Sockeln, Fugen, Rippen und Kabeltrassen ergänzt; Rauch als niedrige Bodenschicht. Neue Deko bleibt colliderfrei, Bot-Lanes korrigiert. | Technisch geprüft; Leistungsreserve bleibt offen |
 | 5 – Ton/Musik | Aufnahmen, Varianten, Raumton, leisere Musik und getrennte Lautstärke eingebunden. Ergänzende Außenaufnahmen und Hör-Abnahme bleiben offen. | Technische Schlussprüfung |
 | 6 – Zweite Karte | Nach Abnahme der ersten Grafikbasis: eigenständiges Layout, Auswahl im Menü, Spawns/Bombenplätze/NavMesh, Durchlauf beider Modi. | Offen |
 | 7 – Abschluss | Balance, Schwierigkeit, drei Fenstergrößen und Farbmodi, vollständige Tests, Startbarkeit, Release-Unterlagen. | Offen |

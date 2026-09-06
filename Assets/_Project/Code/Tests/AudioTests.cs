@@ -71,13 +71,15 @@ namespace Infront.Tests
         }
 
         [Test]
-        public void Ton_wird_zwischengespeichert()
+        public void Ton_ist_vor_dem_ersten_Gefecht_vorgeladen()
         {
             GameSettings.SfxVolume = 1f;
-            Assert.IsFalse(AudioService.Instance.IsCachedForTests(SoundId.Nachladen));
+            Assert.IsTrue(AudioService.Instance.IsCachedForTests(SoundId.Nachladen),
+                "Der Nachladeton muss vor dem ersten Abspielen bereitstehen, damit kein"
+                + " Dateiladen eine Bildzeitspitze im Gefecht erzeugt.");
             AudioService.Instance.PlayAt(SoundId.Nachladen, Vector3.zero);
             Assert.IsTrue(AudioService.Instance.IsCachedForTests(SoundId.Nachladen),
-                "Der Clip wurde nach dem ersten Abspielen nicht behalten.");
+                "Der vorgeladene Clip muss auch nach dem Abspielen im Speicher bleiben.");
         }
 
         [Test]

@@ -5,6 +5,29 @@ Sitzung ZUERST gelesen.
 
 Letzte Aktualisierung: 2026-09-06
 
+## Innere Wandstruktur, Rauch und Bot-Routen — 2026-09-06
+
+Die acht sichtbaren Innenseiten zwischen Halle und Tunneln haben nun Sockel,
+Paneelfugen, fünf senkrechte Rippen und zwei Kabeltrassen mit Haltern. Alle
+Teile sind reine Deko ohne Collider; der gebackene NavMesh und die Laufwege
+bleiben unverändert. Die Rauchgranate erzeugt eine niedrig ausströmende,
+dunklere Bodenschicht statt einer hellen schwebenden Kugel. Das sind
+strukturelle und Verhaltenstests, keine subjektive Bildabnahme.
+
+Beim vollständigen Lauf fiel außerdem eine echte Bot-Routenursache auf: Der
+alte seitliche 13-m-Versatz schob einen Bot aus seiner eigenen 15-m-Spawn-Lane
+fast zurück in die Lane des ersten. Der Versatz beträgt jetzt 7 m. Damit
+behalten Bots getrennte Anmarschwege; `BotFunkTests` besteht wieder vollständig.
+
+Prüfstand: 3/3 Wanddetail-, 5/5 Rauch- und 4/4 Mittelbereichsprüfungen grün;
+danach 297/297 PlayMode und 12/12 EditMode im frisch gebauten, gebackenen
+Testprojekt. Der Mac-Build ist erfolgreich (302,7 MB). Vier 5-gegen-5-M1-Läufe
+bei Full, klarem Wetter und 1600 × 785 ergaben 59,88–59,93 FPS im Mittel und
+47,44–49,90 FPS beim 1-%-Tiefpunkt. Der Isolationslauf ohne die neuen
+Wandteile lag bei 48,66 FPS; sie sind daher nicht die Ursache. Die
+Durchschnittsvorgabe hält, die 50-FPS-Vorgabe für den 1-%-Tiefpunkt hält auf
+diesem Messstand noch nicht verlässlich und bleibt als Leistungsreserve offen.
+
 ## Tonaufnahmen und Musik — 2026-09-06
 
 61 neue Audiodateien eingebunden: 27 Schrittvarianten für Beton, Metall und Schutt,
@@ -135,12 +158,12 @@ Kontaktverdunklung über SSAO und Wanddetail. 291 Tests grün.
    verbleibende Außengeräusche/Explosionen und Hör-Abnahme siehe aktuellen Abschnitt oben.
 2. **Zweite Karte (Etappe 6).** Braucht eine Entscheidung des Nutzers:
    zweite Halle, Aussenhof, oder Hof mit Gebäuden.
-3. **Leistungsreserve.** Der 1-%-Tiefpunkt ist von 54,5 auf 51,8 gefallen,
-   nachdem zwölf Hallenstrahler dazukamen. Prüfen, ob der höhere Grundton
-   der Metall-Deckungen allein reicht.
-4. **Wanddetail auf die Hallentrennwände** (x = ±9) ausdehnen — die
-   Aussenwände haben Fugen, die auffälligsten Flächen noch nicht.
-5. **Rauch** ist eine gleichmässige weisse Wolke ohne Bodenkontakt.
+3. **Leistungsreserve.** Vier saubere aktuelle 5-gegen-5-Läufe liegen beim
+   1-%-Tiefpunkt zwischen 47,44 und 49,90 FPS. Die wenigen langen Einzelbilder
+   müssen vor der Release-Abnahme weiter eingegrenzt werden.
+4. **Wanddetail auf die Hallentrennwände** (x = ±9) [erledigt: Sockel,
+   Fugen, Rippen und Kabeltrassen, ohne Collider].
+5. **Rauch** [erledigt: dunklere, niedrige Bodenschicht statt weißer Kugel].
 6. **`SchwarzflaechenTests` hat eine Lücke:** die Prüfung misst die
    Grundfarbe des Materials, nicht das Ergebnis im Bild. Texturierte
    Materialien haben eine weisse Grundfarbe und fallen deshalb nie auf —

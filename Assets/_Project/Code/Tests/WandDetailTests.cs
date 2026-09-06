@@ -63,5 +63,28 @@ namespace Infront.Tests
 
             yield return MatchTestHarness.Teardown();
         }
+
+        [UnityTest]
+        public IEnumerator Hallenwaende_haben_Rippen_und_Kabeltrassen_ohne_neue_Hindernisse()
+        {
+            MatchTestHarness.BeginFreeze();
+            yield return MatchTestHarness.LoadReady((player, match) => { });
+
+            var alle = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                .Where(t => t.name.StartsWith("Hallen"))
+                .ToArray();
+            Assert.GreaterOrEqual(alle.Count(t => t.name.StartsWith("HallenRippe_")), 40,
+                "Jede der acht sichtbaren Hallenwandseiten braucht fünf senkrechte Rippen.");
+            Assert.AreEqual(8, alle.Count(t => t.name.StartsWith("HallenKabelOben_")),
+                "Jede Hallenwandseite braucht eine obere Kabeltrasse.");
+            Assert.AreEqual(8, alle.Count(t => t.name.StartsWith("HallenSockel_")),
+                "Die Trennwände brauchen wie die Außenwände einen sichtbaren Sockel.");
+
+            var mitCollider = alle.Where(t => t.GetComponent<Collider>() != null)
+                                 .Select(t => t.name).ToArray();
+            Assert.IsEmpty(mitCollider,
+                "Hallenwand-Detail darf Wege und NavMesh nicht verändern: " + string.Join(", ", mitCollider));
+            yield return MatchTestHarness.Teardown();
+        }
     }
 }
