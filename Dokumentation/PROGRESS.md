@@ -3,7 +3,42 @@
 Diese Datei wird nach jeder Sitzung aktualisiert und zu Beginn jeder neuen
 Sitzung ZUERST gelesen.
 
-Letzte Aktualisierung: 2026-09-06
+Letzte Aktualisierung: 2026-09-07
+
+## Menü erstmals direkt visuell geprüft — 2026-09-07
+
+Computer Use für Codex wurde vom Nutzer freigegeben und funktioniert nun:
+Fensterbilder, Maus und Tastatur wurden im echten Mac-Build benutzt. Die alte
+Aussage, dass keine Bildprüfung möglich sei, gilt für diese Sitzung nicht mehr.
+
+Die erste Figurenergänzung (95bceff) war technisch vorhanden, im Menü aber hinter
+Panel und Tiefenunschärfe praktisch unsichtbar. Die Spielauswahl belegt jetzt die
+linke Hälfte der Inhaltsfläche; rechts bleibt Platz für die nah gerahmte Figur.
+Kamerabogen und Mausparallaxe sind deutlich kleiner. Unschärfe beginnt hinter
+statt vor der Figur. Menüeigene Oberflächenmaterialien und ein gerichtetes
+Hauptlicht machen die Figur sichtbar; das Originalmodell bleibt unverändert.
+Das Modell ist weiterhin die bestehende Mixamo-Trainingsfigur, kein fertiger
+realistischer Soldat. Der Ersatz durch einen passenden Charakter bleibt offen.
+
+Die Aufstellung ist aufklappbar und scrollbar, während Start Round sichtbar
+bleibt. Bei der ersten Iteration wurde der Inhalt durch flexBasis=0 im ScrollView
+zusammengedrückt. Sichtbar überlappende Bedienelemente wurden korrigiert; ein
+Layouttest prüft ihre Abstände sowie den festen Startknopf bei 1280×720,
+1600×900 und 1920×1080. 15/15 betroffene PlayMode-Tests bestanden. Danach wurden
+nur noch Materialwerte und das gerichtete Menülicht geändert; der finale
+Mac-Build war erfolgreich (302.5 MB) und wurde tatsächlich angesehen.
+
+Pause enthält zusätzlich Back to Menu. Der Ablauf Start Round → Match → Escape
+→ Back to Menu wurde per Maus/Tastatur gespielt und die Rückkehr ins Menü auf
+Bild geprüft. Einstellungen und die aufklappbare Aufstellung wurden ebenfalls
+auf dem Bildschirm geprüft. Kein neuer FPS-Nachweis und keine vollständige
+Map-1-Abnahme in dieser Runde. Im Match sind weiterhin fehlende Waffenhände,
+sehr einfache Deckungsformen und stellenweise dichter heller Bodennebel sichtbar.
+
+SceneBuilder.RebuildMenuOnly erlaubt Menüänderungen ohne Arena-Neuerzeugung und
+ohne erneutes Backen. Der vorherige vollständige Prüfstand bleibt 298/298
+PlayMode und 12/12 EditMode; die neue Layoutprüfung kommt hinzu, ein kompletter
+299-Test-Lauf wurde in dieser Runde nicht behauptet oder durchgeführt.
 
 ## Innere Wandstruktur, Rauch und Bot-Routen — 2026-09-06
 

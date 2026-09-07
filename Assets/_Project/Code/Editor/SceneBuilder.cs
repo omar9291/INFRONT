@@ -3000,6 +3000,14 @@ namespace Infront.EditorTools
             return prefab;
         }
 
+        // Menü separat erzeugen: bestehende Arena und Lichtkarten bleiben erhalten.
+        public static void RebuildMenuOnly()
+        {
+            BuildMenuScene();
+            AssetDatabase.SaveAssets();
+            Debug.Log("MENU_BUILD_OK");
+        }
+
         static void BuildMenuScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -3023,7 +3031,16 @@ namespace Infront.EditorTools
             // Schritt 7: Ohrenklingeln haengt am Hoerer und daempft alles,
             // was nach einer nahen Explosion noch zu hoeren ist.
             camGo.AddComponent<EarRinging>();
-            camGo.AddComponent<MenuCameraRig>();
+            var rig = camGo.AddComponent<MenuCameraRig>();
+            var rigSettings = new SerializedObject(rig);
+            rigSettings.FindProperty("_center").vector3Value = new Vector3(0f, 1.2f, 4f);
+            rigSettings.FindProperty("_radius").floatValue = 8f;
+            rigSettings.FindProperty("_height").floatValue = 0.4f;
+            rigSettings.FindProperty("_arcDegrees").floatValue = 1.2f;
+            rigSettings.FindProperty("_speed").floatValue = 0.12f;
+            rigSettings.FindProperty("_bob").floatValue = 0.025f;
+            rigSettings.FindProperty("_mouseParallax").floatValue = 0.10f;
+            rigSettings.ApplyModifiedPropertiesWithoutUndo();
 
             // PostFx im Kino-Look: Tiefenunschaerfe hinter dem Menue + dunklere Raender.
             var postFxGo = new GameObject("PostFx");
@@ -3114,9 +3131,9 @@ namespace Infront.EditorTools
             // geben dem Bild echte Tiefe. Absichtlich unter bzw. ueber der
             // schwenkenden Kamera platziert, damit sie nie hindurchfaehrt.
             var silCol = new Color(0.013f, 0.015f, 0.020f);
-            Deco("BD_Sil_Rail",  PrimitiveType.Cube, new Vector3(0f,   0.55f, -2.4f), new Vector3(30f,  1.5f, 0.35f), silCol);
+            Deco("BD_Sil_Rail",  PrimitiveType.Cube, new Vector3(0f,   -1.1f, -2.4f), new Vector3(30f,  1.5f, 0.35f), silCol);
             Deco("BD_Sil_PostA", PrimitiveType.Cube, new Vector3(-4.2f, 1.1f, -2.4f), new Vector3(0.5f, 2.6f, 0.5f),  silCol);
-            Deco("BD_Sil_PostB", PrimitiveType.Cube, new Vector3(3.6f,  1.0f, -2.3f), new Vector3(0.5f, 2.4f, 0.5f),  silCol);
+            Deco("BD_Sil_PostB", PrimitiveType.Cube, new Vector3(7.8f,  1.0f, -2.3f), new Vector3(0.5f, 2.4f, 0.5f),  silCol);
             Deco("BD_Sil_PostC", PrimitiveType.Cube, new Vector3(-9.5f, 1.2f, -2.5f), new Vector3(0.55f, 3f,  0.55f), silCol);
             Deco("BD_Sil_Beam",  PrimitiveType.Cube, new Vector3(-1f,   8.6f, -1.6f), new Vector3(26f,  0.6f, 0.6f),  silCol);
             Deco("BD_Sil_Hang",  PrimitiveType.Cube, new Vector3(5f,    7.4f, -1.6f), new Vector3(0.4f, 2.6f, 0.4f),  silCol);
@@ -3127,10 +3144,28 @@ namespace Infront.EditorTools
             // Idle-Animation mit; MenuOperatorMotion ergänzt nur eine minimale
             // Atem-/Gewichtsbewegung, falls sie im Modell nicht sichtbar ist.
             var operatorGo = Infront.AssetLibrary.SpawnModel("figur", _mapRoot,
-                new Vector3(5.3f, 0f, 7.8f), Quaternion.Euler(0f, 202f, 0f));
+                new Vector3(2.65f, 0f, 1.2f), Quaternion.Euler(0f, 202f, 0f), 1.65f);
             if (operatorGo != null)
             {
                 operatorGo.name = "BD_Operator";
+                // Nur die Menüinstanz erhält einen ruhigen Graphit-Look.
+                // Das rote Originalmaterial und die Spielfiguren bleiben erhalten.
+                foreach (var renderer in operatorGo.GetComponentsInChildren<Renderer>(true))
+                {
+                    var materials = renderer.sharedMaterials;
+                    for (int i = 0; i < materials.Length; i++)
+                    {
+                        bool shell = renderer.name == "Beta_Surface";
+                        var material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                        material.name = "MenuOperator_" + (shell ? "Shell" : "Joints");
+                        material.SetColor("_BaseColor", shell
+                            ? new Color(0.42f, 0.49f, 0.53f) : new Color(0.055f, 0.065f, 0.075f));
+                        material.SetFloat("_Metallic", shell ? 0.2f : 0f);
+                        material.SetFloat("_Smoothness", shell ? 0.38f : 0.18f);
+                        materials[i] = material;
+                    }
+                    renderer.sharedMaterials = materials;
+                }
                 foreach (var collider in operatorGo.GetComponentsInChildren<Collider>(true))
                     Object.DestroyImmediate(collider);
                 operatorGo.AddComponent<Infront.MenuOperatorMotion>();
@@ -3141,9 +3176,14 @@ namespace Infront.EditorTools
             PointLightAt("BD_Warm_2", new Vector3(5f, 4.8f, 12f), new Color(1f, 0.6f, 0.34f), 18f, 9f);
             // Dreipunktlicht trennt die Figur sauber vom Hintergrund: warmes
             // Hauptlicht, kühles Gegenlicht und ein niedriger Aufheller.
-            PointLightAt("BD_Operator_Key", new Vector3(2.7f, 4.7f, 5.8f), new Color(1f, 0.72f, 0.48f), 10f, 8f, shadows: true);
-            PointLightAt("BD_Operator_Rim", new Vector3(7.8f, 5.1f, 10.7f), new Color(0.42f, 0.62f, 1f), 9f, 6f);
-            PointLightAt("BD_Operator_Fill", new Vector3(5.0f, 1.8f, 3.4f), new Color(0.38f, 0.48f, 0.64f), 7f, 2.6f);
+            PointLightAt("BD_Operator_Key", new Vector3(0.8f, 4.0f, -1f), new Color(1f, 0.84f, 0.68f), 8f, 35f, shadows: true);
+            var operatorKey = _mapRoot.Find("BD_Operator_Key").GetComponent<Light>();
+            operatorKey.type = LightType.Spot;
+            operatorKey.spotAngle = 65f;
+            operatorKey.transform.rotation = Quaternion.LookRotation(
+                new Vector3(2.65f, 1.6f, 1.2f) - operatorKey.transform.position);
+            PointLightAt("BD_Operator_Rim", new Vector3(4.2f, 3.7f, 3f), new Color(0.42f, 0.62f, 1f), 7f, 5f);
+            PointLightAt("BD_Operator_Fill", new Vector3(4.5f, 2.4f, -1.5f), new Color(0.65f, 0.76f, 0.95f), 7f, 2f);
             FlickerLight("BD_Red", new Vector3(-6f, 2.2f, 8f), new Color(1f, 0.32f, 0.2f), 12f, 6f);
 
             // Zwei kreisende Suchscheinwerfer hoch oben, gegenläufig.

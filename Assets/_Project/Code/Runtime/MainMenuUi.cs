@@ -64,6 +64,7 @@ namespace Infront
         UIDocument _doc;
         VisualElement _parallax;         // ganze Oberflaeche, kippt leicht mit der Maus
         VisualElement _grid;             // feines Raster, kippt gegenlaeufig -> Tiefe
+        VisualElement _contentPanel;
         VisualElement _pageHost;         // Inhalt rechts, wird pro Seite geleert
         VisualElement _pageEdge;         // Akzent-Linie, faehrt bei jedem Seitenwechsel ueber die Oberkante
         VisualElement _lineup;           // Aufstellung im Briefing (dein Team gegen Gegner)
@@ -206,7 +207,7 @@ namespace Infront
             var scrim = new VisualElement { name = "scrim" };
             scrim.style.position = Position.Absolute;
             scrim.style.left = 0f; scrim.style.top = 0f; scrim.style.right = 0f; scrim.style.bottom = 0f;
-            var sc = UiTheme.Bg; sc.a = 0.30f;
+            var sc = UiTheme.Bg; sc.a = 0.08f;
             scrim.style.backgroundColor = sc;
             scrim.pickingMode = PickingMode.Ignore;
             root.Add(scrim);
@@ -604,14 +605,15 @@ namespace Infront
             body.Add(nav);
 
             // ---- Inhalt rechts (Hauptflaeche) ----
-            var panel = new VisualElement();
+            var panel = new VisualElement { name = "menu-content-panel" };
+            _contentPanel = panel;
             panel.style.flexGrow = 1f;
             panel.style.overflow = Overflow.Hidden;   // fuer Kantenlinie und Auftritt
             panel.style.paddingLeft = 36f; panel.style.paddingRight = 36f;
             panel.style.paddingTop = 32f; panel.style.paddingBottom = 30f;
             // Hauptflaeche: etwas deckender + ein Hauch Rand, damit die Schrift
             // auch ueber hellen Stellen der Kulisse sicher lesbar bleibt.
-            SoftPanel(panel, 0.62f, brackets: false);
+            SoftPanel(panel, 0.86f, brackets: false);
 
             // Grosse animierte L-Ecke oben links - ein gezielter Auftritt-Effekt.
             var cornerH = new VisualElement();
@@ -823,6 +825,14 @@ namespace Infront
         void ShowPage(Page page)
         {
             _page = page;
+            // Die Spielauswahl lässt rechts Platz für die echte 3D-Figur.
+            // Lange Einstellungs- und Quellenseiten behalten ihre volle Fläche.
+            if (_contentPanel != null)
+            {
+                _contentPanel.style.flexGrow = page == Page.Spielen ? 0f : 1f;
+                _contentPanel.style.width = page == Page.Spielen
+                    ? new StyleLength(Length.Percent(50f)) : new StyleLength(StyleKeyword.Auto);
+            }
             foreach (var kv in _navButtons)
             {
                 bool sel = kv.Key == page;
@@ -915,14 +925,16 @@ namespace Infront
             host.style.flexDirection = FlexDirection.Column;
 
             // Obere Zeile: links die Entscheidungen, rechts die Aufstellung.
-            var top = new VisualElement();
-            top.style.flexDirection = FlexDirection.Row;
+            var top = new ScrollView(ScrollViewMode.Vertical) { name = "play-setup-scroll" };
+            top.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            SchlankeRolle(top);
             top.style.flexGrow = 1f;
+            top.style.flexBasis = 0f;
+            top.style.minHeight = 0f;
 
             var left = new VisualElement();
-            left.style.flexGrow = 1f;
-            left.style.flexBasis = 0f;
-            left.style.marginRight = 30f;
+            left.style.flexShrink = 0f;
+            left.style.marginRight = 6f;
 
             // --- Einsatzart: zwei grosse Karten ---
             left.Add(UiTheme.Section(GameText.Menu.GameMode));
@@ -1047,7 +1059,13 @@ namespace Infront
             left.Add(twoCol);
 
             top.Add(left);
-            top.Add(BuildBriefing());
+            var roster = new Foldout { text = GameText.Menu.Lineup, value = false, name = "lineup-details" };
+            roster.style.marginTop = 28f;
+            roster.style.color = UiTheme.Text;
+            var briefing = BuildBriefing();
+            briefing.style.width = Length.Percent(100f);
+            roster.Add(briefing);
+            top.Add(roster);
             host.Add(top);
 
             // --- Trennlinie + Zusammenfassung ---

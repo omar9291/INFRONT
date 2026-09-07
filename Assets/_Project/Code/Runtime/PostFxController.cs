@@ -103,7 +103,7 @@ namespace Infront
             var vignette = _profile.Add<Vignette>(true);
             // Im Spiel kostet eine starke Vignette Sicht in den Ecken - dort
             // steht der Gegner. Im Menue ist sie Gestaltung und bleibt.
-            vignette.intensity.Override(_menuLook ? 0.46f : 0.20f);
+            vignette.intensity.Override(_menuLook ? 0.24f : 0.20f);
             vignette.smoothness.Override(_menuLook ? 0.5f : 0.42f);
             vignette.color.Override(new Color(0.02f, 0.02f, 0.03f));
 
@@ -112,7 +112,7 @@ namespace Infront
             // obendrauf haben im Spiel die Schattenseiten zugedrueckt: gemessen
             // waren 27 % jedes Bildes praktisch schwarz. Im Menue darf es
             // haerter bleiben, da steht die Oberflaeche im Vordergrund.
-            color.contrast.Override(_menuLook ? 16f : 5f);
+            color.contrast.Override(_menuLook ? 7f : 5f);
             color.saturation.Override(_menuLook ? -10f : 4f);   // Menue entsaettigt = ernster
             // Der warme Filter im Spiel wird halbiert (0,96/0,90 -> 0,98/0,95).
             // Er stammt aus einer Zeit, in der die Halle selbst kuehl-grau war
@@ -141,8 +141,8 @@ namespace Infront
                 // und laeuft ueberall - Bokeh waere schoener, aber teurer.
                 var dof = _profile.Add<DepthOfField>(true);
                 dof.mode.Override(DepthOfFieldMode.Gaussian);
-                dof.gaussianStart.Override(5f);
-                dof.gaussianEnd.Override(17f);
+                dof.gaussianStart.Override(10f);
+                dof.gaussianEnd.Override(24f);
                 dof.gaussianMaxRadius.Override(1.3f);
                 dof.highQualitySampling.Override(true);
             }

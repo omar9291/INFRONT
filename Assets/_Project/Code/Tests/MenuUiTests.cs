@@ -78,6 +78,47 @@ namespace Infront.Tests
         }
 
         [UnityTest]
+        public IEnumerator Spielauswahl_laesst_Platz_fuer_Figur_und_Startknopf()
+        {
+            yield return MenuUiHarness.LadeMenue();
+            var ui = Ui();
+            var root = ui.RootForTests;
+            var oldWidth = root.style.width;
+            var oldHeight = root.style.height;
+            var oldGrow = root.style.flexGrow;
+            try
+            {
+                root.style.flexGrow = 0f;
+                foreach (var size in new[] { new Vector2(1280, 720), new Vector2(1600, 900), new Vector2(1920, 1080) })
+                {
+                    root.style.width = size.x;
+                    root.style.height = size.y;
+                    Assert.IsTrue(ui.ClickForTests("nav-spielen"));
+                    yield return new WaitForSecondsRealtime(0.8f);
+                    var panel = root.Q("menu-content-panel").worldBound;
+                    var start = root.Q<Button>("btn-start").worldBound;
+                    Assert.Less(panel.xMax, root.worldBound.xMin + size.x * 0.80f,
+                        "Die Spielauswahl verdeckt den Figurenbereich: " + size);
+                    var mode = root.Q<Button>("seg-modus-0").worldBound;
+                    var team = root.Q<Button>("seg-team-0").worldBound;
+                    var roster = root.Q<Foldout>("lineup-details").worldBound;
+                    Assert.GreaterOrEqual(team.yMin, mode.yMax, "Die Teamauswahl überlappt die Spielart: " + size);
+                    Assert.GreaterOrEqual(roster.yMin, team.yMax, "Die Aufstellung überlappt die Auswahl: " + size);
+                    Assert.Greater(start.height, 35f, "Der Startknopf wird zusammengedrückt: " + size);
+                    Assert.LessOrEqual(start.yMax, panel.yMax, "Der Startknopf ragt aus dem Panel: " + size);
+                    Assert.Greater(root.Q<ScrollView>("play-setup-scroll").contentViewport.worldBound.height,
+                        150f, "Die Auswahl hat keinen nutzbaren Ausschnitt: " + size);
+                }
+            }
+            finally
+            {
+                root.style.width = oldWidth;
+                root.style.height = oldHeight;
+                root.style.flexGrow = oldGrow;
+            }
+        }
+
+        [UnityTest]
         public IEnumerator Credits_lassen_Kopf_und_Fuss_bei_drei_Fenstergroessen_lesbar()
         {
             yield return MenuUiHarness.LadeMenue();

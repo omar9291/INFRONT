@@ -970,6 +970,9 @@ namespace Infront
                 Application.Quit();
             });
             box.Add(resume);
+            var menu = MenuButton(GameText.Hud.BackToMenu, () => GameFlow.Instance?.ToMenu());
+            menu.name = "pause-main-menu";
+            box.Add(menu);
             box.Add(quit);
         }
 
