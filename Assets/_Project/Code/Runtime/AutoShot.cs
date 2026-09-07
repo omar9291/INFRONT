@@ -435,6 +435,19 @@ namespace Infront
             public FrameStatistics.Result statistics;
         }
 
+        /// <summary>Ein einzelnes Bild über 20 ms. Diese Daten entstehen nur
+        /// im Entwickler-Benchmark; im normalen Spiel wird nichts gesammelt.</summary>
+        [System.Serializable]
+        sealed class BenchmarkSpike
+        {
+            public string view;
+            public int sample;
+            public float milliseconds;
+            public long managedMemoryDeltaBytes;
+            public double cpuMilliseconds;
+            public double gpuMilliseconds;
+        }
+
         [System.Serializable]
         sealed class BenchmarkReport
         {
@@ -444,6 +457,7 @@ namespace Infront
             public bool screenshotsDuringMeasurement;
             public FrameStatistics.Result statistics;
             public BenchmarkView[] views;
+            public BenchmarkSpike[] spikes;
         }
 
         // Messung ohne Screenshots oder Dateizugriffe während der Aufnahme.
@@ -462,6 +476,9 @@ namespace Infront
             var route = SurveyStops.Where(p => names.Contains(p.Name)).ToArray();
             var all = new System.Collections.Generic.List<float>(60000);
             var reports = new System.Collections.Generic.List<BenchmarkView>();
+            var spikes = new System.Collections.Generic.List<BenchmarkSpike>();
+            var timings = new FrameTiming[1];
+            long managedMemory = System.GC.GetTotalMemory(false);
             float duration = float.TryParse(Arg("-benchmark-seconds", "10"),
                 System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
                 out var requested) ? Mathf.Clamp(requested, 5f, 120f) : 10f;
@@ -481,6 +498,25 @@ namespace Infront
                     float frame = Time.unscaledDeltaTime;
                     samples.Add(frame);
                     all.Add(frame);
+                    long nextManagedMemory = System.GC.GetTotalMemory(false);
+                    if (frame > .020f)
+                    {
+                        // FrameTiming liefert das zuletzt abgeschlossene Renderbild.
+                        // Das ist nahe genug am Ausreißer, ohne die normale Messung
+                        // mit einem Profiler pro Bild zu verfälschen.
+                        FrameTimingManager.CaptureFrameTimings();
+                        uint count = FrameTimingManager.GetLatestTimings(1, timings);
+                        spikes.Add(new BenchmarkSpike
+                        {
+                            view = stop.Name,
+                            sample = samples.Count - 1,
+                            milliseconds = frame * 1000f,
+                            managedMemoryDeltaBytes = nextManagedMemory - managedMemory,
+                            cpuMilliseconds = count > 0 ? timings[0].cpuFrameTime : 0d,
+                            gpuMilliseconds = count > 0 ? timings[0].gpuFrameTime : 0d,
+                        });
+                    }
+                    managedMemory = nextManagedMemory;
                 }
                 reports.Add(new BenchmarkView { name = stop.Name,
                     statistics = FrameStatistics.Calculate(samples) });
@@ -495,7 +531,7 @@ namespace Infront
                 scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
                 teamSize = GameSettings.TeamSize, mode = GameSettings.GameMode.ToString(), weather = weather,
                 screenshotsDuringMeasurement = false,
-                statistics = FrameStatistics.Calculate(all), views = reports.ToArray()
+                statistics = FrameStatistics.Calculate(all), views = reports.ToArray(), spikes = spikes.ToArray()
             };
             File.WriteAllText(Path.Combine(directory, "benchmark.json"), JsonUtility.ToJson(report, true));
             using (var writer = new StreamWriter(Path.Combine(directory, "frametimes.csv")))

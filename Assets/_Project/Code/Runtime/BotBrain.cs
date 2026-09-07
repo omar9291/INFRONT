@@ -39,6 +39,10 @@ namespace Infront
         NetworkWeapon _weapon;
         TeamMember _team;
         readonly List<TeamMember> _enemyBuffer = new();
+        // Sichtstrahlen liefen bisher über Physics.RaycastAll und erzeugten
+        // zehnmal pro Sekunde pro Bot ein neues Array. 64 Treffer decken die
+        // kollidierende Karte samt Figuren auf einer geraden Sichtlinie ab.
+        readonly RaycastHit[] _sightHits = new RaycastHit[64];
 
         State _state = State.Patrol;
         bool _active = true;
@@ -491,17 +495,46 @@ namespace Infront
 
         bool IsSightBlocked(Vector3 direction, float distance, NetworkObject target)
         {
-            var hits = Physics.RaycastAll(EyePosition, direction, distance, _sightBlockers, QueryTriggerInteraction.Ignore);
-            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-
-            foreach (var hit in hits)
+            RaycastHit[] hits = _sightHits;
+            int count = Physics.RaycastNonAlloc(EyePosition, direction, hits, distance,
+                _sightBlockers, QueryTriggerInteraction.Ignore);
+            // Nur im extremen Sonderfall einer überfüllten Liste wird auf den
+            // vollständigen Weg zurückgefallen. So kann nie ein möglicher
+            // Sichtblocker wegen der Puffergrenze unterschlagen werden.
+            if (count == hits.Length)
             {
+                hits = Physics.RaycastAll(EyePosition, direction, distance,
+                    _sightBlockers, QueryTriggerInteraction.Ignore);
+                count = hits.Length;
+            }
+            SortNearestFirst(hits, count);
+
+            for (int i = 0; i < count; i++)
+            {
+                var hit = hits[i];
                 var owner = hit.collider.GetComponentInParent<NetworkObject>();
                 if (owner == NetworkObject) continue; // eigener Koerper
                 if (owner == target) return false;    // Ziel zuerst getroffen -> frei
                 return true;                          // etwas anderes blockiert
             }
             return false;
+        }
+
+        // Bei den kleinen Trefferlisten ist Einfügesortierung schneller und
+        // allokationsfrei. Die Physik liefert keine garantierte Reihenfolge.
+        static void SortNearestFirst(RaycastHit[] hits, int count)
+        {
+            for (int i = 1; i < count; i++)
+            {
+                RaycastHit value = hits[i];
+                int j = i - 1;
+                while (j >= 0 && hits[j].distance > value.distance)
+                {
+                    hits[j + 1] = hits[j];
+                    j--;
+                }
+                hits[j + 1] = value;
+            }
         }
 
         void TickPatrol()

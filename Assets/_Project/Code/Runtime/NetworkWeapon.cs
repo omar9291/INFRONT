@@ -32,6 +32,9 @@ namespace Infront
         NetworkPlayerController _playerController;
         TeamMember _team;
         Health _health;
+        // Trefferabfrage liegt auf dem heißen Schusspfad. Ein fester Puffer
+        // verhindert RaycastAll-Arrays bei jedem einzelnen Schuss.
+        readonly RaycastHit[] _hitBuffer = new RaycastHit[64];
 
         readonly NetworkVariable<int> _ammo = new(
             0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -363,16 +366,28 @@ namespace Infront
             _spread = Mathf.Min(_spread + _stats.SpreadPerShot, _stats.SpreadMax);
             Vector3 endPoint = rayOrigin + direction * _stats.Range;
 
-            var hits = Physics.RaycastAll(rayOrigin, direction, _stats.Range, _hitMask, QueryTriggerInteraction.Ignore);
-            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            RaycastHit[] hits = _hitBuffer;
+            int hitCount = Physics.RaycastNonAlloc(rayOrigin, direction, hits, _stats.Range,
+                _hitMask, QueryTriggerInteraction.Ignore);
+            // Ein voller Puffer ist in der offenen Halle nicht zu erwarten,
+            // darf aber keinen Treffer verschlucken. Dann ist die seltene
+            // Allokation korrekter als ein anderer Schussverlauf.
+            if (hitCount == hits.Length)
+            {
+                hits = Physics.RaycastAll(rayOrigin, direction, _stats.Range,
+                    _hitMask, QueryTriggerInteraction.Ignore);
+                hitCount = hits.Length;
+            }
+            SortNearestFirst(hits, hitCount);
 
             // 0 = nichts getroffen, 1 = Wand/Umgebung, 2 = Körper
             byte impact = 0;
             SoundId impactSound = SoundId.EinschlagWand;
             Vector3 hitNormal = -direction;
 
-            foreach (var hit in hits)
+            for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
             {
+                var hit = hits[hitIndex];
                 var hitObject = hit.collider.GetComponentInParent<NetworkObject>();
                 if (hitObject != null && hitObject == NetworkObject)
                     continue; // eigene Kollider
@@ -428,6 +443,23 @@ namespace Infront
             Vector3 tracerOrigin = _muzzle != null ? _muzzle.position : rayOrigin;
             ShowFireEffectRpc(tracerOrigin, endPoint, hitNormal, impact, (int)_stats.ShotSound, (int)impactSound);
             return true;
+        }
+
+        // Einfügesortierung ist bei den kurzen Trefferlisten allokationsfrei
+        // und stellt die gleiche Reihenfolge wie der frühere RaycastAll-Weg her.
+        static void SortNearestFirst(RaycastHit[] hits, int count)
+        {
+            for (int i = 1; i < count; i++)
+            {
+                RaycastHit value = hits[i];
+                int j = i - 1;
+                while (j >= 0 && hits[j].distance > value.distance)
+                {
+                    hits[j + 1] = hits[j];
+                    j--;
+                }
+                hits[j + 1] = value;
+            }
         }
 
         /// <summary>Nur Server: gegnerische Spieler, an denen die Kugel dicht

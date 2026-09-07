@@ -3121,9 +3121,29 @@ namespace Infront.EditorTools
             Deco("BD_Sil_Beam",  PrimitiveType.Cube, new Vector3(-1f,   8.6f, -1.6f), new Vector3(26f,  0.6f, 0.6f),  silCol);
             Deco("BD_Sil_Hang",  PrimitiveType.Cube, new Vector3(5f,    7.4f, -1.6f), new Vector3(0.4f, 2.6f, 0.4f),  silCol);
 
+            // Ein echter Operator macht aus der Kulisse eine Szene: keine neue
+            // Spielfigur, keine Kollision, nur ein klarer menschlicher Anker
+            // rechts neben dem UI. Das vorhandene Figurenmodell bringt seine
+            // Idle-Animation mit; MenuOperatorMotion ergänzt nur eine minimale
+            // Atem-/Gewichtsbewegung, falls sie im Modell nicht sichtbar ist.
+            var operatorGo = Infront.AssetLibrary.SpawnModel("figur", _mapRoot,
+                new Vector3(5.3f, 0f, 7.8f), Quaternion.Euler(0f, 202f, 0f));
+            if (operatorGo != null)
+            {
+                operatorGo.name = "BD_Operator";
+                foreach (var collider in operatorGo.GetComponentsInChildren<Collider>(true))
+                    Object.DestroyImmediate(collider);
+                operatorGo.AddComponent<Infront.MenuOperatorMotion>();
+            }
+
             // Warmes Innenlicht + ein rotes Flackerlicht für Stimmung
             PointLightAt("BD_Warm_1", new Vector3(-2f, 4.5f, 7f), new Color(1f, 0.68f, 0.4f), 20f, 12f);
             PointLightAt("BD_Warm_2", new Vector3(5f, 4.8f, 12f), new Color(1f, 0.6f, 0.34f), 18f, 9f);
+            // Dreipunktlicht trennt die Figur sauber vom Hintergrund: warmes
+            // Hauptlicht, kühles Gegenlicht und ein niedriger Aufheller.
+            PointLightAt("BD_Operator_Key", new Vector3(2.7f, 4.7f, 5.8f), new Color(1f, 0.72f, 0.48f), 10f, 8f, shadows: true);
+            PointLightAt("BD_Operator_Rim", new Vector3(7.8f, 5.1f, 10.7f), new Color(0.42f, 0.62f, 1f), 9f, 6f);
+            PointLightAt("BD_Operator_Fill", new Vector3(5.0f, 1.8f, 3.4f), new Color(0.38f, 0.48f, 0.64f), 7f, 2.6f);
             FlickerLight("BD_Red", new Vector3(-6f, 2.2f, 8f), new Color(1f, 0.32f, 0.2f), 12f, 6f);
 
             // Zwei kreisende Suchscheinwerfer hoch oben, gegenläufig.
