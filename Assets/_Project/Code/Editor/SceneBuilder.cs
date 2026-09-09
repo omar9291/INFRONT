@@ -997,6 +997,35 @@ namespace Infront.EditorTools
             return m;
         }
 
+        static Material _schmutzMat;
+
+        /// <summary>Durchscheinender Boden-Schmutzfleck mit weicher Kante.
+        /// Die runde Weich-Textur blendet den Rand aus, damit kein hartes
+        /// Rechteck stehen bleibt; niedrige Deckkraft, damit der Boden
+        /// durchscheint statt ersetzt zu werden.</summary>
+        static Material SchmutzMat()
+        {
+            if (_schmutzMat != null) return _schmutzMat;
+            var m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "SchmutzMat" };
+            if (m.HasProperty("_Surface")) m.SetFloat("_Surface", 1f);
+            if (m.HasProperty("_Blend")) m.SetFloat("_Blend", 0f);
+            if (m.HasProperty("_SrcBlend")) m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            if (m.HasProperty("_DstBlend")) m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            if (m.HasProperty("_ZWrite")) m.SetInt("_ZWrite", 0);
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent - 1;
+            var tex = Infront.SoftParticleTexture.Weich();
+            if (m.HasProperty("_BaseMap")) m.SetTexture("_BaseMap", tex);
+            // Hell und wenig deckend: der Fleck soll die Textur des Bodens
+            // nur leicht truebe faerben. 0,16/0,5 (erster Versuch) machte die
+            // Mitte zu dunkel und war messbar schlechter.
+            var c = new Color(0.34f, 0.34f, 0.35f, 0.32f);
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+            m.color = c;
+            _schmutzMat = m;
+            return m;
+        }
+
         /// <summary>Leuchtender Akzentstreifen - fuehrt das Auge an Kanten und
         /// Durchgaengen. Bewusst dezent (Screenshot-Test 2026-09-04: die
         /// Streifen waren viel zu grell und dick).</summary>
@@ -1301,6 +1330,7 @@ namespace Infront.EditorTools
             _mats.Clear();
             _glowMats.Clear();
             _texMats.Clear();
+            _schmutzMat = null;
             _mapRoot = new GameObject("Map").transform;
 
             // Aussenwaende (Box bei +/-30)
@@ -1644,6 +1674,7 @@ namespace Infront.EditorTools
             _mats.Clear();
             _glowMats.Clear();
             _texMats.Clear();
+            _schmutzMat = null;
             _mapRoot = new GameObject("Map").transform;
             const float H = WerkHalf;
 
@@ -2413,17 +2444,31 @@ namespace Infront.EditorTools
                     new Color(0.32f, 0.3f, 0.24f));
             }
 
-            // dunkle Boden-Flecken (Grunge)
+            // Dunkle Boden-Flecken (Grunge). Historie der Fehlversuche:
+            // 0.05 undurchsichtig sah aus wie Loecher; 0.22 undurchsichtig auf
+            // 3-8 m grossen Quads sah aus wie aufgeklebte Matten mit hartem
+            // Rand ("treppenfoermiger Bodenfleck"). Jetzt: viele KLEINE Flecken
+            // (1-3,5 m), heller (um 0,30), im Ton leicht gestreut und zufaellig
+            // gedreht - so lesen sie sich als Schmutz statt als Platten. Der
+            // harte Lichtkarten-Rand ist zusaetzlich weg (Fleck ohne
+            // ContributeGI in Backlicht.MacheKarteBackfaehig).
             var rnd = new System.Random(1234);
-            for (int i = 0; i < 26; i++)
+            var fleckMat = SchmutzMat();
+            for (int i = 0; i < 34; i++)
             {
                 float gx = (float)(rnd.NextDouble() * 84f - 42f);
                 float gz = (float)(rnd.NextDouble() * 84f - 42f);
-                Deco("Fleck", PrimitiveType.Quad, new Vector3(gx, 0.02f, gz),
-                    new Vector3(3f + (float)rnd.NextDouble() * 5f, 3f + (float)rnd.NextDouble() * 5f, 1f),
-                    // Screenshot-Test: 0.05 war fast schwarz und sah aus wie Loecher.
-                    // Jetzt dezenter Schmutz statt Abgrund.
-                    new Color(0.22f, 0.22f, 0.23f), Quaternion.Euler(90f, 0f, 0f));
+                float s = 1.5f + (float)rnd.NextDouble() * 3f;
+                var f = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                f.name = "Fleck";
+                f.transform.SetParent(_decoRoot, true);
+                f.transform.position = new Vector3(gx, 0.02f, gz);
+                f.transform.localScale = new Vector3(
+                    s, s * (0.7f + (float)rnd.NextDouble() * 0.6f), 1f);
+                f.transform.rotation = Quaternion.Euler(90f, (float)rnd.NextDouble() * 360f, 0f);
+                var fc = f.GetComponent<Collider>();
+                if (fc != null) Object.DestroyImmediate(fc);
+                f.GetComponent<Renderer>().sharedMaterial = fleckMat;
             }
 
             // Muni-/Holzkisten als Deko-Deckung (nur wenn Modelle vorhanden)
@@ -3125,6 +3170,7 @@ namespace Infront.EditorTools
             _mats.Clear();
             _glowMats.Clear();
             _texMats.Clear();
+            _schmutzMat = null;
             _mapRoot = new GameObject("Backdrop").transform;
 
             // Dunkler Boden

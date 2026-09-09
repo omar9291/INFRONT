@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -56,6 +57,36 @@ namespace Infront.Tests
             Assert.Greater(mitKarte, gesamt / 2,
                 $"Nur {mitKarte} von {gesamt} Flaechen haben eine Lichtkarte. Ohne das "
                 + "Kennzeichen 'statisch' nimmt der Backvorgang ein Objekt gar nicht wahr.");
+
+            yield return MatchTestHarness.Teardown();
+        }
+
+        [UnityTest]
+        public IEnumerator Boden_Schmutzflecken_sind_weiche_Deko_ohne_eigene_Lichtkarte()
+        {
+            MatchTestHarness.BeginFreeze();
+            yield return MatchTestHarness.LoadReady((player, match) => { });
+
+            var flecken = Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)
+                .Where(r => r.name == "Fleck")
+                .ToArray();
+            Assert.Greater(flecken.Length, 10,
+                "Kaum Boden-Schmutzflecken gefunden - stimmt BuildDecorationWerk noch?");
+
+            foreach (var f in flecken)
+            {
+                // Frueher bekamen die flachen Quads eine eigene Lichtkarte plus
+                // AO-Naht ringsum und standen als hartes Rechteck im Boden.
+                Assert.IsTrue(f.lightmapIndex < 0 || f.lightmapIndex >= 65535,
+                    "Ein Fleck hat wieder eine eigene Lichtkarte (Index "
+                    + f.lightmapIndex + ") - das gibt den harten Rand zurueck.");
+                Assert.AreEqual(UnityEngine.Rendering.ShadowCastingMode.Off, f.shadowCastingMode,
+                    "Ein Fleck wirft Schatten - der 2-cm-Spalt malt einen Rahmen auf den Boden.");
+                Assert.IsFalse(f.receiveShadows,
+                    "Ein Fleck empfaengt Schatten - die Schattenkarte rastert die Kante.");
+                Assert.IsNull(f.GetComponent<Collider>(),
+                    "Ein Fleck hat einen Collider und wuerde Wege/NavMesh anfassen.");
+            }
 
             yield return MatchTestHarness.Teardown();
         }

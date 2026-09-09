@@ -66,6 +66,38 @@ namespace Infront.EditorTools
             foreach (var r in kartenWurzel.GetComponentsInChildren<Renderer>(true))
             {
                 var go = r.gameObject;
+
+                // Flache Schmutz-Quads liegen 2 cm ueber dem Boden. Drei Dinge
+                // liessen sie als hartkantiges Rechteck stehen ("treppenfoermiger
+                // Bodenfleck"):
+                //  - ContributeGI: der Backer buk sie als eigene Flaeche mit
+                //    einer AO-Naht ringsum.
+                //  - Schattenempfang: die Schattenkarte rasterte die Kante als
+                //    gestrichelte Linie.
+                //  - Schattenwurf: der 2-cm-Spalt warf einen feinen Rahmen auf
+                //    den Boden.
+                // Als reine Deko ohne GI und ohne Schatten folgen sie jetzt der
+                // Beleuchtung des Bodens darunter.
+                if (go.name.StartsWith("Fleck"))
+                {
+                    GameObjectUtility.SetStaticEditorFlags(go,
+                        StaticEditorFlags.BatchingStatic
+                        | StaticEditorFlags.OccludeeStatic);
+                    r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    r.receiveShadows = false;
+                    // m_ReceiveGI: 1 = Lichtkarten, 2 = Lichtsonden. Ohne
+                    // ContributeGI wuerde der Backer sonst trotzdem eine
+                    // (leere) Lichtkarten-Kachel anlegen.
+                    var soF = new SerializedObject(r);
+                    var spF = soF.FindProperty("m_ReceiveGI");
+                    if (spF != null)
+                    {
+                        spF.intValue = 2;
+                        soF.ApplyModifiedPropertiesWithoutUndo();
+                    }
+                    continue;
+                }
+
                 GameObjectUtility.SetStaticEditorFlags(go,
                     StaticEditorFlags.ContributeGI
                     | StaticEditorFlags.BatchingStatic
