@@ -141,9 +141,12 @@ namespace Infront
         {
             var go = new GameObject("Wolke");
             go.transform.SetParent(transform, false);
-            // Der Wurfpunkt liegt auf Augenhöhe. Rauch beginnt aber am Boden;
-            // die Absenkung verhindert die bisherige schwebende, helle Kugel.
-            go.transform.localPosition = Vector3.down * Mathf.Min(0.85f, _radius * 0.2f);
+            // Der Wurfpunkt (AbilitySpawner.ResolvePoint) liegt 1,2 m ueber der
+            // Standflaeche - auch auf einem Podest, weil ResolvePoint per Strahl
+            // nach unten die tatsaechliche Flaeche sucht. Die Wolke wird darum
+            // 1,1 m tiefer gesetzt und sitzt so ~0,1 m ueber dem Boden statt auf
+            // Augenhoehe zu schweben.
+            go.transform.localPosition = Vector3.down * 1.1f;
             _sphere = go.transform;
 
             _ps = go.AddComponent<ParticleSystem>();
@@ -151,7 +154,7 @@ namespace Infront
 
             _main = _ps.main;
             _main.loop = true;
-            _main.startLifetime = new ParticleSystem.MinMaxCurve(2.6f, 4.4f);
+            _main.startLifetime = new ParticleSystem.MinMaxCurve(3.0f, 5.0f);
             _main.startSpeed = new ParticleSystem.MinMaxCurve(0.08f, 0.32f);
             _main.startSize = new ParticleSystem.MinMaxCurve(_radius * 0.68f, _radius * 1.12f);
             _main.startColor = new Color(0.48f, 0.49f, 0.52f, 0.30f);
@@ -167,7 +170,11 @@ namespace Infront
             var shape = _ps.shape;
             shape.enabled = true;
             shape.shapeType = ParticleSystemShapeType.Box;
-            shape.scale = new Vector3(_radius * 1.1f, 0.38f, _radius * 1.1f);
+            // Die Box steht auf dem Boden und reicht bis Kopfhoehe, damit die
+            // Saeule von unten bis ~2,6 m gleichmaessig dicht ist statt nur am
+            // Boden zu haengen. Der Ursprung des Kindobjekts liegt bei y~0,1.
+            shape.scale = new Vector3(_radius * 1.1f, 2.6f, _radius * 1.1f);
+            shape.position = new Vector3(0f, 1.25f, 0f);
             shape.randomDirectionAmount = 0.18f;
 
             var velocity = _ps.velocityOverLifetime;
@@ -239,7 +246,7 @@ namespace Infront
             if (_ps != null)
             {
                 var shape = _ps.shape;
-                shape.scale = new Vector3(Mathf.Max(0.4f, r * 1.1f), 0.38f,
+                shape.scale = new Vector3(Mathf.Max(0.4f, r * 1.1f), 2.6f,
                     Mathf.Max(0.4f, r * 1.1f));
                 _main.startSize = new ParticleSystem.MinMaxCurve(r * 0.68f, r * 1.12f);
                 _main.startColor = new Color(0.48f, 0.49f, 0.52f, 0.30f * fade);

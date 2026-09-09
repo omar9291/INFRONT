@@ -82,3 +82,6 @@ scratch_*.xml
 /[Aa]ssets/_Project/Art/Figures/
 /[Aa]ssets/_Project/Art/Resources/Models/figur.prefab
 /[Aa]ssets/_Project/Art/Resources/Models/figur.prefab.meta
+
+# Test-Läufer-Ergebnisse im Projektstamm (headless -runTests ohne -testResults)
+TestResults-*.xml

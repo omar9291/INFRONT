@@ -114,9 +114,21 @@ namespace Infront.Tests
 
             var shape = ps.shape;
             Assert.AreEqual(ParticleSystemShapeType.Box, shape.shapeType,
-                "Rauch muss als niedrige Bodenschicht ausströmen, nicht als helle Kugel.");
-            Assert.Less(shape.scale.y, .5f,
-                "Die Rauchquelle ist zu hoch und lässt die Wolke wieder schweben.");
+                "Rauch muss als Saeule aus einer Bodenbox ausströmen, nicht als helle Kugel.");
+            // Frueher stand hier shape.scale.y < 0.5 - eine flache Box als Ersatz
+            // fuer "schwebt nicht". Das war die falsche Groesse: eine flache Box
+            // auf Augenhoehe schwebt trotzdem, eine hohe Box AUF DEM BODEN nicht.
+            // Der Wurfpunkt (hier y=2) liegt 1,2 m ueber der Standflaeche, der
+            // Boden also bei y~0,8. Gemessen wird jetzt direkt: die Unterkante
+            // des Ausstoss-Volumens sitzt nahe an dieser Flaeche, nicht oben am
+            // Wurfpunkt.
+            var box = ps.transform;
+            float unterkante = box.position.y + shape.position.y - shape.scale.y * 0.5f;
+            float standflaeche = go.transform.position.y - 1.2f;
+            Assert.Less(unterkante - standflaeche, 0.4f,
+                "Die Rauchquelle beginnt zu hoch und lässt die Wolke schweben "
+                + "(Unterkante " + unterkante.ToString("0.00") + " m, Boden ~"
+                + standflaeche.ToString("0.00") + " m).");
             Assert.Less(ps.main.startColor.color.r, .6f,
                 "Der Rauch ist zu weiß; Industrie-Rauch braucht einen grauen Grundton.");
 
