@@ -86,5 +86,45 @@ namespace Infront.Tests
                 "Hallenwand-Detail darf Wege und NavMesh nicht verändern: " + string.Join(", ", mitCollider));
             yield return MatchTestHarness.Teardown();
         }
+
+        [UnityTest]
+        public IEnumerator Die_Eckmasten_stehen_am_Boden_und_haben_einen_Kopf()
+        {
+            MatchTestHarness.BeginFreeze();
+            yield return MatchTestHarness.LoadReady((player, match) => { });
+
+            var alle = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
+
+            foreach (string id in new[] { "WN", "ON", "WS", "OS" })
+            {
+                var rohr = alle.FirstOrDefault(r => r.name == "Mast_" + id);
+                Assert.IsNotNull(rohr,
+                    "In der Ecke " + id + " fehlt der Mast. Vorher waren es zwei nackte "
+                    + "schwarze Stangen in nur zwei Ecken, die oben im Nichts endeten.");
+
+                Assert.Less(rohr.bounds.min.y, 0.3f,
+                    "Der Mast " + id + " berührt den Boden nicht (Unterkante "
+                    + rohr.bounds.min.y.ToString("0.00") + " m) - genau das ließ die "
+                    + "alten Stangen schweben.");
+                Assert.Greater(rohr.bounds.max.y, 11.5f,
+                    "Der Mast " + id + " endet bei " + rohr.bounds.max.y.ToString("0.00")
+                    + " m, deutlich unter dem Binder - er wirkt abgeschnitten.");
+
+                Assert.IsTrue(alle.Any(r => r.name == "Mast_" + id + "_Kopf"),
+                    "Dem Mast " + id + " fehlt der Strahlerkopf. Ohne ihn ist es wieder "
+                    + "nur eine Stange, die im Nichts endet.");
+                Assert.IsTrue(alle.Any(r => r.name == "Mast_" + id + "_Fuss"),
+                    "Dem Mast " + id + " fehlt die Fussplatte am Boden.");
+            }
+
+            var mitCollider = alle.Where(r => r.name.StartsWith("Mast_"))
+                                  .Where(r => r.GetComponent<Collider>() != null)
+                                  .Select(r => r.name).ToArray();
+            Assert.IsEmpty(mitCollider,
+                "Die Eckmasten haben Collider und würden Wege/NavMesh verändern: "
+                + string.Join(", ", mitCollider));
+
+            yield return MatchTestHarness.Teardown();
+        }
     }
 }

@@ -2432,14 +2432,58 @@ namespace Infront.EditorTools
             DecoModel("holz_kiste", new Vector3(-30f, 0f, -18f), RandomYaw());
             DecoModel("holz_kiste", new Vector3(30f, 0f, 18f), RandomYaw());
 
-            // Masten in zwei Ecken
-            Deco("Mast_A", PrimitiveType.Cylinder, new Vector3(-42f, 5f, -42f),
-                new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
-            Deco("Mast_B", PrimitiveType.Cylinder, new Vector3(42f, 5f, 42f),
-                new Vector3(0.16f, 5f, 0.16f), new Color(0.12f, 0.13f, 0.14f));
+            // Eck-Arbeitsmasten. Vorher standen hier zwei nackte, fast schwarze
+            // 10-m-Stangen in NW und SO, die oben im Nichts endeten - im Bild
+            // las sich das wie vergessene Geometrie ("schwebende schwarze
+            // Stangen"). Jetzt ein glaubhafter Werkmast in jeder der vier Ecken:
+            // Fussplatte am Boden, Rohr bis unter den Binder, Strahlerkopf mit
+            // leuchtender Linse zur Hallenmitte. Kein eigenes Licht - der
+            // Schattenatlas ist laut Baulog voll und die Bildrate am Limit.
+            foreach (int sx in new[] { -1, 1 })
+            foreach (int sz in new[] { -1, 1 })
+                Eckmast(sx, sz);
 
             // Grosse Industrie-Modelle (Kran, Rolltore, Leuchten) - nur Optik.
             BuildWerkModelle();
+        }
+
+        /// <summary>Ein Arbeitsmast in einer Hallenecke (sx/sz sind -1 oder +1).
+        /// Fussplatte, Rohr bis unter den Dachbinder, Strahlerkopf mit
+        /// leuchtender Linse zur Hallenmitte - keine echte Lichtquelle.</summary>
+        static void Eckmast(int sx, int sz)
+        {
+            float x = sx * 42f, z = sz * 42f;
+            string id = (sx < 0 ? "W" : "O") + (sz < 0 ? "N" : "S");
+            var stahl = new Color(0.26f, 0.27f, 0.29f);
+            var dunkel = new Color(0.16f, 0.17f, 0.18f);
+
+            // Fussplatte - verankert den Mast sichtbar am Boden
+            Deco($"Mast_{id}_Fuss", PrimitiveType.Cube, new Vector3(x, 0.07f, z),
+                new Vector3(0.72f, 0.14f, 0.72f), dunkel);
+
+            // Rohr vom Boden (Unterkante y=0) bis knapp unter den Binder (~12,5)
+            Deco($"Mast_{id}", PrimitiveType.Cylinder, new Vector3(x, 6.25f, z),
+                new Vector3(0.2f, 6.25f, 0.2f), stahl);
+
+            // Klemmring auf halber Hoehe - etwas Struktur auf dem langen Rohr
+            Deco($"Mast_{id}_Ring", PrimitiveType.Cylinder, new Vector3(x, 6.4f, z),
+                new Vector3(0.3f, 0.12f, 0.3f), dunkel);
+
+            // Strahlerkopf oben, leicht zur Hallenmitte gerueckt
+            Deco($"Mast_{id}_Kopf", PrimitiveType.Cube,
+                new Vector3(x - sx * 0.42f, 11.4f, z - sz * 0.42f),
+                new Vector3(0.5f, 0.42f, 0.5f), dunkel);
+
+            // Leuchtende Linse zur Mitte (GlowMat wie die Deckenstrahler)
+            var linse = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            linse.name = $"Mast_{id}_Linse";
+            linse.transform.SetParent(_decoRoot, true);
+            linse.transform.position = new Vector3(x - sx * 0.64f, 11.32f, z - sz * 0.64f);
+            linse.transform.localScale = new Vector3(0.34f, 0.28f, 0.34f);
+            var lc = linse.GetComponent<Collider>();
+            if (lc != null) Object.DestroyImmediate(lc);
+            linse.GetComponent<Renderer>().sharedMaterial =
+                GlowMat(new Color(1f, 0.93f, 0.78f), 1.4f);
         }
 
         // ---- P5: Karte entklotzen (nur Deko, keine Collider) ----
