@@ -141,6 +141,31 @@ namespace Infront.EditorTools
         /// und Waenden zurueckgeworfen wird. Das ist der risikoaermste Weg,
         /// weil nichts Bestehendes ersetzt wird, sondern etwas hinzukommt.
         ///
+        /// ACHTUNG, gescheiterter Versuch am 2026-09-10 - nicht blind
+        /// wiederholen. Umstellung auf <c>MixedLightingMode.Shadowmask</c>
+        /// (dazu QualitySettings shadowmaskMode 1 -> 0 auf den Stufen High,
+        /// Very High, Ultra) sollte Kontaktschatten bringen. Ergebnis: die
+        /// Halle leuchtete selbst, mit Bloom-Halo bis in den Himmel.
+        /// Gemessen ueber alle 28 Rundgang-Bilder:
+        ///
+        ///   Backvorgang 1: Median 98 -> 219, ausgebrannt 0,9 % -> 21,7 %
+        ///   Backvorgang 2: Median 98 -> 252, ausgebrannt 0,9 % -> 64,9 %
+        ///
+        /// Der zweite war HELLER als der erste, obwohl die einzige Aenderung
+        /// mehr Verdeckung war - es wird also von Backvorgang zu Backvorgang
+        /// schlimmer statt stabil. Das riecht nach Rueckkopplung, nicht nach
+        /// einem falschen Zahlenwert. Passend dazu: die neun
+        /// Arena-Reflexionssonden wurden dabei alle byte-gleich und schrumpften
+        /// von je ~1,2 MB auf 550 kB (Lauf 1) und dann auf 6 kB (Lauf 2).
+        /// Das Menue - eigene Szene, nicht neu gebacken - blieb unveraendert
+        /// bei Median 5. Der Fehler sitzt also im Arena-Backvorgang.
+        ///
+        /// Wer das nochmal angeht: zuerst klaeren, wie <c>indirectScale</c> = 7
+        /// mit Shadowmask zusammenwirkt (die 7 ist eine Kruecke, die nur fuer
+        /// IndirectOnly eingemessen wurde), und die Reflexionssonden im Auge
+        /// behalten. Ein Versuch mit indirectScale = 1 waere der naechste
+        /// Schritt gewesen.
+        ///
         /// <paramref name="aufloesung"/> ist die Zahl der Lichtkarten-Punkte
         /// je Meter. Klein anfangen: die Karte ist 90 x 90 m mit 869
         /// Flaechen, da wird aus einer scheinbar harmlosen Zahl schnell eine
@@ -181,8 +206,20 @@ namespace Infront.EditorTools
                 // gebracht; das Bild war schoener und unbenutzbar zugleich.
                 indirectScale          = indirektStaerke,
                 ao                     = true,
+                // BLEIBT bei 1,5. Am 2026-09-10 auf 0,8 verkuerzt, weil das
+                // fuer Kontaktschatten enger und richtiger klang. Ergebnis
+                // gemessen: Median 98 -> 219, ausgebrannte Flaeche 0,9 % ->
+                // 21,7 %, die Halle war weiss. Grund: indirectScale steht auf
+                // 7, und die Verdeckung ist das Einzige, was diesen
+                // siebenfachen Streulicht-Anteil in Schach haelt. Wird ihre
+                // Reichweite halbiert, faellt die Bremse weg - mal sieben.
                 aoMaxDistance          = 1.5f,
                 aoExponentIndirect     = 1f,
+                // Bleibt 0, solange oben IndirectOnly steht: bei IndirectOnly
+                // gibt es im Lichtkarten-Backvorgang gar keinen direkten
+                // Anteil, den dieser Wert verdunkeln koennte. Er ist der
+                // richtige Hebel fuer Kontaktschatten - aber nur zusammen mit
+                // einem Backmodus, der direktes Licht kennt.
                 aoExponentDirect       = 0f,
                 lightmapCompression    = LightmapCompression.NormalQuality,
                 filteringMode          = LightingSettings.FilterMode.Auto,

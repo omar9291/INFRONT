@@ -150,14 +150,31 @@ namespace Infront.EditorTools
             // Kraeftig genug, dass man die Abdunklung sieht, aber ohne den
             // typischen dunklen Saum um jede Kante.
             var soFeature = new SerializedObject(ssao);
-            SetIfThere(soFeature, "m_Settings.Intensity", 0.85f);
-            SetIfThere(soFeature, "m_Settings.Radius", 0.32f);
+            SetIfThere(soFeature, "m_Settings.Intensity", 1f);
+            // 0,32 m war zu kurz, um als Kontaktschatten gelesen zu werden: eine
+            // Kiste ist 1 m breit, der Radius griff also nur einen Fingerbreit
+            // um die Kante herum. 0,55 m reicht unter die Kiste und an die
+            // Wandfuesse, ohne dass grosse Flaechen anfangen zu schmutzen.
+            // Der Radius kostet nichts extra - er verschiebt nur, WO die
+            // gleiche Anzahl Abtastungen hinschaut.
+            SetIfThere(soFeature, "m_Settings.Radius", 0.55f);
             SetIfThere(soFeature, "m_Settings.Falloff", 100f);
+            // Wie stark die Verdeckung auch auf direkt beleuchtete Flaechen
+            // wirkt. Stand vorher auf dem Unity-Standard 0,25 und wurde hier gar
+            // nicht gesetzt. Seit die Lichter auf Shadowmask backen, traegt das
+            // gebackene AO nur den statischen Teil - alles, was ein Mixed-Licht
+            // in Echtzeit direkt anleuchtet, bekommt seine Verdeckung von hier.
+            SetIfThere(soFeature, "m_Settings.DirectLightingStrength", 0.4f);
 
             // Gemessen auf dem M1: mit 8 Abtastungen fiel das 1-Prozent-Tief von
             // 57 auf 31 Bilder je Sekunde, bei unveraendert 60 im Schnitt - also
             // sichtbares Stottern. Mit 4 bleibt die Abdunklung erhalten und die
             // Kosten im Rahmen.
+            //
+            // Bleibt bei 4, auch nachdem die Kontaktschatten-Runde (2026-09-10)
+            // an dieser Stelle nach mehr Abtastungen gerufen hat. Die Messung
+            // oben steht, und das Bild wird ueber den groesseren Radius und das
+            // jetzt wirksame gebackene AO besser - nicht ueber mehr Abtastungen.
             SetIntIfThere(soFeature, "m_Settings.SampleCount", 4);
             // Quelle: Tiefe statt Tiefe+Normalen.
             //
